@@ -1,5 +1,7 @@
 
 export function desestruturacao() {
+  console.log("-----------------------Desestruturação");
+
   // Desestruturação de objetos
   const pessoa = {
     nome: 'Alexandre',
