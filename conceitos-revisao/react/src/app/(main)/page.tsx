@@ -1,27 +1,23 @@
 'use client';
 
-import { useState } from "react";
-import homeStyles from "./home.styles";
+import HomeMain from "./home/components/HomeMain/HomeMain";
+import HomeSide from "./home/components/HomeSide/HomeSide";
+import useHomeStates from "./home/home.states";
 
 export default function Home() {
-  const [counter, setCounter] = useState(0);
+  const states = useHomeStates();
 
   return (
-    <div className={homeStyles.container}>
-      <div className={homeStyles.counter}>{counter}</div>
-
-      <div className={homeStyles.buttonArea}>
-        <button className={homeStyles.increaseButton} onClick={() => setCounter(counter + 1)}>
-          Aumentar
-        </button>
-        <button className={homeStyles.resetButton} onClick={() => setCounter(0)}>
-          Resetar
-        </button>
-        <button className={homeStyles.decreaseButton} onClick={() => setCounter(counter - 1)}>
-          Diminuir
-        </button>
-      </div>
+    <div className={mainTailwindClass}>
+      <HomeSide homeStates={states} />
+      <HomeMain homeStates={states} />
     </div>
   );
 }
 
+const mainTailwindClass = `
+  flex
+  flex-row
+  bg-gray-100
+  h-full
+`;
