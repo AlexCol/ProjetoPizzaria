@@ -21,11 +21,11 @@ export const DarkModeContext = createContext<DarkModeContextType | undefined>(un
 //* E então passadas no value para serem usadas pelos componentes filhos
 //*************************************************************
 export function DarkModeProvider({ children }: { children: ReactNode }) {
-
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   //!não se estressar em colocar 'loading', ele é quase instantâneo, e para projetos
   //!com outros carregamentos, os loadings deles dão tempo desse processar
   //!por isso melhor usar telas de loading 'neutras', ou seja, que não dependem do darkMode
+
   const toggleDarkMode = () => {
     setIsDarkMode(prev => !prev)
     setDarkModePreference(!isDarkMode);

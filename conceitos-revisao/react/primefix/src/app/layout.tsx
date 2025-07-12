@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import App from "./App";
-import darkModeStyles from "./darkModeStyles";
 import { DarkModeProvider } from "@/contexts/darkMode/DarkModeContext";
 
 export const metadata: Metadata = {
@@ -34,6 +33,7 @@ const bodyTailwindClass = `
   flex
   flex-col 
   h-full
-  ${darkModeStyles.background}
-  ${darkModeStyles.texts}
+  bg-white dark:bg-gray-900 
+  text-gray-900 dark:text-white
+  transition-colors duration-300
 `;
