@@ -5,14 +5,13 @@ import { DarkModeProvider } from '@/contexts/darkMode/DarkModeContext';
 import React, { ReactNode } from 'react'
 
 function App({ children, }: Readonly<{ children: ReactNode }>) {
-  console.log("App");
   return (
-    <DarkModeProvider>
+    <>
       {/*aqui pode ser adicionado navBar para ser comum a tudo (mesmo a pagina de não encontrado)*/}
       <Header />
       <Main>{children}</Main>
       <Footer />
-    </DarkModeProvider>
+    </>
   )
 }
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import App from "./App";
 import darkModeStyles from "./darkModeStyles";
+import { DarkModeProvider } from "@/contexts/darkMode/DarkModeContext";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -9,13 +10,14 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  console.log("RootLayout");
   return (
     <html lang="pt-BR" className={htmlTailwindClass}>
       <body className={bodyTailwindClass}>
-        <App>
-          {children} {/*posteriormente encapsular children com a provider do contexto do usuario*/}
-        </App>
+        <DarkModeProvider>
+          <App>
+            {children} {/*posteriormente encapsular children com a provider do contexto do usuario*/}
+          </App>
+        </DarkModeProvider>
       </body>
     </html>
   );
@@ -25,11 +27,11 @@ const htmlTailwindClass = `
   flex 
   flex-col 
   h-full
-  
 `;
 
 const bodyTailwindClass = `
-  flex 
+  dark
+  flex
   flex-col 
   h-full
   ${darkModeStyles.background}
