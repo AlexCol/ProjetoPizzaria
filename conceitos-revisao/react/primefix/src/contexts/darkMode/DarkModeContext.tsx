@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { createContext, ReactNode, use, useContext, useEffect, useState } from "react";
 
 //*************************************************************
 //* Tipagens para o contexto
@@ -21,22 +21,21 @@ export const DarkModeContext = createContext<DarkModeContextType | undefined>(un
 //* E então passadas no value para serem usadas pelos componentes filhos
 //*************************************************************
 export function DarkModeProvider({ children }: { children: ReactNode }) {
+
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const toggleDarkMode = () => setIsDarkMode(prev => !prev);
 
   useEffect(() => {
-    // Sincroniza classe no body ao montar e quando isDarkMode muda
-    if (isDarkMode) {
-      document.body.classList.add('dark');
-      document.body.classList.remove('light');
-    } else {
-      document.body.classList.add('light');
-      document.body.classList.remove('dark');
-    }
+    const preference = getDarkModePreference();
+    setIsDarkMode(preference);
+  }, []);
+
+  useEffect(() => {
+    setDarkMode(isDarkMode);
+    setDarkModePreference(isDarkMode);
   }, [isDarkMode]);
 
   const providerValue: DarkModeContextType = { isDarkMode, toggleDarkMode };
-
   return (
     <DarkModeContext.Provider value={providerValue}>
       {children}
@@ -55,4 +54,36 @@ export function useDarkModeValue() {
     throw new Error("useDarkModeValue must be used within a DarkModeProvider");
   }
   return context;
+}
+
+//*************************************************************
+//* Metodos auxiliares para o Dark Mode, para não deixar
+//* eles deom export e visiveis para outros componentes
+//*************************************************************
+function setDarkMode(isDarkMode: boolean) {
+  if (isDarkMode) {
+    document.body.classList.add('dark');
+    document.body.classList.remove('light');
+  } else {
+    document.body.classList.add('light');
+    document.body.classList.remove('dark');
+  }
+}
+
+function getDarkModePreference(): boolean {
+  // Verifica se o localStorage tem a preferência do usuário
+  const storedPreference = localStorage.getItem('darkMode');
+  if (storedPreference) {
+    return JSON.parse(storedPreference);
+  }
+
+  // Verifica se o usuário prefere o modo escuro
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  // Retorna a preferência do usuário
+  return prefersDark;
+}
+
+function setDarkModePreference(isDarkMode: boolean) {
+  // Salva a preferência do usuário no localStorage
+  localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
 }
