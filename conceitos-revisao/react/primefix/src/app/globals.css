@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+@theme {
+}
+
+@variant dark (&:where(.dark, .dark *));
+@variant light (&:where(.light, .light *));
+
