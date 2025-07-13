@@ -1,16 +1,45 @@
-import { useDarkModeValue } from '@/contexts/darkMode/DarkModeContext';
-import Link from 'next/link';
-import React from 'react'
+'use client';
 
-async function Home() {
-  //await new Promise(resolve => setTimeout(resolve, 1000)); // Simulating data fetching delay
+import Link from 'next/link';
+import React, { use } from 'react'
+import useHomeStates from './home.states';
+import { homeStyles } from './home.styles';
+import { baseImageUrl } from '@/util/constants';
+import { Loading } from '@/components/loading/Loading';
+
+function Home() {
+  //const filmes = use(fetchFilmes());
+  const { filmes, loading } = useHomeStates();
+
+  if (loading) {
+    return <Loading />; // Exibe o componente de loading enquanto os filmes estão sendo carregados
+  }
+
   return (
-    <div>
-      <h1 className="text-2xl font-bold">Home Page</h1>
-      <p>Welcome to the home page!</p>
-      <Link href="/filme/1" className="text-blue-500 hover:underline">
-        Go to Filme Page
-      </Link>
+    <div className={homeStyles.container}>
+      <div className={homeStyles.listaFilmes}>
+        {filmes.map((filme) => (
+          <article className={homeStyles.aticle} key={filme.id}>
+
+            <strong
+              className={homeStyles.filmeTitulo}
+              title={`${filme.title}`}
+            >
+              {filme.title}
+            </strong>
+
+            <img
+              className={homeStyles.filmeImagem}
+              src={`${baseImageUrl}${filme.poster_path}`} alt={filme.title}
+            />
+
+            <Link className={homeStyles.filmeLink} href={`/filme/${filme.id}`}
+            >
+              Detalhes
+            </Link>
+          </article>
+        ))}
+      </div>
     </div>
   )
 }

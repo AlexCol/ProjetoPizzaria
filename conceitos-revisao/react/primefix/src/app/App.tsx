@@ -4,7 +4,9 @@ import Header from '@/components/layout/Header/Header';
 import Main from '@/components/layout/Main/Main';
 import { Loading } from '@/components/loading/Loading';
 import { useDarkModeValue } from '@/contexts/darkMode/DarkModeContext';
+import { store } from '@/redux/store';
 import React, { ReactNode, useEffect, useState } from 'react'
+import { Provider } from 'react-redux';
 
 function App({ children, }: Readonly<{ children: ReactNode }>) {
   const [isLoading, setIsLoading] = useState(true);
@@ -19,12 +21,12 @@ function App({ children, }: Readonly<{ children: ReactNode }>) {
   }
 
   return (
-    <>
+    <Provider store={store}>
       {/*aqui pode ser adicionado navBar para ser comum a tudo (mesmo a pagina de não encontrado)*/}
       <Header />
       <Main>{children}</Main>
       <Footer />
-    </>
+    </Provider>
   )
 }
 

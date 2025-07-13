@@ -1,4 +1,3 @@
-import darkModeStyles from '@/app/darkModeStyles';
 import React from 'react'
 
 function Main({ children }: { children: React.ReactNode }) {
@@ -13,4 +12,5 @@ export default Main
 
 const mainTailwindClass = `
   h-full
+  overflow-y-auto
 `;
