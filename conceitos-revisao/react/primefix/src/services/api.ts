@@ -2,7 +2,6 @@ import axios, { AxiosError, AxiosRequestConfig } from "axios";
 
 const baseUrl = "https://api.themoviedb.org/3/";
 const apiKey = process.env.NEXT_PUBLIC_API_JWT;
-console.log('API Key:', apiKey);
 
 const core = axios.create({
   baseURL: baseUrl,

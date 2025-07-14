@@ -12,12 +12,12 @@ function App({ children, }: Readonly<{ children: ReactNode }>) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1000); // 1000ms delay
+    const timer = setTimeout(() => setIsLoading(false), 250); // 1000ms delay
     return () => clearTimeout(timer); // Cleanup the timer on unmount
   }, []);
 
   if (isLoading) {
-    return <Loading />;
+    return null;//<Loading />;
   }
 
   return (

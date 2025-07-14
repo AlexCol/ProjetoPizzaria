@@ -41,6 +41,7 @@ export const fetchPopularMovies = createAsyncThunk<MovieApiResponse, number, { r
   'movies/popular', // nome da ação, pode ser qualquer string, só não pode ser repetida entre Thunks
   async (page, { rejectWithValue }) => { //não precisa tipar params, pois foi tipado na definição do thunk
     console.log('🔄 Executando fetchPopularMovies com page:', page);
+    //await new Promise(res => setTimeout(res, 2000));
     try {
       const response = await api.get<MovieApiResponse>('/movie/popular', { page });
       return response;
@@ -69,6 +70,7 @@ const moviesSlice = createSlice({
   extraReducers: (builder) => { //melhor usados para ações assíncronas, como o loginUsers
     builder
       .addCase(fetchPopularMovies.pending, (state) => {
+        console.log('🔄 fetchPopularMovies pendente');
         state.loading = true
         state.error = false
         state.success = false
