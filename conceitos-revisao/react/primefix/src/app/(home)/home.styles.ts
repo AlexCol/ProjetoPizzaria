@@ -16,6 +16,9 @@ const listaFilmesTailwindClass = `
 const aticleTailwindClass = `
   w-full
   truncate
+  transition
+  duration-300
+  hover:scale-105
 `
 
 const filmeTituloTailwindClass = `
@@ -32,6 +35,7 @@ const filmeImagemTailwindClass = `
   h-auto
   rounded-tl-xl
   rounded-tr-xl
+
 `;
 
 const filmeLinkTailwindClass = `

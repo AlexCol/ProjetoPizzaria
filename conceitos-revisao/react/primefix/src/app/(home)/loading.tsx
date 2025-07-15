@@ -1,7 +1,7 @@
 import React from 'react'
 
 /*
-pra isso ser usado automaticamente pelo Next, a page.tsx do mesmo nivel da loading.tsx precisa ser async 
+pra isso ser usado automaticamente pelo Next, a page.tsx do mesmo nivel da loading.tsx precisa ser async
 e ter uma chamada com await, assim Loading.tsx será automaticamente usada enquanto a page.tsx estiver carregando.
 o componente page.tsx PRECISA SER SERVER SIDE, ou seja, não pode ser 'use client';
 
