@@ -22,6 +22,8 @@ export default function useHomeStates() {
 
   return {
     filmes: moviesData?.results || [],
+    totalPages: moviesData?.total_pages || 0,
+    currentPage: moviesData?.page || 1,
     loading,
     error,
     fetchFilmes

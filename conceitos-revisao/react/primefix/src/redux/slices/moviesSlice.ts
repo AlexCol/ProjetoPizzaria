@@ -57,7 +57,7 @@ export const fetchPopularMovies = createAsyncThunk<MovieApiResponse, number, { r
 export const fetchMovieDetails = createAsyncThunk<MovieDetails, string, { rejectValue: string }>(
   'movies/details', // nome da ação, pode ser qualquer string, só não pode ser repetida entre Thunks
   async (movieId, { rejectWithValue }) => { //não precisa tipar params, pois foi tipado na definição do thunk
-    await new Promise(res => setTimeout(res, 2000));
+    //await new Promise(res => setTimeout(res, 2000));
     try {
       const response = await api.get<MovieDetails>(`/movie/${movieId}`);
       return response;

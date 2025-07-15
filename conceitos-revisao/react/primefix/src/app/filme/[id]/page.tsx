@@ -3,20 +3,37 @@
 import { useParams } from 'next/navigation';
 import React from 'react'
 import useFilmesStates from './filmes.states';
+import { filmesStyles } from './filmes.styles';
+import { baseImageUrl } from '@/util/constants';
 
 function Filme() {
-  const states = useFilmesStates();
+  const { movieDetails, loading, error } = useFilmesStates();
 
-  if (states.loading) {
-    return <div className="h-full flex justify-center items-center">Carregando...</div>;
+  if (loading) {
+    return <div className={filmesStyles.filmeInfo}>Carregando...</div>;
   }
 
-  if (states.movieDetails)
+  if (movieDetails)
     return (
-      <div>
-        <h1 className="text-2xl font-bold">Filme Page {states.id}</h1>
-        <p>Details about the movie will go here.</p>
-        <p>{states.movieDetails?.original_title}</p>
+      <div className={filmesStyles.filmeInfo}>
+        <h1 className={filmesStyles.title}>{movieDetails.title}</h1>
+        <img
+          className={filmesStyles.img}
+          src={`${baseImageUrl}${movieDetails.backdrop_path}`}
+          alt={movieDetails.title}
+        />
+
+        <h3 className={filmesStyles.overviewTitle}>Sinopse:</h3>
+        <span className={filmesStyles.overview}>{movieDetails.overview}</span>
+        <strong className={filmesStyles.rating}>Avaliação: {movieDetails.vote_average.toFixed(2)} / 10</strong>
+
+        <div className={filmesStyles.buttonsArea}>
+          <button className={filmesStyles.buttonSalvar}>Salvar</button>
+          <button className={filmesStyles.buttonTrailer}>
+            <a href="#">Trailer</a>
+          </button>
+        </div>
+
       </div>
     )
 }
