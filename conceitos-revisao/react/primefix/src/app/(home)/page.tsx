@@ -5,6 +5,7 @@ import useHomeStates from './home.states';
 import { Loading } from '@/components/loading/Loading';
 import PageComands from './components/PageComands/PageComands';
 import PageContent from './components/PageContent/PageContent';
+import { homeStyles } from './home.styles';
 
 function Home() {
   const { filmes, loading, currentPage, totalPages, fetchFilmes } = useHomeStates();
@@ -15,11 +16,14 @@ function Home() {
 
   if (filmes)
     return (
-      <>
-        <PageContent filmes={filmes} />
+      <div className={homeStyles.container}>
+        <div className={homeStyles.content}>
+          <PageContent filmes={filmes} />
+        </div>
         <PageComands fetchFilmes={fetchFilmes} currentPage={currentPage} totalPages={totalPages} />
-      </>
+      </div>
     )
 }
 
 export default Home;
+
