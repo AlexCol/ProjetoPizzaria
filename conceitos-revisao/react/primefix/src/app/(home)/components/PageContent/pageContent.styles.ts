@@ -9,7 +9,7 @@ const listaFilmesTailwindClass = `
   grid-cols-1 
   sm:grid-cols-2 
   md:grid-cols-4 
-  lg:grid-cols-6 
+  lg:grid-cols-5 
   gap-4
 `;
 
@@ -53,7 +53,7 @@ const filmeLinkTailwindClass = `
   transition-colors duration-300
 `;
 
-export const homeStyles = {
+export const pageContentStyles = {
   container: containerTailwindClass,
   listaFilmes: listaFilmesTailwindClass,
   aticle: aticleTailwindClass,

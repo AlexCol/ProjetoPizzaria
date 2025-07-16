@@ -22,7 +22,7 @@ export default function useHomeStates() {
 
   return {
     filmes: moviesData?.results || [],
-    totalPages: moviesData?.total_pages || 0,
+    totalPages: 500, //moviesData?.total_pages || 0, //motivo de não usar o total de paginas, abaixo
     currentPage: moviesData?.page || 1,
     loading,
     error,
@@ -31,3 +31,7 @@ export default function useHomeStates() {
 }
 
 export type HomeStates = ReturnType<typeof useHomeStates>;
+
+//themoviedb só posso buscar até a pagina 500
+//Invalid page: Pages start at 1 and max at 500. They are expected to be an integer.
+//https://www.themoviedb.org/talk/54e9c6109251412eb1003cc0
