@@ -2,13 +2,14 @@
 
 import { fetchPopularMovies, reset } from "@/redux/slices/moviesSlice";
 import { AppDispatch, RootState } from "@/redux/store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 
 export default function useHomeStates() {
   const dispatch = useDispatch<AppDispatch>();
   const { moviesData, loading, error } = useSelector((state: RootState) => state.movies);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchFilmes = async (page: number) => dispatch(fetchPopularMovies(page));
   const cleanUp = () => dispatch(reset());
@@ -20,10 +21,16 @@ export default function useHomeStates() {
     };
   }, []);
 
+  useEffect(() => {
+    if (moviesData) {
+      setCurrentPage(moviesData.page);
+    }
+  }, [moviesData]);
+
   return {
     filmes: moviesData?.results || [],
     totalPages: 500, //moviesData?.total_pages || 0, //motivo de não usar o total de paginas, abaixo
-    currentPage: moviesData?.page || 1,
+    currentPage,
     loading,
     error,
     fetchFilmes

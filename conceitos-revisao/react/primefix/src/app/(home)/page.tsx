@@ -10,15 +10,19 @@ import { homeStyles } from './home.styles';
 function Home() {
   const { filmes, loading, currentPage, totalPages, fetchFilmes } = useHomeStates();
 
-  if (loading) {
-    return <Loading />;
-  }
+  // if (loading) {
+  //   return <Loading />;
+  // }
 
   if (filmes)
     return (
       <div className={homeStyles.container}>
         <div className={homeStyles.content}>
-          <PageContent filmes={filmes} />
+          {loading ? (
+            <Loading />
+          ) : (
+            <PageContent filmes={filmes} />
+          )}
         </div>
         <PageComands fetchFilmes={fetchFilmes} currentPage={currentPage} totalPages={totalPages} />
       </div>

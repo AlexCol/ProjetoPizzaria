@@ -5,9 +5,12 @@ import React from 'react'
 import useFilmesStates from './filmes.states';
 import { filmesStyles } from './filmes.styles';
 import { baseImageUrl } from '@/util/constants';
+import saveMovie from '@/services/saveMovie';
+import Link from 'next/link';
 
 function Filme() {
-  const { movieDetails, loading, error } = useFilmesStates();
+  const { movieDetails, loading } = useFilmesStates();
+  const handleSave = () => saveMovie(movieDetails);
 
   if (loading) {
     return <div className={filmesStyles.filmeInfo}>Carregando...</div>;
@@ -28,12 +31,17 @@ function Filme() {
         <strong className={filmesStyles.rating}>Avaliação: {movieDetails.vote_average.toFixed(2)} / 10</strong>
 
         <div className={filmesStyles.buttonsArea}>
-          <button className={filmesStyles.buttonSalvar}>Salvar</button>
-          <button className={filmesStyles.buttonTrailer}>
-            <a href="#">Trailer</a>
-          </button>
-        </div>
+          <button className={filmesStyles.buttonSalvar} onClick={handleSave}>Salvar</button>
 
+          <Link
+            className={filmesStyles.buttonTrailer}
+            href={`https://www.youtube.com/results?search_query=${movieDetails.title} trailer`}
+            target="_blank" // Abre em nova aba
+            rel="external"
+          >
+            Trailer
+          </Link>
+        </div>
       </div>
     )
 }
