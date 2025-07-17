@@ -1,10 +1,24 @@
+'use client';
+import FuzzyText from "@/components/fuzzyText/FuzzyText";
+import { useDarkModeValue } from "@/contexts/darkMode/DarkModeContext";
 import Link from "next/link";
 
 export default function NotFound() {
+  const { isDarkMode } = useDarkModeValue();
   return ( //pagina de layout não se aplica ao arquivo de NotFound
     <div className={styles.notFound}>
-      <h1 className={styles.title}>404</h1>
-      <h2 className={styles.subtitle}>Página não encontrada!</h2>
+      <FuzzyText baseIntensity={0.2} hoverIntensity={0.5} enableHover={true} fontWeight="bold" color={isDarkMode ? "#fff" : "#000"}>
+        404
+      </FuzzyText>
+
+      <div className="py-4"></div>
+
+      <FuzzyText baseIntensity={0.2} hoverIntensity={0.5} enableHover={true} fontSize={40} fontWeight="bold" color={isDarkMode ? "#fff" : "#000"}>
+        Página não encontrada!
+      </FuzzyText>
+
+      <div className="py-4"></div>
+
       <Link href="/" className={styles.link}> Voltar para a página inicial</Link>
     </div>
   );
