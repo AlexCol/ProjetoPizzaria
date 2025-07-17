@@ -1,22 +1,29 @@
 import { MovieDetails } from "@/model/MovieDetails";
 
-export default async function saveMovie(movieDetails: MovieDetails | null) {
-  if (!movieDetails) return;
+export function saveMovie(id: number, title: string): boolean {
 
   const minhaLista = localStorage.getItem('@primeFix');
   const filmesSalvos: FavMovies = minhaLista ? JSON.parse(minhaLista) : [];
-  const filmeExistente = filmesSalvos.find(filme => filme.id === movieDetails.id);
+  const filmeExistente = filmesSalvos.find(filme => filme.id === id);
 
   if (filmeExistente) {
-    alert('Filme já está salvo na sua lista!');
-    return;
+    return false;
   }
 
-  const novoFilme: FavMovie = {
-    id: movieDetails.id,
-    title: movieDetails.title,
-  };
+  const novoFilme: FavMovie = { id, title };
   filmesSalvos.push(novoFilme);
   localStorage.setItem('@primeFix', JSON.stringify(filmesSalvos));
-  alert('Filme salvo na sua lista!');
+  return true;
+}
+
+export function removeMovie(movieId: number) {
+  const minhaLista = getSavedMovies();
+  const filmesSalvos: FavMovies = minhaLista.filter(filme => filme.id !== movieId);
+  localStorage.setItem('@primeFix', JSON.stringify(filmesSalvos));
+  //alert('Filme removido da sua lista!');
+}
+
+export function getSavedMovies(): FavMovie[] {
+  const minhaLista = localStorage.getItem('@primeFix');
+  return minhaLista ? JSON.parse(minhaLista) : [];
 }

@@ -1,16 +1,13 @@
 'use client';
 
-import { useParams } from 'next/navigation';
 import React from 'react'
 import useFilmesStates from './filmes.states';
 import { filmesStyles } from './filmes.styles';
 import { baseImageUrl } from '@/util/constants';
-import saveMovie from '@/services/saveMovie';
 import Link from 'next/link';
 
 function Filme() {
-  const { movieDetails, loading } = useFilmesStates();
-  const handleSave = () => saveMovie(movieDetails);
+  const { movieDetails, loading, handleSave } = useFilmesStates();
 
   if (loading) {
     return <div className={filmesStyles.filmeInfo}>Carregando...</div>;
@@ -19,6 +16,7 @@ function Filme() {
   if (movieDetails)
     return (
       <div className={filmesStyles.filmeInfo}>
+        {/* viraria um componente - mas não fiz pra terminar logo */}
         <h1 className={filmesStyles.title}>{movieDetails.title}</h1>
         <img
           className={filmesStyles.img}
@@ -30,6 +28,7 @@ function Filme() {
         <span className={filmesStyles.overview}>{movieDetails.overview}</span>
         <strong className={filmesStyles.rating}>Avaliação: {movieDetails.vote_average.toFixed(2)} / 10</strong>
 
+        {/* viraria um componente - mas não fiz pra terminar logo */}
         <div className={filmesStyles.buttonsArea}>
           <button className={filmesStyles.buttonSalvar} onClick={handleSave}>Salvar</button>
 

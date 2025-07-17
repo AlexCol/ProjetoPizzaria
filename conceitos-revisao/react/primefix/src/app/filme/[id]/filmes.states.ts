@@ -1,5 +1,6 @@
 import { fetchMovieDetails, reset } from "@/redux/slices/moviesSlice";
 import { AppDispatch, RootState } from "@/redux/store";
+import { saveMovie } from "@/services/saveMovie";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -26,10 +27,21 @@ export default function useFilmesStates() {
     if (error) {
       router.push('/not-found'); // Redireciona para a página de não encontrado em caso de erro
     }
-  }, [error])
+  }, [error]);
+
+  const handleSave = () => {
+    if (!movieDetails) return;
+    const salvo = saveMovie(movieDetails.id, movieDetails.title);
+    if (salvo) {
+      alert('Filme salvo na sua lista!');
+    } else {
+      alert('Filme já está salvo na sua lista!');
+    }
+  };
 
   return {
     movieDetails, loading, error, message,
     id,
+    handleSave
   };
 }

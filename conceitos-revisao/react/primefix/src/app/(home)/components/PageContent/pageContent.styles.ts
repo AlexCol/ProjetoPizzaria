@@ -19,6 +19,8 @@ const aticleTailwindClass = `
   transition
   duration-300
   hover:scale-105
+  select-none
+  cursor-pointer  
 `
 
 const filmeTituloTailwindClass = `
@@ -35,7 +37,6 @@ const filmeImagemTailwindClass = `
   h-auto
   rounded-tl-xl
   rounded-tr-xl
-
 `;
 
 const filmeLinkTailwindClass = `
@@ -53,6 +54,27 @@ const filmeLinkTailwindClass = `
   transition-colors duration-300
 `;
 
+const baseStarTailwindClass = `
+  absolute 
+  top-1 
+  right-1 
+  z-10
+  transition-all
+  duration-300
+`;
+
+const starFavoredTailwindClass = `
+  ${baseStarTailwindClass}
+  text-yellow-400 
+  opacity-100
+`;
+
+const starNotFavoredTailwindClass = `
+  ${baseStarTailwindClass}
+  text-gray-400 
+  opacity-100
+`;
+
 export const pageContentStyles = {
   container: containerTailwindClass,
   listaFilmes: listaFilmesTailwindClass,
@@ -60,8 +82,6 @@ export const pageContentStyles = {
   filmeTitulo: filmeTituloTailwindClass,
   filmeImagem: filmeImagemTailwindClass,
   filmeLink: filmeLinkTailwindClass,
+  starFavored: starFavoredTailwindClass,
+  starNotFavored: starNotFavoredTailwindClass,
 };
-
-/*
-
-*/
