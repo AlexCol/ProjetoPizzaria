@@ -61,6 +61,8 @@ const baseStarTailwindClass = `
   z-10
   transition-all
   duration-300
+  md:text-3xl
+  text-4xl
 `;
 
 const starFavoredTailwindClass = `

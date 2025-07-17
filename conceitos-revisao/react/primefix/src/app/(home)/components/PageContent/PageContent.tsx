@@ -15,12 +15,11 @@ function PageContent({ filmes }: PageContentProps) {
   const [clickedMovie, setClickedMovie] = useState<boolean>(false);
   const filmesSalvos = useMemo(() => getSavedMovies(), [clickedMovie]);
 
-  const handleFavoredClick = (movieId: number, movieTitle: string) => {
-    const isFavored = filmesSalvos.some(filme => filme.id === movieId);
+  const handleFavoredClick = (filme: Movie, isFavored: boolean) => {
     if (isFavored) {
-      removeMovie(movieId);
+      removeMovie(filme.id);
     } else {
-      saveMovie(movieId, movieTitle);
+      saveMovie(filme.id, filme.title);
     }
     setClickedMovie(!clickedMovie);
   };
@@ -47,7 +46,7 @@ function PageContent({ filmes }: PageContentProps) {
                 />
                 <FaStar
                   className={starClass}
-                  onClick={() => handleFavoredClick(filme.id, filme.title)}
+                  onClick={() => handleFavoredClick(filme, isFavored)}
                 />
               </div>
 

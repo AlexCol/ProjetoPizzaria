@@ -4,7 +4,7 @@ export function saveMovie(id: number, title: string): boolean {
 
   const minhaLista = localStorage.getItem('@primeFix');
   const filmesSalvos: FavMovies = minhaLista ? JSON.parse(minhaLista) : [];
-  const filmeExistente = filmesSalvos.find(filme => filme.id === id);
+  const filmeExistente = filmesSalvos.some(filme => filme.id === id);
 
   if (filmeExistente) {
     return false;
