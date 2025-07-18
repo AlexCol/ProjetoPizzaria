@@ -5,9 +5,11 @@ import useFilmesStates from './filmes.states';
 import { filmesStyles } from './filmes.styles';
 import { baseImageUrl } from '@/util/constants';
 import Link from 'next/link';
+import { Modal } from '@/components/ModalBase/Modal';
+import ConfirmModal from './components/ConfirmModal/ConfirmModal';
 
 function Filme() {
-  const { movieDetails, loading, handleSave } = useFilmesStates();
+  const { movieDetails, loading, handleSave, isModalOpen, handleModalClose, mensagem } = useFilmesStates();
 
   if (loading) {
     return <div className={filmesStyles.filmeInfo}>Carregando...</div>;
@@ -41,6 +43,17 @@ function Filme() {
             Trailer
           </Link>
         </div>
+
+        <Modal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full"
+        >
+          <ConfirmModal
+            handleClose={handleModalClose}
+            mensagem={mensagem}
+          />
+        </Modal>
       </div>
     )
 }
