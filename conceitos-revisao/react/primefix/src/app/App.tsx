@@ -2,8 +2,6 @@
 import Footer from '@/components/layout/Footer/Footer';
 import Header from '@/components/layout/Header/Header';
 import Main from '@/components/layout/Main/Main';
-import { Loading } from '@/components/loading/Loading';
-import { useDarkModeValue } from '@/contexts/darkMode/DarkModeContext';
 import { store } from '@/redux/store';
 import React, { ReactNode, useEffect, useState } from 'react'
 import { Provider } from 'react-redux';
