@@ -19,7 +19,7 @@ function ModalPage() {
       </button>
 
       <Modal isOpen={isOpen} onClose={handleClose} className={innerTailwindClass}>
-        <MyInnerModalExemple isDarkMode={isDarkMode} handleClose={handleClose} />
+        <MyInnerModalExemple handleClose={handleClose} />
       </Modal>
     </div>
   )
@@ -36,7 +36,8 @@ const innerTailwindClass = `
   w-1/2
 `;
 
-function MyInnerModalExemple({ isDarkMode, handleClose }: { isDarkMode: boolean, handleClose: () => void }) {
+function MyInnerModalExemple({ handleClose }: { handleClose: () => void }) {
+  const { isDarkMode } = useDarkModeValue();
   return (
     <>
       <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-black'}`}>
