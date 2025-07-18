@@ -1,21 +1,11 @@
 'use client';
-import React, { use, useEffect } from 'react'
-import favoritosStyles from './favorito.styles'
-import { getSavedMovies, removeMovie } from '@/services/saveMovie';
+import React from 'react'
+import favoritosStyles from './favoritos.styles'
 import FavMovieItemList from './components/FavMovieItemList/FavMovieItemList';
+import useFavoritosStates from './favoritos.states';
 
 function Favoritos() {
-  const [favMovies, setFavMovies] = React.useState<FavMovies>([]);
-
-  useEffect(() => {
-    const savedMovies = getSavedMovies();
-    setFavMovies(savedMovies);
-  }, []);
-
-  const handleRemove = (id: number) => {
-    removeMovie(id);
-    setFavMovies(prevMovies => prevMovies.filter(movie => movie.id !== id));
-  };
+  const { favMovies, handleRemove } = useFavoritosStates();
 
   return (
     <div className={favoritosStyles.container}>

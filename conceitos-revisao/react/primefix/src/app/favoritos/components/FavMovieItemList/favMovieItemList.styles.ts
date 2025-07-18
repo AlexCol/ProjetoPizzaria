@@ -19,26 +19,41 @@ const actionsTailwindClass = `
 `;
 const detailsLinkTailwindClass = `
   cursor-pointer
-  p-1
-  rounded
-  bg-purple-200
-  dark:bg-purple-800
-  text-purple-700
-  dark:text-purple-300
-  hover:bg-purple-300
-  dark:hover:bg-purple-600
-  transition-colors
+  px-3
+  py-1.5
+  rounded-full
+  bg-gradient-to-r
+  from-purple-400
+  to-purple-600
+  dark:from-purple-800
+  dark:to-purple-900
+  text-white
+  font-semibold
+  shadow-md
+  hover:scale-105
+  hover:from-purple-500
+  hover:to-purple-700
+  dark:hover:from-purple-700
+  dark:hover:to-purple-800
+  transition-all
   duration-300
 `;
 const removeButtonTailwindClass = `
-  bg-red-500
-  hover:bg-white
+  px-3
+  py-1.5
+  rounded-full
+  bg-gradient-to-r
+  from-red-400
+  to-red-600
   text-white
-  hover:text-red-500
-  transition-colors
+  font-semibold
+  shadow-md
+  hover:scale-105
+  hover:from-red-500
+  hover:to-red-700
+  hover:text-white
+  transition-all
   duration-300
-  p-1
-  rounded
 `;
 export const favMovieItemListStyles = {
   item: itemTailwindClass,
