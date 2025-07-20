@@ -1,0 +1,5 @@
+//socket.io pro NestJs
+https://chatgpt.com/c/687aae40-15e0-8004-98f0-03f1a069c594
+
+//pro react poder usar socket.io ou signalr
+https://chatgpt.com/c/687adf4a-05d4-8004-ad0c-536723220b38

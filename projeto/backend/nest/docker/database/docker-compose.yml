@@ -1,0 +1,55 @@
+services:
+  database:
+    image: 'postgres:16.0-alpine3.18'
+    container_name: 'postgres-alpine_pizzaria'
+    restart: always
+    ports:
+      - "5432:5432" ## porta do host:porta do container
+    env_file:
+      - ../../.env
+
+#################################################################################################################################################################
+## os casos assumem que o arquivo está na raiz do projeto (para nivel diferente, buscar a baixo a obser 'infra')
+### nomeando o projeto
+## docker compose -p <nome do projeto> up -d
+
+### deixando o docket mesmo usar o nome do projeto (usar o nome da pasta raiz)
+## docker compose up -d
+
+## destruir o container (parar e remover - o nome deve ser usado também no down se tiver sido usado no up)
+## docker -p <nome do projeto> compose down
+## docker -p <nome do projeto> compose down -v (remove os volumes também)
+
+## caso não queria destruir e recriar, pode-se forçar
+## docker compose up -d --force-recreate
+
+## ler o processosos do docker
+## docker ps -a
+
+## logs do container (pegar o nome na coluna 'NAMES' do comando acima)
+## docker logs -f postgreAulaNest
+
+## infra (cuidar, pois se não informar o nome do projeto, ele vai usar 'infra' - o nome deve ser usado também no down se tiver sido usado no up)
+## docker compose -p pizzaria -f infra/docker-compose.yml up -d
+## docker compose -p pizzaria -f infra/docker-compose.yml down -v (remove os volumes também)
+## docker compose -p pizzaria -f infra/docker-compose.yml up -d --force-recreate
+
+##! dockerfile
+## A linha dockerfile: Dockerfile indica para o Docker Compose qual arquivo Dockerfile deve ser usado para construir 
+## a imagem do serviço (nestjs). Ou seja, ele diz que, ao fazer o build, deve usar as instruções contidas no arquivo 
+## chamado Dockerfile localizado no diretório especificado em context:.
+
+## Se não especificar essa linha, o padrão é procurar por um arquivo chamado Dockerfile no diretório do context. 
+## O context: padrão, se não especificado, é o diretório onde está o próprio arquivo docker-compose.yml
+## Use essa opção se o arquivo tiver outro nome ou estiver em outro local.
+
+## Se você rodar o comando sem o parâmetro -f (ou seja, apenas docker compose up -d), o 
+## Docker Compose vai usar o arquivo docker-compose.yml do diretório atual.
+
+## Exemplo (se não especificar o caminho do docker-compose e não usar -f infra/docker-compose.yml):
+## O diretório atual será a base para tudo.
+## O context: dentro do serviço define de onde o Docker Compose vai buscar os arquivos para o build da imagem 
+## (por exemplo, o Dockerfile e o código da aplicação).
+## Se o context: for ., ele usa o próprio diretório onde está o docker-compose.yml como contexto.
+## Resumindo: sem -f, tudo é relativo ao local do docker-compose.yml atual, e o context: navega a partir daí para 
+## encontrar o Dockerfile e os arquivos necessários.

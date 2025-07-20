@@ -1,0 +1,52 @@
+/*
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++ iniciando projeto
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*/
+//!Em computadores ainda sem Typescript instalado, pode-se instalar globalmente pra não ter q instalar em cada projeto.
+--mas a maquina q for executar o sistema, tem q ter tbm esses itens instalados pois eles não vão ficar no projeto
+//npm install typescript -g
+//npm install -g ts-node
+//npm install -g ts-node-dev
+
+//!para inciar e criar a package.json (-y para não precisar responder questões e ele criar padrão)
+//npm init -y 
+
+//!para criar o tsconfig.json e iniciar o 'typescript'
+//npx tsc --init
+
+//pra usar core modules do node com typescript
+npm i --save-dev @types/node
+
+//No arquivo package adicionar
+    "dev": "ts-node-dev --transpile-only --quiet src/index.ts"
+Executa então com 'npm run dev';
+obs: se colocar o comando como 'start', pode-se executar apenas 'npm start'
+
+///pra baixar as dependencias
+npm install
+
+//pagina da NPM (equivalente ao Nugget do C#)
+https://www.npmjs.com/
+
+//pra uso recorrente (descrições de cada um acima)
+npm init -y
+npx tsc --init
+npm i --save-dev @types/node
+
+"dev": "nodemon --exec ts-node-dev --files --transpile-only --quiet src/index.ts"
+    ou
+"dev": "ts-node-dev --transpile-only --quiet src/index.ts"
+
+--files:
+    Esta opção faz com que ts-node-dev observe as mudanças em todos os arquivos, não apenas nos arquivos .ts.
+--transpile-only:
+    Esta opção desativa a verificação de tipos (type-checking) do TypeScript, o que pode acelerar o processo de compilação, mas significa que erros de tipo não serão detectados durante a execução. A verificação de tipos ainda pode ser feita separadamente com o comando tsc (TypeScript Compiler).
+--quiet:
+    Esta opção reduz a quantidade de mensagens de log que ts-node-dev gera, tornando a saída mais limpa.
+
+ou (se quiser usar nodemon)
+"dev": "nodemon --exec ts-node-dev --files --transpile-only --quiet src/index.ts"
+
+
+"dev": "ts-node-dev --respawn --transpile-only --quiet src/index.ts"
