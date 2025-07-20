@@ -12,7 +12,9 @@
     "prod": "node dist/main",
     "database:up": "docker compose -p pizzaria -f docker/database/docker-compose.yml up -d",
     "database:down": "docker compose -p pizzaria -f docker/database/docker-compose.yml down -v",
-    "database:stop": "docker compose -p pizzaria -f docker/database/docker-compose.yml stop"
+    "database:stop": "docker compose -p pizzaria -f docker/database/docker-compose.yml stop",
+    "prisma": "prisma generate",
+    "migrate": "prisma migrate dev --name"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

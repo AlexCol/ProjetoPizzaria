@@ -61,8 +61,8 @@ npm i @nestjs/typeorm
 npm i typeorm
 
 //instalar Prisma
-npm install @prisma/client
 npm install prisma --save-dev
+npm install @prisma/client
 pm install @nestjs/prisma
 
 //instalar pacote para usar postgrees
