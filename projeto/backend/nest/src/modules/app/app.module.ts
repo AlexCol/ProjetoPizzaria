@@ -6,7 +6,7 @@ import { GlobalErrorFilter } from 'src/filters/globalError.filter';
 import { APP_FILTER } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigTypeOrm } from '../../config/database/type-orm/ConfigTypeOrm';
-import { DomainModule } from '../domain/models/domain.module';
+import { DomainModule } from '../domain/domain.module';
 
 @Module({
   imports: [
