@@ -6,11 +6,11 @@ export class CreateOrderDto {
   table: number;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   status: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   draft: boolean;
 
   @IsString()

@@ -1,5 +1,6 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { User } from "../../users/entities/user.entity";
+import { OrderItem } from "../../order-item/entities/order-item.entity";
 
 @Entity('orders')
 export class Order {
@@ -9,22 +10,28 @@ export class Order {
   @Column()
   table: number;
 
-  @Column()
+  @Column({ type: 'boolean', default: false })
   status: boolean;
 
-  @Column()
+  @Column({ type: 'boolean', default: true })
   draft: boolean;
 
   @Column({ length: 255, nullable: true })
   name?: string;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  @JoinColumn({ name: 'user_id' })
-  user: User;
+  @Column({ name: 'user_id' })
+  userId: number;
 
   @CreateDateColumn({ name: 'criado_em' })
   criadoEm: Date;
 
   @UpdateDateColumn({ name: 'atualizado_em' })
   atualizadoEm: Date;
+
+  @ManyToOne(() => User, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @OneToMany(() => OrderItem, orderItem => orderItem.order, { eager: true, cascade: true })
+  itens: OrderItem[];
 }

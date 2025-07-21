@@ -4,6 +4,7 @@ import { CategoryModule } from "./models/category/category.module";
 import { OrderItemModule } from "./models/order-item/order-item.module";
 import { OrderModule } from "./models/order/order.module";
 import { ProductModule } from "./models/product/product.module";
+import { UsersService } from "./models/users/users.service";
 
 @Module({
   imports: [
@@ -15,5 +16,8 @@ import { ProductModule } from "./models/product/product.module";
   ],
   controllers: [],
   providers: [],
+  exports: [
+    UsersService,
+  ]
 })
 export class DomainModule { }

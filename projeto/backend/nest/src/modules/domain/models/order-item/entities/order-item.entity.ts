@@ -10,11 +10,17 @@ export class OrderItem {
   @Column()
   amount: number;
 
-  @ManyToOne(() => Order, { eager: true })
+  @Column({ name: 'order_id' })
+  orderId: number;
+
+  @Column({ name: 'product_id' })
+  productId: number;
+
+  @ManyToOne(() => Order, { eager: false })
   @JoinColumn({ name: 'order_id', foreignKeyConstraintName: 'fk_order_item_order' })
   order: Order;
 
-  @ManyToOne(() => Product, { eager: true })
+  @ManyToOne(() => Product, { eager: false })
   @JoinColumn({ name: 'product_id', foreignKeyConstraintName: 'fk_order_item_product' })
   product: Product;
 }

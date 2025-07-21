@@ -18,13 +18,16 @@ export class Product {
   @Column({ nullable: true })
   banner: string;
 
-  @ManyToOne(() => Category)
-  @JoinColumn({ name: 'category_id', foreignKeyConstraintName: 'fk_product_category' })
-  category: Category;
+  @Column({ name: 'category_id' })
+  categoryId: number;
 
   @CreateDateColumn({ name: 'criado_em' })
   criadoEm: Date;
 
   @UpdateDateColumn({ name: 'atualizado_em' })
   atualizadoEm: Date;
+
+  @ManyToOne(() => Category, { eager: false, nullable: false })
+  @JoinColumn({ name: 'category_id', foreignKeyConstraintName: 'fk_product_category' })
+  category: Category;
 }
