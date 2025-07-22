@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { OrderItemService } from './order-item.service';
 import { CreateOrderItemDto } from './dto/create-order-item.dto';
 import { UpdateOrderItemDto } from './dto/update-order-item.dto';
+import { FastifyRequest } from 'fastify';
 
 @Controller('order-item')
 export class OrderItemController {
   constructor(private readonly orderItemService: OrderItemService) { }
 
   @Post()
-  async create(@Body() createOrderItemDto: CreateOrderItemDto) {
+  async create(
+    @Body() createOrderItemDto: CreateOrderItemDto
+  ) {
     return await this.orderItemService.create(createOrderItemDto);
   }
 

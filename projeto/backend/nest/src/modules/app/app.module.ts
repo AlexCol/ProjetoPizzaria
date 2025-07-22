@@ -7,6 +7,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigTypeOrm } from '../../config/database/type-orm/ConfigTypeOrm';
 import { DomainModule } from '../domain/domain.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { DomainModule } from '../domain/domain.module';
       useClass: ConfigTypeOrm,// Usa a classe ConfigTypeOrm para fornecer as configurações
     }),
     DomainModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [

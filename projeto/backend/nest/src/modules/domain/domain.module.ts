@@ -17,7 +17,7 @@ import { UsersService } from "./models/users/users.service";
   controllers: [],
   providers: [],
   exports: [
-    UsersService,
+    UsersModule, //exportando para que AuthModule possa usar o UsersService
   ]
 })
 export class DomainModule { }
