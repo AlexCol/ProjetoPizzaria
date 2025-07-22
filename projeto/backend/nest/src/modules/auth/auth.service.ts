@@ -40,7 +40,7 @@ export class AuthService {
   }
 
   private async createTokens(user: User) {
-    const payload = { id: user.id, email: user.email, permissions: user.permissions }; // Create a payload with the user's ID and email
+    const payload = { id: user.id, permissions: user.permissions }; // Create a payload with the user's ID and email
     const accessToken = await this.signJwtAsync(user.id, this.jwtConfiguration.expiresIn, payload);
     const refreshToken = await this.signJwtAsync(user.id, this.jwtConfiguration.jwtRefreshExpires);
     return {
