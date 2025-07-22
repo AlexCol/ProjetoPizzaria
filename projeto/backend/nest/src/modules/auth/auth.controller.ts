@@ -1,7 +1,17 @@
-import { Controller } from "@nestjs/common";
+import { Body, Controller, Post } from "@nestjs/common";
+import { IsPublic } from "src/common/decorators/isPublic";
+import { AuthService } from "./auth.service";
+import { LoginDto } from "./dto/login.dto";
 
 @Controller('auth')
 export class AuthController {
-  // This controller will handle authentication-related routes
-  // Methods for login, registration, etc. will be added here in the future
+  constructor(private readonly authService: AuthService) { }
+
+  @IsPublic()
+  @Post('login')
+  async login(
+    @Body() loginDto: LoginDto
+  ) {
+    return this.authService.login(loginDto);
+  }
 }

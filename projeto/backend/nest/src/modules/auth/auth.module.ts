@@ -9,6 +9,7 @@ import { DomainModule } from "../domain/domain.module";
 import { IHashingService } from "./hashing/hashing.service";
 import { BcryptService } from "./hashing/bcrypt.service";
 import { JwtModule } from "@nestjs/jwt";
+import { PermissionGuard } from "./guards/permission.guard";
 
 @Global()
 @Module({
@@ -21,8 +22,11 @@ import { JwtModule } from "@nestjs/jwt";
   providers: [
     AuthService,
     { provide: IHashingService, useClass: BcryptService }, // Providing the IHashingService interface with the BcryptService implementation
-    { provide: APP_GUARD, useClass: AuthTokenGuard }
+    { provide: APP_GUARD, useClass: AuthTokenGuard },
+    { provide: APP_GUARD, useClass: PermissionGuard },
   ],
-  exports: []
+  exports: [
+    IHashingService, // Exporting the IHashingService to be used in other modules
+  ]
 })
 export class AuthModule { }

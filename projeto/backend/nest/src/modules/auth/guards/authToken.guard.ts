@@ -30,9 +30,10 @@ export class AuthTokenGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync(token, this.jwtConfiguration);
 
-      const pessoa = await this.usersService.findOne(payload.id); // Busca a pessoa associada ao ID do payload do token
-      if (!pessoa) {
-        throw new UnauthorizedException('Usuário não encontrado!'); // Se a pessoa não existir ou estiver inativa, lança uma exceção
+      const user = await this.usersService.findOne(payload.id); // Busca a user associada ao ID do payload do token
+
+      if (!user || !user.ativo) {
+        throw new UnauthorizedException('Usuário não encontrado!'); // Se a user não existir ou estiver inativa, lança uma exceção
       }
 
       request[REQUEST_TOKEN_PAYLOAD_KEY] = payload; // Armazena o payload do token na requisição para uso posterior
@@ -44,15 +45,16 @@ export class AuthTokenGuard implements CanActivate {
   }
 
   extractTokenFromHeader(request: FastifyRequest): string | null {
-    const authotization = request.headers?.authorization;
-    if (!authotization) return null; // Se não houver cabeçalho de autorização, retorna null
-    if (typeof authotization !== 'string') return null; // Se o cabeçalho não for uma string, retorna null
+    const authorization = request.headers?.authorization;
+    if (!authorization) return null; // Se não houver cabeçalho de autorização, retorna null
+    if (typeof authorization !== 'string') return null; // Se o cabeçalho não for uma string, retorna null
 
-    const [type, token] = authotization.split(' '); // Divide o cabeçalho em tipo e token
+    const [type, token] = authorization.split(' '); // Divide o cabeçalho em tipo e token
     if (type !== 'Bearer') return null; // Se o tipo não for Bearer, retorna null
 
     if (!token) return null; // Se não houver token, retorna null
 
     return token; // Retorna o token extraído do cabeçalho
   }
+
 }
