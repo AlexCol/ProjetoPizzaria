@@ -30,6 +30,9 @@ export class AuthTokenGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync(token, this.jwtConfiguration);
 
+      if (!payload.email)
+        throw new UnauthorizedException('Token inválido.'); //probably was a RefreshToken
+
       const user = await this.usersService.findOne(payload.id); // Busca a user associada ao ID do payload do token
 
       if (!user || !user.ativo) {

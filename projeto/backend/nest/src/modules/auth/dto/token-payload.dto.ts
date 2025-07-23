@@ -2,6 +2,7 @@ import { Permission } from "src/common/enums/permissao.enum";
 
 export class TokenPayloadDto {
   id: number;
+  email: string;
   permissions: Permission[];
   iat: number;
   exp: number;

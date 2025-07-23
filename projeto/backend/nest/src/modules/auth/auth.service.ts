@@ -6,9 +6,7 @@ import jwtConfig from "./config/jwt.config";
 import { ConfigType } from "@nestjs/config";
 import { User } from "../domain/models/users/entities/user.entity";
 import { LoginDto } from "./dto/login.dto";
-import { UserResponseDto } from "../domain/models/users/dto/response-user.dto";
-import { Repository } from "typeorm";
-import { InjectRepository } from "@nestjs/typeorm";
+import { RefreshTokenDto } from "./dto/refresh-token.dto";
 
 @Injectable()
 export class AuthService {
@@ -21,7 +19,7 @@ export class AuthService {
     //console.log(this.jwtConfiguration);
   }
 
-  async login(loginDto: LoginDto): Promise<{}> {
+  async login(loginDto: LoginDto) {
     const usuario = await this.userService.findByEmail(loginDto.email); // Fetch the user by email
 
     if (!usuario || !usuario.ativo)
@@ -39,8 +37,25 @@ export class AuthService {
     };
   }
 
+  async refreshTokens(refreshTokenDto: RefreshTokenDto) {
+    try {
+      const { id } = await this.jwtService.verifyAsync(refreshTokenDto.refreshToken, this.jwtConfiguration); // Verify the refresh token and extract the user ID
+      const user = await this.userService.findOne(id); // Find the user by ID
+      if (!user || !user.ativo) {
+        this.authThrowError();
+      }
+      const tokens = await this.createTokens(user); // Create new JWT tokens for the user
+      return {
+        message: "Refresh token successful",
+        ...tokens,
+      };
+    } catch (error) {
+      throw new UnauthorizedException('Invalid refresh token'); // Throw an Unauthorized exception if the refresh token is invalid
+    }
+  }
+
   private async createTokens(user: User) {
-    const payload = { id: user.id, permissions: user.permissions }; // Create a payload with the user's ID and email
+    const payload = { id: user.id, email: user.email, permissions: user.permissions }; // Create a payload with the user's ID and email
     const accessToken = await this.signJwtAsync(user.id, this.jwtConfiguration.expiresIn, payload);
     const refreshToken = await this.signJwtAsync(user.id, this.jwtConfiguration.jwtRefreshExpires);
     return {
@@ -65,7 +80,6 @@ export class AuthService {
   }
 
   private authThrowError() {
-    //throw new NotFoundException(); // Throw a NotFoundException if the user is not found
     throw new UnauthorizedException('Invalid credentials');
   }
 
