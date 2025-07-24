@@ -6,6 +6,7 @@ import { FastifyAdapter } from '@nestjs/platform-fastify';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, new FastifyAdapter());
 
+  app.setGlobalPrefix('api'); // <-- adiciona 'api' como prefixo
   AppConfig.configure(app);
 
   await app.listen(process.env.PIZZARIA_PORT ?? 3300);

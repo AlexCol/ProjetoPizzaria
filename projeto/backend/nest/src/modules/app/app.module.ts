@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { GlobalErrorFilter } from 'src/filters/globalError.filter';
 import { APP_FILTER } from '@nestjs/core';
@@ -19,9 +17,8 @@ import { AuthModule } from '../auth/auth.module';
     DomainModule,
     AuthModule,
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [
-    AppService,
     { provide: APP_FILTER, useClass: GlobalErrorFilter },
   ],
 })
