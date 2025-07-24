@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, BadRequestException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { IsPublic } from 'src/common/decorators/isPublic';
@@ -21,10 +21,6 @@ export class UsersController {
   @Post()
   async create(@Body() data: CreateUserDto) {
     console.log('Creating a new user');
-
-    if (data.permissions.find(p => p === Permission.ADMIN))
-      throw new BadRequestException('Cannot create a user with ADMIN permission directly');
-
     return await this.usersService.create(data);
   }
 
@@ -32,7 +28,7 @@ export class UsersController {
   @NeedsPermission(Permission.ADMIN)
   async createAdmin(@Body() data: CreateUserDto) {
     console.log('Creating a new admin user');
-    return await this.usersService.create(data);
+    return await this.usersService.create(data, true);
   }
 
   @Patch(":id")
@@ -46,6 +42,9 @@ export class UsersController {
 
     if (updatedUserIsAdmin && !isUserAdmin)
       throw new BadRequestException('Only admins can assign ADMIN permission to users.');
+
+    if (id !== tokenPayload.id && !isUserAdmin)
+      throw new BadRequestException('You do not have permission to update this user.');
 
     return await this.usersService.update(id, data);
   }

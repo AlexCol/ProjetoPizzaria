@@ -6,8 +6,8 @@ import { Repository } from 'typeorm';
 import { IHashingService } from 'src/modules/auth/hashing/hashing.service';
 import { plainToInstance } from 'class-transformer';
 import { UserResponseDto } from './dto/response-user.dto';
-import { IsPublic } from 'src/common/decorators/isPublic';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Permission } from 'src/common/enums/permissao.enum';
 
 @Injectable()
 export class UsersService {
@@ -32,7 +32,10 @@ export class UsersService {
     return user;
   }
 
-  async create(data: CreateUserDto) {
+  async create(data: CreateUserDto, isAdmin: boolean = false) {
+    if (!isAdmin && data.permissions.find(p => p === Permission.ADMIN))
+      throw new BadRequestException('Cannot create a user with ADMIN permission directly');
+
     if (this.passwordDontMatch(data.password, data.confirmPassword))
       throw new BadRequestException('Passwords do not match');
 

@@ -15,6 +15,7 @@ import { AuthObfuscationFilter } from "./filters/authObfuscation.filter";
 @Global()
 @Module({
   imports: [
+    //ConfigModule.forRoot({ load: [jwtConfig] }), // Exemplo, caso fosse importado no App e desejasse ser global
     ConfigModule.forFeature(jwtConfig), // Importing the ConfigModule for JWT configuration
     JwtModule.registerAsync(jwtConfig.asProvider()), // Registering the JwtModule with the JWT configuration
     DomainModule
@@ -30,5 +31,6 @@ import { AuthObfuscationFilter } from "./filters/authObfuscation.filter";
   exports: [
     IHashingService, // Exporting the IHashingService to be used in other modules
   ]
+
 })
 export class AuthModule { }

@@ -25,23 +25,23 @@ export class AuthTokenGuard implements CanActivate {
       return true;
 
     if (!token)
-      throw new Error('Token não encontrado');
+      throw new Error('Token not found');
 
     try {
       const payload = await this.jwtService.verifyAsync(token, this.jwtConfiguration);
 
       if (!payload.email)
-        throw new UnauthorizedException('Token inválido.'); //probably was a RefreshToken
+        throw new UnauthorizedException('Invalid token.'); //probably was a RefreshToken
 
       const user = await this.usersService.findOne(payload.id); // Busca a user associada ao ID do payload do token
 
       if (!user || !user.ativo) {
-        throw new UnauthorizedException('Usuário não encontrado!'); // Se a user não existir ou estiver inativa, lança uma exceção
+        throw new UnauthorizedException('User not found!'); // Se a user não existir ou estiver inativa, lança uma exceção
       }
 
       request[REQUEST_TOKEN_PAYLOAD_KEY] = payload; // Armazena o payload do token na requisição para uso posterior
     } catch (error) {
-      throw new UnauthorizedException(`Token com problema. ${error.message}`);
+      throw new UnauthorizedException(`Token issue. ${error.message}`);
     }
 
     return true; // Se o token for válido, retorna true para permitir o acesso
