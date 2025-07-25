@@ -39,12 +39,12 @@
 ### Anatomia do hash bcrypt:
 
 ```
-$2b$10$N9qo8uLOickgx2ZMRZoMye.../IeVf.
-│ │ │ │                    │
-│ │ │ └─ Salt (22 chars)   └─ Hash real (31 chars)
-│ │ └─ Rounds (cost factor)
-│ └─ Minor version
-└─ Algorithm identifier
+$2b$10$N9qo8uLOickgx2ZMRZoMyeW0J3C9i3P5pWyd1EWRMKsj5hDdIQH9Wy
+│ │ │ │                    └─── Hash (31 chars)
+│ │ │ └────── Salt (22 chars)
+│ │ └──────── Cost (rounds): 10
+│ └────────── Minor version: b
+└──────────── Algorithm: 2
 ```
 
 ---
