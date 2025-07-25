@@ -3,9 +3,9 @@ import { ConfigModule } from '@nestjs/config';
 import { GlobalErrorFilter } from 'src/filters/globalError.filter';
 import { APP_FILTER } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigTypeOrm } from '../../config/database/type-orm/ConfigTypeOrm';
-import { DomainModule } from '../domain/domain.module';
-import { AuthModule } from '../auth/auth.module';
+import { ConfigTypeOrm } from '../config/database/type-orm/ConfigTypeOrm';
+import { DomainModule } from './domain/domain.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
