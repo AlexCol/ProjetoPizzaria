@@ -1,9 +1,15 @@
-import { ArgumentsHost, ExceptionFilter } from "@nestjs/common";
+import { ArgumentsHost, ExceptionFilter, Injectable } from "@nestjs/common";
 import { FastifyReply } from "fastify";
+import { CustomNestLogger } from "src/modules/logger/logger.service";
 
+@Injectable()
 export class GlobalErrorFilter implements ExceptionFilter {
+  constructor(private readonly logger: CustomNestLogger) {
+    // Consigo usar o logger diretamente aqui pois ele é declarado como
+    // módulo global e foi importado no AppModule
+  }
   catch(exception: Error, host: ArgumentsHost) {
-    console.log(`❌ GlobalErrorFilter disparado.`);
+    this.logger.error(`❌ GlobalErrorFilter disparado.`);
 
     const response = host.switchToHttp().getResponse<FastifyReply>();
     const status = exception['status'] || 500;

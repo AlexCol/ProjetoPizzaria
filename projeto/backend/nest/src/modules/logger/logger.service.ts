@@ -1,0 +1,132 @@
+import { Injectable, LoggerService } from '@nestjs/common';
+import colours from './utils/colours';
+
+//!proceso adaptado da 'logger' do projeto final do curso de Node
+@Injectable()
+export class CustomNestLogger implements LoggerService {
+  private readonly enabledLevels: string[];
+  constructor() {
+    this.enabledLevels = process.env.LOG_LEVELS?.split(',') ||
+      ['error', 'warn', 'log', 'debug', 'verbose'];
+  }
+
+  log(message: any, ...optionalParams: any[]) { //!tem a opção de colocar o contexto (ver LoggerService)
+    if (!this.enabledLevels.includes('log')) return;
+
+    console.log(
+      `[${new Date().toLocaleString()}]${colours.fg.magenta}[LOG]${colours.reset}${colours.fg.cyan} ${message}${colours.reset}`,
+      ...optionalParams
+    );
+
+    // console.log(
+    //   `[${new Date().toLocaleString()}]`,
+    //   colours.fg.magenta,
+    //   '[LOG]',
+    //   colours.reset,
+    //   colours.fg.cyan,
+    //   message,
+    //   colours.reset,
+    //   ...optionalParams
+    // );
+  }
+
+  error(message: any, ...optionalParams: any[]) { //!tem a opção de colocar o contexto (ver LoggerService)
+    if (!this.enabledLevels.includes('error')) return;
+
+    console.error(
+      `[${new Date().toLocaleString()}]${colours.fg.red}[ERROR]${colours.reset}${colours.bg.red}[${this.getCallingFunction(new Error())}]${colours.reset}${colours.fg.cyan} ${message}${colours.reset}`,
+      ...optionalParams
+    );
+
+    // console.error(
+    //   `[${new Date().toLocaleString()}]`,
+    //   colours.fg.red,
+    //   '[ERROR]',
+    //   colours.reset,
+    //   colours.bg.red,
+    //   `[${this.getCallingFunction(new Error())}]`,
+    //   colours.reset,
+    //   colours.fg.cyan,
+    //   message,
+    //   colours.reset,
+    //   ...optionalParams
+    // );
+  }
+
+  warn(message: any, ...optionalParams: any[]) { //!tem a opção de colocar o contexto (ver LoggerService)
+    if (!this.enabledLevels.includes('warn')) return;
+
+    console.warn(
+      `[${new Date().toLocaleString()}]${colours.fg.orange}[WARN]${colours.reset}${colours.fg.cyan} ${message}${colours.reset}`,
+      ...optionalParams
+    );
+
+    // console.warn(
+    //   `[${new Date().toLocaleString()}]`,
+    //   colours.fg.orange,
+    //   '[WARN]',
+    //   colours.reset,
+    //   colours.fg.cyan,
+    //   message,
+    //   colours.reset,
+    //   ...optionalParams,
+    // );
+  }
+
+  debug(message: any, ...optionalParams: any[]) { //!tem a opção de colocar o contexto (ver LoggerService)
+    if (!this.enabledLevels.includes('debug')) return;
+
+    console.info(
+      `[${new Date().toLocaleString()}]${colours.fg.yellow}[DEBUG]${colours.reset}${colours.fg.cyan} ${message}${colours.reset}`,
+      ...optionalParams
+    );
+
+    // console.info(
+    //   `[${new Date().toLocaleString()}]`,
+    //   colours.fg.yellow,
+    //   '[DEBUG]',
+    //   colours.reset,
+    //   colours.fg.cyan,
+    //   message,
+    //   colours.reset,
+    //   ...optionalParams,
+    // );
+  }
+
+  verbose(message: any, ...optionalParams: any[]) { //!tem a opção de colocar o contexto (ver LoggerService)
+    if (!this.enabledLevels.includes('verbose')) return;
+
+    console.info(
+      `[${new Date().toLocaleString()}]${colours.fg.blue}[VERBOSE]${colours.reset}${colours.fg.cyan} ${message}${colours.reset}`,
+      ...optionalParams
+    );
+
+    // console.info(
+    //   `[${new Date().toLocaleString()}]`,
+    //   colours.fg.blue,
+    //   '[VERBOSE]',
+    //   colours.reset,
+    //   colours.fg.cyan,
+    //   message,
+    //   colours.reset,
+    //   ...optionalParams,
+    // );
+  }
+
+  private getCallingFunction(error: Error): string {
+    try {
+      const stack = error.stack;
+      if (!stack) return '--';
+
+      const line = stack.split('\n')[2];
+      const regex = /^.*at\s([a-zA-Z]+).*$/;
+      const groups = line.match(regex);
+
+      if (!groups || groups.length < 2) return '--';
+
+      return groups[1];
+    } catch {
+      return '--';
+    }
+  }
+}

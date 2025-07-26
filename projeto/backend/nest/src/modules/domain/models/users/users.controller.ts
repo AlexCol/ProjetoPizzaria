@@ -20,14 +20,14 @@ export class UsersController {
   @IsPublic()
   @Post()
   async create(@Body() data: CreateUserDto) {
-    console.log('Creating a new user');
+    //console.log('Creating a new user');
     return await this.usersService.create(data);
   }
 
   @Post("admin")
   @NeedsPermission(Permission.ADMIN)
   async createAdmin(@Body() data: CreateUserDto) {
-    console.log('Creating a new admin user');
+    //console.log('Creating a new admin user');
     return await this.usersService.create(data, true);
   }
 

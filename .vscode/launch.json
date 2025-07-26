@@ -1,0 +1,41 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug NestJS",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/projeto/backend/nest/src/main.ts",
+      "args": [],
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "envFile": "${workspaceFolder}/projeto/backend/nest/.env",
+      "sourceMaps": true,
+      "cwd": "${workspaceFolder}/projeto/backend/nest",
+      "protocol": "inspector",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/projeto/backend/nest/dist/**/*.js"
+      ],
+      "console": "integratedTerminal",
+      "restart": true,
+      "runtimeExecutable": "node"
+    },
+    {
+      "name": "Attach to NestJS",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/projeto/backend/nest",
+      "remoteRoot": ".",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    }
+  ]
+}
