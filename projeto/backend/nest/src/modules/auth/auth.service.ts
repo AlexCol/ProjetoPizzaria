@@ -71,6 +71,7 @@ export class AuthService {
         ...payload
       },
       {
+        subject: id.toString(),
         audience: this.jwtConfiguration.audience,
         issuer: this.jwtConfiguration.issuer,
         expiresIn: expiresIn,

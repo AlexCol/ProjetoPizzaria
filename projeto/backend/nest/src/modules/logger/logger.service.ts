@@ -3,7 +3,7 @@ import colours from './utils/colours';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import LEVELS from './utils/levels';
-import Semaphore from 'src/common/utils/Semaphore';
+import Semaphore from 'src/common/utils/semaphore';
 
 //!proceso adaptado da 'logger' do projeto final do curso de Node
 @Injectable()
@@ -22,7 +22,7 @@ export class CustomNestLogger implements LoggerService {
     this.enabledFileLevels = process.env.LOG_FILE_LEVELS?.split(',') || this.defaultLevels;
     this.logDirectory = process.env.LOG_DIRECTORY || path.join(process.cwd(), 'logs');
     this.maxLogFiles = parseInt(process.env.MAX_LOG_FILES || '7'); // Manter 7 dias
-    this.maxFileSize = parseInt(process.env.MAX_LOG_FILE_SIZE || '10485760'); // 10MB por padrão
+    this.maxFileSize = parseInt(process.env.MAX_LOG_FILE_SIZE || '5242880'); // 5MB por padrão
 
     if (this.enabledFileLevels.length > 0) {
       this.ensureLogDirectory();

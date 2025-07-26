@@ -17,6 +17,13 @@ export class UsersController {
     return await this.usersService.findAll();
   }
 
+  @Get('me')
+  async findMe(
+    @TokenPayloadParam() tokenPayload: TokenPayloadDto
+  ) {
+    return await this.usersService.findOne(tokenPayload.id);
+  }
+
   @IsPublic()
   @Post()
   async create(@Body() data: CreateUserDto) {

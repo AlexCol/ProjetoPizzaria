@@ -22,6 +22,8 @@ export class GzipInterceptor implements NestInterceptor {
     return next.handle().pipe(
       map((data) => {
         this.logger.log('📦 GzipInterceptor chamado.');
+        if (!data)
+          return data; // Se não houver dados, retorna como está
         const json = JSON.stringify(data);
         return zlib.gzipSync(json);
       }),

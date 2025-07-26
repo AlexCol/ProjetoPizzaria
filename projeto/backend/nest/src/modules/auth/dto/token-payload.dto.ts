@@ -4,6 +4,7 @@ export class TokenPayloadDto {
   id: number;
   email: string;
   permissions: Permission[];
+  sub: string;
   iat: number;
   exp: number;
   aud: string;

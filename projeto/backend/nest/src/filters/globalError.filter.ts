@@ -18,6 +18,12 @@ export class GlobalErrorFilter implements ExceptionFilter {
 
     this.logger.error(`❌ GlobalErrorFilter disparado: message: ${message}, status: ${status}`, exception.stack);
 
+    // Seta o header correto
+    if (!response.hasHeader('Content-Encoding')) {
+      response.header('Content-Encoding', 'gzip'); //testing, because if the error ocurs on the guard, will not have passed by the GzipInterceptor
+      response.header('Content-Type', 'application/json');
+    }
+
     const errorResponse = {
       statusCode: status,
       message,

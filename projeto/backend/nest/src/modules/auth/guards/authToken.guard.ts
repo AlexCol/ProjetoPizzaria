@@ -39,7 +39,8 @@ export class AuthTokenGuard implements CanActivate {
         throw new UnauthorizedException('User not found!'); // Se a user não existir ou estiver inativa, lança uma exceção
       }
 
-      request[REQUEST_TOKEN_PAYLOAD_KEY] = payload; // Armazena o payload do token na requisição para uso posterior
+      //request[REQUEST_TOKEN_PAYLOAD_KEY] = payload; // Armazena o payload do token na requisição para uso posterior
+      request.tokenPayload = payload; // criado campo na interface da request em src/common/types/fastify-request.d.ts
     } catch (error) {
       throw new UnauthorizedException(`Token issue. ${error.message}`);
     }
