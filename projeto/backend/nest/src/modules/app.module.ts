@@ -7,8 +7,8 @@ import { ConfigTypeOrm } from '../config/database/type-orm/ConfigTypeOrm';
 import { DomainModule } from './domain/domain.module';
 import { AuthModule } from './auth/auth.module';
 import { LoggerInterceptor } from 'src/interceptors/logger.interceptor';
-import { GzipInterceptor } from 'src/interceptors/czip.interceptor';
 import { LoggerModule } from './logger/logger.module';
+import { GzipInterceptor } from 'src/interceptors/czip.interceptor';
 
 @Module({
   imports: [
@@ -25,7 +25,7 @@ import { LoggerModule } from './logger/logger.module';
   providers: [
     { provide: APP_FILTER, useClass: GlobalErrorFilter },
     { provide: APP_INTERCEPTOR, useClass: LoggerInterceptor },
-    { provide: APP_INTERCEPTOR, useClass: GzipInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: GzipInterceptor }, //ver no arquivo pq desativado
   ],
 })
 export class AppModule { }

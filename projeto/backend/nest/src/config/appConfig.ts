@@ -1,5 +1,4 @@
 import { INestApplication, ValidationPipe } from "@nestjs/common";
-import * as express from '@nestjs/platform-express';
 
 export class AppConfig {
   public static configure(app: INestApplication<any>): void {
