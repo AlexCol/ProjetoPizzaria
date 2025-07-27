@@ -22,15 +22,15 @@ export class UsersService {
   //   return plainToInstance(UserResponseDto, users, { excludeExtraneousValues: true });
   // }
 
-  async findOne(id: number) {
-    const user = await this.userRepository.findOne({ where: { id } });
-    return plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }); // Transforming the user entity to UserResponseDto
-  }
+  // async findOne(id: number) {
+  //   const user = await this.userRepository.findOne({ where: { id } });
+  //   return plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }); // Transforming the user entity to UserResponseDto
+  // }
 
-  async findByEmail(email: string) { //used for login, so password can be returned
-    const user = await this.userRepository.findOne({ where: { email } });
-    return user;
-  }
+  // async findByEmail(email: string) { //used for login, so password can be returned
+  //   const user = await this.userRepository.findOne({ where: { email } });
+  //   return user;
+  // }
 
   // async create(data: CreateUserDto, isAdmin: boolean = false) {
   //   if (!isAdmin && data.permissions.find(p => p === Permission.ADMIN))
