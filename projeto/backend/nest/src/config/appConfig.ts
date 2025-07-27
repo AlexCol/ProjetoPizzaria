@@ -15,11 +15,28 @@ export class AppConfig {
   }
 
   private static setCors(app: INestApplication<any>): void {
+    const isProduction = process.env.NODE_ENV === 'production';
     app.enableCors({
-      origin: '*', //pode ser uma lista de domínios ou '*' para permitir todos
-      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-      allowedHeaders: 'Content-Type, Accept',
-      credentials: true,
+      origin: isProduction
+        ? process.env.ALLOWED_ORIGINS?.split(',') || ['https://meudominio.com']
+        : ['http://localhost:3000', 'http://localhost:3001'], // ✅ Origens específicas
+
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+
+      allowedHeaders: [
+        'Content-Type',
+        'Accept',
+        'Authorization',      // ✅ Para JWT tokens
+        'X-Requested-With',   // ✅ Para AJAX
+        'Accept-Language',    // ✅ Para i18n
+        'Accept-Encoding'     // ✅ Para compressão
+      ],
+
+      credentials: true,        // ✅ OK agora que origin é específica
+
+      optionsSuccessStatus: 200, // ✅ Para suporte a browsers antigos
+
+      maxAge: 86400,           // ✅ Cache preflight por 24h
     });
   }
 }

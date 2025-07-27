@@ -1,0 +1,21 @@
+--cadastro de usuário (senha plana)
+--criar processo de hashing da senha
+--adaptar cadastro de usuário para usar senha
+
+--processo de auth (geração de jwt e barrar controllers)
+
+--adicionar processo de log
+
+--adicionar fallback de erros
+
+--adicionar compressor de respostas
+
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+--> adicionar:
+
+--> helmet - e equivalentes
+--> socket
+--> Rate Limiting
