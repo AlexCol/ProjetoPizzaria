@@ -18,8 +18,8 @@ export class PermissionGuard implements CanActivate {
     if (!needsPermission) //se não precisar de permissão, libera o acesso
       return true;
 
-    const token_payload = request[REQUEST_TOKEN_PAYLOAD_KEY] as TokenPayloadDto;
-    if (!request[REQUEST_TOKEN_PAYLOAD_KEY]) //se não tiver o payload do token na requisição, lança uma exceção
+    const token_payload = request.tokenPayload as TokenPayloadDto; // Obtém o payload do token da requisição
+    if (!token_payload) //se não tiver o payload do token na requisição, lança uma exceção
       throw new UnauthorizedException('Token não encontrado. Rotas com permissão requerem um token válido.'); //para itens com persmissão, o token é obrigatório
 
     if (!token_payload.permissions.includes(needsPermission) && !token_payload.permissions.includes(Permission.ADMIN)) {

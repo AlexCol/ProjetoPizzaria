@@ -1,3 +1,5 @@
+--desenvolver desde o inicio com CQRS para Domain
+
 --cadastro de usuário (senha plana)
 --criar processo de hashing da senha
 --adaptar cadastro de usuário para usar senha

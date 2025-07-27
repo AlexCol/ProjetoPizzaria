@@ -1,17 +1,21 @@
 import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { IHashingService } from "./hashing/hashing.service";
-import { UsersService } from "../domain/models/users/users.service";
 import { JwtService } from "@nestjs/jwt";
 import jwtConfig from "./config/jwt.config";
 import { ConfigType } from "@nestjs/config";
 import { User } from "../domain/models/users/entities/user.entity";
 import { LoginDto } from "./dto/login.dto";
 import { RefreshTokenDto } from "./dto/refresh-token.dto";
+import { QueryBus } from "@nestjs/cqrs";
+import { GetUserByEmailQuery } from "../domain/models/users/services/queries/get-user-by-email.query";
+import { GetUserByIdQuery } from "../domain/models/users/services/queries/get-user-by-id.query";
+import { UserResponseDto } from "../domain/models/users/dto/response-user.dto";
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UsersService, // Assuming UsersService is imported correctly
+    //private readonly userService: UsersService, // Assuming UsersService is imported correctly
+    private readonly queryBus: QueryBus,
     private readonly hashingService: IHashingService, // Injecting the hashing service
     private readonly jwtService: JwtService, // Assuming JwtService is imported correctly
     @Inject(jwtConfig.KEY) private readonly jwtConfiguration: ConfigType<typeof jwtConfig>, // Injecting the JWT configuration
@@ -20,16 +24,18 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
-    const usuario = await this.userService.findByEmail(loginDto.email); // Fetch the user by email
+    const user: UserResponseDto = await this.queryBus.execute(new GetUserByEmailQuery({ email: loginDto.email })); // Fetch the user by email
 
-    if (!usuario || !usuario.ativo)
+    console.log(user);
+
+    if (!user || !user.ativo)
       throw new UnauthorizedException('Invalid credentials!!');
 
-    const isPasswordValid = await this.hashingService.comparePassword(loginDto.password, usuario!.password); // Check if the password is valid
+    const isPasswordValid = await this.hashingService.comparePassword(loginDto.password, user!.password); // Check if the password is valid
     if (!isPasswordValid)
       throw new UnauthorizedException('Invalid credentials!');
 
-    const tokens = await this.createTokens(usuario!); // Create JWT tokens for the user
+    const tokens = await this.createTokens(user!); // Create JWT tokens for the user
 
     return {
       message: "Login successful",
@@ -38,20 +44,16 @@ export class AuthService {
   }
 
   async refreshTokens(refreshTokenDto: RefreshTokenDto) {
-    try {
-      const { id } = await this.jwtService.verifyAsync(refreshTokenDto.refreshToken, this.jwtConfiguration); // Verify the refresh token and extract the user ID
-      const user = await this.userService.findOne(id); // Find the user by ID
-      if (!user || !user.ativo) {
-        throw new UnauthorizedException('User not found or inactive');
-      }
-      const tokens = await this.createTokens(user); // Create new JWT tokens for the user
-      return {
-        message: "Refresh token successful",
-        ...tokens,
-      };
-    } catch (error) {
-      throw new UnauthorizedException('Invalid refresh token'); // Throw an Unauthorized exception if the refresh token is invalid
+    const { id } = await this.jwtService.verifyAsync(refreshTokenDto.refreshToken, this.jwtConfiguration); // Verify the refresh token and extract the user ID
+    const user: UserResponseDto = await this.queryBus.execute(new GetUserByIdQuery({ id })); // Find the user by ID
+    if (!user || !user.ativo) {
+      throw new UnauthorizedException('User not found or inactive');
     }
+    const tokens = await this.createTokens(user); // Create new JWT tokens for the user
+    return {
+      message: "Refresh token successful",
+      ...tokens,
+    };
   }
 
   private async createTokens(user: User) {
@@ -66,10 +68,7 @@ export class AuthService {
 
   private async signJwtAsync<T>(id: number, expiresIn: number, payload?: T): Promise<string> {
     return await this.jwtService.signAsync(
-      {
-        id,
-        ...payload
-      },
+      { id, ...payload },
       {
         subject: id.toString(),
         audience: this.jwtConfiguration.audience,

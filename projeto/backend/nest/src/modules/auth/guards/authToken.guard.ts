@@ -4,13 +4,15 @@ import { FastifyRequest } from "fastify";
 import jwtConfig from "../config/jwt.config";
 import { ConfigType } from "@nestjs/config";
 import { Reflector } from "@nestjs/core";
-import { REQUEST_TOKEN_PAYLOAD_KEY } from "../contants/auth.constants";
-import { UsersService } from "src/modules/domain/models/users/users.service";
+import { QueryBus } from "@nestjs/cqrs";
+import { GetUserByIdQuery } from "src/modules/domain/models/users/services/queries/get-user-by-id.query";
+import { UserResponseDto } from "src/modules/domain/models/users/dto/response-user.dto";
 
 @Injectable()
 export class AuthTokenGuard implements CanActivate {
   constructor(
-    private readonly usersService: UsersService, // Injetando o serviço de usuários para acessar o repositório de pessoas
+    //private readonly usersService: UsersService, // Injetando o serviço de usuários para acessar o repositório de pessoas
+    private readonly queryBus: QueryBus,
     private readonly jwtService: JwtService, // Injetando o serviço JWT para verificar o token
     @Inject(jwtConfig.KEY) private readonly jwtConfiguration: ConfigType<typeof jwtConfig>, // Injetando a configuração do JWT
     private reflector: Reflector, // Injetando o refletor para acessar metadados
@@ -33,7 +35,7 @@ export class AuthTokenGuard implements CanActivate {
       if (!payload.email)
         throw new UnauthorizedException('Invalid token.'); //probably was a RefreshToken
 
-      const user = await this.usersService.findOne(payload.id); // Busca a user associada ao ID do payload do token
+      const user: UserResponseDto = await this.queryBus.execute(new GetUserByIdQuery({ id: payload.id })); // Busca a user associada ao ID do payload do token
 
       if (!user || !user.ativo) {
         throw new UnauthorizedException('User not found!'); // Se a user não existir ou estiver inativa, lança uma exceção

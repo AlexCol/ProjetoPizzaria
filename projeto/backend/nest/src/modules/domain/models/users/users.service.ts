@@ -17,10 +17,10 @@ export class UsersService {
     private readonly hashingService: IHashingService, // Injecting the hashing service
   ) { }
 
-  async findAll() {
-    const users = await this.userRepository.find();
-    return plainToInstance(UserResponseDto, users, { excludeExtraneousValues: true });
-  }
+  // async findAll() {
+  //   const users = await this.userRepository.find();
+  //   return plainToInstance(UserResponseDto, users, { excludeExtraneousValues: true });
+  // }
 
   async findOne(id: number) {
     const user = await this.userRepository.findOne({ where: { id } });
@@ -32,41 +32,41 @@ export class UsersService {
     return user;
   }
 
-  async create(data: CreateUserDto, isAdmin: boolean = false) {
-    if (!isAdmin && data.permissions.find(p => p === Permission.ADMIN))
-      throw new BadRequestException('Cannot create a user with ADMIN permission directly');
+  // async create(data: CreateUserDto, isAdmin: boolean = false) {
+  //   if (!isAdmin && data.permissions.find(p => p === Permission.ADMIN))
+  //     throw new BadRequestException('Cannot create a user with ADMIN permission directly');
 
-    if (this.passwordDontMatch(data.password, data.confirmPassword))
-      throw new BadRequestException('Passwords do not match');
+  //   if (this.passwordDontMatch(data.password, data.confirmPassword))
+  //     throw new BadRequestException('Passwords do not match');
 
-    const existingUser = await this.userRepository.findOne({ where: { email: data.email } });
-    if (existingUser)
-      throw new BadRequestException('Email already exists');
+  //   const existingUser = await this.userRepository.findOne({ where: { email: data.email } });
+  //   if (existingUser)
+  //     throw new BadRequestException('Email already exists');
 
-    data.password = await this.hashingService.hashPassword(data.password);
+  //   data.password = await this.hashingService.hashPassword(data.password);
 
-    const user = this.userRepository.create(data);
-    await this.userRepository.save(user);
-    return plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }); // Transforming the user entity to UserResponseDto
-  }
+  //   const user = this.userRepository.create(data);
+  //   await this.userRepository.save(user);
+  //   return plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }); // Transforming the user entity to UserResponseDto
+  // }
 
-  async update(id: number, data: UpdateUserDto) {
-    if (this.passwordDontMatch(data.password, data.confirmPassword))
-      throw new BadRequestException('Passwords do not match');
+  // async update(id: number, data: UpdateUserDto) {
+  //   if (this.passwordDontMatch(data.password, data.confirmPassword))
+  //     throw new BadRequestException('Passwords do not match');
 
-    const existingUser = await this.userRepository.findOneBy({ id });
-    if (!existingUser)
-      throw new BadRequestException('User not found');
+  //   const existingUser = await this.userRepository.findOneBy({ id });
+  //   if (!existingUser)
+  //     throw new BadRequestException('User not found');
 
-    if (data.password)
-      data.password = await this.hashingService.hashPassword(data.password);
+  //   if (data.password)
+  //     data.password = await this.hashingService.hashPassword(data.password);
 
-    this.userRepository.merge(existingUser, data);
-    await this.userRepository.save(existingUser);
-  }
+  //   this.userRepository.merge(existingUser, data);
+  //   await this.userRepository.save(existingUser);
+  // }
 
-  private passwordDontMatch(password: string | undefined, confirmPassword: string | undefined): boolean {
-    if (!password && !confirmPassword) return false;
-    return password !== confirmPassword;
-  }
+  // private passwordDontMatch(password: string | undefined, confirmPassword: string | undefined): boolean {
+  //   if (!password && !confirmPassword) return false;
+  //   return password !== confirmPassword;
+  // }
 }

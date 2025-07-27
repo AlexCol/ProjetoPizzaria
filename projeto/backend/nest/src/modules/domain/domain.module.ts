@@ -4,7 +4,7 @@ import { CategoryModule } from "./models/category/category.module";
 import { OrderItemModule } from "./models/order-item/order-item.module";
 import { OrderModule } from "./models/order/order.module";
 import { ProductModule } from "./models/product/product.module";
-import { UsersService } from "./models/users/users.service";
+import { CqrsModule } from "@nestjs/cqrs";
 
 @Module({
   imports: [
@@ -17,7 +17,7 @@ import { UsersService } from "./models/users/users.service";
   controllers: [],
   providers: [],
   exports: [
-    UsersModule, //exportando para que AuthModule possa usar o UsersService
+    //UsersModule, //exportando para que AuthModule possa usar o UsersService
   ]
 })
 export class DomainModule { }
