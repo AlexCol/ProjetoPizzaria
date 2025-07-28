@@ -1,6 +1,8 @@
 // base-query.param.ts
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
 import { FastifyRequest } from "fastify";
+import { PaginationParams } from "../types/pagination-params";
+import { SortParams } from "../types/sort-params";
 
 export const BaseQueryParam = createParamDecorator(
   (_: unknown, ctx: ExecutionContext) => {
@@ -27,12 +29,6 @@ export const BaseQueryParam = createParamDecorator(
 );
 
 export type BaseQueryParamType = {
-  pagination: {
-    page: number;
-    limit: number;
-  };
-  sort: {
-    field: string;
-    order: 'ASC' | 'DESC';
-  };
+  pagination: PaginationParams;
+  sort: SortParams;
 }

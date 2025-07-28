@@ -6,16 +6,13 @@ import { ConfigType } from "@nestjs/config";
 import { User } from "../domain/models/users/entities/user.entity";
 import { LoginDto } from "./dto/login.dto";
 import { RefreshTokenDto } from "./dto/refresh-token.dto";
-import { QueryBus } from "@nestjs/cqrs";
-import { GetUserByEmailQuery } from "../domain/models/users/services/queries/get-user-by-email.query";
-import { GetUserByIdQuery } from "../domain/models/users/services/queries/get-user-by-id.query";
-import { UserResponseDto } from "../domain/models/users/dto/response-user.dto";
+import { UsersService } from "../domain/models/users/users.service";
 
 @Injectable()
 export class AuthService {
   constructor(
-    //private readonly userService: UsersService, // Assuming UsersService is imported correctly
-    private readonly queryBus: QueryBus,
+    private readonly userService: UsersService, // Assuming UsersService is imported correctly
+    //private readonly queryBus: QueryBus,
     private readonly hashingService: IHashingService, // Injecting the hashing service
     private readonly jwtService: JwtService, // Assuming JwtService is imported correctly
     @Inject(jwtConfig.KEY) private readonly jwtConfiguration: ConfigType<typeof jwtConfig>, // Injecting the JWT configuration
@@ -24,7 +21,7 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
-    const user: UserResponseDto = await this.queryBus.execute(new GetUserByEmailQuery({ email: loginDto.email })); // Fetch the user by email
+    const user = await this.userService.findByEmail(loginDto.email); // Fetch the user by email
 
     console.log(user);
 
@@ -45,7 +42,7 @@ export class AuthService {
 
   async refreshTokens(refreshTokenDto: RefreshTokenDto) {
     const { id } = await this.jwtService.verifyAsync(refreshTokenDto.refreshToken, this.jwtConfiguration); // Verify the refresh token and extract the user ID
-    const user: UserResponseDto = await this.queryBus.execute(new GetUserByIdQuery({ id })); // Find the user by ID
+    const user = await this.userService.findOne(id); // Find the user by ID
     if (!user || !user.ativo) {
       throw new UnauthorizedException('User not found or inactive');
     }

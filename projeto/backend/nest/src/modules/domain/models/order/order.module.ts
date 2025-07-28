@@ -10,7 +10,7 @@ import { UsersModule } from '../users/users.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order]), // Importa o módulo TypeOrm com a entidade Order
-    //UsersModule
+    UsersModule
   ],
   controllers: [OrderController],
   providers: [OrderService],

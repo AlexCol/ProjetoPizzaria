@@ -5,22 +5,17 @@ import { In, Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from '../users/users.service';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { GetUsersQuery } from '../users/services/queries/get-users.query';
 
 @Injectable()
 export class OrderService {
   constructor(
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
-    private readonly queryBus: QueryBus, // ✅ Global
-    private readonly commandBus: CommandBus, // ✅ Global
-    //private readonly usersService: UsersService,
+    private readonly usersService: UsersService,
   ) { }
 
   async create(createOrderDto: CreateOrderDto) {
-    //const user = await this.usersService.findOne(createOrderDto.userId);
-    const user = await this.queryBus.execute(new GetUsersQuery({ id: createOrderDto.userId }));
+    const user = await this.usersService.findOne(createOrderDto.userId);
     if (!user) {
       throw new Error('User not found');
     }

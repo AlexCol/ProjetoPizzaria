@@ -9,12 +9,10 @@ import { AuthModule } from './auth/auth.module';
 import { LoggerInterceptor } from 'src/interceptors/logger.interceptor';
 import { LoggerModule } from './logger/logger.module';
 import { GzipInterceptor } from 'src/interceptors/czip.interceptor';
-import { CqrsModule } from '@nestjs/cqrs';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, }),
-    CqrsModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule], // Importa o ConfigModule para resolver dependências
       useClass: ConfigTypeOrm,// Usa a classe ConfigTypeOrm para fornecer as configurações
