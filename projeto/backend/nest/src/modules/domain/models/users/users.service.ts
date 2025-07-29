@@ -8,9 +8,8 @@ import { plainToInstance } from 'class-transformer';
 import { UserResponseDto } from './dto/response-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Permission } from 'src/common/enums/permissao.enum';
-import { GetUserFilters } from './types/users-query';
-import { BaseQueryParamType } from '../../common/params/base-query.param';
 import { BaseQueryType } from '../../common/types/base-query';
+import { GetUserFilters } from './types/users.filters';
 
 @Injectable()
 export class UsersService {
