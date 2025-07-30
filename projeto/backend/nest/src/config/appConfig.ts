@@ -1,12 +1,15 @@
 import { INestApplication, ValidationPipe } from "@nestjs/common";
+import { NestFastifyApplication } from "@nestjs/platform-fastify";
+import multipart from '@fastify/multipart';
 
 export class AppConfig {
-  public static configure(app: INestApplication<any>): void {
+  public static configure(app: NestFastifyApplication): void {
     this.setPipes(app);
+    this.registerMultipart(app);
     this.setCors(app);
   }
 
-  private static setPipes(app: INestApplication<any>): void {
+  private static setPipes(app: NestFastifyApplication): void {
     app.useGlobalPipes(new ValidationPipe({
       whitelist: true, //elimina do json de entrada valores que não estão no DTO
       forbidNonWhitelisted: true, //emite erro se houver valores não permitidos
@@ -14,7 +17,15 @@ export class AppConfig {
     }));
   }
 
-  private static setCors(app: INestApplication<any>): void {
+  private static registerMultipart(app: NestFastifyApplication): void {
+    app.register(multipart, {
+      limits: {
+        fileSize: 5 * 1024 * 1024, // Limite de 5MB
+      },
+    });
+  }
+
+  private static setCors(app: NestFastifyApplication): void {
     const isProduction = process.env.NODE_ENV === 'production';
     app.enableCors({
       origin: isProduction

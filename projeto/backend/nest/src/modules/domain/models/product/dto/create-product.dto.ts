@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, isString, IsString, MaxLength } from "class-validator";
 
 export class CreateProductDto {
   @IsString()
@@ -15,9 +15,9 @@ export class CreateProductDto {
   @IsNotEmpty()
   description: string;
 
-  @IsString()
-  @IsOptional()
-  banner: string;
+  //@IsString()
+  //@IsOptional()
+  //banner: string; //removido pois será recebido como arquivo de imagem e o controller irá lidar com isso
 
   @IsNotEmpty()
   @IsNumber() categoryId: number;
