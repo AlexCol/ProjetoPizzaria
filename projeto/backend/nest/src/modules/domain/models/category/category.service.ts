@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
@@ -6,12 +6,16 @@ import { Category } from './entities/category.entity';
 import { EntityManager, Repository } from 'typeorm';
 import { GetCategoryFilters } from './types/categoty.filters';
 import { BaseQueryType } from '../../common/types/base-query';
+import { ProductService } from '../product/product.service';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectRepository(Category)
-    private categoryRepository: Repository<Category>,
+    private readonly categoryRepository: Repository<Category>,
+    @Inject(forwardRef(() => ProductService)) //necessário devido a referencia circular entre CategoryService e ProductService
+    private readonly productService: ProductService,
+
   ) { }
 
   async findAll(query?: BaseQueryType<GetCategoryFilters>) {
@@ -67,7 +71,9 @@ export class CategoryService {
     if (!categoryExists)
       throw new BadRequestException('Category not found');
 
-    //TODO - pode verificar se a categoria está sendo usada em algum produto antes de remover
+    const haveProducts = await this.productService.findAll({ filters: { categoryId: id } });
+    if (haveProducts.total > 0)
+      throw new BadRequestException('Cannot delete category with associated products');
 
     await this.categoryRepository.delete(id);
     return "Category removed successfully";

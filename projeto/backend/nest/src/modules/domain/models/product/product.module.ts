@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ProductController } from './product.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,7 +8,7 @@ import { CategoryModule } from '../category/category.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Product]), // Importa o módulo TypeOrm com a entidade Product
-    CategoryModule
+    forwardRef(() => CategoryModule), //necessário pois o CategoryModule depende do ProductModule (é necessário forwardRef ao usar o service no construtor tbm)
   ],
   controllers: [ProductController],
   providers: [ProductService],
