@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryService } from '../category/category.service';
 import { GetProductFilters } from './types/products.filters';
@@ -52,6 +52,10 @@ export class ProductService {
     if (!category)
       throw new Error('Category not found');
 
+    const nameExists = await this.productRepository.exists({ where: { name: createProductDto.name } });
+    if (nameExists)
+      throw new Error('Product with this name already exists');
+
     const product = this.productRepository.create({ ...createProductDto, category });
     return await this.productRepository.save(product);
   }
@@ -66,6 +70,10 @@ export class ProductService {
       if (!category)
         throw new Error('Category not found');
     }
+
+    const nameExists = await this.productRepository.exists({ where: { name: updateProductDto.name, id: Not(id) } });
+    if (nameExists)
+      throw new Error('Product with this name already exists');
 
     await this.productRepository.update(id, updateProductDto);
     return "Product updated successfully";

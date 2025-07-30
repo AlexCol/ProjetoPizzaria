@@ -1,11 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Req, Res, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Req, BadRequestException } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { BaseQueryParam, BaseQueryParamType } from '../../common/params/base-query.param';
-import { FastifyReply, FastifyRequest } from 'fastify';
-import * as path from 'path';
-import * as fs from 'fs-extra'; // Importando fs-extra para manipulação de arquivos
+import { FastifyRequest } from 'fastify';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
+import { Product } from './entities/product.entity';
 
 @Controller('product')
 export class ProductController {
@@ -33,24 +34,20 @@ export class ProductController {
   @Post()
   async create(
     @Req() req: FastifyRequest
-    //@Body() createProductDto: CreateProductDto
   ) {
-    const buffer = await this.getBannerFromRequest(req);
-    if (buffer) {
-      const filePath = path.join(__dirname, '..', 'uploads', 'nome-do-arquivo.jpg');
-      console.log(`Salvando arquivo em: ${filePath}`);
-      await fs.outputFile(filePath, buffer);
-    }
-    return { message: 'Arquivo salvo com sucesso!' };
-    //return await this.productService.create(createProductDto);
+    const productData = await this.getFormDataFromRequest(req);
+    const dto = await this.validateProductData(productData, CreateProductDto);
+    return await this.productService.create(dto);
   }
 
   @Patch(':id')
   async update(
     @Param('id') id: number,
-    @Body() updateProductDto: UpdateProductDto
+    @Req() req: FastifyRequest
   ) {
-    return await this.productService.update(id, updateProductDto);
+    const productData = await this.getFormDataFromRequest(req);
+    const dto = await this.validateProductData(productData, UpdateProductDto);
+    return await this.productService.update(id, dto);
   }
 
   @Delete(':id')
@@ -58,46 +55,63 @@ export class ProductController {
     return await this.productService.remove(id);
   }
 
-  private async getBannerFromRequest(req: FastifyRequest) {
+  /************************************************************************/
+  /************************************************************************/
+  /* Metodos privados para validação da entrada via form-data com fastify */
+  /************************************************************************/
+  /************************************************************************/
+  private async getFormDataFromRequest(req: FastifyRequest): Promise<Product> {
+    console.log(req.headers);
     const parts = await req.parts();
-    let error: Error | null = null;
-    let buffer: Buffer | null = null;
+    let image: Buffer | null = null;
+    let productData: any = {};
 
     for await (const part of parts) {
-      if (part.type === 'field' && part.fieldname !== 'banner') {
-        error = new BadRequestException(`Unexpected field: ${part.fieldname}`);
+      const partType = part.type;
+      const partFieldName = part.fieldname;
+
+      if (part.type === 'field') {
+        productData[part.fieldname] = part.value;
       }
-      if (part.type === 'file' && part.fieldname === 'banner') {
-        buffer = await part.toBuffer();
+
+      if (partType == 'file' && partFieldName !== 'banner') {
+        throw new BadRequestException(`Unexpected field: ${partFieldName}`);
+      }
+
+      if (part.type === 'file') {
+        const extension = part.filename.split('.').pop() || '';
+        if (!['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
+          throw new BadRequestException('Invalid image format. Allowed formats: jpg, jpeg, png, gif');
+        }
+        image = await part.toBuffer();
       }
     }
 
-    if (error) throw error;
-    return buffer ?? "";
-  }
-}
-
-/*
-import { plainToInstance } from 'class-transformer';
-import { validate } from 'class-validator';
-
-@Post()
-async create(@Req() req: FastifyRequest) {
-  const data: any = {};
-  const parts = await req.parts();
-  for await (const part of parts) {
-    if (part.type === 'file' && part.fieldname === 'banner') {
-      data.banner = part.filename; // ou buffer, se quiser salvar
-    } else if (part.type === 'field') {
-      data[part.fieldname] = part.value;
+    // Converte campos numéricos
+    if (productData.price) {
+      productData.price = Number(productData.price);
     }
+    if (productData.categoryId) {
+      productData.categoryId = Number(productData.categoryId);
+    }
+
+    // Se houver imagem, converte para base64 ou mantém como buffer
+    if (image) {
+      productData.banner = image.toString('base64'); // ou salvar o buffer
+    }
+
+    return productData;
   }
-  // Validação manual
-  const dto = plainToInstance(CreateProductDto, data);
-  const errors = await validate(dto);
-  if (errors.length) {
-    return { statusCode: 400, message: errors.map(e => Object.values(e.constraints)).flat() };
+
+  private async validateProductData<T extends object>(productData: Product, dtoClass: new () => T): Promise<T> {
+    const dto = plainToInstance(dtoClass, productData, { enableImplicitConversion: true });
+    const errors = await validate(dto, { whitelist: true, forbidNonWhitelisted: true });
+
+    if (errors.length) {
+      throw new BadRequestException(
+        errors.map(e => e.constraints ? Object.values(e.constraints) : []).flat()
+      );
+    }
+    return dto;
   }
-  // ...restante do código...
 }
-*/

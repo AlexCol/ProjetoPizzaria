@@ -15,10 +15,11 @@ export class CreateProductDto {
   @IsNotEmpty()
   description: string;
 
-  //@IsString()
-  //@IsOptional()
-  //banner: string; //removido pois será recebido como arquivo de imagem e o controller irá lidar com isso
+  @IsString()
+  @IsOptional()
+  banner: string;
 
   @IsNotEmpty()
-  @IsNumber() categoryId: number;
+  @IsNumber()
+  categoryId: number;
 }

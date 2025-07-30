@@ -20,7 +20,7 @@ export class AppConfig {
   private static registerMultipart(app: NestFastifyApplication): void {
     app.register(multipart, {
       limits: {
-        fileSize: 5 * 1024 * 1024, // Limite de 5MB
+        fileSize: 5 * 1024 * 1024, // Limite de 5MB        
       },
     });
   }
