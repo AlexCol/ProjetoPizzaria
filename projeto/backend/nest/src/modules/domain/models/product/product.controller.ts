@@ -7,6 +7,7 @@ import { FastifyRequest } from 'fastify';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { Product } from './entities/product.entity';
+import { MultiFormData } from 'src/common/params/multif-form-data.param.decorator';
 
 @Controller('product')
 export class ProductController {
@@ -27,91 +28,33 @@ export class ProductController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number) {
+  async findOne(
+    @Param('id') id: number
+  ) {
     return await this.productService.findOne(id);
   }
 
   @Post()
   async create(
-    @Req() req: FastifyRequest
+    //Param customizado para usar multipart/form-data com validação com fastify
+    @MultiFormData({ dtoClass: CreateProductDto, fileName: 'banner' }) createDto: CreateProductDto,
   ) {
-    const productData = await this.getFormDataFromRequest(req);
-    const dto = await this.validateProductData(productData, CreateProductDto);
-    return await this.productService.create(dto);
+    return await this.productService.create(createDto);
   }
 
   @Patch(':id')
   async update(
     @Param('id') id: number,
-    @Req() req: FastifyRequest
+    //Param customizado para usar multipart/form-data com validação com fastify
+    @MultiFormData({ dtoClass: UpdateProductDto, fileName: 'banner' }) updateDto: UpdateProductDto,
   ) {
-    const productData = await this.getFormDataFromRequest(req);
-    const dto = await this.validateProductData(productData, UpdateProductDto);
-    return await this.productService.update(id, dto);
+    return await this.productService.update(id, updateDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: number) {
+  async remove(
+    @Param('id') id: number
+  ) {
     return await this.productService.remove(id);
-  }
-
-  /************************************************************************/
-  /************************************************************************/
-  /* Metodos privados para validação da entrada via form-data com fastify */
-  /************************************************************************/
-  /************************************************************************/
-  private async getFormDataFromRequest(req: FastifyRequest): Promise<Product> {
-    console.log(req.headers);
-    const parts = await req.parts();
-    let image: Buffer | null = null;
-    let productData: any = {};
-
-    for await (const part of parts) {
-      const partType = part.type;
-      const partFieldName = part.fieldname;
-
-      if (part.type === 'field') {
-        productData[part.fieldname] = part.value;
-      }
-
-      if (partType == 'file' && partFieldName !== 'banner') {
-        throw new BadRequestException(`Unexpected field: ${partFieldName}`);
-      }
-
-      if (part.type === 'file') {
-        const extension = part.filename.split('.').pop() || '';
-        if (!['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
-          throw new BadRequestException('Invalid image format. Allowed formats: jpg, jpeg, png, gif');
-        }
-        image = await part.toBuffer();
-      }
-    }
-
-    // Converte campos numéricos
-    if (productData.price) {
-      productData.price = Number(productData.price);
-    }
-    if (productData.categoryId) {
-      productData.categoryId = Number(productData.categoryId);
-    }
-
-    // Se houver imagem, converte para base64 ou mantém como buffer
-    if (image) {
-      productData.banner = image.toString('base64'); // ou salvar o buffer
-    }
-
-    return productData;
-  }
-
-  private async validateProductData<T extends object>(productData: Product, dtoClass: new () => T): Promise<T> {
-    const dto = plainToInstance(dtoClass, productData, { enableImplicitConversion: true });
-    const errors = await validate(dto, { whitelist: true, forbidNonWhitelisted: true });
-
-    if (errors.length) {
-      throw new BadRequestException(
-        errors.map(e => e.constraints ? Object.values(e.constraints) : []).flat()
-      );
-    }
-    return dto;
   }
 }
