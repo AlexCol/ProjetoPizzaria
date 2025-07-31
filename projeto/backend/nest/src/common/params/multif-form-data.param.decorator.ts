@@ -3,7 +3,7 @@ import { FastifyRequest } from "fastify";
 import { plainToInstance } from "class-transformer";
 import { validate } from 'class-validator';
 import { MultipartFile, MultipartValue } from "@fastify/multipart";
-import { UploadFileType } from "src/uploads/upload-handler";
+import { UploadFileType } from "src/modules/upload-file/types/upload-file";
 
 type MultiFormDataType<T extends object = object> = {
   dtoClass: new () => T;

@@ -3,12 +3,19 @@
 --adaptar cadastro de usuário para usar senha
 
 --processo de auth (geração de jwt e barrar controllers)
+--ainda no processo de auth, ter um middleware e uma anotation para adicionar Permissao de rota
 
 --adicionar processo de log
 
 --adicionar fallback de erros
 
 --adicionar compressor de respostas
+
+--cadastro de categorias
+
+--cadastro de produtos
+
+--processo de upload de arquivos (permitir via arquivo de configuração salvar em banco ou em arquivo)
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------

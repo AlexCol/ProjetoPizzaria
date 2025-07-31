@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { LoggerInterceptor } from 'src/common/interceptors/logger.interceptor';
 import { LoggerModule } from './logger/logger.module';
 import { GzipInterceptor } from 'src/common/interceptors/czip.interceptor';
+import { UploadFileModule } from './upload-file/upload-file.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { GzipInterceptor } from 'src/common/interceptors/czip.interceptor';
     }),
     DomainModule,
     AuthModule,
+    UploadFileModule,
     LoggerModule,
   ],
   controllers: [],

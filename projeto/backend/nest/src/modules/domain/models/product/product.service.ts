@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryService } from '../category/category.service';
 import { GetProductFilters } from './types/products.filters';
 import { BaseQueryType } from '../../common/types/base-query';
-import { UploadHandler } from 'src/uploads/upload-handler';
+import { UploadFileService } from 'src/modules/upload-file/upload-file.service';
 
 @Injectable()
 export class ProductService {
@@ -16,6 +16,7 @@ export class ProductService {
     private readonly productRepository: Repository<Product>,
     @Inject(forwardRef(() => CategoryService)) //necessário devido a referencia circular entre CategoryService e ProductService
     private readonly categoryService: CategoryService,
+    private readonly uploadFileService: UploadFileService, // Importando o serviço de upload
   ) { }
 
   async findAll(query?: BaseQueryType<GetProductFilters>) {
@@ -59,16 +60,18 @@ export class ProductService {
 
     if (createProductDto.banner) {
       const guuid = crypto.randomUUID();
-      createProductDto.banner = UploadHandler.saveFile(createProductDto.banner, 'products', guuid) || "";
+      createProductDto.banner = await this.uploadFileService.saveFile(createProductDto.banner, 'products', guuid) || "";
     }
 
     const product = this.productRepository.create({ ...createProductDto, category });
-    return await this.productRepository.save(product);
+    const newProduct = await this.productRepository.save(product);
+    newProduct.banner = await this.uploadFileService.getFile(newProduct.banner, 'products');
+    return newProduct;
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
-    const productExists = await this.productRepository.exists({ where: { id } });
-    if (!productExists)
+    const product = await this.productRepository.findOne({ where: { id } });
+    if (!product)
       throw new Error('Product not found');
 
     if (updateProductDto.categoryId) {
@@ -83,7 +86,7 @@ export class ProductService {
 
     if (updateProductDto.banner) {
       const guuid = crypto.randomUUID();
-      updateProductDto.banner = UploadHandler.saveFile(updateProductDto.banner, 'products', guuid);
+      updateProductDto.banner = await this.uploadFileService.updateFile(updateProductDto.banner, 'products', guuid, product.banner) || "";
     }
 
     await this.productRepository.update(id, updateProductDto);
@@ -91,11 +94,14 @@ export class ProductService {
   }
 
   async remove(id: number) {
-    const productExists = await this.productRepository.exists({ where: { id } });
+    const productExists = await this.productRepository.findOne({ where: { id } });
     if (!productExists)
       throw new Error('Product not found');
 
     //TODO - pode verificar se o produto está sendo usado em algum pedido antes de remover
+
+    if (productExists.banner)
+      await this.uploadFileService.excludeFile(productExists.banner, 'products');
 
     await this.productRepository.delete(id);
     return "Product removed successfully";
