@@ -2,10 +2,13 @@ import { BadRequestException, createParamDecorator, ExecutionContext } from "@ne
 import { FastifyRequest } from "fastify";
 import { plainToInstance } from "class-transformer";
 import { validate } from 'class-validator';
+import { MultipartFile, MultipartValue } from "@fastify/multipart";
+import { UploadFileType } from "src/uploads/upload-handler";
 
 type MultiFormDataType<T extends object = object> = {
   dtoClass: new () => T;
   fileName?: string;
+  permitedExtensions?: string[];
 }
 
 export const MultiFormData = createParamDecorator(
@@ -37,14 +40,14 @@ export const MultiFormData = createParamDecorator(
   }
 );
 
-function handleField(part: any, dtoData: any, expectedFileName?: string) {
+function handleField(part: MultipartValue, dtoData: any, expectedFileName?: string) {
   if (expectedFileName && part.fieldname === expectedFileName)
     throw new BadRequestException(`Expected file: ${expectedFileName} as file, but got as field.`);
 
   dtoData[part.fieldname] = part.value;
 }
 
-async function handleFile(part: any, dtoData: any, expectedFileName?: string) {
+async function handleFile(part: MultipartFile, dtoData: any, expectedFileName?: string, permitedExtensions?: string[]) {
   if (expectedFileName && part.fieldname !== expectedFileName)
     throw new BadRequestException(`Expected field: ${expectedFileName}, but got: ${part.fieldname}`);
 
@@ -53,12 +56,26 @@ async function handleFile(part: any, dtoData: any, expectedFileName?: string) {
     return;
   }
 
-  const extension = part.filename.split('.').pop() || '';
-
-  if (!['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
-    throw new BadRequestException('Invalid image format. Allowed formats: jpg, jpeg, png, gif');
+  permitedExtensions = permitedExtensions || ['jpg', 'jpeg', 'png', 'gif'];
+  const extension = part.mimetype?.split('/')[1] || 'unknown';
+  if (!permitedExtensions.includes(extension)) {
+    throw new BadRequestException(`Invalid image format. Allowed formats: ${permitedExtensions.join(', ')}`);
   }
 
-  const image = await part.toBuffer();
-  dtoData[part.fieldname] = image.toString('base64');
+  const imageBuffer = await part.toBuffer();
+  const base64Image = imageBuffer.toString('base64');
+
+  if (process.env.SAVE_FILE_DIR === 'true') {
+    const image: UploadFileType = {
+      file: base64Image,
+      extension
+    };
+    dtoData[part.fieldname] = JSON.stringify(image);
+    return;
+  }
+
+  if (process.env.SAVE_FILE_DB === 'true') {
+    dtoData[part.fieldname] = base64Image;
+    return;
+  }
 }

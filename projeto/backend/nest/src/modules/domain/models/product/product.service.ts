@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryService } from '../category/category.service';
 import { GetProductFilters } from './types/products.filters';
 import { BaseQueryType } from '../../common/types/base-query';
+import { UploadHandler } from 'src/uploads/upload-handler';
 
 @Injectable()
 export class ProductService {
@@ -56,6 +57,11 @@ export class ProductService {
     if (nameExists)
       throw new Error('Product with this name already exists');
 
+    if (createProductDto.banner) {
+      const guuid = crypto.randomUUID();
+      createProductDto.banner = UploadHandler.saveFile(createProductDto.banner, 'products', guuid) || "";
+    }
+
     const product = this.productRepository.create({ ...createProductDto, category });
     return await this.productRepository.save(product);
   }
@@ -74,6 +80,11 @@ export class ProductService {
     const nameExists = await this.productRepository.exists({ where: { name: updateProductDto.name, id: Not(id) } });
     if (nameExists)
       throw new Error('Product with this name already exists');
+
+    if (updateProductDto.banner) {
+      const guuid = crypto.randomUUID();
+      updateProductDto.banner = UploadHandler.saveFile(updateProductDto.banner, 'products', guuid);
+    }
 
     await this.productRepository.update(id, updateProductDto);
     return "Product updated successfully";
