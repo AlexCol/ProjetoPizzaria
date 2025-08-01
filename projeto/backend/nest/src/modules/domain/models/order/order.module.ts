@@ -6,10 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
 import { UsersService } from '../users/users.service';
 import { UsersModule } from '../users/users.module';
+import { OrderItem } from './entities/order-item.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order]), // Importa o módulo TypeOrm com a entidade Order
+    TypeOrmModule.forFeature([Order, OrderItem]), // Importa o módulo TypeOrm com a entidade Order
     UsersModule
   ],
   controllers: [OrderController],

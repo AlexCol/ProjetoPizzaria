@@ -52,7 +52,7 @@ export class ProductService {
   }
 
   async findOne(id: number) {
-    const product = await this.productRepository.findOne({ where: { id } });
+    const product = await this.productRepository.findOne({ where: { id }, relations: ['category'] });
     if (product && product.banner)
       product.banner = await this.uploadFileService.getFile(product.banner, 'products');
     return product;
@@ -100,6 +100,9 @@ export class ProductService {
 
     if (filters.categoryId)
       queryBuilder.andWhere('product.category_id = :categoryId', { categoryId: filters.categoryId });
+
+    if (filters.bringCategory)
+      queryBuilder.leftJoinAndSelect('product.category', 'category');
   }
 
   private async createValidations(createProductDto: CreateProductDto) {

@@ -7,7 +7,7 @@ import { FastifyRequest } from 'fastify';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { Product } from './entities/product.entity';
-import { MultiFormData } from 'src/common/params/multif-form-data.param.decorator';
+import { MultiFormData } from 'src/modules/upload-file/params/multif-form-data.param.decorator';
 
 @Controller('product')
 export class ProductController {
@@ -18,10 +18,11 @@ export class ProductController {
     @Query('id') id?: number,
     @Query('name') name?: string,
     @Query('category_id') categoryId?: number,
+    @Query('bring_category') bringCategory?: boolean,
     @BaseQueryParam() baseQuery?: BaseQueryParamType,
   ) {
     return await this.productService.findAll({
-      filters: { id, name, categoryId },
+      filters: { id, name, categoryId, bringCategory },
       pagination: baseQuery?.pagination,
       sort: baseQuery?.sort,
     });
