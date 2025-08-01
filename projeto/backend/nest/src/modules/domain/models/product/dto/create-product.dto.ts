@@ -17,7 +17,7 @@ export class CreateProductDto {
 
   @IsString()
   @IsOptional()
-  banner: string;
+  banner?: string;
 
   @IsNotEmpty()
   @IsNumber()

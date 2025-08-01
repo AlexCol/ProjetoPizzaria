@@ -16,7 +16,7 @@ export class Product {
   description: string;
 
   @Column({ nullable: true })
-  banner: string;
+  banner?: string;
 
   @Column({ name: 'category_id' })
   categoryId: number;
