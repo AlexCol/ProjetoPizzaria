@@ -5,9 +5,9 @@ export class CreateOrderItemDto {
   @IsNumber()
   amount: number;
 
-  @IsNotEmpty()
-  @IsNumber()
-  orderId: number;
+  // @IsNotEmpty()
+  // @IsNumber()
+  // orderId: number;
 
   @IsNotEmpty()
   @IsNumber()

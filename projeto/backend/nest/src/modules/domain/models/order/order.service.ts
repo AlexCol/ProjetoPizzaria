@@ -14,29 +14,30 @@ export class OrderService {
     private readonly usersService: UsersService,
   ) { }
 
-  async create(createOrderDto: CreateOrderDto) {
-    const user = await this.usersService.findOne(createOrderDto.userId);
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    const order = this.orderRepository.create({ ...createOrderDto, user });
-    return await this.orderRepository.save(order);
-  }
-
   async findAll() {
-    return await this.orderRepository.find();
+    return "findAll orders"; //return await this.orderRepository.find();
   }
 
   async findOne(id: number) {
-    return await this.orderRepository.findOne({ where: { id } });
+    return "find one Order"; //await this.orderRepository.findOne({ where: { id } });
+  }
+
+  async create(createOrderDto: CreateOrderDto) {
+    // const user = await this.usersService.findOne(createOrderDto.userId);
+    // if (!user) {
+    //   throw new Error('User not found');
+    // }
+
+    // const order = this.orderRepository.create({ ...createOrderDto, user });
+    // return await this.orderRepository.save(order);
+    return "create order";
   }
 
   async update(id: number, updateOrderDto: UpdateOrderDto) {
-    return await this.orderRepository.update(id, updateOrderDto);
+    return "update order"; //await this.orderRepository.update(id, updateOrderDto);
   }
 
   async remove(id: number) {
-    return await this.orderRepository.delete(id);
+    return "remove order"; //await this.orderRepository.delete(id);
   }
 }

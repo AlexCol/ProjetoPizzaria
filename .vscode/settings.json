@@ -19,11 +19,4 @@
     "titleBar.inactiveForeground": "#e7e7e799"
   },
   "peacock.color": "#5406c2",
-  "rest-client.environmentVariables": {
-    "local": {
-      "baseUrl": "http://localhost:3300/api",
-      "accessToken": "",
-      "refreshToken": ""
-    }
-  }
 }

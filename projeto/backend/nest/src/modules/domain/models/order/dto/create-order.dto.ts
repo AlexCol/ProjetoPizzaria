@@ -1,4 +1,6 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested, IsArray, ArrayNotEmpty } from "class-validator";
+import { Type } from "class-transformer";
+import { CreateOrderItemDto } from "./create-order-item.dto";
 
 export class CreateOrderDto {
   @IsNumber()
@@ -20,4 +22,10 @@ export class CreateOrderDto {
   @IsNumber()
   @IsNotEmpty()
   userId: number;
+
+  @IsArray()
+  @ArrayNotEmpty({ message: 'Order items cannot be empty' })
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderItemDto)
+  itens: CreateOrderItemDto[];
 }

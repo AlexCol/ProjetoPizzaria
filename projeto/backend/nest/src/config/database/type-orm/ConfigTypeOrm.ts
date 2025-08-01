@@ -13,7 +13,12 @@ export class ConfigTypeOrm implements TypeOrmOptionsFactory {
       database: process.env.POSTGRES_DB,
       autoLoadEntities: Boolean(process.env.DB_AUTO_LOAD_ENTITIES), // carrega automaticamente as entidades
       synchronize: Boolean(process.env.DB_SYNCHRONIZE), // sincroniza o banco de dados com as entidades (não usar em produção)
+      pool: {
+        max: 10,
+        min: 2,
+        acquireTimeoutMillis: 30000, // 30 segundos - tempo máximo para adquirir uma conexão
+        idleTimeoutMillis: 300000,    // 5min sem uso = fecha
+      }
     };
   }
 }
-

@@ -23,7 +23,7 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const user = await this.userService.findByEmail(loginDto.email); // Fetch the user by email
 
-    console.log(user);
+    //console.log(user);
 
     if (!user || !user.ativo)
       throw new UnauthorizedException('Invalid credentials!!');
@@ -37,6 +37,7 @@ export class AuthService {
     return {
       message: "Login successful",
       ...tokens,
+      origin: 'njs',
     };
   }
 
@@ -50,6 +51,7 @@ export class AuthService {
     return {
       message: "Refresh token successful",
       ...tokens,
+      origin: 'njs',
     };
   }
 

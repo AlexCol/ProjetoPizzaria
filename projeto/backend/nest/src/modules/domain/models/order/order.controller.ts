@@ -7,11 +7,6 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 export class OrderController {
   constructor(private readonly orderService: OrderService) { }
 
-  @Post()
-  async create(@Body() createOrderDto: CreateOrderDto) {
-    return await this.orderService.create(createOrderDto);
-  }
-
   @Get()
   async findAll() {
     return await this.orderService.findAll();
@@ -20,6 +15,11 @@ export class OrderController {
   @Get(':id')
   async findOne(@Param('id') id: number) {
     return await this.orderService.findOne(id);
+  }
+
+  @Post()
+  async create(@Body() createOrderDto: CreateOrderDto) {
+    return await this.orderService.create(createOrderDto);
   }
 
   @Patch(':id')
