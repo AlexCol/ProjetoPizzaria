@@ -49,8 +49,17 @@ export class OrderService {
     // ✅ Execução otimizada
     const [orders, total] = await queryBuilder.getManyAndCount();
 
+    // const ordersResult: any[] = []; //só pra fins de retorno, não vou me preocupar com tipagem
+    // for (const order of orders) {
+    //   const totalPrice = order.itens.reduce((acc, item) => acc + item.product.price * item.amount, 0);
+    //   ordersResult.push({
+    //     totalPrice,
+    //     ...order,
+    //   });
+    // }
+
     return {
-      orders,
+      orders,//: ordersResult,
       total,
     };
   }
@@ -59,10 +68,17 @@ export class OrderService {
     const order = await this.orderRepository.findOne({
       select: this.selectFields,
       where: { id },
-      relations: ['user', 'itens', 'itens.product']
+      relations: ['user', 'itens', 'itens.product'],//, 'itens.product.category']
     });
 
+    //if (!order)
     return order;
+
+    // const totalPrice = order.itens.reduce((acc, item) => acc + item.product.price * item.amount, 0);
+    // return {
+    //   totalPrice,
+    //   ...order,
+    // };
   }
 
   async createOrder(userId: number, createOrderDto: CreateOrderDto) {
