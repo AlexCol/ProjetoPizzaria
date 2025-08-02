@@ -10,6 +10,7 @@ import { LoggerInterceptor } from 'src/common/interceptors/logger.interceptor';
 import { LoggerModule } from './logger/logger.module';
 import { GzipInterceptor } from 'src/common/interceptors/czip.interceptor';
 import { UploadFileModule } from './upload-file/upload-file.module';
+import { TimezoneInterceptor } from 'src/common/interceptors/timezone.interceptor';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { UploadFileModule } from './upload-file/upload-file.module';
     { provide: APP_FILTER, useClass: GlobalErrorFilter },
     { provide: APP_INTERCEPTOR, useClass: LoggerInterceptor },
     { provide: APP_INTERCEPTOR, useClass: GzipInterceptor }, //ver no arquivo pq desativado
+    { provide: APP_INTERCEPTOR, useClass: TimezoneInterceptor }, // ✅ Adicionar aqui
   ],
 })
 export class AppModule { }

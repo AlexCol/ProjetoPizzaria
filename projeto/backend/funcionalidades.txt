@@ -17,6 +17,8 @@
 
 --processo de upload de arquivos (permitir via arquivo de configuração salvar em banco ou em arquivo)
 
+--criado processo de order e order items (e tido que ajustar questão de data - criado interceptor para isso)
+
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -26,3 +28,13 @@
 --> helmet - e equivalentes
 --> socket
 --> Rate Limiting
+
+////////////////////////
+observações:
+para ajustar o timezone, lembrar de adicionar no docker
+    environment:
+      TZ: America/Sao_Paulo
+      PGTZ: America/Sao_Paulo
+      # ...existing environment...
+    command: postgres -c timezone=America/Sao_Paulo
+    # ...existing config...

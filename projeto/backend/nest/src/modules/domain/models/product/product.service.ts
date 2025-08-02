@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
@@ -114,11 +114,11 @@ export class ProductService {
     //! validações
     const category = await this.categoryService.findOne(createProductDto.categoryId);
     if (!category)
-      throw new Error('Category not found');
+      throw new NotFoundException('Category not found');
 
     const nameExists = await this.productRepository.exists({ where: { name: createProductDto.name } });
     if (nameExists)
-      throw new Error('Product with this name already exists');
+      throw new BadRequestException('Product with this name already exists');
   }
 
   private async createSetBanner(createProductDto: CreateProductDto, newProduct: Product) {
@@ -137,18 +137,18 @@ export class ProductService {
   private async updateValidations(id: number, updateProductDto: UpdateProductDto) {
     const product = await this.productRepository.findOne({ where: { id } });
     if (!product)
-      throw new Error('Product not found');
+      throw new NotFoundException('Product not found');
 
     if (updateProductDto.categoryId) {
       const category = await this.categoryService.findOne(updateProductDto.categoryId);
       if (!category)
-        throw new Error('Category not found');
+        throw new NotFoundException('Category not found');
     }
 
     if (updateProductDto.name) {
       const nameExists = await this.productRepository.findOne({ where: { name: updateProductDto.name, id: Not(id) } });
       if (nameExists)
-        throw new Error('Product with this name already exists');
+        throw new BadRequestException('Product with this name already exists');
     }
 
     return product;
@@ -157,11 +157,11 @@ export class ProductService {
   private async removeValidations(id: number) {
     const product = await this.productRepository.findOne({ where: { id } });
     if (!product)
-      throw new Error('Product not found');
+      throw new NotFoundException('Product not found');
 
     const orders = await this.orderService.findAllOrders({ filters: { productId: id } });
     if (orders.total > 0)
-      throw new Error('Cannot delete product that is associated with orders');
+      throw new BadRequestException('Cannot delete product that is associated with orders');
 
     return product;
   }

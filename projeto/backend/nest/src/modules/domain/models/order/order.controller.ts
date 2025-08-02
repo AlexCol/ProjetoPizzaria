@@ -41,7 +41,7 @@ export class OrderController {
   @Post(":orderId/item")
   async addOrderItem(
     @Param('orderId') orderId: number,
-    @Body() orderItemDto: CreateOrderItemDto
+    @Body() orderItemDto: CreateOrderItemDto[]
   ) {
     return await this.orderService.addOrderItem(orderId, orderItemDto);
   }

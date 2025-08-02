@@ -2,7 +2,7 @@ export default class Semaphore {
   private tasks: Array<() => void> = [];
   private counter: number;
 
-  constructor(private maxConcurrency: number) {
+  constructor(maxConcurrency: number) {
     this.counter = maxConcurrency;
   }
 

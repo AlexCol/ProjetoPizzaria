@@ -39,6 +39,7 @@ export class OrderService {
       this.addFilters(queryBuilder, filters);
 
     // ✅ Ordenação
+    console.log(`Sorting by field: ${field}, order: ${order}`);
     queryBuilder.orderBy(`order.${field}`, order);
 
     // ✅ Paginação
@@ -71,42 +72,39 @@ export class OrderService {
       throw new NotFoundException('User not found');
     }
 
-    for (const ordemItem of createOrderDto.itens) {
-      const product = await this.productService.findOne(ordemItem.productId);
-      if (!product) {
-        throw new NotFoundException(`Product not found: ${ordemItem.productId}`);
+    if (createOrderDto.itens?.length > 0) {
+      for (const ordemItem of createOrderDto.itens) {
+        const product = await this.productService.findOne(ordemItem.productId);
+        if (!product) {
+          throw new NotFoundException(`Product not found: ${ordemItem.productId}`);
+        }
       }
     }
 
     const order = this.orderRepository.create({ ...createOrderDto, userId, user });
-    return await this.orderRepository.save(order);
+    const result = await this.orderRepository.save(order);
+    console.log(result.criadoEm);
+    console.log(new Date(result.criadoEm));
+    return result;
   }
 
-  async addOrderItem(orderId: number, orderItemDto: CreateOrderItemDto) {
+  async addOrderItem(orderId: number, orderItemDtoList: CreateOrderItemDto[]) {
+    // ✅ Validações iniciais
     const order = await this.findOneOrder(orderId);
     if (!order)
       throw new NotFoundException(`Order with id ${orderId} not found`);
     if (order.status) //true = fullfilled
       throw new BadRequestException(`Cannot add item to order with id ${orderId} because it is already fulfilled`);
-    const product = await this.productService.findOne(orderItemDto.productId);
-    if (!product) {
-      throw new NotFoundException(`Product not found: ${orderItemDto.productId}`);
-    }
 
-    const existingItem = await this.orderItemRepository.findOne({
-      where: { orderId, productId: orderItemDto.productId }
+    const results = await this.orderRepository.manager.transaction(async (entityManager) => {
+      return this.processOrderItemsAsync(entityManager, orderId, orderItemDtoList)
     });
 
-    if (existingItem) {
-      // Atualizar quantidade ao invés de criar novo item
-      existingItem.amount += orderItemDto.amount;
-      await this.orderItemRepository.save(existingItem);
-      return { message: `Order item updated successfully`, orderItem: existingItem };
-    }
-
-    const orderItem = this.orderItemRepository.create({ ...orderItemDto, orderId });
-    await this.orderItemRepository.save(orderItem);
-    return { message: `Order item added successfully`, orderItem };
+    return {
+      message: `Order items processed successfully`,
+      totalProcessed: results.length,
+      details: results
+    };
   }
 
   async updateOrderItemAmount(orderItemId: number, amount: number) {
@@ -200,6 +198,7 @@ export class OrderService {
     status: true,
     draft: true,
     name: true,
+    criadoEm: true,
     user: {
       //id: true,
       name: true,
@@ -225,6 +224,7 @@ export class OrderService {
       'order.status',
       'order.draft',
       'order.name',
+      'order.criadoEm',
       'user.name',
       'itens.id',
       'itens.amount',
@@ -263,6 +263,35 @@ export class OrderService {
         : [filters.productId];
       queryBuilder.andWhere('itens.productId IN (:...productIds)', { productIds });
     }
+  }
+
+  private async processOrderItemsAsync(entityManager, orderId: number, orderItemDtoList: CreateOrderItemDto[]) {
+    const processedItems: { action: string; item: OrderItem }[] = [];
+
+    for (const orderItemDto of orderItemDtoList) {
+      // ✅ Validações iniciais
+      const product = await this.productService.findOne(orderItemDto.productId);
+      if (!product)
+        throw new NotFoundException(`Product not found: ${orderItemDto.productId}`);
+
+      //✅ Verificar se item já existe no pedido
+      const existingItem = await entityManager.findOne(OrderItem, {
+        where: { orderId, productId: orderItemDto.productId }
+      });
+
+      if (existingItem) {
+        // Atualizar quantidade existente
+        existingItem.amount += orderItemDto.amount;
+        await entityManager.save(existingItem);
+        processedItems.push({ action: 'updated', item: existingItem });
+      } else {
+        // Criar novo item
+        const orderItem = entityManager.create(OrderItem, { ...orderItemDto, orderId });
+        await entityManager.save(orderItem);
+        processedItems.push({ action: 'created', item: orderItem });
+      }
+    }
+    return processedItems;
   }
 }
 
