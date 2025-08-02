@@ -19,9 +19,9 @@ export class CreateOrderDto {
   @IsOptional()
   name: string;
 
-  @IsNumber()
-  @IsNotEmpty()
-  userId: number;
+  // @IsNumber()
+  // @IsNotEmpty()
+  // userId: number; //deve vir do token JWT
 
   @IsArray()
   @ArrayNotEmpty({ message: 'Order items cannot be empty' })

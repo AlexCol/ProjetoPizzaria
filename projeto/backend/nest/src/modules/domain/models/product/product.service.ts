@@ -159,7 +159,7 @@ export class ProductService {
     if (!product)
       throw new Error('Product not found');
 
-    const orders = await this.orderService.findAll({ filters: { productId: id } });
+    const orders = await this.orderService.findAllOrders({ filters: { productId: id } });
     if (orders.total > 0)
       throw new Error('Cannot delete product that is associated with orders');
 
