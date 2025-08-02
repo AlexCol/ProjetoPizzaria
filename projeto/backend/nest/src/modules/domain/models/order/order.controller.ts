@@ -46,6 +46,14 @@ export class OrderController {
     return await this.orderService.addOrderItem(orderId, orderItemDto);
   }
 
+  @Patch('item/:id/amount/:amount')
+  async updateOrderItemAmount(
+    @Param('id') id: number,
+    @Param('amount') amount: number
+  ) {
+    return await this.orderService.updateOrderItemAmount(id, amount);
+  }
+
   @Patch(':id')
   async updateOrder(
     @Param('id') id: number,

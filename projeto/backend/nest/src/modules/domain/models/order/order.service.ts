@@ -109,6 +109,26 @@ export class OrderService {
     return { message: `Order item added successfully`, orderItem };
   }
 
+  async updateOrderItemAmount(orderItemId: number, amount: number) {
+    if (amount <= 0)
+      throw new BadRequestException(`Amount must be greater than zero`);
+
+    const orderItem = await this.orderItemRepository.findOne({ where: { id: orderItemId } });
+    if (!orderItem)
+      throw new NotFoundException(`Order item with id ${orderItemId} not found`);
+
+    const order = await this.findOneOrder(orderItem.orderId);
+    if (!order)
+      throw new NotFoundException(`Order with id ${orderItem.orderId} not found`);
+
+    if (order.status) //true = fullfilled
+      throw new BadRequestException(`Cannot update item amount for order with id ${orderItem.orderId} because it is already fulfilled`);
+
+    orderItem.amount = amount;
+    await this.orderItemRepository.save(orderItem);
+    return { message: `Order item amount updated successfully`, orderItem };
+  }
+
   async updateOrder(id: number, updateOrderDto: UpdateOrderDto) {
     const order = await this.findOneOrder(id);
     if (!order)
