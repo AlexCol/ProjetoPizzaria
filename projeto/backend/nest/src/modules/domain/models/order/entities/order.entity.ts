@@ -32,6 +32,10 @@ export class Order {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @OneToMany(() => OrderItem, orderItem => orderItem.order, { eager: true, cascade: true })
+  @OneToMany(
+    () => OrderItem,
+    orderItem => orderItem.order,
+    { /*eager: true,*/ cascade: true }  //removido eager pois ele força todos os campos a serem carregados
+  )
   itens: OrderItem[];
 }

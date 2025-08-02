@@ -15,15 +15,17 @@ export class GzipInterceptor implements NestInterceptor {
     const ctx = context.switchToHttp();
     const res = ctx.getResponse();
 
-    // Seta o header correto
-    res.header('Content-Encoding', 'gzip');
-    res.header('Content-Type', 'application/json');
-
     return next.handle().pipe(
       map((data) => {
         this.logger.log('📦 GzipInterceptor chamado.');
+        if (data === null || data === undefined) // Se não houver dados, retorna um objeto vazio
+          return {};
         if (!data)
-          return data; // Se não houver dados, retorna como está
+          return data; // Se os dados não forem válidos, retorna como estão
+
+        // Seta o header correto
+        res.header('Content-Encoding', 'gzip');
+        res.header('Content-Type', 'application/json');
         const json = JSON.stringify(data);
         return zlib.gzipSync(json);
       }),

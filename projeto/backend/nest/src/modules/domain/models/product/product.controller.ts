@@ -19,10 +19,11 @@ export class ProductController {
     @Query('name') name?: string,
     @Query('category_id') categoryId?: number,
     @Query('bring_category') bringCategory?: boolean,
+    @Query('bring_banner') bringBanner?: boolean,
     @BaseQueryParam() baseQuery?: BaseQueryParamType,
   ) {
     return await this.productService.findAll({
-      filters: { id, name, categoryId, bringCategory },
+      filters: { id, name, categoryId, bringCategory, bringBanner },
       pagination: baseQuery?.pagination,
       sort: baseQuery?.sort,
     });

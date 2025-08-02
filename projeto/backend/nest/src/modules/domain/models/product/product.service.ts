@@ -8,6 +8,7 @@ import { CategoryService } from '../category/category.service';
 import { GetProductFilters } from './types/products.filters';
 import { BaseQueryType } from '../../common/types/base-query';
 import { UploadFileService } from 'src/modules/upload-file/upload-file.service';
+import { OrderService } from '../order/order.service';
 
 @Injectable()
 export class ProductService {
@@ -16,6 +17,8 @@ export class ProductService {
     private readonly productRepository: Repository<Product>,
     @Inject(forwardRef(() => CategoryService)) //necessário devido a referencia circular entre CategoryService e ProductService
     private readonly categoryService: CategoryService,
+    @Inject(forwardRef(() => OrderService)) //necessário devido a referencia circular entre ProductService e OrderService
+    private readonly orderService: OrderService,
     private readonly uploadFileService: UploadFileService, // Importando o serviço de upload
   ) { }
 
@@ -43,7 +46,9 @@ export class ProductService {
     const [products, total] = await queryBuilder.getManyAndCount();
 
     for (const product of products)
-      product.banner = await this.uploadFileService.getFile(product.banner || '', 'products');
+      product.banner = filters?.bringBanner
+        ? await this.uploadFileService.getFile(product.banner || '', 'products')
+        : undefined;
 
     return {
       products,
@@ -75,7 +80,7 @@ export class ProductService {
       updateProductDto.banner = await this.uploadFileService.updateFile(updateProductDto.banner, 'products', `product_${product.id}`, product.banner);
 
     await this.productRepository.update(id, updateProductDto);
-    return "Product updated successfully";
+    return { message: `Product with id ${id} updated successfully` };
   }
 
   async remove(id: number) {
@@ -84,7 +89,7 @@ export class ProductService {
     if (product.banner)
       await this.uploadFileService.excludeFile(product.banner, 'products');
 
-    return "Product removed successfully";
+    return { message: `Product with id ${id} deleted successfully` };
   }
 
   //****************************************************************************
@@ -140,9 +145,11 @@ export class ProductService {
         throw new Error('Category not found');
     }
 
-    const nameExists = await this.productRepository.exists({ where: { name: updateProductDto.name, id: Not(id) } });
-    if (nameExists)
-      throw new Error('Product with this name already exists');
+    if (updateProductDto.name) {
+      const nameExists = await this.productRepository.findOne({ where: { name: updateProductDto.name, id: Not(id) } });
+      if (nameExists)
+        throw new Error('Product with this name already exists');
+    }
 
     return product;
   }
@@ -152,7 +159,9 @@ export class ProductService {
     if (!product)
       throw new Error('Product not found');
 
-    //TODO - pode verificar se o produto está sendo usado em algum pedido antes de remover
+    const orders = await this.orderService.findAll({ filters: { productId: id } });
+    if (orders.total > 0)
+      throw new Error('Cannot delete product that is associated with orders');
 
     return product;
   }

@@ -63,7 +63,7 @@ export class CategoryService {
       throw new BadRequestException('Category not found');
 
     await this.categoryRepository.update(id, updateCategoryDto);
-    return "Category updated successfully";
+    return { message: `Category with id ${id} updated successfully` };
   }
 
   async remove(id: number) {
@@ -76,7 +76,7 @@ export class CategoryService {
       throw new BadRequestException('Cannot delete category with associated products');
 
     await this.categoryRepository.delete(id);
-    return "Category removed successfully";
+    return { message: `Category with id ${id} deleted successfully` };
   }
 
   private addFilters(queryBuilder, filters: GetCategoryFilters) {

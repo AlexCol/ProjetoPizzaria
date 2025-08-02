@@ -16,7 +16,7 @@ export class OrderItem {
   @Column({ name: 'product_id' })
   productId: number;
 
-  @ManyToOne(() => Order, { eager: false })
+  @ManyToOne(() => Order, { eager: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'order_id', foreignKeyConstraintName: 'fk_order_item_order' })
   order: Order;
 

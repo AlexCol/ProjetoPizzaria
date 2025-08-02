@@ -3,4 +3,5 @@ export interface GetProductFilters {
   name?: string;
   categoryId?: number;
   bringCategory?: boolean;
+  bringBanner?: boolean;
 }
