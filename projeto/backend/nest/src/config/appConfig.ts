@@ -1,11 +1,13 @@
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { NestFastifyApplication } from "@nestjs/platform-fastify";
 import multipart from '@fastify/multipart';
+import fastifyHelmet from '@fastify/helmet';
 
 export class AppConfig {
   public static configure(app: NestFastifyApplication): void {
     this.setPipes(app);
     this.registerMultipart(app);
+    this.registerHelmet(app);
     this.setCors(app);
   }
 
@@ -23,6 +25,10 @@ export class AppConfig {
         fileSize: 5 * 1024 * 1024, // Limite de 5MB        
       },
     });
+  }
+
+  private static registerHelmet(app: NestFastifyApplication): void {
+    app.register(fastifyHelmet);
   }
 
   private static setCors(app: NestFastifyApplication): void {

@@ -19,15 +19,18 @@
 
 --criado processo de order e order items (e tido que ajustar questão de data - criado interceptor para isso)
 
+--adicionado rate limiting (throttle?)
+
+--> configurado cors
+
+--> adicionado helmet
+
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 --> adicionar:
-
---> helmet - e equivalentes
 --> socket
---> Rate Limiting
 
 ////////////////////////
 observações:
