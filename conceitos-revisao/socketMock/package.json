@@ -1,0 +1,21 @@
+{
+  "name": "socket-mock",
+  "version": "1.0.0",
+  "description": "A mock server for testing socket.io applications",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node-dev --transpile-only --quiet src/main.ts"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "readline-sync": "^1.4.10",
+    "socket.io-client": "^4.8.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.1.0",
+    "@types/readline-sync": "^1.4.8",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}
