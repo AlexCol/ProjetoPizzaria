@@ -12,7 +12,7 @@ import { GzipInterceptor } from 'src/common/interceptors/czip.interceptor';
 import { UploadFileModule } from './upload-file/upload-file.module';
 import { TimezoneInterceptor } from 'src/common/interceptors/timezone.interceptor';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { SocketModule } from 'src/socket/socket.module';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
   imports: [

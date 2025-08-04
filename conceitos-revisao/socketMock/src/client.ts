@@ -13,6 +13,9 @@ export class SocketClient {
       auth: {
         token: 'SEU_TOKEN_JWT_AQUI'
       },
+      extraHeaders: {
+        token: 'SEU_TOKEN_JWT_AQUI'
+      },
       // Configurações de reconexão
       reconnection: true,
       reconnectionAttempts: 5, // Máximo 5 tentativas
