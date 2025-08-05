@@ -28,6 +28,15 @@ async function main() {
     res.sendStatus(200);
   });
 
+  app.post('/ping2', async (req: Request, res: Response) => {
+    const { service, data } = req.body;
+    if (!service || !data) {
+      return res.status(400).send('Service and data parameters are required');
+    }
+    client.commands.sendPing(service, data);
+    res.sendStatus(200);
+  });
+
   try {
     await waitForConnection(client.socket);
     console.log('Conectado ao servidor.');

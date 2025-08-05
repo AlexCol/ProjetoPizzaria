@@ -24,6 +24,22 @@ export function addCommands(socket: Socket) {
     }
   }
 
+  function sendPing(service: string, data: any) {
+    if (!isConnected()) {
+      console.log('⚠️ Socket não está conectado. Ping não enviado.');
+      return;
+    }
+    console.log('Enviando ping...');
+    console.log('Socket status:', socket.connected);
+
+    const pingData = { service, data };
+
+    const response = socket.emit('ping2', pingData); //aguarda a resposta
+    if (response) {
+      console.log('Resposta Ack:', response);
+    }
+  }
+
   function disconnect() {
     if (!isConnected()) {
       console.log('⚠️ Socket já está desconectado.');
@@ -35,6 +51,7 @@ export function addCommands(socket: Socket) {
 
   return {
     sendGenericCommand,
+    sendPing,
     disconnect
   };
 }
