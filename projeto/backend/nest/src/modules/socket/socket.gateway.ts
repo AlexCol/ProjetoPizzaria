@@ -55,6 +55,23 @@ export class SocketGateway {//implements OnModuleInit { //para usar o onModuleIn
     console.log('Cliente desconectado:', client.id);
   }
 
+  @SubscribeMessage('sendMessage') //ping usando o padrão do nestjs
+  async handleSendMessage(@MessageBody() data: any) {
+    const { userId, event, message } = data;
+    console.log(data);
+    await this.sendMessageToClientId(userId, event, message);
+  }
+
+  async sendMessageToClientId(userId: string, event: string, message: any) {
+    // Exemplo de envio de mensagem para um cliente específico
+    this.server.sockets.sockets.forEach((socket) => {
+      const socketUserId = socket.handshake.headers.userid;
+      if (socketUserId === userId) {
+        socket.emit(event, message);
+      }
+    });
+  }
+
   @SubscribeMessage('get-users') //ping usando o padrão do nestjs
   async handleGetUsers(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
     //console.log(client);
