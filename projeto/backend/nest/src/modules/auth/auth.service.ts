@@ -7,6 +7,7 @@ import { User } from "../domain/models/users/entities/user.entity";
 import { LoginDto } from "./dto/login.dto";
 import { RefreshTokenDto } from "./dto/refresh-token.dto";
 import { UsersService } from "../domain/models/users/users.service";
+import { TokenPayloadDto } from "./dto/token-payload.dto";
 
 @Injectable()
 export class AuthService {
@@ -42,7 +43,8 @@ export class AuthService {
   }
 
   async refreshTokens(refreshTokenDto: RefreshTokenDto) {
-    const { id } = await this.jwtService.verifyAsync(refreshTokenDto.refreshToken, this.jwtConfiguration); // Verify the refresh token and extract the user ID
+    //const { id } = await this.jwtService.verifyAsync(refreshTokenDto.refreshToken, this.jwtConfiguration); // Verify the refresh token and extract the user ID
+    const { id } = await this.verifyJwtAsync(refreshTokenDto.refreshToken); // Verify the refresh token and extract the user ID
     const user = await this.userService.findOne(id); // Find the user by ID
     if (!user || !user.ativo) {
       throw new UnauthorizedException('User not found or inactive');
@@ -53,6 +55,10 @@ export class AuthService {
       ...tokens,
       origin: 'njs',
     };
+  }
+
+  public async verifyJwtAsync(token: string): Promise<TokenPayloadDto> {
+    return await this.jwtService.verifyAsync(token, this.jwtConfiguration);
   }
 
   private async createTokens(user: User) {
@@ -77,5 +83,4 @@ export class AuthService {
       }
     );
   }
-
 }

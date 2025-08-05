@@ -29,6 +29,7 @@ import { AuthObfuscationFilter } from "./filters/authObfuscation.filter";
     //{ provide: APP_FILTER, useClass: AuthObfuscationFilter }, // Registering the AuthObfuscationFilter to handle exceptions globally
   ],
   exports: [
+    AuthService,
     IHashingService, // Exporting the IHashingService to be used in other modules
   ]
 
