@@ -29,18 +29,20 @@ export class SocketGateway {
   }
 
   async handleConnection(@ConnectedSocket() client: Socket) { //disparado automaticamente quando o cliente se conecta (precisa ser public)
-    this.logger.log('Tentando autenticar cliente:', client.id);
+    this.logger.verbose('Tentando autenticar cliente:', client.id);
     try {
       const userData = await this.verifyToken(client);
+      this.removeOldClientsWithSameToken(client); //remove clientes antigos com o mesmo token (para o caso de algum 'bug' no front que conecta mais de uma vez)
       client.handshake.headers['user_id'] = userData.id.toString();
+      this.logger.verbose('Cliente autenticado com sucesso:', client.id);
     } catch (err) {
-      this.logger.error('Token inválido, desconectando...');
+      this.logger.warn('Token inválido, desconectando...');
       client.disconnect();
     }
   }
 
   async handleDisconnect(@ConnectedSocket() client: Socket) { //disparado automaticamente quando o cliente se desconecta (precisa ser public)
-    //console.log('Cliente desconectado:', client.id);
+    this.logger.log('Cliente desconectado:', client.id);
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!METODOS PUBLICOS
@@ -50,7 +52,7 @@ export class SocketGateway {
         try {
           client.emit(event, data);
         } catch (error) {
-          this.logger.error('Erro ao enviar notificação para o usuário:', userId);
+          this.logger.verbose('Erro ao enviar notificação para o usuário:', userId);
         }
         return;
       }
@@ -60,19 +62,20 @@ export class SocketGateway {
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!METODOS SOCKET (CONTROLLERS)
   @SubscribeMessage('ping') //ping usando o padrão do socket.io
   async handlePing(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
-    this.logger.log('Ping recebido');
+    this.logger.verbose('Ping recebido');
     try {
       const jwt = await this.verifyToken(client); // Verifica o token do cliente
-      console.log(jwt.exp);
+      this.logger.verbose('Token verificado com sucesso');
+
       if (jwt.exp - Math.floor(Date.now() / 1000) < 300) { //ver se falta menos de 5min para o token expirar
-        this.logger.warn('Token quase expirando, solicite novo token');
+        this.logger.verbose('Token quase expirando, enviado notificação de aviso.');
         client.emit('token_expiring', { message: 'Seu token está quase expirando, solicite um novo.' });
         return;
       }
 
-      this.logger.log('Token verificado com sucesso');
       client.emit('pong', { message: 'Pong sem usuário identificado', data });
     } catch (error) {
+      this.logger.warn('Token inválido, desconectando client...');
       client.disconnect();
     }
   }
@@ -84,6 +87,17 @@ export class SocketGateway {
       return await this.authService.verifyJwtAsync(token);
     } catch (error) {
       throw error;
+    }
+  }
+
+  private removeOldClientsWithSameToken(client: Socket) {
+    const token = client.handshake.auth.token || client.handshake.headers.token;
+    for (const existingClient of this.server.sockets.sockets.values()) {
+      const existingClientToken = existingClient.handshake.auth.token || existingClient.handshake.headers.token;
+      if (existingClientToken === token && existingClient.id !== client.id) {
+        this.logger.warn(`Cliente duplicado encontrado: ${existingClient.id}`);
+        existingClient.disconnect();
+      }
     }
   }
 
