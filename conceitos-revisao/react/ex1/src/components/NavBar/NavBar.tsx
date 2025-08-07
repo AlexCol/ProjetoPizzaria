@@ -14,6 +14,9 @@ function NavBar() {
           <li className={navBarStyles.navItem}>
             <Link href="/sobre">About</Link>
           </li>
+          <li className={navBarStyles.navItem}>
+            <Link href="/contatos">Contact</Link>
+          </li>
         </ul>
       </nav>
     </div>
