@@ -15,7 +15,7 @@ function BotaoComAcao() {
         px-4
         rounded'
       onClick={() => setCounter(counter + 1)}>
-      Clique para incrementar: {counter}
+      Clique para incrementar: {counter}-
     </button>
   )
 }
