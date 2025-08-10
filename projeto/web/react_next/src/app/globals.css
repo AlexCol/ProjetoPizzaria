@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@theme {
+html.theme-loading {
+  visibility: hidden;
 }
-
-@variant dark (&:where(.dark, .dark *));
-@variant light (&:where(.light, .light *));
