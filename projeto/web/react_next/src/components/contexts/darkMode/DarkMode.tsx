@@ -7,7 +7,7 @@ function DarkMode({ children }: { children: React.ReactNode }) {
       attribute="class"
       defaultTheme="system"
       enableSystem
-      disableTransitionOnChange
+    //storageKey='dark-theme'
     >
       {children}
     </ThemeProvider>

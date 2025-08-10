@@ -16,4 +16,5 @@ const footerTailwindClass = `
   items-center
   justify-center
   bg-gray-200
+  dark:bg-gray-800
 `;

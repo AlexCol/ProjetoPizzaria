@@ -10,7 +10,10 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={htmlTailwindClass}>
+    <html lang="pt-BR"
+      className={htmlTailwindClass}
+      suppressHydrationWarning
+    >
       <body className={bodyTailwindClass}>
         <DarkMode>
           <App>
