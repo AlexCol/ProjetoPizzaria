@@ -1,20 +1,16 @@
+import Footer from '@/components/layout/Footer/Footer';
+import Header from '@/components/layout/Header/Header';
+import Main from '@/components/layout/Main/Main';
 import React from 'react'
 
 function App({ children }: { children: React.ReactNode }) {
-
-  //! aqui englobo com redux
-  console.log("App component rendered");
   return (
     <>
-      <header> {/*vai virar o componente header*/}
-        <h1>Pizzaria Coletti</h1>
-      </header>
-      <main> {/*vai virar o componente main*/}
+      <Header />
+      <Main>
         {children}
-      </main>
-      <footer> {/*vai virar o componente footer*/}
-        <p>© 2023 Pizzaria Coletti</p>
-      </footer>
+      </Main>
+      <Footer />
     </>
   )
 }

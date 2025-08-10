@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="antialiased">
+    <html lang="pt-BR" className={htmlTailwindClass}>
+      <body className={bodyTailwindClass}>
         <App>
           {children}
         </App>
@@ -19,3 +19,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
+const htmlTailwindClass = `
+  flex 
+  flex-col 
+  h-full
+`;
+
+const bodyTailwindClass = `
+  dark
+  flex
+  flex-col 
+  h-full
+  bg-white
+  text-gray-900
+`;
