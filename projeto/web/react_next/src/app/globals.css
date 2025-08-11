@@ -1,7 +1,17 @@
-@import "tailwindcss";
+@import "tailwindcss"; /* Importa as utilidades do Tailwind CSS para o projeto */
 
-@theme {
+html {
+  color-scheme: light dark; /* Informa ao navegador que a página suporta tema claro e escuro, ajustando elementos nativos conforme o tema do sistema */
 }
 
-@variant dark (&:where(.dark, .dark *));
-@variant light (&:where(.light, .light *));
+/* Oculta o conteúdo do body até que o ThemeProvider defina a classe .dark ou .light, evitando flash de tema errado */
+html:not(.dark):not(.light) body {
+  visibility: hidden;
+}
+
+@theme {
+  /* Placeholder para customizações de tema, se necessário */
+}
+
+@variant dark (&:where(.dark, .dark *)); /* Define variantes para aplicar estilos quando .dark está presente */
+@variant light (&:where(.light, .light *)); /* Define variantes para aplicar estilos quando .light está presente */

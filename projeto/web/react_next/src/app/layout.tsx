@@ -8,12 +8,32 @@ export const metadata: Metadata = {
   description: "Pizzaria Coletti",
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR"
-      className={htmlTailwindClass}
-      suppressHydrationWarning
-    >
+    <html lang="pt-BR" className={htmlTailwindClass} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+        (function() {
+          try {
+            var stored = localStorage.getItem('darkMode');
+            var isDark = stored ? JSON.parse(stored) 
+              : window.matchMedia('(prefers-color-scheme: dark)').matches;
+            var root = document.documentElement;
+            if (isDark) {
+              root.classList.add('dark');
+              root.classList.remove('light');
+            } else {
+              root.classList.add('light');
+              root.classList.remove('dark');
+            }
+          } catch (e) {}
+        })();`
+          }}
+        />
+      </head>
+
       <body className={bodyTailwindClass}>
         <DarkMode>
           <App>

@@ -7,7 +7,7 @@ import React from 'react';
 export default async function LayoutUnAuthOnly({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const authenticated = true;
+  const authenticated = false;
 
   if (!authenticated) {
     redirect('/auth/login');
