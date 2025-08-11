@@ -7,6 +7,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 //*************************************************************
 function Auth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const localStorageKey = 'authKey';
 
   function signIn() {
@@ -19,6 +20,12 @@ function Auth() {
     setIsAuthenticated(false);
   }
 
+  useEffect(() => {
+    const localStorageValue = localStorage.getItem('authKey');
+    setIsAuthenticated(localStorageValue === 'true');
+    setIsLoadingAuth(false);
+  }, [])
+
   useLocalStorageListener(localStorageKey, (newValue) => {
     if (isAuthenticated)
       signOut();
@@ -26,6 +33,7 @@ function Auth() {
 
   return {
     isAuthenticated,
+    isLoadingAuth,
     signIn,
     signOut
   }
@@ -35,7 +43,7 @@ export type AuthContextType = ReturnType<typeof Auth>;
 //*************************************************************
 //* Criando o contexto, com base no tipo acima
 //*************************************************************
-//! mantem privado pra 
+//! mantem privado pra forçar o uso de useAuthContext
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 //*************************************************************
