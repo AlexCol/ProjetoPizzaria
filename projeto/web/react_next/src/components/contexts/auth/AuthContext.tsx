@@ -11,8 +11,10 @@ function Auth() {
   const localStorageKey = 'authKey';
 
   function signIn() {
+    setIsLoadingAuth(true);
     localStorage.setItem(localStorageKey, 'true'); // Simula o login
     setIsAuthenticated(true);
+    setIsLoadingAuth(false);
   }
 
   function signOut() {

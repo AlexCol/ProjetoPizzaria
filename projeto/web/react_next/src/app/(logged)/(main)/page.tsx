@@ -1,19 +1,17 @@
-'use client';
+//'use client';
 
 import { useAuthContext } from "@/components/contexts/auth/AuthContext";
 
-export default function Home() {
-  const { signOut, isLoadingAuth } = useAuthContext();
-
-  if (isLoadingAuth) {
-    return <div>Loading...</div>;
-  }
+export async function Home() {
+  //const { signOut } = useAuthContext();
+  await new Promise((resolve) => setTimeout(resolve, 2000));
 
   return (
     <>
       <h1>Hello World</h1>
       <h1>Hello World</h1>
-      <button onClick={signOut}>Sair</button>
+      {/* <button onClick={signOut}>Sair</button> */}
     </>
   );
 }
+export default Home;
