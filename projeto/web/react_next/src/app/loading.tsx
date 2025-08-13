@@ -1,11 +1,5 @@
-import React from 'react'
+import LoadingTailwind from "@/components/layout/Loading/LoadingTailwind";
 
-function Loading() {
-  return (
-    <div className='flex items-center justify-center h-screen'>
-      <div>Loading...</div>
-    </div>
-  )
+export default function Loading() {
+  return <LoadingTailwind />;
 }
-
-export default Loading
