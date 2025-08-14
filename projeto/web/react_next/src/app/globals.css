@@ -11,6 +11,38 @@ html:not(.dark):not(.light) body {
 
 @theme {
   /* Placeholder para customizações de tema, se necessário */
+  --color-red-900-pizzaria: #ff3f4b;
+  --color-dark-900-pizzaria: #101026;
+  --color-dark-700-pizzaria: #1d1d2e;
+  --color-gray-100-pizzaria: #8a8a8a;
+  --color-green-900-pizzaria: #3fffa3;
+
+  --color-red-300-pizzaria: #d7263d;      /* Vermelho menos vibrante, mais suave para light */
+  --color-dark-300-pizzaria: #f4f4f4;     /* Fundo claro */
+  --color-dark-100-pizzaria: #e5e5e5;     /* Fundo secundário claro */
+  --color-gray-50-pizzaria: #333333;     /* Cinza escuro para texto */
+  --color-green-300-pizzaria: #1ebc61; 
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+body, input, textarea, select, button {
+  font-weight: 400;
+  font-size: 1rem;
+  font-family: sans-serif;
+}
+
+@media (max-width: 720px) {
+  body, input, textarea, select, button {
+    font-size: 87.5%;
+  }
 }
 
 @variant dark (&:where(.dark, .dark *)); /* Define variantes para aplicar estilos quando .dark está presente */

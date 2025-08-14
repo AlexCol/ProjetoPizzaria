@@ -55,7 +55,7 @@ const bodyTailwindClass = `
   flex
   flex-col 
   h-full
-  bg-white dark:bg-gray-900 
-  text-gray-900 dark:text-white
+  bg-dark-100-pizzaria dark:bg-dark-700-pizzaria 
+  text-dark-900-pizzaria dark:text-dark-300-pizzaria
   transition-colors duration-300
 `;
