@@ -29,21 +29,22 @@ function Login() {
             placeholder="Email"
             required
           />
-
           <input
             className={loginStyles.input}
             type="password"
             placeholder="Password"
             required
           />
-
-          <button type="submit" disabled={isLoadingAuth}>
-            {isLoadingAuth ? 'Loading...' : 'Login'}
+          <button
+            type="submit"
+            disabled={isLoadingAuth}
+            className={loginStyles.button}
+          >
+            {isLoadingAuth ? 'Loading...' : 'Acessar'}
           </button>
         </form>
-
-        <Link href="/auth/register">
-          Não possui uma conta? Cadastre-se.
+        <Link href="/auth/register" className={loginStyles.link}>
+          Registrar minha empresa
         </Link>
       </section>
     </div>
