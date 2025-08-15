@@ -11,17 +11,17 @@ html:not(.dark):not(.light) body {
 
 @theme {
   /* Placeholder para customizações de tema, se necessário */
-  --color-red-900-pizzaria: #ff3f4b;
-  --color-dark-900-pizzaria: #101026;
-  --color-dark-700-pizzaria: #1d1d2e;
-  --color-gray-100-pizzaria: #8a8a8a;
-  --color-green-900-pizzaria: #3fffa3;
+  --color-dark-red-900-pizzaria: #ff3f4b;
+  --color-dark-green-900-pizzaria: #3fffa3;
+  --color-dark-gray-900-pizzaria: #101026;
+  --color-dark-gray-700-pizzaria: #1d1d2e;
+  --color-dark-gray-100-pizzaria: #e5e5e5;
 
-  --color-red-300-pizzaria: #d7263d;      /* Vermelho menos vibrante, mais suave para light */
-  --color-dark-300-pizzaria: #f4f4f4;     /* Fundo claro */
-  --color-dark-100-pizzaria: #e5e5e5;     /* Fundo secundário claro */
-  --color-gray-50-pizzaria: #333333;     /* Cinza escuro para texto */
-  --color-green-300-pizzaria: #1ebc61; 
+  --color-light-red-300-pizzaria: #d7263d;      /* Vermelho menos vibrante, mais suave para light */
+  --color-light-green-300-pizzaria: #1ebc61; 
+  --color-light-gray-300-pizzaria: #f4f4f4;     /* Fundo claro */
+  --color-light-gray-100-pizzaria: #e5e5e5;     /* Fundo secundário claro */
+  --color-light-gray-900-pizzaria: #333333;     /* Cinza escuro para texto */
 }
 
 button {

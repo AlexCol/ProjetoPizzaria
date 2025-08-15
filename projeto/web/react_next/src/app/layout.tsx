@@ -12,6 +12,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" className={htmlTailwindClass} suppressHydrationWarning>
       <head>
+        {/*esse script é pra já iniciar o dark mode no lado do cliente e evitar um flash de conteúdo */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -55,7 +56,7 @@ const bodyTailwindClass = `
   flex
   flex-col 
   h-full
-  bg-dark-100-pizzaria dark:bg-dark-700-pizzaria 
-  text-dark-900-pizzaria dark:text-dark-300-pizzaria
+  bg-light-gray-100-pizzaria dark:bg-dark-gray-700-pizzaria
+  text-light-gray-900-pizzaria dark:text-dark-gray-100-pizzaria
   transition-colors duration-300
 `;

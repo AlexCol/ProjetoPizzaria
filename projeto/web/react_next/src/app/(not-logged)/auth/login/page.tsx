@@ -1,7 +1,9 @@
 'use client';
 import { useAuthContext } from '@/components/contexts/auth/AuthContext';
-import { useTheme } from 'next-themes';
-import React from 'react'
+import React from 'react';
+import { loginStyles } from './login.styles';
+import Image from 'next/image';
+import Link from 'next/link';
 
 function Login() {
   const { signIn, isLoadingAuth } = useAuthContext();
@@ -10,10 +12,41 @@ function Login() {
     return <div>Loading...</div>
 
   return (
-    <>
-      <div>Login</div>
-      <button onClick={signIn}>Entrar</button>
-    </>
+    <div className={loginStyles.container}>
+      <Image
+        src="/images/logo.png"
+        alt="Pizzaria Coletti"
+        title="Pizzaria Coletti"
+        width={150}
+        height={150}
+      />
+
+      <section className={loginStyles.login}>
+        <form onSubmit={signIn} className={loginStyles.form}>
+          <input
+            className={loginStyles.input}
+            type="email"
+            placeholder="Email"
+            required
+          />
+
+          <input
+            className={loginStyles.input}
+            type="password"
+            placeholder="Password"
+            required
+          />
+
+          <button type="submit" disabled={isLoadingAuth}>
+            {isLoadingAuth ? 'Loading...' : 'Login'}
+          </button>
+        </form>
+
+        <Link href="/auth/register">
+          Não possui uma conta? Cadastre-se.
+        </Link>
+      </section>
+    </div>
   )
 }
 
