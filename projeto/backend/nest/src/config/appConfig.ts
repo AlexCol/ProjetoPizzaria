@@ -2,13 +2,15 @@ import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { NestFastifyApplication } from "@nestjs/platform-fastify";
 import multipart from '@fastify/multipart';
 import fastifyHelmet from '@fastify/helmet';
+import fastifyCookie from "@fastify/cookie";
 
 export class AppConfig {
-  public static configure(app: NestFastifyApplication): void {
+  public static async configure(app: NestFastifyApplication): Promise<void> {
     this.setPipes(app);
     this.registerMultipart(app);
     this.registerHelmet(app);
     this.setCors(app);
+    await this.addCookies(app);
   }
 
   private static setPipes(app: NestFastifyApplication): void {
@@ -55,5 +57,9 @@ export class AppConfig {
 
       maxAge: 86400,           // ✅ Cache preflight por 24h
     });
+  }
+
+  private static async addCookies(app: NestFastifyApplication) {
+    await app.register(fastifyCookie, { secret: '' });
   }
 }

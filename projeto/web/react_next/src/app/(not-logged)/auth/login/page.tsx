@@ -1,38 +1,40 @@
 'use client';
-import { useAuthContext } from '@/components/contexts/auth/AuthContext';
 import React from 'react';
 import { loginStyles } from './login.styles';
 import Image from 'next/image';
 import Link from 'next/link';
+import useLogin from './useLogin';
 
 function Login() {
-  const { signIn, isLoadingAuth } = useAuthContext();
-
-  if (isLoadingAuth)
-    return <div>Loading...</div>
+  const { emailRef, passwordRef, signInHandler, isLoadingAuth, error, message } = useLogin();
 
   return (
     <div className={loginStyles.container}>
       <Image
-        src="/images/logo.png"
+        src="/images/logo3.png"
         alt="Pizzaria Coletti"
         title="Pizzaria Coletti"
-        width={150}
-        height={150}
+        width={250}
+        height={250}
+        className={loginStyles.logo}
+        priority
       />
 
       <section className={loginStyles.login}>
-        <form onSubmit={signIn} className={loginStyles.form}>
+        <form onSubmit={signInHandler} className={loginStyles.form}>
           <input
             className={loginStyles.input}
             type="email"
             placeholder="Email"
+            ref={emailRef}
+            autoComplete="email"
             required
           />
           <input
             className={loginStyles.input}
             type="password"
             placeholder="Password"
+            ref={passwordRef}
             required
           />
           <button
@@ -44,9 +46,10 @@ function Login() {
           </button>
         </form>
         <Link href="/auth/register" className={loginStyles.link}>
-          Registrar minha empresa
+          Não posso uma conta? Cadastra-se
         </Link>
       </section>
+      {error && <div className="text-red-500">{message}</div>}
     </div>
   )
 }

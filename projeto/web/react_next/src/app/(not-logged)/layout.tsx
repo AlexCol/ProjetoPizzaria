@@ -1,23 +1,27 @@
 'use client';
+import React, { useEffect } from 'react';
 import { useAuthContext } from '@/components/contexts/auth/AuthContext';
-import { redirect } from 'next/navigation'; // Corrigido para usar o import correto
-import React from 'react';
+import { useRouter } from 'next/navigation';
 import Loading from '../loading';
 
 export default function LayoutUnAuthOnly({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const router = useRouter();
   const { isAuthenticated, isLoadingAuth } = useAuthContext();
 
+  useEffect(() => {
+    if (isAuthenticated)
+      router.push('/');
+  }, [isAuthenticated])
+
   if (isLoadingAuth)
-    return (<Loading />);
+    return null;
 
-  if (isAuthenticated)
-    redirect('/');
-
-  return (
-    <>
-      {children}
-    </>
-  );
+  if (!isAuthenticated)
+    return (
+      <>
+        {children}
+      </>
+    );
 }

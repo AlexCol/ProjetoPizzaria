@@ -23,8 +23,7 @@ const formTailwindClass = `
   justify-center
   gap-4
   w-8/12
-  md:w-7/12
-  lg:w-6/12
+  md:w-lg
 `;
 
 const inputTailwindClass = `
@@ -48,12 +47,13 @@ const buttonTailwindClass = `
   py-2
   rounded-md
   font-bold
-  bg-dark-red-900-pizzaria
+  bg-light-red-300-pizzaria
   text-white
-  hover:bg-red-600
+  hover:bg-dark-red-900-pizzaria
   transition
   duration-200
   disabled:opacity-60
+  active:scale-99
 `;
 
 const linkTailwindClass = `
@@ -64,6 +64,11 @@ const linkTailwindClass = `
   transition
 `;
 
+const logoTailwindClass = `
+  w-auto
+  h-auto
+`;
+
 export const loginStyles = {
   container: containerTailwindClass,
   login: loginTailwindClass,
@@ -71,4 +76,5 @@ export const loginStyles = {
   input: inputTailwindClass,
   button: buttonTailwindClass,
   link: linkTailwindClass,
+  logo: logoTailwindClass
 };

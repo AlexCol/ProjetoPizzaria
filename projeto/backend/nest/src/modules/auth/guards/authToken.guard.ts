@@ -18,7 +18,10 @@ export class AuthTokenGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<FastifyRequest>();
-    const token = this.extractTokenFromHeader(request);
+
+    const token =
+      this.extractTokenFromCookie(request) ??
+      this.extractTokenFromHeader(request);
 
     const isPublic = this.reflector.get<boolean>('isPublic', context.getHandler());
     if (isPublic && !token) //se tiver token, mesmo que seja publico, ele será validado e barrado se mandar um jwt inválido
@@ -46,6 +49,19 @@ export class AuthTokenGuard implements CanActivate {
     }
 
     return true; // Se o token for válido, retorna true para permitir o acesso
+  }
+
+  extractTokenFromCookie(request: FastifyRequest): string | null {
+    try {
+      // fastify populates request.cookies as a plain object
+      const cookies = (request as any).cookies as Record<string, string> | undefined;
+      if (!cookies) return null;
+      const token = cookies['accessToken'];
+      if (!token) return null;
+      return typeof token === 'string' ? token : null;
+    } catch {
+      return null;
+    }
   }
 
   extractTokenFromHeader(request: FastifyRequest): string | null {
