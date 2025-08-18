@@ -9,24 +9,27 @@ import Loading from '../loading';
 
 export default function LayoutAuthOnly({ children, }: Readonly<{ children: React.ReactNode }>) {
   const router = useRouter();
-  const { isAuthenticated, isLoadingAuth } = useAuthContext();
+  const { isAuthenticated, isLoading } = useAuthContext();
 
   useEffect(() => {
-    if (!isAuthenticated)
+    if (!isAuthenticated && !isLoading) {
       router.push('/auth/login');
-  }, [isAuthenticated])
+    }
+  }, [isAuthenticated, isLoading])
 
-  if (isLoadingAuth)
-    return null;
+  if (isLoading)
+    return <Loading />; // Mostra loading visual
 
-  if (isAuthenticated)
-    return (
-      <>
-        <Header />
-        <Main>
-          {children}
-        </Main>
-        <Footer />
-      </>
-    );
+  if (!isAuthenticated)
+    return null; // Evita renderizar conteúdo protegido
+
+  return (
+    <>
+      <Header />
+      <Main>
+        {children}
+      </Main>
+      <Footer />
+    </>
+  );
 }

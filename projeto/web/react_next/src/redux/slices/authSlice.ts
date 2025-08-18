@@ -1,4 +1,3 @@
-// authSlice.ts
 import api from '@/services/api';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 
@@ -7,16 +6,12 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 //************************************************************************
 export type AuthResponse = {
   message: string;
-  accessToken: string;
-  refreshToken: string;
   origin: string;
 }
 
 type AuthState = {
   authResponse: AuthResponse | null;
-  error: boolean;
-  success: boolean;
-  loading: boolean;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
   message: string;
 }
 
@@ -29,18 +24,12 @@ type UserLogin = {
   password: string;
 }
 
-type RefreshToken = {
-  refreshToken: string;
-}
-
 //************************************************************************
 //* Declarando o estado inicial do slice de autenticação
 //************************************************************************
 const initialState: AuthState = {
   authResponse: null,
-  error: false,
-  success: false,
-  loading: false,
+  status: 'idle',
   message: ''
 }
 
@@ -77,24 +66,16 @@ export const login = createAsyncThunk<AuthResponse, UserLogin, { rejectValue: st
   }
 )
 
-export const refresh = createAsyncThunk<AuthResponse, RefreshToken, { rejectValue: string }>(
-  'auth/refresh', // nome da ação, pode ser qualquer string, só não pode ser repetida entre Thunks
-  async (params, { rejectWithValue }) => { //não precisa tipar params, pois foi tipado na definição do thunk
-    const { refreshToken } = params;
+export const logout = createAsyncThunk(
+  'auth/logout', // nome da ação, pode ser qualquer string, só não pode ser repetida entre Thunks
+  async (_, { dispatch }) => { //não precisa tipar params, pois foi tipado na definição do thunk
     try {
-      const data = await api({
+      await api({
         method: 'post',
-        url: '/auth/refresh',
-        data: { refreshToken }
+        url: '/auth/logout'
       });
-
-      return data;
-    } catch (error) { //erro é tratado na 'api', vem como erro generico por conveniência
-      let errorMessage = 'Erro desconhecido';
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      return rejectWithValue(errorMessage);
+    } finally {
+      dispatch(authReset());
     }
   }
 )
@@ -106,60 +87,38 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: { //melhor usados para ações síncronas e simples, como esse reset que limpa o estado
-    reset: (state) => {
+    authReset: (state) => {
       state.authResponse = null
-      state.error = false
-      state.success = false
-      state.loading = false
-      state.message = ''
+      state.status = 'idle';
+      state.message = '';
     },
+    authClearMessage: (state) => {
+      state.message = '';
+      state.status = 'idle';
+    }
   },
   extraReducers: (builder) => { //melhor usados para ações assíncronas, como o loginUsers
     builder
       .addCase(login.pending, (state) => {
-        console.log('login pending')
-        state.loading = true
-        state.error = false
-        state.success = false
-        state.message = ''
+        console.log('login pending');
+        state.status = 'loading';
+        state.message = '';
       })
       .addCase(login.fulfilled, (state, action) => {
-        console.log('login fulfilled')
-        state.loading = false
-        state.success = true
+        console.log('login fulfilled');
+        state.status = 'succeeded';
         state.authResponse = action.payload
         state.message = action.payload.message
       })
       .addCase(login.rejected, (state, action) => {
-        console.log('login rejected')
-        state.loading = false
-        state.error = true
-        state.success = false
+        console.log('login rejected');
+        state.status = 'failed';
         state.message = action.payload || 'Erro ao fazer login'
-      })
-      .addCase(refresh.pending, (state) => {
-        state.loading = true
-        state.error = false
-        state.success = false
-        state.message = ''
-      })
-      .addCase(refresh.fulfilled, (state, action) => {
-        state.loading = false
-        state.success = true
-        state.authResponse = action.payload
-        state.message = action.payload.message
-      })
-      .addCase(refresh.rejected, (state, action) => {
-        state.loading = false
-        state.error = true
-        state.success = false
-        state.message = action.payload || 'Erro ao renovar token'
       })
   }
 })
 
-export const { reset } = authSlice.actions;
+export const { authReset, authClearMessage } = authSlice.actions;
 
 const authReducer = authSlice.reducer
 export default authReducer;
-

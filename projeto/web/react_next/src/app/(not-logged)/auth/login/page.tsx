@@ -10,7 +10,7 @@ function Login() {
 
   return (
     <div className={loginStyles.container}>
-      <Image
+      {/* <Image
         src="/images/logo3.png"
         alt="Pizzaria Coletti"
         title="Pizzaria Coletti"
@@ -18,7 +18,7 @@ function Login() {
         height={250}
         className={loginStyles.logo}
         priority
-      />
+      /> */}
 
       <section className={loginStyles.login}>
         <form onSubmit={signInHandler} className={loginStyles.form}>

@@ -1,4 +1,4 @@
-// authSlice.ts
+import api from '@/services/api';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 
 //************************************************************************
@@ -16,9 +16,7 @@ type MeResponse = {
 
 type UserState = {
   meResponse: MeResponse | null;
-  error: boolean;
-  success: boolean;
-  loading: boolean;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
   message: string;
 }
 
@@ -33,9 +31,7 @@ type UserState = {
 //************************************************************************
 const initialState: UserState = {
   meResponse: null,
-  error: false,
-  success: false,
-  loading: false,
+  status: 'idle',
   message: ''
 }
 
@@ -45,25 +41,26 @@ const initialState: UserState = {
 // por exemplo, chamadas de API. Cada thunk pode gerenciar seus próprios 
 // estados de carregamento, sucesso e erro nos extraReducers abaixo.
 //************************************************************************
-export const me = createAsyncThunk<MeResponse, null, { rejectValue: string }>(
+export const me = createAsyncThunk<MeResponse, void, { rejectValue: string }>(
   'user/me',
   async (_, { rejectWithValue }) => {
 
     try {
-      //await new Promise(resolve => setTimeout(resolve, 1000)); //realizar busca na api
-      const userData = {
-        id: 1,
-        email: 'admin@admin.com',
-        name: 'Admin',
-        ativo: true,
-        permissions: ['admin'],
-        criadoEm: new Date(),
-        atualizadoEm: new Date()
-      };
+      const data = await api({ //'api' retorna já os dados
+        method: 'get',
+        url: '/users/me'
+      });
 
-      return userData;
+      return data;
     } catch (error) {
-      return rejectWithValue('Erro ao buscar usuário');
+      let errMessage = 'Erro ao buscar usuário';
+      if (error instanceof Error)
+        errMessage = error.message;
+
+      if (errMessage === 'Token not found')
+        errMessage = '';
+
+      return rejectWithValue(errMessage);
     }
   }
 )
@@ -75,38 +72,35 @@ const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: { //melhor usados para ações síncronas e simples, como esse reset que limpa o estado
-    reset: (state) => {
+    userReset: (state) => {
       state.meResponse = null
-      state.error = false
-      state.success = false
-      state.loading = false
-      state.message = ''
+      state.status = 'idle';
+      state.message = '';
     },
+    userClearMessage: (state) => {
+      state.message = '';
+      state.status = 'idle';
+    }
   },
   extraReducers: (builder) => { //melhor usados para ações assíncronas, como o loginUsers
     builder
       .addCase(me.pending, (state) => {
-        state.loading = true
-        state.error = false
-        state.success = false
-        state.message = ''
+        state.status = 'loading';
+        state.message = '';
       })
       .addCase(me.fulfilled, (state, action) => {
-        state.loading = false
-        state.success = true
+        state.status = 'succeeded';
         state.meResponse = action.payload
         state.message = action.payload.email + ' carregado com sucesso'
       })
       .addCase(me.rejected, (state, action) => {
-        state.loading = false
-        state.error = true
-        state.success = false
-        state.message = action.payload || 'Erro ao carregar usuário'
+        state.status = 'failed';
+        state.message = action.payload || '';
       })
   }
 })
 
-export const { reset } = userSlice.actions;
+export const { userReset, userClearMessage } = userSlice.actions;
 
 const userReducer = userSlice.reducer
 export default userReducer;

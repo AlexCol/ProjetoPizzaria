@@ -1,8 +1,6 @@
-'use client';
-import { useLocalStorageListener } from "@/hooks/useLocalStorageListener";
-import { AuthResponse, login, refresh, reset } from "@/redux/slices/authSlice";
+import { authClearMessage, login, logout } from "@/redux/slices/authSlice";
+import { me, userClearMessage, userReset } from "@/redux/slices/userSlice";
 import { AppDispatch, RootState } from "@/redux/store";
-import { setTokenOnApi } from "@/services/api";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -11,56 +9,69 @@ import { useDispatch, useSelector } from "react-redux";
 //*************************************************************
 function useAuthProvider() {
   const dispatch = useDispatch<AppDispatch>();
-  const { authResponse, loading, error, success, message } = useSelector((state: RootState) => state.auth);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [storageLoaded, setStorageLoaded] = useState(false);
-  const localStorageKey = 'authKey';
+  const { authResponse, status: authStatus, message: authMessage } = useSelector((state: RootState) => state.auth);
+  const { meResponse, status: userStatus, message: meMessage } = useSelector((state: RootState) => state.user);
+  const [isLoading, setIsLoading] = useState(true); //!observação no fim do código
 
   function signIn(data: { email: string, password: string }) {
     dispatch(login(data));
   }
 
   function signOut() {
-    dispatch(reset());
-    localStorage.removeItem(localStorageKey);
-    setTokenOnApi('');
+    dispatch(logout());
+    dispatch(userReset());
   }
 
   //?????????????????????????????????????????????????????????????????????????????????
   //? useEffects
   //?????????????????????????????????????????????????????????????????????????????????
-  useEffect(() => {
-    const localStorageValue = localStorage.getItem(localStorageKey);
-    const authData: AuthResponse = JSON.parse(localStorageValue || '{}');
-    if (authData.refreshToken)
-      dispatch(refresh({ refreshToken: authData.refreshToken }));
-    setStorageLoaded(true);
+  useEffect(() => { //tenta buscar 'me', se cookies ainda forem validos, já vai 'autenticar'
+    dispatch(me());
   }, []);
 
-  useEffect(() => {
-    console.log('authResponse', authResponse);
-    if (authResponse) {
-      setIsAuthenticated(true);
-      localStorage.setItem(localStorageKey, JSON.stringify(authResponse));
-      setTokenOnApi(authResponse.accessToken);
-    } else {
-      setIsAuthenticated(false);
+  useEffect(() => { //após authStatus processar com sucesso, busca o 'me' pra finalizar 'autenticação'
+    if (authStatus === 'succeeded')
+      dispatch(me());
+  }, [authStatus]);
+
+  useEffect(() => { // após authStatus processar com falha, limpa a mensagem
+    if (authStatus === 'failed') {
+      const timer = setTimeout(() => dispatch(authClearMessage()), 3000);
+      return () => clearTimeout(timer);
     }
-  }, [authResponse]);
+  }, [authStatus]);
+
+  useEffect(() => {
+    if (userStatus === 'succeeded' || userStatus === 'failed') // após userStatus processar, define loading como false (vai liberar após o primeiro 'me' do useEffect)
+      setIsLoading(false);
+
+    if (userStatus === 'failed')
+      dispatch(logout());
+
+    if (userStatus === 'failed') { // após userStatus processar com falha, limpa a mensagem
+      const timer = setTimeout(() => dispatch(userClearMessage()), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [userStatus]);
 
   //?????????????????????????????????????????????????????????????????????????????????
-  //? useLocalStorageListener
+  //? Derivados do estado
   //?????????????????????????????????????????????????????????????????????????????????
-  useLocalStorageListener(localStorageKey, (newValue) => {
-    if (isAuthenticated)
-      signOut();
-  });
+  const isAuthenticated = !!meResponse;
+  //const isLoading = userStatus === 'loading';// || authStatus === 'loading'; //!observação no fim do código
+  const error = userStatus === 'failed' || authStatus === 'failed';
+  const message =
+    userStatus === 'failed' ? meMessage :
+      authStatus === 'failed' ? authMessage :
+        meMessage || authMessage;
 
   return {
     isAuthenticated,
-    isLoadingAuth: !storageLoaded || loading,
+    isLoading,
     error,
     message,
+    userData: meResponse,
+    origin: authResponse?.origin,
     signIn,
     signOut
   }
@@ -99,3 +110,10 @@ export function useAuthContext() {
   }
   return context;
 }
+
+//! por que não usar os loadings dos slices:
+//! como são dois loadings distintos, de depois processos interdependentes, ocorre de
+//! ao processar o authSlice ele terminar o loading e o userSlice ainda não iniciou
+//! isso faz as paginas de login e home darem o flicker pois efetivamente ele está
+//! num estado intermediario e ainda não autenticado mas sem loading (pegou o jwt mas
+//! ainda nao processou o 'me')

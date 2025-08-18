@@ -8,20 +8,22 @@ export default function LayoutUnAuthOnly({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const router = useRouter();
-  const { isAuthenticated, isLoadingAuth } = useAuthContext();
+  const { isAuthenticated, isLoading } = useAuthContext();
 
   useEffect(() => {
-    if (isAuthenticated)
+    if (isAuthenticated && !isLoading)
       router.push('/');
-  }, [isAuthenticated])
+  }, [isAuthenticated, isLoading])
 
-  if (isLoadingAuth)
+  if (isLoading)
+    return <Loading />;
+
+  if (isAuthenticated)
     return null;
 
-  if (!isAuthenticated)
-    return (
-      <>
-        {children}
-      </>
-    );
+  return (
+    <>
+      {children}
+    </>
+  );
 }
