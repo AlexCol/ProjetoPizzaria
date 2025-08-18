@@ -44,7 +44,7 @@ import { SocketModule } from './socket/socket.module';
     { provide: APP_INTERCEPTOR, useClass: GzipInterceptor }, //ver no arquivo pq desativado
     { provide: APP_INTERCEPTOR, useClass: TimezoneInterceptor }, // ✅ Adicionar aqui
 
-    { provide: APP_GUARD, useClass: ThrottlerGuard }
+    //{ provide: APP_GUARD, useClass: ThrottlerGuard }
 
   ],
 })

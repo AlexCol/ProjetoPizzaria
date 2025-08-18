@@ -17,7 +17,7 @@ export class AuthController {
   ) {
     const auth = await this.authService.login(loginDto);
     addCookies(res, auth);
-    return auth;
+    return { message: auth.message, origin: auth.origin };
   }
 
   @IsPublic()
@@ -25,18 +25,24 @@ export class AuthController {
   async refreshTokens(
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
-    @Body() refreshTokenDto: RefreshTokenDto,
   ) {
     const refreshTokenCookie = req.cookies['refreshToken'];
-    const refreshTokenBody = refreshTokenDto.refreshToken;
-
-    const refreshToken = refreshTokenCookie ?? refreshTokenBody;
+    const refreshToken = refreshTokenCookie;
     if (!refreshToken)
       throw new Error('Refresh token not found');
 
     const auth = await this.authService.refreshTokens({ refreshToken });
     addCookies(res, auth);
-    return auth;
+    return { message: auth.message, origin: auth.origin };
+  }
+
+  @Post('logout')
+  async logout(
+    @Res({ passthrough: true }) res: FastifyReply,
+  ) {
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+    return { message: 'Logged out successfully' };
   }
 }
 

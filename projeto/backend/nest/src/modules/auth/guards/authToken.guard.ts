@@ -28,7 +28,7 @@ export class AuthTokenGuard implements CanActivate {
       return true;
 
     if (!token)
-      throw new Error('Token not found');
+      throw new UnauthorizedException('Token not found');
 
     try {
       const payload = await this.jwtService.verifyAsync(token, this.jwtConfiguration);
