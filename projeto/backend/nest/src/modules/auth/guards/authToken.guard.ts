@@ -24,7 +24,9 @@ export class AuthTokenGuard implements CanActivate {
       this.extractTokenFromHeader(request);
 
     const isPublic = this.reflector.get<boolean>('isPublic', context.getHandler());
-    if (isPublic && !token) //se tiver token, mesmo que seja publico, ele será validado e barrado se mandar um jwt inválido
+    // if (isPublic && !token) //se tiver token, mesmo que seja publico, ele será validado e barrado se mandar um jwt inválido
+    //   return true;
+    if (isPublic) //em virtude do refresh token vir por cookie, o token pode estar junto, não tem como saber, por isso não posso considerar
       return true;
 
     if (!token)

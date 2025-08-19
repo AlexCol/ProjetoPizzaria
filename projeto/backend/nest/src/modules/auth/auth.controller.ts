@@ -12,11 +12,13 @@ export class AuthController {
   @IsPublic()
   @Post('login')
   async login(
+    @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
     @Body() loginDto: LoginDto
   ) {
     const auth = await this.authService.login(loginDto);
-    addCookies(res, auth);
+    console.log(req.headers['remember-me']);
+    addCookies(res, auth, req.headers['remember-me'] === 'true');
     return { message: auth.message, origin: auth.origin };
   }
 
@@ -32,7 +34,7 @@ export class AuthController {
       throw new Error('Refresh token not found');
 
     const auth = await this.authService.refreshTokens({ refreshToken });
-    addCookies(res, auth);
+    addCookies(res, auth, req.headers['remember-me'] === 'true');
     return { message: auth.message, origin: auth.origin };
   }
 
@@ -46,13 +48,13 @@ export class AuthController {
   }
 }
 
-function addCookies(res: FastifyReply, auth: { accessToken: string, refreshToken: string }) {
+function addCookies(res: FastifyReply, auth: { accessToken: string, refreshToken: string }, rememberMe?: boolean) {
   res.cookie('accessToken', auth.accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
-    maxAge: Number(process.env.JWT_TOKEN_EXPIRATION ?? '3600')
+    maxAge: rememberMe ? Number(process.env.JWT_TOKEN_EXPIRATION ?? '3600') : undefined
   });
 
   res.cookie('refreshToken', auth.refreshToken, {
@@ -60,6 +62,6 @@ function addCookies(res: FastifyReply, auth: { accessToken: string, refreshToken
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
-    maxAge: Number(process.env.JWT_REFRESH_EXPIRATION ?? '86400')
+    maxAge: rememberMe ? Number(process.env.JWT_REFRESH_EXPIRATION ?? '86400') : undefined
   });
 }

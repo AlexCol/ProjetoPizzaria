@@ -48,7 +48,8 @@ export class AppConfig {
         'Authorization',      // ✅ Para JWT tokens
         'X-Requested-With',   // ✅ Para AJAX
         'Accept-Language',    // ✅ Para i18n
-        'Accept-Encoding'     // ✅ Para compressão
+        'Accept-Encoding',    // ✅ Para compressão
+        'remember-me',        // ✅ Para o cabeçalho personalizado
       ],
 
       credentials: true,        // ✅ OK agora que origin é específica
