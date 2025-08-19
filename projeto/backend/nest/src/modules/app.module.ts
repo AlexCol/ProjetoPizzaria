@@ -1,18 +1,18 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { GlobalErrorFilter } from 'src/common/filters/globalError.filter';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigTypeOrm } from '../config/database/type-orm/ConfigTypeOrm';
-import { DomainModule } from './domain/domain.module';
-import { AuthModule } from './auth/auth.module';
-import { LoggerInterceptor } from 'src/common/interceptors/logger.interceptor';
-import { LoggerModule } from './logger/logger.module';
-import { GzipInterceptor } from 'src/common/interceptors/czip.interceptor';
-import { UploadFileModule } from './upload-file/upload-file.module';
-import { TimezoneInterceptor } from 'src/common/interceptors/timezone.interceptor';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { GlobalErrorFilter } from 'src/common/filters/globalError.filter';
+import { GzipInterceptor } from 'src/common/interceptors/czip.interceptor';
+import { LoggerInterceptor } from 'src/common/interceptors/logger.interceptor';
+import { TimezoneInterceptor } from 'src/common/interceptors/timezone.interceptor';
+import { ConfigTypeOrm } from '../config/database/type-orm/ConfigTypeOrm';
+import { AuthModule } from './auth/auth.module';
+import { DomainModule } from './domain/domain.module';
+import { LoggerModule } from './logger/logger.module';
 import { SocketModule } from './socket/socket.module';
+import { UploadFileModule } from './upload-file/upload-file.module';
 
 @Module({
   imports: [
@@ -24,9 +24,9 @@ import { SocketModule } from './socket/socket.module';
     ThrottlerModule.forRoot({
       throttlers: [
         {
-          ttl: 60000, // tempo em milissegundos (60 segundos)
+          ttl: 1000, // tempo em milissegundos (1 segundo)
           limit: 10,  // número de requisições permitidas por ttl
-          //blockDuration: 5000, // tempo em milissegundos (5 segundos) que o IP será bloqueado após exceder o limite, sem isso o bloqueio fica até o ttl
+          blockDuration: 60000, // tempo em milissegundos (60 segundos) que o IP será bloqueado após exceder o limite, sem isso o bloqueio fica até o ttl
         },
       ],
     }),
@@ -44,7 +44,7 @@ import { SocketModule } from './socket/socket.module';
     { provide: APP_INTERCEPTOR, useClass: GzipInterceptor }, //ver no arquivo pq desativado
     { provide: APP_INTERCEPTOR, useClass: TimezoneInterceptor }, // ✅ Adicionar aqui
 
-    //{ provide: APP_GUARD, useClass: ThrottlerGuard }
+    { provide: APP_GUARD, useClass: ThrottlerGuard }
 
   ],
 })
