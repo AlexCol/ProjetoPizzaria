@@ -2,22 +2,26 @@ import { useAuthContext } from "@/components/contexts/auth/AuthContext";
 import { FormEvent, RefObject, useRef } from "react";
 
 export default function useLogin() {
-  const { signIn, isLoadingAuth, error, message } = useAuthContext();
+  const { signIn, isLoading, error, message } = useAuthContext();
   const emailRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
   const passwordRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
+  const rememberMeRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
 
   const signInHandler = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const email = emailRef.current.value;
     const password = passwordRef.current.value;
-    signIn({ email, password });
+    const rememberMe = rememberMeRef.current.checked;
+
+    signIn({ email, password, rememberMe });
   }
 
   return {
     emailRef,
     passwordRef,
+    rememberMeRef,
     signInHandler,
-    isLoadingAuth,
+    isLoading,
     error,
     message
   }

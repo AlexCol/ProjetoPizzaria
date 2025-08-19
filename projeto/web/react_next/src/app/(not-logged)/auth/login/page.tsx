@@ -1,12 +1,11 @@
 'use client';
 import React from 'react';
 import { loginStyles } from './login.styles';
-import Image from 'next/image';
 import Link from 'next/link';
 import useLogin from './useLogin';
 
 function Login() {
-  const { emailRef, passwordRef, signInHandler, isLoadingAuth, error, message } = useLogin();
+  const { emailRef, passwordRef, rememberMeRef, signInHandler, isLoading, error, message } = useLogin();
 
   return (
     <div className={loginStyles.container}>
@@ -39,11 +38,20 @@ function Login() {
           />
           <button
             type="submit"
-            disabled={isLoadingAuth}
+            disabled={isLoading}
             className={loginStyles.button}
           >
-            {isLoadingAuth ? 'Loading...' : 'Acessar'}
+            {isLoading ? 'Loading...' : 'Acessar'}
           </button>
+          <label className={loginStyles.rememberMeContainer}>
+            <input
+              type="checkbox"
+              name="rememberMe"
+              ref={rememberMeRef}
+              className={loginStyles.rememberMeCheckBox}
+            />
+            Lembrar-me
+          </label>
         </form>
         <Link href="/auth/register" className={loginStyles.link}>
           Não posso uma conta? Cadastra-se

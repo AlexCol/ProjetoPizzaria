@@ -1,10 +1,10 @@
 'use client';
-import React, { useEffect } from 'react';
 import { useAuthContext } from '@/components/contexts/auth/AuthContext';
-import { useRouter } from 'next/navigation';
+import Footer from '@/components/layout/Footer/Footer';
 import Header from '@/components/layout/Header/Header';
 import Main from '@/components/layout/Main/Main';
-import Footer from '@/components/layout/Footer/Footer';
+import { useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
 import Loading from '../loading';
 
 export default function LayoutAuthOnly({ children, }: Readonly<{ children: React.ReactNode }>) {

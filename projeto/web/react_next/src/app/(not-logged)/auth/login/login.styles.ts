@@ -69,6 +69,17 @@ const logoTailwindClass = `
   h-auto
 `;
 
+const rememberMeContainerTailwindClass = `
+  flex
+  items-center
+  gap-2
+  text-sm
+`;
+
+const rememberMeCheckBoxTailwindClass = `
+  accent-dark-green-900-pizzaria
+`;
+
 export const loginStyles = {
   container: containerTailwindClass,
   login: loginTailwindClass,
@@ -76,5 +87,7 @@ export const loginStyles = {
   input: inputTailwindClass,
   button: buttonTailwindClass,
   link: linkTailwindClass,
-  logo: logoTailwindClass
+  logo: logoTailwindClass,
+  rememberMeContainer: rememberMeContainerTailwindClass,
+  rememberMeCheckBox: rememberMeCheckBoxTailwindClass
 };

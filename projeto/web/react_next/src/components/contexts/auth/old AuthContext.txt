@@ -1,4 +1,5 @@
-import { authClearMessage, authReset, login, logout, me } from "@/redux/slices/authSlice";
+import { authClearMessage, login, logout } from "@/redux/slices/authSlice";
+import { me, userClearMessage, userReset } from "@/redux/slices/userSlice";
 import { AppDispatch, RootState } from "@/redux/store";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,16 +9,17 @@ import { useDispatch, useSelector } from "react-redux";
 //*************************************************************
 function useAuthProvider() {
   const dispatch = useDispatch<AppDispatch>();
-  const { authResponse, loggedUser, status: authStatus, message: authMessage } = useSelector((state: RootState) => state.auth);
-  const [startLoading, setStartLoading] = useState(true);
+  const { authResponse, status: authStatus, message: authMessage } = useSelector((state: RootState) => state.auth);
+  const { meResponse, status: userStatus, message: meMessage } = useSelector((state: RootState) => state.user);
+  const [isLoading, setIsLoading] = useState(true); //!observação no fim do código
 
-  function signIn(data: { email: string, password: string, rememberMe: boolean }) {
+  function signIn(data: { email: string, password: string }) {
     dispatch(login(data));
   }
 
   function signOut() {
     dispatch(logout());
-    dispatch(authReset());
+    dispatch(userReset());
   }
 
   //?????????????????????????????????????????????????????????????????????????????????
@@ -25,30 +27,50 @@ function useAuthProvider() {
   //?????????????????????????????????????????????????????????????????????????????????
   useEffect(() => { //tenta buscar 'me', se cookies ainda forem validos, já vai 'autenticar'
     dispatch(me());
-    setStartLoading(false);
   }, []);
 
-  useEffect(() => {
+  useEffect(() => { //após authStatus processar com sucesso, busca o 'me' pra finalizar 'autenticação'
+    if (authStatus === 'succeeded')
+      dispatch(me());
+  }, [authStatus]);
+
+  useEffect(() => { // após authStatus processar com falha, limpa a mensagem
     if (authStatus === 'failed') {
       const timer = setTimeout(() => dispatch(authClearMessage()), 3000);
       return () => clearTimeout(timer);
     }
   }, [authStatus]);
 
+  useEffect(() => {
+    if (userStatus === 'succeeded' || userStatus === 'failed') // após userStatus processar, define loading como false (vai liberar após o primeiro 'me' do useEffect)
+      setIsLoading(false);
+
+    if (userStatus === 'failed')
+      dispatch(logout());
+
+    if (userStatus === 'failed') { // após userStatus processar com falha, limpa a mensagem
+      const timer = setTimeout(() => dispatch(userClearMessage()), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [userStatus]);
+
   //?????????????????????????????????????????????????????????????????????????????????
   //? Derivados do estado
   //?????????????????????????????????????????????????????????????????????????????????
-  const isAuthenticated = !!loggedUser;
-  const isLoading = authStatus === 'loading' || startLoading;
-  const error = authStatus === 'failed';
-  const message = authMessage;
+  const isAuthenticated = !!meResponse;
+  //const isLoading = userStatus === 'loading';// || authStatus === 'loading'; //!observação no fim do código
+  const error = userStatus === 'failed' || authStatus === 'failed';
+  const message =
+    userStatus === 'failed' ? meMessage :
+      authStatus === 'failed' ? authMessage :
+        meMessage || authMessage;
 
   return {
     isAuthenticated,
     isLoading,
     error,
     message,
-    userData: loggedUser,
+    userData: meResponse,
     origin: authResponse?.origin,
     signIn,
     signOut
@@ -70,7 +92,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const auth = useAuthProvider();
   return (
-    <AuthContext.Provider value={auth} >
+    <AuthContext.Provider value={auth}>
       {children}
     </AuthContext.Provider>
   );
