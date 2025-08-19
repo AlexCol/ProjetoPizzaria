@@ -17,7 +17,6 @@ export class AuthController {
     @Body() loginDto: LoginDto
   ) {
     const auth = await this.authService.login(loginDto);
-    console.log(req.headers['remember-me']);
     addCookies(res, auth, req.headers['remember-me'] === 'true');
     return { message: auth.message, origin: auth.origin };
   }
