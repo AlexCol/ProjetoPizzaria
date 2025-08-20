@@ -24,6 +24,7 @@ type AuthState = {
   loggedUser: MeResponse | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   message: string;
+  initializing: boolean;
 }
 
 //??????????????????????????????????????????????????????????????????????????????
@@ -48,7 +49,8 @@ const initialState: AuthState = {
   authResponse: null,
   loggedUser: null,
   status: 'idle',
-  message: ''
+  message: '',
+  initializing: true
 }
 
 //??????????????????????????????????????????????????????????????????????????????
@@ -97,7 +99,6 @@ export const login = createAsyncThunk<LoginResponse, UserLogin, { rejectValue: s
 export const me = createAsyncThunk<MeResponse, void, { rejectValue: string }>(
   'user/me',
   async (_, { rejectWithValue }) => {
-
     try {
       setRememberMe(false); //vai valer o que está no storage
 
@@ -112,8 +113,10 @@ export const me = createAsyncThunk<MeResponse, void, { rejectValue: string }>(
       if (error instanceof Error)
         errMessage = error.message;
 
-      if (errMessage === 'Token not found')
+      // token expirado → devolve string vazia
+      if (errMessage.includes('jwt expired') || errMessage === 'Token not found') {
         errMessage = '';
+      }
 
       return rejectWithValue(errMessage);
     }
@@ -172,19 +175,21 @@ const authSlice = createSlice({
         state.message = action.payload || 'Erro ao fazer login'
       })
       .addCase(me.pending, (state) => {
-        state.status = 'loading';
+        //state.status = 'loading';
         state.message = '';
       })
       .addCase(me.fulfilled, (state, action) => {
+        state.loggedUser = action.payload;
+        state.message = action.payload.email + ' carregado com sucesso';
         state.status = 'succeeded';
-        state.loggedUser = action.payload
-        state.message = action.payload.email + ' carregado com sucesso'
+        state.initializing = false;
       })
       .addCase(me.rejected, (state, action) => {
         state.authResponse = null;
         state.loggedUser = null;
         state.status = 'failed';
         state.message = action.payload || '';
+        state.initializing = false; // não é mais inicializando após processado
       })
   }
 })
