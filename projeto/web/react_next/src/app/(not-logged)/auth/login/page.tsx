@@ -34,6 +34,7 @@ function Login() {
             className={loginStyles.input}
             type="password"
             placeholder="Password"
+            maxLength={30}
             ref={passwordRef}
             disabled={isLoading}
             required

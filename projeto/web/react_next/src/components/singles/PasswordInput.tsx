@@ -17,6 +17,7 @@ function PasswordInput(props: PasswordInputProps) {
       <input
         className={props.inputClassName}
         type={showPassword ? "text" : "password"}
+        maxLength={30}
         placeholder={props.placeholder}
         ref={props.inputRef}
         autoComplete={props.autoComplete}
@@ -27,13 +28,7 @@ function PasswordInput(props: PasswordInputProps) {
       <button
         type="button"
         onClick={() => setShowPassword(!showPassword)}
-        style={{
-          position: "absolute",
-          right: "8px",
-          top: "50%",
-          transform: "translateY(-50%)",
-          cursor: "pointer",
-        }}
+        className={buttonTailwindClass}
       >
         {showPassword ? "👓" : "🕶️"}
       </button>
@@ -41,4 +36,12 @@ function PasswordInput(props: PasswordInputProps) {
   )
 }
 
-export default PasswordInput
+export default PasswordInput;
+
+const buttonTailwindClass = `
+  absolute
+  right-2
+  top-1/2
+  -translate-y-1/2
+  cursor-pointer
+`;

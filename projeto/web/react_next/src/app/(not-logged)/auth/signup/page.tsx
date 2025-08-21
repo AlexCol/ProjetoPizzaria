@@ -1,4 +1,5 @@
 'use client'
+import CheckBoxGroup from '@/components/singles/CheckBoxGroup';
 import PasswordInput from '@/components/singles/PasswordInput';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -61,28 +62,12 @@ function SignUp() {
           {/* inputs com opção de revelar a senha */}
 
           {/* checkboxes */}
-          <div className={signUpStyles.checkboxGroup}>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                value="KITCHEN"
-                checked={states.permissions.includes('KITCHEN')}
-                onChange={states.handlePermissionChange}
-                disabled={states.isLoading}
-              />
-              Cozinha
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                value="WAITRESS"
-                checked={states.permissions.includes('WAITRESS')}
-                onChange={states.handlePermissionChange}
-                disabled={states.isLoading}
-              />
-              Garçom
-            </label>
-          </div>
+          <CheckBoxGroup
+            itens={states.possiblePermissions}
+            handleChange={states.handlePermissionChange}
+            isLoading={states.isLoading}
+            currentList={states.permissions}
+          />
           {/* checkboxes */}
 
           <button

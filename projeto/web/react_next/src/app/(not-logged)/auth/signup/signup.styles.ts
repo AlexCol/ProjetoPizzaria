@@ -82,17 +82,6 @@ const logoTailwindClass = `
   h-auto
 `;
 
-const checkboxGroupTailwindClass = `
-  flex
-  flex-row
-  gap-6
-  w-full
-  justify-center
-  items-center
-  mt-2
-  accent-dark-green-900-pizzaria
-`;
-
 export const signUpStyles = {
   container: containerTailwindClass,
   signUp: signUpTailwindClass,
@@ -102,6 +91,5 @@ export const signUpStyles = {
   input: inputTailwindClass,
   button: buttonTailwindClass,
   link: linkTailwindClass,
-  logo: logoTailwindClass,
-  checkboxGroup: checkboxGroupTailwindClass
+  logo: logoTailwindClass
 };
