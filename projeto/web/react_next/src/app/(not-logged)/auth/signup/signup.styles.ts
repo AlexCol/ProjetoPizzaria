@@ -6,7 +6,7 @@ const containerTailwindClass = `
   min-h-screen
 `;
 
-const loginTailwindClass = `
+const signUpTailwindClass = `
   mt-6
   flex
   flex-col
@@ -14,6 +14,12 @@ const loginTailwindClass = `
   justify-center
   gap-6
   w-full
+`;
+
+const titleTailwindClass = `
+  text-2xl
+  font-bold
+  text-center
 `;
 
 const formTailwindClass = `
@@ -71,25 +77,25 @@ const logoTailwindClass = `
   h-auto
 `;
 
-const rememberMeContainerTailwindClass = `
+const checkboxGroupTailwindClass = `
   flex
+  flex-row
+  gap-6
+  w-full
+  justify-center
   items-center
-  gap-2
-  text-sm
-`;
-
-const rememberMeCheckBoxTailwindClass = `
+  mt-2
   accent-dark-green-900-pizzaria
 `;
 
-export const loginStyles = {
+export const signUpStyles = {
   container: containerTailwindClass,
-  login: loginTailwindClass,
+  signUp: signUpTailwindClass,
+  title: titleTailwindClass,
   form: formTailwindClass,
   input: inputTailwindClass,
   button: buttonTailwindClass,
   link: linkTailwindClass,
   logo: logoTailwindClass,
-  rememberMeContainer: rememberMeContainerTailwindClass,
-  rememberMeCheckBox: rememberMeCheckBoxTailwindClass
+  checkboxGroup: checkboxGroupTailwindClass
 };

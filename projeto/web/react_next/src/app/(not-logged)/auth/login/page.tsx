@@ -1,7 +1,7 @@
 'use client';
-import React from 'react';
-import { loginStyles } from './login.styles';
+import Image from 'next/image';
 import Link from 'next/link';
+import { loginStyles } from './login.styles';
 import useLogin from './useLogin';
 
 function Login() {
@@ -9,7 +9,7 @@ function Login() {
 
   return (
     <div className={loginStyles.container}>
-      {/* <Image
+      <Image
         src="/images/logo3.png"
         alt="Pizzaria Coletti"
         title="Pizzaria Coletti"
@@ -17,7 +17,7 @@ function Login() {
         height={250}
         className={loginStyles.logo}
         priority
-      /> */}
+      />
 
       <section className={loginStyles.login}>
         <form onSubmit={signInHandler} className={loginStyles.form}>
@@ -27,6 +27,7 @@ function Login() {
             placeholder="Email"
             ref={emailRef}
             autoComplete="email"
+            disabled={isLoading}
             required
           />
           <input
@@ -34,6 +35,7 @@ function Login() {
             type="password"
             placeholder="Password"
             ref={passwordRef}
+            disabled={isLoading}
             required
           />
           <button
@@ -49,12 +51,13 @@ function Login() {
               name="rememberMe"
               ref={rememberMeRef}
               className={loginStyles.rememberMeCheckBox}
+              disabled={isLoading}
             />
             Lembrar-me
           </label>
         </form>
-        <Link href="/auth/register" className={loginStyles.link}>
-          Não posso uma conta? Cadastra-se
+        <Link href="/auth/signup" className={loginStyles.link}>
+          Não tem uma conta? Cadastre-se
         </Link>
       </section>
       {error && <div className="text-red-500">{message}</div>}
