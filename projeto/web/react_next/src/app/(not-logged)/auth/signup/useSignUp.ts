@@ -1,13 +1,16 @@
-import { FormEvent, RefObject, useRef, useState } from "react";
+import { signup, userReset } from "@/redux/slices/userSlice";
+import { AppDispatch, RootState } from "@/redux/store";
+import { FormEvent, RefObject, useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function useSignUp() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { status, message } = useSelector((state: RootState) => state.user);
   const nameRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
   const emailRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
   const passwordRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
   const confirmPasswordRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
-  const [errMessage, setErrMessage] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  //const permissionsRef = useRef<HTMLSelectElement>(null) as RefObject<HTMLSelectElement>;
+  const [validationMessage, setValidationMessage] = useState<string>("");
   const [permissions, setPermissions] = useState<string[]>([]);
 
   function handlePermissionChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -21,43 +24,41 @@ export default function useSignUp() {
 
   const signUpHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsLoading(true);
     const name = nameRef.current.value;
     const email = emailRef.current.value;
     const password = passwordRef.current.value;
     const confirmPassword = confirmPasswordRef.current.value;
-    //const permissions = Array.from(permissionsRef.current.selectedOptions).map(option => option.value);
-
-    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     if (password !== confirmPassword) {
-      setErrMessage("As senhas não conferem");
-      setIsLoading(false); //!remover quando for pra chamar o dispatch
+      setValidationMessage("As senhas não conferem");
       return;
     }
 
     if (permissions.length === 0) {
-      setErrMessage("Selecione pelo menos uma permissão");
-      setIsLoading(false); //!remover quando for pra chamar o dispatch
+      setValidationMessage("Selecione pelo menos uma permissão");
       return;
     }
 
-    //dispatch(signUp({ name, email, password, confirmPassword, permissions }));
-    alert(`Nome: ${name}, Email: ${email}, Senha: ${password}, Permissões: ${permissions.join(", ")}`);
-    setIsLoading(false); //!remover quando for pra chamar o dispatch
+    dispatch(signup({ name, email, password, confirmPassword, permissions }));
   }
 
-  return {
-    nameRef,
-    emailRef,
-    passwordRef,
-    confirmPasswordRef,
-    //permissionsRef,
-    permissions,
-    handlePermissionChange,
-    signUpHandler,
-    isLoading,
-    errMessage
+  useEffect(() => {
+    if (validationMessage) {
+      const timer = setTimeout(() => setValidationMessage(""), 3000);
+      return () => clearTimeout(timer);
+    }
 
+    if (message) {
+      const timer = setTimeout(() => dispatch(userReset()), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message, validationMessage]);
+
+  return {
+    nameRef, emailRef, passwordRef, confirmPasswordRef, permissions, //relacionados aos inputs
+    handlePermissionChange, signUpHandler, //relacionados aos eventos
+    isLoading: status === 'loading', //relacionado ao estado de carregamento
+    status, message, //relacionados ao estado da requisição (slice)
+    validationMessage //relacionado à mensagem de validação do formulário
   }
 }

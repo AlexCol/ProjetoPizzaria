@@ -1,4 +1,5 @@
 'use client'
+import PasswordInput from '@/components/singles/PasswordInput';
 import Image from 'next/image';
 import Link from 'next/link';
 import { signUpStyles } from './signup.styles';
@@ -41,24 +42,23 @@ function SignUp() {
             disabled={states.isLoading}
             required
           />
-          <input
-            className={signUpStyles.input}
-            type="password"
+
+          {/* inputs com opção de revelar a senha */}
+          <PasswordInput
+            inputClassName={signUpStyles.input}
             placeholder="Password"
-            ref={states.passwordRef}
             autoComplete="new-password"
-            disabled={states.isLoading}
-            required
+            inputRef={states.passwordRef}
+            isLoading={states.isLoading}
           />
-          <input
-            className={signUpStyles.input}
-            type="password"
+          <PasswordInput
+            inputClassName={signUpStyles.input}
             placeholder="Confirm Password"
-            ref={states.confirmPasswordRef}
             autoComplete="new-password"
-            disabled={states.isLoading}
-            required
+            inputRef={states.confirmPasswordRef}
+            isLoading={states.isLoading}
           />
+          {/* inputs com opção de revelar a senha */}
 
           {/* checkboxes */}
           <div className={signUpStyles.checkboxGroup}>
@@ -107,7 +107,9 @@ function SignUp() {
         {/* Link to login page com disabled */}
 
       </section>
-      {states.errMessage && <div className="text-red-500">{states.errMessage}</div>}
+      {states.validationMessage && <div className="text-red-500">{states.validationMessage}</div>}
+      {states.status === 'failed' && <div className="text-red-500">{states.message}</div>}
+      {states.status === 'succeeded' && <div className="text-green-500">{states.message}</div>}
     </div>
   );
 }

@@ -32,6 +32,11 @@ const formTailwindClass = `
   md:w-lg
 `;
 
+const inputContainerTailwindClass = `
+  w-full
+  relative
+`;
+
 const inputTailwindClass = `
   w-full
   px-4
@@ -93,6 +98,7 @@ export const signUpStyles = {
   signUp: signUpTailwindClass,
   title: titleTailwindClass,
   form: formTailwindClass,
+  inputContainer: inputContainerTailwindClass,
   input: inputTailwindClass,
   button: buttonTailwindClass,
   link: linkTailwindClass,
