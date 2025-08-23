@@ -66,11 +66,6 @@ const linkTailwindClass = `
   transition
 `;
 
-const logoTailwindClass = `
-  w-auto
-  h-auto
-`;
-
 const rememberMeContainerTailwindClass = `
   flex
   items-center
@@ -89,7 +84,6 @@ export const loginStyles = {
   input: inputTailwindClass,
   button: buttonTailwindClass,
   link: linkTailwindClass,
-  logo: logoTailwindClass,
   rememberMeContainer: rememberMeContainerTailwindClass,
   rememberMeCheckBox: rememberMeCheckBoxTailwindClass
 };

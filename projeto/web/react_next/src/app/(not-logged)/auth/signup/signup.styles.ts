@@ -77,11 +77,6 @@ const linkTailwindClass = `
   transition
 `;
 
-const logoTailwindClass = `
-  w-auto
-  h-auto
-`;
-
 export const signUpStyles = {
   container: containerTailwindClass,
   signUp: signUpTailwindClass,
@@ -91,5 +86,4 @@ export const signUpStyles = {
   input: inputTailwindClass,
   button: buttonTailwindClass,
   link: linkTailwindClass,
-  logo: logoTailwindClass
 };

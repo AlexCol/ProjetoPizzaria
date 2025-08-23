@@ -1,5 +1,5 @@
 'use client';
-import Image from 'next/image';
+import LogoImage from '@/components/singles/LogoImage';
 import Link from 'next/link';
 import { loginStyles } from './login.styles';
 import useLogin from './useLogin';
@@ -9,15 +9,7 @@ function Login() {
 
   return (
     <div className={loginStyles.container}>
-      <Image
-        src="/images/logo3.png"
-        alt="Pizzaria Coletti"
-        title="Pizzaria Coletti"
-        width={250}
-        height={250}
-        className={loginStyles.logo}
-        priority
-      />
+      <LogoImage />
 
       <section className={loginStyles.login}>
         <form onSubmit={signInHandler} className={loginStyles.form}>

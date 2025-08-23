@@ -1,7 +1,7 @@
 'use client'
 import CheckBoxGroup from '@/components/singles/CheckBoxGroup';
+import LogoImage from '@/components/singles/LogoImage';
 import PasswordInput from '@/components/singles/PasswordInput';
-import Image from 'next/image';
 import Link from 'next/link';
 import { signUpStyles } from './signup.styles';
 import useSignUp from './useSignUp';
@@ -11,15 +11,8 @@ function SignUp() {
 
   return (
     <div className={signUpStyles.container}>
-      <Image
-        src="/images/logo3.png"
-        alt="Pizzaria Coletti"
-        title="Pizzaria Coletti"
-        width={250}
-        height={250}
-        className={signUpStyles.logo}
-        priority
-      />
+      <LogoImage />
+
       <div className={signUpStyles.title}>
         Cadastre-se
       </div>
