@@ -12,7 +12,7 @@ export default async function signIn(params: signInParams): Promise<LoggedUser |
   try {
     setRememberMe(params.rememberMe);
 
-    const login = await api({
+    await api({
       method: 'post',
       url: '/auth/login',
       data: { email, password }
