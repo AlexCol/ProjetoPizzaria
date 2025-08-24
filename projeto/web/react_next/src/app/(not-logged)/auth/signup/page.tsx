@@ -85,9 +85,8 @@ function SignUp() {
         {/* Link to login page com disabled */}
 
       </section>
-      {states.validationMessage && <div className="text-red-500">{states.validationMessage}</div>}
-      {states.status === 'failed' && <div className="text-red-500">{states.message}</div>}
-      {states.status === 'succeeded' && <div className="text-green-500">{states.message}</div>}
+      {states.errorMessage && <div className="text-red-500">{states.errorMessage}</div>}
+      {states.message && <div className="text-green-500">{states.message}</div>}
     </div>
   );
 }

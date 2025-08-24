@@ -1,19 +1,20 @@
-import { signup, userReset } from "@/redux/slices/userSlice";
-import { AppDispatch, RootState } from "@/redux/store";
 import { FormEvent, RefObject, useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import signUp from "./functions/signUp";
 
 export default function useSignUp() {
-  const dispatch = useDispatch<AppDispatch>();
-  const { status, message } = useSelector((state: RootState) => state.user);
   const nameRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
   const emailRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
   const passwordRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
   const confirmPasswordRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
-  const [validationMessage, setValidationMessage] = useState<string>("");
   const [permissions, setPermissions] = useState<string[]>([]);
   const possiblePermissions: Map<string, string> = new Map([["KITCHEN", "Cozinha"], ["WAITRESS", "Garçom"]]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
+  //?????????????????????????????????????????????????????????????????????????????????
+  //? Metodos do hook
+  //?????????????????????????????????????????????????????????????????????????????????
   function handlePermissionChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     setPermissions(prev =>
@@ -24,53 +25,68 @@ export default function useSignUp() {
   }
 
   const signUpHandler = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const name = nameRef.current.value;
-    const email = emailRef.current.value;
-    const password = passwordRef.current.value;
-    const confirmPassword = confirmPasswordRef.current.value;
+    setIsLoading(true);
+    try {
+      event.preventDefault();
+      const name = nameRef.current.value;
+      const email = emailRef.current.value;
+      const password = passwordRef.current.value;
+      const confirmPassword = confirmPasswordRef.current.value;
 
-    if (password !== confirmPassword) {
-      setValidationMessage("As senhas não conferem");
-      return;
+      if (password !== confirmPassword)
+        throw new Error("As senhas não conferem");
+
+      if (permissions.length === 0)
+        throw new Error("Selecione pelo menos uma permissão");
+
+      const response = await signUp({ name, email, password, confirmPassword, permissions });
+      if (response.status === 'error') {
+        setErrorMessage(response.message);
+        setMessage('');
+      } else {
+        setMessage(response.message);
+        setErrorMessage('');
+      }
+    } catch (error) {
+      let errMessage = 'Erro desconhecido. Tente novamente mais tarde.';
+      if (error instanceof Error)
+        errMessage = error.message;
+      setErrorMessage(errMessage)
+    } finally {
+      setIsLoading(false);
     }
-
-    if (permissions.length === 0) {
-      setValidationMessage("Selecione pelo menos uma permissão");
-      return;
-    }
-
-    dispatch(signup({ name, email, password, confirmPassword, permissions }));
   }
 
+  //?????????????????????????????????????????????????????????????????????????????????
+  //? internal methods
+  //?????????????????????????????????????????????????????????????????????????????????
+  const clearRefs = () => {
+    nameRef.current.value = "";
+    emailRef.current.value = "";
+    passwordRef.current.value = "";
+    confirmPasswordRef.current.value = "";
+    setPermissions([]);
+  }
+  //?????????????????????????????????????????????????????????????????????????????????
+  //? useEffects
+  //?????????????????????????????????????????????????????????????????????????????????
   useEffect(() => {
-    if (validationMessage) {
-      const timer = setTimeout(() => setValidationMessage(""), 3000);
-      return () => clearTimeout(timer);
-    }
-
     if (message) {
-      const timer = setTimeout(() => dispatch(userReset()), 3000);
+      clearRefs();
+      const timer = setTimeout(() => setMessage(""), 3000);
       return () => clearTimeout(timer);
     }
-  }, [message, validationMessage]);
 
-  useEffect(() => {
-    if (status === 'succeeded') {
-      nameRef.current.value = "";
-      emailRef.current.value = "";
-      passwordRef.current.value = "";
-      confirmPasswordRef.current.value = "";
-      setPermissions([]);
+    if (errorMessage) {
+      const timer = setTimeout(() => setErrorMessage(""), 3000);
+      return () => clearTimeout(timer);
     }
-  }, [status]);
+  }, [message, errorMessage]);
 
   return {
-    nameRef, emailRef, passwordRef, confirmPasswordRef, permissions, //relacionados aos inputs
+    nameRef, emailRef, passwordRef, confirmPasswordRef, permissions, possiblePermissions, //relacionados aos inputs e usuário
     handlePermissionChange, signUpHandler, //relacionados aos eventos
-    isLoading: status === 'loading', //relacionado ao estado de carregamento
-    status, message, //relacionados ao estado da requisição (slice)
-    validationMessage, //relacionado à mensagem de validação do formulário
-    possiblePermissions
+    isLoading, //relacionado ao estado de carregamento
+    message, errorMessage, //relacionadas as mensagens    
   }
 }

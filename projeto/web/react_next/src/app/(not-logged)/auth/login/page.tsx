@@ -5,7 +5,7 @@ import { loginStyles } from './login.styles';
 import useLogin from './useLogin';
 
 function Login() {
-  const { emailRef, passwordRef, rememberMeRef, signInHandler, isLoading, error, message } = useLogin();
+  const { emailRef, passwordRef, rememberMeRef, signInHandler, isLoading, errorMessage } = useLogin();
 
   return (
     <div className={loginStyles.container}>
@@ -53,7 +53,7 @@ function Login() {
           Não tem uma conta? Cadastre-se
         </Link>
       </section>
-      {error && <div className="text-red-500">{message}</div>}
+      {errorMessage && <div className="text-red-500">{errorMessage}</div>}
     </div>
   )
 }

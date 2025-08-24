@@ -2,7 +2,7 @@ import { useAuthContext } from "@/components/contexts/auth/AuthContext";
 import { FormEvent, RefObject, useRef } from "react";
 
 export default function useLogin() {
-  const { signIn, isLoading, error, message } = useAuthContext();
+  const { signIn, isLoading, errorMessage } = useAuthContext();
   const emailRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
   const passwordRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
   const rememberMeRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
@@ -22,7 +22,6 @@ export default function useLogin() {
     rememberMeRef,
     signInHandler,
     isLoading,
-    error,
-    message
+    errorMessage,
   }
 }
