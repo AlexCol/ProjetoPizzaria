@@ -1,12 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, BadRequestException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { BadRequestException, Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { IsPublic } from 'src/common/decorators/isPublic';
-import { TokenPayloadParam } from 'src/modules/auth/params/token-payload.param';
-import { TokenPayloadDto } from 'src/modules/auth/dto/token-payload.dto';
 import { NeedsPermission } from 'src/common/decorators/needsPermission';
 import { Permission } from 'src/common/enums/permissao.enum';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { TokenPayloadDto } from 'src/modules/auth/dto/token-payload.dto';
+import { TokenPayloadParam } from 'src/modules/auth/params/token-payload.param';
 import { BaseQueryParam, BaseQueryParamType } from '../../common/params/base-query.param';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -32,7 +32,8 @@ export class UsersController {
   ) {
     // const usersQuery = new GetUsersQuery({ id: tokenPayload.id });
     // return await this.queryBus.execute(usersQuery);
-    return await this.userService.findOne(tokenPayload.id);
+    const user = await this.userService.findOne(tokenPayload.id);
+    return { ...user, origin: 'njs' };
   }
 
   @IsPublic()
