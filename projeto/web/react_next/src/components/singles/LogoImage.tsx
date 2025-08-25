@@ -1,15 +1,22 @@
 import Image from "next/image";
 
-function LogoImage() {
+type LogoImageProps = {
+  width?: number,
+  height?: number,
+}
+
+function LogoImage(props: LogoImageProps) {
+  const imageDefaultSize = 190;
   return (
     <Image
       src="/images/logo3.png"
       alt="Pizzaria Coletti"
       title="Pizzaria Coletti"
-      width={150}
-      height={150}
+      width={props.width ?? imageDefaultSize}
+      height={props.height ?? imageDefaultSize}
       className={logoTailwindClass}
       priority
+      quality={100}
     />
   )
 }
@@ -17,6 +24,5 @@ function LogoImage() {
 export default LogoImage;
 
 const logoTailwindClass = `
-  w-auto
   h-auto
 `;

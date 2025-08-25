@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import App from "./App";
 import DarkMode from "@/components/contexts/darkMode/DarkMode";
+import type { Metadata } from "next";
+import App from "./App";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Pizzaria",

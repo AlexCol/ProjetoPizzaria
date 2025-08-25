@@ -68,7 +68,7 @@ function SignUp() {
             disabled={states.isLoading}
             className={signUpStyles.button}
           >
-            {states.isLoading ? 'Loading...' : 'SignUp'}
+            {states.isLoading ? 'Loading...' : 'Cadastrar'}
           </button>
         </form>
 
