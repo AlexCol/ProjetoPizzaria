@@ -35,13 +35,18 @@ a {
 
 body, input, textarea, select, button {
   font-weight: 400;
-  font-size: 1rem;
+  /* font-size: 1rem; */
   font-family: sans-serif;
 }
 
-@media (max-width: 720px) {
+/* @media (max-width: 720px) {
   body, input, textarea, select, button {
     font-size: 87.5%;
+  }
+} */
+@media (max-width: 720px) {
+  html {
+    font-size: 87.5%; /* reduz raiz: rem-based utilities do Tailwind serão 0.875 × */
   }
 }
 
