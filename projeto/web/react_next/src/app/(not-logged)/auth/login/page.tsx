@@ -1,6 +1,8 @@
 'use client';
+import Button from '@/components/singles/Button';
+import Input from '@/components/singles/Input';
+import LinkCustom from '@/components/singles/LinkCustom';
 import LogoImage from '@/components/singles/LogoImage';
-import Link from 'next/link';
 import { loginStyles } from './login.styles';
 import useLogin from './useLogin';
 
@@ -13,8 +15,7 @@ function Login() {
 
       <section className={loginStyles.login}>
         <form onSubmit={signInHandler} className={loginStyles.form}>
-          <input
-            className={loginStyles.input}
+          <Input
             type="email"
             placeholder="Email"
             ref={emailRef}
@@ -22,8 +23,7 @@ function Login() {
             disabled={isLoading}
             required
           />
-          <input
-            className={loginStyles.input}
+          <Input
             type="password"
             placeholder="Password"
             maxLength={30}
@@ -31,13 +31,11 @@ function Login() {
             disabled={isLoading}
             required
           />
-          <button
+          <Button
             type="submit"
             disabled={isLoading}
-            className={loginStyles.button}
-          >
-            {isLoading ? 'Loading...' : 'Acessar'}
-          </button>
+            label={isLoading ? 'Loading...' : 'Acessar'}
+          />
           <label className={loginStyles.rememberMeContainer}>
             <input
               type="checkbox"
@@ -49,9 +47,11 @@ function Login() {
             Lembrar-me
           </label>
         </form>
-        <Link href="/auth/signup" className={loginStyles.link}>
-          Não tem uma conta? Cadastre-se
-        </Link>
+        <LinkCustom
+          href="/auth/signup"
+          label='Não tem uma conta? Cadastre-se'
+          disabled={isLoading}
+        />
       </section>
       {errorMessage && <div className="text-red-500">{errorMessage}</div>}
     </div>

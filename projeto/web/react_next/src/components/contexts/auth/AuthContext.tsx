@@ -54,12 +54,12 @@ function useAuthProvider() {
       setIsLoading(false);
   }
 
-  const handleFocus = async () => { //!para verificar se usuário ainda está logado (cado logout feito em outra aba)
+  const handleFocus = async () => { //!para verificar se usuário ainda está logado (caso logout feito em outra aba)
     if (!loggedUser) //se não estiver logado não precisa testar
       return;
 
     const now = Date.now(); //data atual para comparar se tempo de nova checagem passou
-    if (now - lastCallRef.current <= 20_000) //20 seconds
+    if (now - lastCallRef.current <= 60_000) //60 seconds
       return;
 
     lastCallRef.current = now;

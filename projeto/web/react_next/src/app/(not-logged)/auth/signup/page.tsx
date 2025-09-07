@@ -1,8 +1,10 @@
 'use client'
+import Button from '@/components/singles/Button';
 import CheckBoxGroup from '@/components/singles/CheckBoxGroup';
+import Input from '@/components/singles/Input';
+import LinkCustom from '@/components/singles/LinkCustom';
 import LogoImage from '@/components/singles/LogoImage';
 import PasswordInput from '@/components/singles/PasswordInput';
-import Link from 'next/link';
 import { signUpStyles } from './signup.styles';
 import useSignUp from './useSignUp';
 
@@ -18,8 +20,7 @@ function SignUp() {
       </div>
       <section className={signUpStyles.signUp}>
         <form onSubmit={states.signUpHandler} className={signUpStyles.form}>
-          <input
-            className={signUpStyles.input}
+          <Input
             type="name"
             placeholder="Nome"
             ref={states.nameRef}
@@ -27,8 +28,7 @@ function SignUp() {
             disabled={states.isLoading}
             required
           />
-          <input
-            className={signUpStyles.input}
+          <Input
             type="email"
             placeholder="Email"
             ref={states.emailRef}
@@ -39,14 +39,12 @@ function SignUp() {
 
           {/* inputs com opção de revelar a senha */}
           <PasswordInput
-            inputClassName={signUpStyles.input}
             placeholder="Password"
             autoComplete="new-password"
             inputRef={states.passwordRef}
             isLoading={states.isLoading}
           />
           <PasswordInput
-            inputClassName={signUpStyles.input}
             placeholder="Confirm Password"
             autoComplete="new-password"
             inputRef={states.confirmPasswordRef}
@@ -63,26 +61,19 @@ function SignUp() {
           />
           {/* checkboxes */}
 
-          <button
+          <Button
             type="submit"
             disabled={states.isLoading}
-            className={signUpStyles.button}
-          >
-            {states.isLoading ? 'Loading...' : 'Cadastrar'}
-          </button>
+            label={states.isLoading ? 'Loading...' : 'Cadastrar'}
+          />
         </form>
 
         {/* Link to login page com disabled */}
-        {states.isLoading ? (
-          <span className={`${signUpStyles.link} opacity-60 cursor-not-allowed`} aria-disabled="true">
-            Já tem uma conta? Faça login
-          </span>
-        ) : (
-          <Link href="/auth/login" className={signUpStyles.link}>
-            Já tem uma conta? Faça login
-          </Link>
-        )}
-        {/* Link to login page com disabled */}
+        <LinkCustom
+          href="/auth/login"
+          label='Já tem uma conta? Faça login'
+          disabled={states.isLoading}
+        />
 
       </section>
       {states.errorMessage && <div className="text-red-500">{states.errorMessage}</div>}

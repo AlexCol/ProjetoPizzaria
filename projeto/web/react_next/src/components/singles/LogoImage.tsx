@@ -14,6 +14,7 @@ function LogoImage(props: LogoImageProps) {
       title="Pizzaria Coletti"
       width={props.width ?? imageDefaultSize}
       height={props.height ?? imageDefaultSize}
+      style={{ height: "auto" }}
       className={logoTailwindClass}
       priority
       quality={100}
@@ -23,6 +24,4 @@ function LogoImage(props: LogoImageProps) {
 
 export default LogoImage;
 
-const logoTailwindClass = `
-  h-auto
-`;
+const logoTailwindClass = `h-auto w-auto max-w-full object-contain`;

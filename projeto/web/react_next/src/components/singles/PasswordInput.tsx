@@ -5,7 +5,6 @@ import { useState } from "react";
 type PasswordInputProps = {
   inputRef: React.RefObject<HTMLInputElement>;
   isLoading: boolean;
-  inputClassName: string;
   placeholder: string;
   autoComplete?: string;
 };
@@ -15,7 +14,7 @@ function PasswordInput(props: PasswordInputProps) {
   return (
     <div className="w-full relative">
       <input
-        className={props.inputClassName}
+        className={inputTailwindClass}
         type={showPassword ? "text" : "password"}
         maxLength={30}
         placeholder={props.placeholder}
@@ -44,4 +43,19 @@ const buttonTailwindClass = `
   top-1/2
   -translate-y-1/2
   cursor-pointer
+`;
+
+const inputTailwindClass = `
+  w-full
+  px-4
+  py-2
+  rounded-md
+  border-2
+  focus:outline-none
+  border-light-gray-900-pizzaria
+  dark:border-dark-gray-100-pizzaria
+  focus:border-light-green-300-pizzaria
+  dark:focus:border-dark-green-900-pizzaria
+  placeholder:text-light-gray-900-pizzaria
+  dark:placeholder:text-dark-gray-100-pizzaria
 `;
