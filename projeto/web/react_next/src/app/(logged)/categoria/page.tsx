@@ -1,30 +1,32 @@
 'use client'
 import Button from "@/components/singles/Button"
-import Input from "@/components/singles/Input"
 import LinkCustom from "@/components/singles/LinkCustom"
-import { FormEvent } from "react"
+import { Modal } from "@/components/singles/Modal"
 import categoriaStyles from "./categoria.styles"
+import CategoriaModal from "./components/CategoriaModal"
+import useCategoria from "./useCategoria"
 
 export default function Categoria() {
-  async function handleRegisterCategory(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    alert('oi');
-  }
+  const states = useCategoria();
 
   return (
     <main className={categoriaStyles.container}>
-      <h1 className={categoriaStyles.title}>Nova Categoria</h1>
-      <form className={categoriaStyles.form} onSubmit={handleRegisterCategory}>
-        <Input
-          type="text"
-          name="name"
-          placeholder="Nome da Categoria, ex: Pizzas"
-          required
-        />
-        <Button label="Cadastrar" type="submit" />
-      </form>
+      <Button label="Nova categoria" onClick={states.newCategoryModalOpen} />
+
+      {/*aqui colocar um loop contendo as categorias*/}
 
       <LinkCustom href={'/'} label="Voltar" disabled={false} />
+
+      <Button label="Editar" onClick={states.editCategoryModalOpen} buttonType="Green" />
+
+      {/* modal a ser aberto para editar e criar */}
+      <Modal className={categoriaStyles.container} isOpen={states.isModalOpen} onClose={states.handleModalClose}>
+        <CategoriaModal
+          onClick={states.handleFormClick}
+          onCancel={states.handleModalClose}
+          title={states.modalTitle}
+        />
+      </Modal>
     </main>
   )
 }
