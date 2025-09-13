@@ -1,12 +1,17 @@
 import Link from "next/link";
+import { isValidElement } from "react";
+import { IconType } from "react-icons";
 
 type linkCustomProps = {
   href: string,
-  label: string,
+  label?: string,
+  icon?: IconType | React.ReactElement;
   disabled?: boolean | undefined
 }
 
 function LinkCustom(props: linkCustomProps) {
+  const IconComp = typeof props.icon === "function" ? (props.icon as IconType) : null;
+
   if (props.disabled) {
     return (
       <span className={`${linkTailwindClass} opacity-60 cursor-not-allowed`} aria-disabled="true">
@@ -17,6 +22,7 @@ function LinkCustom(props: linkCustomProps) {
 
   return (
     <Link href={props.href} className={linkTailwindClass}>
+      {IconComp ? <IconComp className="inline-block mr-2 text-2xl" /> : isValidElement(props.icon) ? props.icon : null}
       {props.label}
     </Link>
   )

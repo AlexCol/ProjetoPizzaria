@@ -22,12 +22,13 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, classNa
   return ReactDOM.createPortal(
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          onClick={onClose}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className={`
+        <FocusTrap>
+          <motion.div
+            onClick={onClose}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={`
             w-full
             h-full
             flex-1
@@ -39,22 +40,21 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, classNa
             z-[1000]
             bg-dark-gray-900-pizzaria/90
           `}
-        >
-          <motion.div
-            onClick={e => e.stopPropagation()}
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 50, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className={className}
           >
-            <FocusTrap>
+            <motion.div
+              onClick={e => e.stopPropagation()}
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className={className}
+            >
               <div className='w-full'>
                 {children}
               </div>
-            </FocusTrap>
+            </motion.div>
           </motion.div>
-        </motion.div>
+        </FocusTrap>
       )}
     </AnimatePresence>,
     document.body

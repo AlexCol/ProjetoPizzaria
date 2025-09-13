@@ -58,4 +58,8 @@ const inputTailwindClass = `
   dark:focus:border-dark-green-900-pizzaria
   placeholder:text-light-gray-900-pizzaria
   dark:placeholder:text-dark-gray-100-pizzaria
+  bg-light-gray-100-pizzaria
+  dark:bg-dark-gray-700-pizzaria
+  text-light-gray-900-pizzaria
+  dark:text-dark-gray-100-pizzaria  
 `;
