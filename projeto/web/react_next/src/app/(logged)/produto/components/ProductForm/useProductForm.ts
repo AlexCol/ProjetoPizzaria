@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, MouseEvent, useState } from "react";
 import { toast } from "react-toastify";
 
 export default function useProductForm() {
@@ -20,10 +20,16 @@ export default function useProductForm() {
     setPreviewImage(URL.createObjectURL(imageHandled));
   }
 
+  const clearImage = (e: MouseEvent<HTMLButtonElement>) => {
+    if (previewImage)
+      e.stopPropagation();
+    setPreviewImage('');
+  };
+
   return {
     image, previewImage,
-    handleFile,
+    handleFile, clearImage,
   }
 };
 
-export type useProductForm = ReturnType<typeof useProductForm>;
+export type useProductFormType = ReturnType<typeof useProductForm>;

@@ -2,6 +2,7 @@ const containerTC = `
   flex
   flex-col
   w-[80%]
+  max-w-[720px]  
   mx-auto
   my-5
   px-4
@@ -18,20 +19,9 @@ const formTC = `
   my-4
 `;
 
-const labelImageTC = `
-  w-full
-  h-[280px]
-  relative
-`;
-
-const previewTC = `
-`;
-
 const productFormStyles = {
   containerTC,
   titleTC,
   formTC,
-  labelImageTC,
-  previewTC,
 }
 export default productFormStyles;

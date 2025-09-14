@@ -12,13 +12,13 @@ type inputProps = {
   accept?: string | undefined,
   value?: string | number | readonly string[] | undefined,
   onChange?: ChangeEventHandler<HTMLInputElement> | undefined,
-
+  className?: string,
 }
 
 function Input(props: inputProps) {
   return (
     <input
-      className={inputTailwindClass}
+      className={`${inputTailwindClass} ${props.className}`}
       type={props.type}
       placeholder={props.placeholder}
       ref={props.ref}
