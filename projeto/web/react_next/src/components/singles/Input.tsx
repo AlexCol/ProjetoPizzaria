@@ -1,4 +1,4 @@
-import { HTMLInputAutoCompleteAttribute, HTMLInputTypeAttribute, Ref } from "react";
+import { ChangeEventHandler, HTMLInputAutoCompleteAttribute, HTMLInputTypeAttribute, Ref } from "react";
 
 type inputProps = {
   type?: HTMLInputTypeAttribute | undefined,
@@ -8,7 +8,11 @@ type inputProps = {
   disabled?: boolean | undefined,
   required?: boolean | undefined,
   maxLength?: number | undefined,
-  name?: string | undefined
+  name?: string | undefined,
+  accept?: string | undefined,
+  value?: string | number | readonly string[] | undefined,
+  onChange?: ChangeEventHandler<HTMLInputElement> | undefined,
+
 }
 
 function Input(props: inputProps) {
@@ -23,6 +27,9 @@ function Input(props: inputProps) {
       required={props.required}
       maxLength={props.maxLength}
       name={props.name}
+      accept={props.accept}
+      value={props.value}
+      onChange={props.onChange}
     />
   )
 }
@@ -46,4 +53,6 @@ const inputTailwindClass = `
   dark:bg-dark-gray-700-pizzaria
   text-light-gray-900-pizzaria
   dark:text-dark-gray-100-pizzaria
+  hover:border-light-red-300-pizzaria
+  dark:hover:border-dark-red-900-pizzaria
 `;
