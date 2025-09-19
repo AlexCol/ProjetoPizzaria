@@ -9,6 +9,32 @@ html:not(.dark):not(.light) body {
   visibility: hidden;
 }
 
+@layer utilities { /*classe customizada para remover o spine de inputs 'number'*/
+  /* Chrome, Safari, Edge, Opera */
+  .no-spinner::-webkit-outer-spin-button,
+  .no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  .no-spinner[type=number] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+}
+
+@layer utilities { /*classe customizada para ocultar o scroll*/
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE e Edge */
+    scrollbar-width: none;     /* Firefox */
+  }
+}
+
 @theme {
   /* Placeholder para customizações de tema, se necessário */
   --color-dark-red-900-pizzaria: #ff3f4b;

@@ -18,8 +18,8 @@ function FormImage({ states }: FormImageProps) {
         </span>
         <Input
           type="file"
+          name="file"
           accept="image/png, image/jpeg" //sugestão para o navegador sobre quais tipos de arquivo devem aparecer no seletor de arquivos
-          required
           onChange={states.handleFile}
           className="hidden"
         />

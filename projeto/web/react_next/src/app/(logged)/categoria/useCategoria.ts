@@ -1,11 +1,10 @@
 import Categoria from "@/models/Categoria";
 import { FormEvent, RefObject, useEffect, useRef, useState } from "react";
 
-import { toast } from "react-toastify";
-import createCategoria from "./functions/createCategoria";
-import removeCategoria from "./functions/deleteCategoria";
-import editCategoria from "./functions/editCategoria";
-import fetchCategorias from "./functions/fetchCategorias";
+import createCategoria from "./services/createCategoria";
+import removeCategoria from "./services/deleteCategoria";
+import editCategoria from "./services/editCategoria";
+import fetchCategorias from "./services/fetchCategorias";
 
 export default function useCategoria() {
   const idRef = useRef<number>(0);
@@ -32,39 +31,22 @@ export default function useCategoria() {
     setIsModalOpen(true);
     setMode('edit');
     idRef.current = categoria.id;
-    console.log(categoryNameRef.current);
     categoryNamePendingRef.current = categoria.name;
   }
 
   const getCategorias = async () => {
-    try {
-      const data = await fetchCategorias();
-      setCategorias(data.categories);
-    } catch (err) {
-      if (err instanceof Error) {
-        toast.error(err.message);
-      } else {
-        toast.error('Erro. Tente novamente mais tarde.')
-      }
-    }
+    const data = await fetchCategorias();
+    setCategorias(data.categories);
   }
 
   const deleteCategoria = async (id: number) => {
-    try {
-      await removeCategoria(id);
+    const removed = await removeCategoria(id);
+    if (removed)
       await getCategorias(); //pra atualizar a grid
-      toast.success('Registro deletado com sucesso!');
-    } catch (err) {
-      if (err instanceof Error) {
-        toast.error(err.message);
-      } else {
-        toast.error('Erro. Tente novamente mais tarde.')
-      }
-    }
   }
 
   /*********************************************************************/
-  /* METODO CENTRALIZADOR DO CLICK EXTERNO                             */
+  /* METODO CENTRALIZADOR DO CLICK EXTERNO (DO FORMULÁRIO)             */
   /*********************************************************************/
   function handleFormClick(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -82,44 +64,17 @@ export default function useCategoria() {
   /*********************************************************************/
   async function handleCreate() {
     const name = categoryNameRef.current.value;
-    if (!name) {
-      toast.error('Nome não informado.')
-      return;
-    }
-
-    try {
-      await createCategoria(name);
+    const created = await createCategoria(name);
+    if (created)
       await getCategorias(); //pra atualizar a grid
-      toast.success('Registro criado com sucesso!');
-    } catch (err) {
-      if (err instanceof Error) {
-        toast.error(err.message);
-      } else {
-        toast.error('Erro. Tente novamente mais tarde.')
-      }
-    }
   }
 
   async function handleEdit() {
-    /* do stuff */
     const id = idRef.current;
     const name = categoryNameRef.current.value;
-    if (!id || !name) {
-      toast.error('Erro ao processar registro, tente novamente mais tarde.')
-      return;
-    }
-
-    try {
-      await editCategoria(id, name);
+    const updated = await editCategoria(id, name);
+    if (updated)
       await getCategorias(); //pra atualizar a grid
-      toast.success('Registro alterado com sucesso!');
-    } catch (err) {
-      if (err instanceof Error) {
-        toast.error(err.message);
-      } else {
-        toast.error('Erro. Tente novamente mais tarde.')
-      }
-    }
   }
 
   /*********************************************************************/

@@ -8,7 +8,6 @@ const labelImageTC = `
   justify-center
   cursor-pointer
   flex-col
-  mb-4
   border-[1px]
   hover:border-light-green-300-pizzaria
   dark:hover:border-dark-green-900-pizzaria
@@ -18,7 +17,7 @@ const clearTC = `
   absolute 
   top-2 
   right-2 
-  p-1 
+  p-1
   rounded-full 
   transition
 `;
