@@ -9,8 +9,10 @@ const labelImageTC = `
   cursor-pointer
   flex-col
   border-[1px]
-  hover:border-light-green-300-pizzaria
-  dark:hover:border-dark-green-900-pizzaria
+  focus:border-light-green-300-pizzaria
+  dark:focus:border-dark-green-900-pizzaria
+  hover:border-light-red-300-pizzaria
+  dark:hover:border-dark-red-900-pizzaria  
 `;
 
 const clearTC = `

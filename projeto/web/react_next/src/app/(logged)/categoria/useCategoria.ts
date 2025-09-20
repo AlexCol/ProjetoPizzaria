@@ -1,10 +1,10 @@
 import Categoria from "@/models/Categoria";
 import { FormEvent, RefObject, useEffect, useRef, useState } from "react";
 
-import createCategoria from "./services/createCategoria";
-import removeCategoria from "./services/deleteCategoria";
-import editCategoria from "./services/editCategoria";
-import fetchCategorias from "./services/fetchCategorias";
+import createCategoria from "../../../services/categoria/createCategoria";
+import removeCategoria from "../../../services/categoria/deleteCategoria";
+import editCategoria from "../../../services/categoria/editCategoria";
+import fetchCategorias from "../../../services/categoria/fetchCategorias";
 
 export default function useCategoria() {
   const idRef = useRef<number>(0);

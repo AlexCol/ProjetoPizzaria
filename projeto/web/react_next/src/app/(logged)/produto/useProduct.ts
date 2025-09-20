@@ -1,11 +1,15 @@
-import fetchCategorias from "@/app/(logged)/categoria/services/fetchCategorias";
 import Categoria from "@/models/Categoria";
+import Produto from "@/models/Produto";
+import fetchCategorias from "@/services/categoria/fetchCategorias";
+import fetchProdutos from "@/services/produto/fetchProduto";
+
 import { ChangeEvent, FormEvent, MouseEvent, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
-export default function useProductForm() {
+export default function useProduct() {
   const [image, setImage] = useState<File>();
   const [previewImage, setPreviewImage] = useState<string>('');
+  const [produtos, setProdutos] = useState<Produto[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mode, setMode] = useState<'edit' | 'create'>('create');
@@ -51,6 +55,13 @@ export default function useProductForm() {
     setPreviewImage('');
   };
 
+  const deleteProduct = async (id: number) => {
+    alert('deletando');
+    //const removed = await removeCategoria(id);
+    //if (removed)
+    //await getCategorias(); //pra atualizar a grid
+  }
+
   /*********************************************************************/
   /* METODO CENTRALIZADOR DO CLICK EXTERNO (DO FORMULÁRIO)             */
   /*********************************************************************/
@@ -73,6 +84,20 @@ export default function useProductForm() {
   /*********************************************************************/
   /* METODOS PRIVADOS                                                  */
   /*********************************************************************/
+  const getCategorias = async () => {
+    const data = await fetchCategorias();
+    setCategorias(data.categories);
+  };
+
+  const getProdutos = async () => {
+    const data = await fetchProdutos();
+    setProdutos(data.products);
+  };
+
+  const inicialFetch = async () => {
+    await Promise.all([getProdutos(), getCategorias()]);
+  }
+
   async function handleCreate() {
     alert('criando');
   }
@@ -85,19 +110,15 @@ export default function useProductForm() {
   /* USE EFFECTS                                                       */
   /*********************************************************************/
   useEffect(() => {
-    const getCategorias = async () => {
-      const data = await fetchCategorias();
-      setCategorias(data.categories);
-    };
-    getCategorias();
+    inicialFetch();
   }, []);
 
   return {
     image, previewImage, handleFile, clearImage,
-    categorias,
+    produtos, categorias,
     handleFormClick,
-    mode, isModalOpen, modalTitle, handleModalClose, newProductModalOpen, editProductModalOpen
+    mode, isModalOpen, modalTitle, handleModalClose, newProductModalOpen, editProductModalOpen, deleteProduct
   }
 };
 
-export type useProductFormType = ReturnType<typeof useProductForm>;
+export type useProductType = ReturnType<typeof useProduct>;

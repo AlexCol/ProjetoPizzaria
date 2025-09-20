@@ -5,11 +5,7 @@ const containerTC = `
   max-w-[720px]  
   mx-auto
   my-5
-  px-4
-  h-screen
-  overflow-y-auto
-  no-scrollbar
-`;
+  px-4`;
 
 const productFormStyles = {
   containerTC,

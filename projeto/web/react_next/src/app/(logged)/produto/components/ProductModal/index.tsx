@@ -1,11 +1,11 @@
 import Button from '@/components/singles/Button'
 import Input from '@/components/singles/Input'
-import FormImage from '../../../FormImage'
-import { useProductFormType } from '../../useProductForm'
+import { useProductType } from '../../useProduct'
+import FormImage from '../FormImage'
 import productModalStyles from './productModalStyles'
 
 type ProductModalProps = {
-  states: useProductFormType
+  states: useProductType
 }
 
 function ProductModal({ states }: ProductModalProps) {
@@ -52,7 +52,7 @@ function ProductModal({ states }: ProductModalProps) {
             <Button label="Salvar" type="submit" buttonType="Green" />
           </div>
           <div className="w-3/10">
-            <Button label="Cancelar" buttonType='Red' onClick={states.handleModalClose} />
+            <Button label="Cancelar" buttonType='Red' type="button" onClick={states.handleModalClose} />
           </div>
         </div>
       </form>
