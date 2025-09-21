@@ -1,6 +1,7 @@
 
 const containerTailwindClass = `
-  w-8/12
+  w-[80%]
+  max-w-[720px]  
   mx-auto
   my-5
   flex

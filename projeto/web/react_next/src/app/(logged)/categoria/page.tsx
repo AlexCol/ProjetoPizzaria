@@ -20,7 +20,7 @@ export default function Categoria() {
             key={item.id}
             categoria={item}
             editarClick={states.editCategoryModalOpen}
-            deletarClick={states.deleteCategoria}
+            deletarClick={states.handleDelete}
           />
         ))
       )}

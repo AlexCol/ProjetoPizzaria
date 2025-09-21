@@ -18,8 +18,6 @@ const menuItensTailwindClass = `
 `;
 
 const logoLinkTailwindClass = `
-  flex-1
-  min-w-1/12
 `;
 
 const linkTailwindClass = `

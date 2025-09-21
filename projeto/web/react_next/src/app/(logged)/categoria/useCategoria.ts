@@ -1,8 +1,8 @@
 import Categoria from "@/models/Categoria";
 import { FormEvent, RefObject, useEffect, useRef, useState } from "react";
 
+import deleteCategoria from "@/services/categoria/deleteCategoria";
 import createCategoria from "../../../services/categoria/createCategoria";
-import removeCategoria from "../../../services/categoria/deleteCategoria";
 import editCategoria from "../../../services/categoria/editCategoria";
 import fetchCategorias from "../../../services/categoria/fetchCategorias";
 
@@ -39,8 +39,8 @@ export default function useCategoria() {
     setCategorias(data.categories);
   }
 
-  const deleteCategoria = async (id: number) => {
-    const removed = await removeCategoria(id);
+  const handleDelete = async (id: number) => {
+    const removed = await deleteCategoria(id);
     if (removed)
       await getCategorias(); //pra atualizar a grid
   }
@@ -95,7 +95,7 @@ export default function useCategoria() {
   /*********************************************************************/
   return {
     isModalOpen, mode, modalTitle,
-    newCategoryModalOpen, editCategoryModalOpen, deleteCategoria,
+    newCategoryModalOpen, editCategoryModalOpen, handleDelete,
     handleModalClose,
     handleFormClick,
     categoryNameRef,

@@ -1,7 +1,9 @@
 'use client'
 
 import Button from "@/components/singles/Button";
+import LinkCustom from "@/components/singles/LinkCustom";
 import { Modal } from "@/components/singles/Modal";
+import { FiArrowLeft } from "react-icons/fi";
 import ProductItem from "./components/ProductItem";
 import ProductModal from "./components/ProductModal";
 import productStyles from "./productStyles";
@@ -21,10 +23,12 @@ function Produto() {
             produto={item}
             categorias={states.categorias}
             editarClick={states.editProductModalOpen}
-            deletarClick={states.deleteProduct}
+            deletarClick={states.handleDelete}
           />
         ))
       )}
+
+      <LinkCustom href={'/'} icon={FiArrowLeft} disabled={false} />
 
       {/* modal a ser aberto para editar e criar */}
       <Modal className={productStyles.containerTC} isOpen={states.isModalOpen} onClose={states.handleModalClose}>

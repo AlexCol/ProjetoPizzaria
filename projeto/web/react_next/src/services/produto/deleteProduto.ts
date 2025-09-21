@@ -1,9 +1,9 @@
-import api from "@/services/api";
 import { toast } from "react-toastify";
+import api from "../api";
 
-export default async function deleteCategoria(id: number) {
+export default async function deleteProduto(id: number) {
   try {
-    await api({ method: 'delete', url: `category/${id}` });
+    await api({ method: 'delete', url: `product/${id}` });
     toast.success('Registro deletado com sucesso!');
     return true;
   } catch (err) {
@@ -15,4 +15,3 @@ export default async function deleteCategoria(id: number) {
     return false;
   }
 }
-

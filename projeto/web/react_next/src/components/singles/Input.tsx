@@ -13,6 +13,7 @@ type inputProps = {
   value?: string | number | readonly string[] | undefined,
   onChange?: ChangeEventHandler<HTMLInputElement> | undefined,
   className?: string,
+  step?: string
 }
 
 function Input(props: inputProps) {
@@ -30,6 +31,7 @@ function Input(props: inputProps) {
       accept={props.accept}
       value={props.value}
       onChange={props.onChange}
+      step={props.step}
     />
   )
 }

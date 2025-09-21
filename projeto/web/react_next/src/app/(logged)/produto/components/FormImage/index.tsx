@@ -2,11 +2,11 @@ import Input from "@/components/singles/Input"
 import Image from "next/image"
 import { CgClose } from "react-icons/cg"
 import { FiUploadCloud } from "react-icons/fi"
-import { useProductFormType } from "../../useProduct"
+import { useProductType } from "../../useProduct"
 import imageFormStyles from "./imageFormStyles"
 
 type FormImageProps = {
-  states: useProductFormType
+  states: useProductType
 }
 
 function FormImage({ states }: FormImageProps) {
