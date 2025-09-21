@@ -9,7 +9,7 @@ html:not(.dark):not(.light) body {
   visibility: hidden;
 }
 
-@layer utilities { /*classe customizada para remover o spine de inputs 'number'*/
+@layer utilities { /*!classe customizada para remover o spine de inputs 'number'*/
   /* Chrome, Safari, Edge, Opera */
   .no-spinner::-webkit-outer-spin-button,
   .no-spinner::-webkit-inner-spin-button {
@@ -24,7 +24,7 @@ html:not(.dark):not(.light) body {
   }
 }
 
-@layer utilities { /*classe customizada para ocultar o scroll*/
+@layer utilities { /*!classe customizada para ocultar o scroll*/
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }

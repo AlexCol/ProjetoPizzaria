@@ -51,8 +51,15 @@ const tagTailwindClass = `
 `;
 
 const iconTailwindClass = `
-text-light-green-300-pizzaria
+  text-light-green-300-pizzaria
   dark:text-dark-green-900-pizzaria
+`;
+
+const iconAnimatedTailwindClass = `
+  ${iconTailwindClass}  
+  transition-transform 
+  duration-100 
+  active:rotate-180
 `;
 
 const orderStyles = {
@@ -62,6 +69,7 @@ const orderStyles = {
   listOrders: listOrdersTailwindClass,
   orderItem: orderItemTailwindClass,
   tag: tagTailwindClass,
-  icon: iconTailwindClass
+  icon: iconTailwindClass,
+  iconAnimated: iconAnimatedTailwindClass,
 }
 export default orderStyles;
