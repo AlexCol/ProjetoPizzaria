@@ -10,7 +10,16 @@ export const OrderQueryParam = createParamDecorator(
 
     if (!query) return {};
 
-    const { id, table, status, userId, draft, name, productId } = query; // ✅ Destructuring sem conversão de tipos
+    const {
+      id,
+      table,
+      status,
+      user_id: userId,
+      draft,
+      name,
+      product_id: productId,
+      full_data: fullData
+    } = query; // ✅ Destructuring sem conversão de tipos
 
     return {
       id,
@@ -19,7 +28,8 @@ export const OrderQueryParam = createParamDecorator(
       userId,
       draft,
       name,
-      productId
+      productId,
+      fullData
     };
   },
 );
@@ -32,4 +42,5 @@ export interface GetOrderFilters {
   draft?: boolean;
   name?: string;
   productId?: number; // Adicionado para filtrar por produto
+  fullData?: boolean; //adicionado para controlar se trás os itens junto ou só o 'cabçalho' do pedido
 }

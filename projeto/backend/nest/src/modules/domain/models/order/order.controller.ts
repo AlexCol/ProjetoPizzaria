@@ -1,12 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { OrderService } from './order.service';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { TokenPayloadDto } from 'src/modules/auth/dto/token-payload.dto';
+import { TokenPayloadParam } from 'src/modules/auth/params/token-payload.param';
+import { BaseQueryParam, BaseQueryParamType } from '../../common/params/base-query.param';
+import { CreateOrderItemDto } from './dto/create-order-item.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { BaseQueryParam, BaseQueryParamType } from '../../common/params/base-query.param';
+import { OrderService } from './order.service';
 import { GetOrderFilters, OrderQueryParam } from './param/order-query.param';
-import { TokenPayloadParam } from 'src/modules/auth/params/token-payload.param';
-import { TokenPayloadDto } from 'src/modules/auth/dto/token-payload.dto';
-import { CreateOrderItemDto } from './dto/create-order-item.dto';
 
 @Controller('order')
 export class OrderController {
@@ -63,10 +63,10 @@ export class OrderController {
   }
 
   @Patch(':id/reopen')
-  async reopenOrder(
+  async reOpenOrder(
     @Param('id') id: number
   ) {
-    return await this.orderService.reopenOrder(id);
+    return await this.orderService.reOpenOrder(id);
   }
 
   @Delete(':id')

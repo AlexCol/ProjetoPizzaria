@@ -1,15 +1,15 @@
 import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { FindOptionsSelect, Repository, SelectQueryBuilder } from 'typeorm';
+import { BaseQueryType } from '../../common/types/base-query';
+import { ProductService } from '../product/product.service';
+import { UsersService } from '../users/users.service';
+import { CreateOrderItemDto } from './dto/create-order-item.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { FindOptionsSelect, In, Repository, SelectQueryBuilder } from 'typeorm';
-import { Order } from './entities/order.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UsersService } from '../users/users.service';
-import { ProductService } from '../product/product.service';
-import { GetOrderFilters } from './param/order-query.param';
-import { BaseQueryType } from '../../common/types/base-query';
 import { OrderItem } from './entities/order-item.entity';
-import { CreateOrderItemDto } from './dto/create-order-item.dto';
+import { Order } from './entities/order.entity';
+import { GetOrderFilters } from './param/order-query.param';
 
 @Injectable()
 export class OrderService {
@@ -33,7 +33,8 @@ export class OrderService {
 
     const queryBuilder = this.orderRepository.createQueryBuilder('order');
 
-    this.addSelectAndRelations(queryBuilder);
+    if (filters?.fullData)
+      this.addSelectAndRelations(queryBuilder);
 
     if (filters)
       this.addFilters(queryBuilder, filters);
@@ -158,7 +159,7 @@ export class OrderService {
     return { message: `Order with id ${id} updated successfully` };
   }
 
-  async reopenOrder(id: number) {
+  async reOpenOrder(id: number) {
     const order = await this.findOneOrder(id);
     if (!order)
       throw new NotFoundException(`Order with id ${id} not found`);
@@ -273,7 +274,7 @@ export class OrderService {
     if (filters.name)
       queryBuilder.andWhere('order.name ILIKE :name', { name: `%${filters.name}%` });
 
-    if (filters.productId) {
+    if (filters.productId && filters.fullData) {
       const productIds = Array.isArray(filters.productId)
         ? filters.productId
         : [filters.productId];
