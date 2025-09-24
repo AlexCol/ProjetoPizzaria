@@ -1,14 +1,14 @@
 import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UploadFileService } from 'src/modules/upload-file/upload-file.service';
+import { Not, Repository } from 'typeorm';
+import { BaseQueryType } from '../../common/types/base-query';
+import { CategoryService } from '../category/category.service';
+import { OrderService } from '../order/order.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
-import { Not, Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CategoryService } from '../category/category.service';
 import { GetProductFilters } from './types/products.filters';
-import { BaseQueryType } from '../../common/types/base-query';
-import { UploadFileService } from 'src/modules/upload-file/upload-file.service';
-import { OrderService } from '../order/order.service';
 
 @Injectable()
 export class ProductService {
@@ -159,7 +159,7 @@ export class ProductService {
     if (!product)
       throw new NotFoundException('Product not found');
 
-    const orders = await this.orderService.findAllOrders({ filters: { productId: id } });
+    const orders = await this.orderService.findAllOrders({ filters: { productId: id, fullData: true } });
     if (orders.total > 0)
       throw new BadRequestException('Cannot delete product that is associated with orders');
 

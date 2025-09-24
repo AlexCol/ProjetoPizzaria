@@ -22,14 +22,17 @@ export const OrderQueryParam = createParamDecorator(
     } = query; // ✅ Destructuring sem conversão de tipos
 
     return {
-      id,
+      id: id ? Number(id) : undefined,
       table,
       status,
-      userId,
-      draft,
+      userId: userId ? Number(userId) : undefined,
+      draft: draft === "true" ? true : draft === "false" ? false : undefined,
       name,
-      productId,
-      fullData
+      productId: productId ? Number(productId) : undefined,
+      fullData:
+        fullData === "true" ? true :
+          fullData === "false" ? false :
+            true,
     };
   },
 );
