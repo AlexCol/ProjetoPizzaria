@@ -62,7 +62,7 @@ const iconAnimatedTailwindClass = `
   active:rotate-180
 `;
 
-const orderStyles = {
+const ordersStyles = {
   container: containerTailwindClass,
   containerHeader: containerHeaderTailwindClass,
   tittle: tittleTailwindClass,
@@ -72,4 +72,4 @@ const orderStyles = {
   icon: iconTailwindClass,
   iconAnimated: iconAnimatedTailwindClass,
 }
-export default orderStyles;
+export default ordersStyles;

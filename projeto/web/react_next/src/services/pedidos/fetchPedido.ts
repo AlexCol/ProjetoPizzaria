@@ -1,16 +1,9 @@
 import { toast } from "react-toastify";
 import api from "../api";
 
-export default async function fetchPedidos() {
+export default async function fetchPedido(id: number) {
   try {
-    const params = {
-      status: false,
-      draft: false,
-
-      sort_field: 'criadoEm'
-    }
-
-    const data = await api({ method: 'get', url: 'order', params });
+    const data = await api({ method: 'get', url: `order/${id}` });
     return data;
   } catch (err) {
     if (err instanceof Error) {
