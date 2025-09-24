@@ -33,7 +33,7 @@ export class OrderService {
 
     const queryBuilder = this.orderRepository.createQueryBuilder('order');
 
-    if (filters?.fullData)
+    if (filters?.fullData !== false) //true or undefined brings all
       this.addSelectAndRelations(queryBuilder);
 
     if (filters)
