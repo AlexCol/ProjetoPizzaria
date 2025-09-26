@@ -39,6 +39,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, classNa
             inset-0
             z-[1000]
             bg-dark-gray-900-pizzaria/90
+            backdrop-blur-xs
           `}
           >
             <motion.div
@@ -47,7 +48,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, classNa
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 50, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className={className}
+              className={className ?? mediaWidthTC}
             >
               <div className='w-full'>
                 {children}
@@ -60,3 +61,21 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, classNa
     document.body
   );
 };
+
+const mediaWidthTC = `
+  w-full          // padrão: mobile ocupa toda largura
+  sm:w-[80%]      // >= 640px: 80% da largura
+  md:w-[70%]      // >= 768px: 70% da largura
+  lg:w-[60%]      // >= 1024px: 60% da largura
+  xl:w-[50%]      // >= 1280px: 50% da largura
+  2xl:w-[40%]      // >= 1536px: 40% da largura
+`;
+
+/*
+menor que 640 é considerado 'mobile'
+sm → 640px
+md → 768px
+lg → 1024px
+xl → 1280px
+2xl → 1536px
+*/

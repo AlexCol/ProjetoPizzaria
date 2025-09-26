@@ -12,7 +12,7 @@ function Button(props: ButtonProps) {
   const compClassName = filtraButtonClassName(props.buttonType);
   return (
     <button
-      className={compClassName}
+      className={`${compClassName} ${props.className}`}
       onClick={props.onClick}
       type={props.type}
       disabled={props.disabled}
