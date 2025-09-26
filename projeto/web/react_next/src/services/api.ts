@@ -102,16 +102,16 @@ function handleException(error: any) {
 //? Usado para informar o Backend se é para mandar cookie com expiração ou não
 //??????????????????????????????????????????????????????????????????????????????
 export function setRememberMe(rememberMe: boolean) {
-  rememberMe = rememberMe || localStorage.getItem('rememberMe') === 'true';
+  rememberMe = rememberMe;// || localStorage.getItem('rememberMe') === 'true';
   if (!rememberMe) {
     delete core.defaults.headers.common['remember-me']; // Remove o token se não for fornecido
   } else {
     core.defaults.headers.common['remember-me'] = rememberMe; // Define o token no cabeçalho Authorization
-    localStorage.setItem('rememberMe', rememberMe.toString());
+    //localStorage.setItem('rememberMe', rememberMe.toString());
   }
 }
 
 export function forgetMe() {
   delete core.defaults.headers.common['remember-me'];
-  localStorage.removeItem('rememberMe');
+  //localStorage.removeItem('rememberMe');
 }

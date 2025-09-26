@@ -6,7 +6,7 @@ export default async function fetchPedidos() {
     const params = {
       status: false,
       draft: false,
-
+      full_data: false,
       sort_field: 'criadoEm'
     }
 
