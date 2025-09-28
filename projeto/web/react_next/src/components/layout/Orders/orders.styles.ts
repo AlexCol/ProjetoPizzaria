@@ -5,7 +5,7 @@ const containerTailwindClass = `
   flex-col
   max-w-[720px]
   mx-auto 
-  my-[20px]
+  mb-[20px]
   px-4
 `;
 

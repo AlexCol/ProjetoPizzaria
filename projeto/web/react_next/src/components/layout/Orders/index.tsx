@@ -37,6 +37,13 @@ function Orders() {
             ))
           }
         </section>
+
+        {/* Seção para mostrar mensagem que ainda não tem pedidos */}
+        {states.pedidos.length === 0 && (
+          <section>
+            <span>Nenhum pedido no momento...</span>
+          </section>
+        )}
       </main>
 
       <Modal isOpen={states.isModalOpen} onClose={states.closeModal}>

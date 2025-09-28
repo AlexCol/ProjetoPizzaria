@@ -1,3 +1,4 @@
+import { useSocketContext } from "@/components/contexts/socket/SocketContext";
 import Pedido from "@/models/Pedido";
 import editPedido from "@/services/pedidos/editPedido";
 import fetchPedido from "@/services/pedidos/fetchPedido";
@@ -5,6 +6,7 @@ import fetchPedidos from "@/services/pedidos/fetchPedidos";
 import { useEffect, useState } from "react";
 
 export default function useOrders() {
+  const { updateOrderList } = useSocketContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
@@ -29,8 +31,8 @@ export default function useOrders() {
   const fecharPedido = async (pedido: Pedido) => {
     pedido.status = true;
     const closed = await editPedido(pedido);
-    if (closed)
-      getPedidos();
+    //if (closed) //com a adição do socket, isso se torna desnecessário
+    //getPedidos();
     closeModal();
   }
 
@@ -46,7 +48,7 @@ export default function useOrders() {
   /*********************************************************************/
   useEffect(() => {
     getPedidos();
-  }, []);
+  }, [updateOrderList]);
 
   return {
     isModalOpen, openModalForEdit, closeModal,

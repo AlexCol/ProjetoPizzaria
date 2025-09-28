@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 function Main({ children }: { children: React.ReactNode }) {
   return (
@@ -13,4 +13,5 @@ export default Main
 const mainTailwindClass = `
   h-full
   overflow-y-auto
+  scrollbar-stable-both
 `;

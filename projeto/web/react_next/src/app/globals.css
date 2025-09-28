@@ -35,6 +35,16 @@ html:not(.dark):not(.light) body {
   }
 }
 
+@layer utilities { /*!classe customizada para evitar mudança de layout ao aparecer o scroll*/
+  .scrollbar-stable {
+    scrollbar-gutter: stable;
+  }
+
+  .scrollbar-stable-both {
+    scrollbar-gutter: stable both-edges;
+  }
+}
+
 @theme {
   /* Placeholder para customizações de tema, se necessário */
   --color-dark-red-900-pizzaria: #ff3f4b;

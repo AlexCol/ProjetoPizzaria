@@ -6,6 +6,6 @@ type LoggedUser = {
   permissions: string[];
   criadoEm: Date;
   atualizadoEm: Date;
-  Origin: string;
+  origin: string;
 }
 export default LoggedUser;
