@@ -44,7 +44,6 @@ export class OrderService {
       this.addFilters(queryBuilder, filters);
 
     // ✅ Ordenação
-    console.log(`Sorting by field: ${field}, order: ${order}`);
     queryBuilder.orderBy(`order.${field}`, order);
 
     // ✅ Paginação
