@@ -160,9 +160,9 @@ export class OrderService {
 
     await this.orderRepository.update(id, updateOrderDto);
 
-    if (!updateOrderDto.draft && !order.status) { //se o pedido não for mais rascunho e ainda não estiver finalizado
+    if (!updateOrderDto.draft) { //se o pedido não for mais rascunho, notificar de qualquer alteração
       //notificar cozinha
-      this.socket.notifyRole('cozinha', 'new_order');
+      this.socket.notifyRole('cozinha', 'list_update');
     }
 
     return { message: `Order with id ${id} updated successfully` };
@@ -176,6 +176,10 @@ export class OrderService {
       throw new BadRequestException(`Order with id ${id} is already open`);
 
     await this.orderRepository.update(id, { status: false });
+
+    //notificar cozinha
+    this.socket.notifyRole('cozinha', 'list_update');
+
     return { message: `Order with id ${id} reopened successfully` };
   }
 

@@ -5,7 +5,10 @@ import { CustomNestLogger } from '../logger/logger.service';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: 'http://localhost:3000', // ou seu domínio real
+    credentials: true,
+    allowedHeaders: ['role', 'user_id']
+    // origin: '*', //não funciona com 'withCredentials'(envio via cookie http only)
   },
 })
 export class SocketGateway {
@@ -32,7 +35,7 @@ export class SocketGateway {
     this.logger.verbose('Tentando autenticar cliente:', client.id);
     try {
       const userData = await this.verifyToken(client);
-      this.removeOldClientsWithSameToken(client); //remove clientes antigos com o mesmo token (para o caso de algum 'bug' no front que conecta mais de uma vez)
+      //this.removeOldClientsWithSameToken(client); //remove clientes antigos com o mesmo token (para o caso de algum 'bug' no front que conecta mais de uma vez)
       client.handshake.headers['user_id'] = userData.id.toString();
       this.addClientRole(client);
       this.logger.verbose('Cliente autenticado com sucesso:', client.id);
@@ -87,12 +90,27 @@ export class SocketGateway {
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!METODOS PRIVADOS
   private async verifyToken(client: Socket): Promise<any> {
-    const token = client.handshake.auth.token || client.handshake.headers.token;
+    const token = this.getTokenFromCookies(client);
     try {
       return await this.authService.verifyJwtAsync(token);
     } catch (error) {
       throw error;
     }
+  }
+
+  private getTokenFromCookies(client: Socket) {
+    if (!client.handshake.headers.cookie)
+      return "";
+    const cookies = this.parseCookies(client.handshake.headers.cookie);
+    return cookies['accessToken'];
+  }
+
+  private parseCookies(cookieHeader: string): Record<string, string> {
+    return cookieHeader?.split(';').reduce((acc, cookie) => {
+      const [key, value] = cookie.split('=').map(c => c.trim());
+      if (key && value) acc[key] = value;
+      return acc;
+    }, {} as Record<string, string>) || {};
   }
 
   private removeOldClientsWithSameToken(client: Socket) {
