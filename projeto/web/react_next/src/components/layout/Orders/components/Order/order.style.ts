@@ -30,6 +30,7 @@ const itensTC = `
   border-light-gray-300-pizzaria
   dark:border-dark-gray-100-pizzaria
   py-2
+  flex
 `;
 
 const buttonAreaTC = `

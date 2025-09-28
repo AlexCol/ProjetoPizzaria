@@ -18,7 +18,12 @@ function Order({ states }: orderProps) {
 
         {states.pedido.itens.map((item, index) => (
           <div key={item.id} className={orderStyles.itensTC}>
-            {index + 1} - {item.product.name}
+            <div className="flex-1">
+              {index + 1} - {item.product.name}
+            </div>
+            <div className="flex-1">
+              Qtd: {item.amount}
+            </div>
           </div>
         ))}
 
