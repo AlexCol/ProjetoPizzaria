@@ -34,9 +34,10 @@ export class SocketGateway {
       const userData = await this.verifyToken(client);
       this.removeOldClientsWithSameToken(client); //remove clientes antigos com o mesmo token (para o caso de algum 'bug' no front que conecta mais de uma vez)
       client.handshake.headers['user_id'] = userData.id.toString();
+      this.addClientRole(client);
       this.logger.verbose('Cliente autenticado com sucesso:', client.id);
     } catch (err) {
-      this.logger.warn('Token inválido, desconectando...');
+      this.logger.warn('Token inválido, desconectando... ' + err.message);
       client.disconnect();
     }
   }
@@ -57,6 +58,10 @@ export class SocketGateway {
         return;
       }
     }
+  }
+
+  async notifyRole(role: string, event: string, data: any) {
+    this.server.to(role).emit(event, data);
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!METODOS SOCKET (CONTROLLERS)
@@ -98,6 +103,21 @@ export class SocketGateway {
         this.logger.warn(`Cliente duplicado encontrado: ${existingClient.id}`);
         existingClient.disconnect();
       }
+    }
+  }
+
+  private addClientRole(client: Socket) {
+    const role = client.handshake.headers.role;
+
+    if (role !== 'cozinha' && role !== 'garcom' && role !== 'admin') {
+      this.logger.warn(`Role inválida para o cliente ${client.id}, desconectando...`);
+      client.disconnect();
+      return;
+    }
+
+    if (role) {
+      client.join(role); // adiciona o socket à sala
+      this.logger.verbose(`Cliente ${client.id} entrou na sala: ${role}`);
     }
   }
 

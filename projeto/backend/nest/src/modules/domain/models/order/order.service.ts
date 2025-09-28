@@ -1,5 +1,6 @@
 import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SocketService } from 'src/modules/socket/socket.service';
 import { FindOptionsSelect, Repository, SelectQueryBuilder } from 'typeorm';
 import { BaseQueryType } from '../../common/types/base-query';
 import { ProductService } from '../product/product.service';
@@ -14,13 +15,16 @@ import { GetOrderFilters } from './param/order-query.param';
 @Injectable()
 export class OrderService {
   constructor(
+    //dependencias com anotações
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
     @InjectRepository(OrderItem)
     private orderItemRepository: Repository<OrderItem>,
-    private readonly usersService: UsersService,
     @Inject(forwardRef(() => ProductService)) //necessário devido a referencia circular entre ProductService e OrderService
     private readonly productService: ProductService,
+    //dependencias sem anotações
+    private readonly usersService: UsersService,
+    private readonly socket: SocketService,
   ) { }
 
   //****************************************************************************
@@ -100,8 +104,7 @@ export class OrderService {
 
     const order = this.orderRepository.create({ ...createOrderDto, userId, user });
     const result = await this.orderRepository.save(order);
-    console.log(result.criadoEm);
-    console.log(new Date(result.criadoEm));
+
     return result;
   }
 
@@ -156,6 +159,12 @@ export class OrderService {
       throw new BadRequestException(`Cannot update order with id ${id} to fulfilled because it is still a draft`);
 
     await this.orderRepository.update(id, updateOrderDto);
+
+    if (!updateOrderDto.draft && !order.status) { //se o pedido não for mais rascunho e ainda não estiver finalizado
+      //notificar cozinha
+      this.socket.notifyRole('cozinha', 'new_order');
+    }
+
     return { message: `Order with id ${id} updated successfully` };
   }
 
