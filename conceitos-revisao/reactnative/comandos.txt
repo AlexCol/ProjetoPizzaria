@@ -1,0 +1,136 @@
+npm install -g expo-cli
+
+https://reactnative.dev/docs/fabric-native-components-introduction
+https://reactnative.dev/docs/components-and-apis
+---para criar um projeto (ele vem com TS por padrão)
+npx @react-native-community/cli@latest init <projname> --skip-git-init
+ex: npx @react-native-community/cli@latest init app --skip-git-init
+
+https://docs.expo.dev/
+---trabalhar com expo (MUITO mais leve - e pode ser usado tanto com o celular como com emulador)
+npx create-expo-app@latest <nome projeto> -t
+ex: 
+npx create-expo-app@latest app -t
+
+--
+npm i --save-dev @types/react-native
+
+---para instalar o Picker
+npm install @react-native-picker/picker
+
+---para instalar o Slider
+npm install @react-native-community/slider
+
+--para instalar o Async Storage
+npm install @react-native-async-storage/async-storage@2.1.2
+
+--para instalar o axios
+npm instal axios
+***(não precisa)npm instal --save-dev @types/axios@latest
+
+--para instalar o animatable (https://github.com/oblador/react-native-animatable)
+npm instal react-native-animatable
+
+--para instalar icons (https://github.com/oblador/react-native-vector-icons)
+npm install --save @react-native-vector-icons/{pacote desejado}
+para pacotes desejados, ver documentação (ex: Feather, FontAwesome 6)
+-->npm install --save @react-native-vector-icons/fontawesome6 @react-native-vector-icons/feather 
+LIsta de icones: https://oblador.github.io/react-native-vector-icons/
+---> se usar Expo, pode-se importar no fonte apenas
+import { Ionicons } from '@expo/vector-icons'; //trocando Ionicons pelo pacote desejado
+
+--para instalar o react navigation (https://reactnavigation.org/docs/getting-started)
+npm install @react-navigation/native
+npm install react-native-screens react-native-safe-area-context@5.4.0
+--usar bottom tabs
+npm install @react-navigation/bottom-tabs 
+--usar stacks
+npm install @react-navigation/native-stack 
+--usar drawer (gaveta) -- versão 17, pois a padrão no momento do estudo, 18, dá erro
+npm install @react-navigation/drawer
+npm install react-native-gesture-handler@~2.24.0 react-native-reanimated@3.17.0
+--->adicionar plugins: ['react-native-reanimated/plugin'], ao arquivo babel.config.js se começar a dar erros
+
+--para instalar o firebase
+npm install firebase
+npm install --save-dev @types/firebase
+
+--instalar dotenv
+npm install dotenv
+npm install --save-dev @types/dotenv
+
+--instalar styled-components (usar estilo como se fosse CSS)
+--obs sobre legacy => Como você está usando React Native, e não usa react-dom, você pode instalar sem se preocupar com esse peer conflict
+--obs2 extensão de styled-components para poder usar intelisense
+npm install styled-components --legacy-peer-deps
+
+--instalar nativewind (tailwind para react native)
+-->olhar arquivo instalação na pasta 20.Tailwind
+
+--pacote dayjs (para tratar com datas)
+npm install dayjs
+
+--calendars (https://github.com/wix/react-native-calendars) e https://wix.github.io/react-native-calendars/docs/Components/Calendar
+npm install react-native-calendars
+npm install --save-dev @types/react-native-calendars
+
+--notifiee (para notificações) -- https://notifee.app/react-native/docs/installation
+npm install --save @notifee/react-native
+npm install expo-build-properties
+
+adicionar plugin a app.json
+"plugins": [
+  [
+    "expo-build-properties", 
+    {
+      "android": {
+        "extraMavenRepos": [
+			    "../../node_modules/@notifee/react-native/android/libs"
+				]
+	    }
+	  }
+  ]
+]    
+
+npx expo prebuild
+adicionar um script para executar o app (não pode mais ser via expo start) -> npx expo run:android
+
+--camera1 (https://github.com/react-native-image-picker/react-native-image-picker#readme)
+npm install react-native-image-picker
+// não dá pra usar com Expo, mesma coisa do notifiee
+--npx expo prebuild
+--script: npx expo run:android
+2. Permissões Android
+No AndroidManifest.xml, garanta que tem:
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+3. Permissões iOS
+No Info.plist, adicione:
+<key>NSCameraUsageDescription</key>
+<string>Precisamos acessar sua câmera</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Precisamos acessar suas fotos</string>
+
+--camera2 (para uso com expo) https://docs.expo.dev/versions/latest/sdk/imagepicker/
+--npx expo install expo-image-picker
+
+//gerenciar Permissões ----- somente se usar com Prebuild e npx expo run:android
+npm install react-native-permissions
+
+//usar redux
+npm install react-redux
+npm install --save-dev @types/react-redux
+npm install @reduxjs/toolkit
+
+//para mapas (https://github.com/react-native-maps/react-native-maps?tab=readme-ov-file)
+npm install react-native-maps
+npm install --save-dev @types/react-native-maps
+adicionar ao AndroidManifest
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+-->precisa obter uma key de uso em google cloud plataform
+// não dá pra usar com Expo, mesma coisa do notifiee
+
+-->geolocalização
+npm install @react-native-community/geolocation;
