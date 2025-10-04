@@ -1,5 +1,5 @@
 import { StatusBar, StyleSheet, View } from 'react-native';
-import Tasks from './src/Tasks';
+import Tasks from './src/Tasks/Tasks';
 
 export default function App() {
   return (
