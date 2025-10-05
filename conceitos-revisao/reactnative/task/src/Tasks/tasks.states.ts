@@ -30,6 +30,10 @@ export default function useTasks() {
     clearRefs();
   }
 
+  function remove(key: number) {
+    setTaskList(prev => prev.filter(t => t.key !== key));
+  }
+
   function clearRefs() {
     taskRef.current = "";
     taskInputRef.current.clear();
@@ -39,7 +43,7 @@ export default function useTasks() {
   return {
     taskRef, taskInputRef,
     taskList,
-    buttonAdd, clearRefs,
+    buttonAdd, clearRefs, remove,
   }
 }
 export type useTasksType = ReturnType<typeof useTasks>;

@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: '100%',
   },
   title: {
     fontWeight: 'bold',
@@ -37,5 +38,16 @@ const styles = StyleSheet.create({
     textDecorationStyle: 'solid',
     borderRadius: 4,
   },
+  listContainer: {
+    flex: 1,
+    paddingHorizontal: '5%',
+    marginBottom: 12,
+    width: '100%',
+  },
+  noContent: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  }
 });
 export default styles;

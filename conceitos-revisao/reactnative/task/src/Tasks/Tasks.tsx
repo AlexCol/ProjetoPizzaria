@@ -26,10 +26,11 @@ function Tasks() {
       </View>
 
       <FlatList
-        keyExtractor={(item) => item.key.toString() ?? ""}
+        style={styles.listContainer}
+        keyExtractor={(item) => item.key.toString()}
         data={taskList}
         renderItem={({ item }) => <TaskListItem task={item} states={states} />}
-        ListEmptyComponent={<Text>No tasks founded.</Text>}
+        ListEmptyComponent={<Text style={styles.noContent}>No tasks founded.</Text>}
         showsVerticalScrollIndicator={false}
       />
 
