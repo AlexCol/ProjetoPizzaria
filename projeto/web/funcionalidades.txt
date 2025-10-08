@@ -1,0 +1,11 @@
+-- tela de login com função de 'lembra-me' (essa é quase automatica, com base em Cookie Http Only com vencimento ou não)
+
+-- tela de cadastro
+
+-- tela de cadastro de categorias e produtos, usando Modal para re-aproveitamento de tela (mesma estrutura tanto para cadastro como para edição) e um modal para confirmação de exclusão
+
+-- tela de pedidos com lista na tela e Modal para mostrar os itens do pedido com botões para fechar o pedido
+
+-- opção de Light e Dark Mode, usando tailwind para controlar as cores
+
+-- usado socket para comunicação em tempo real, para quando chegarem novos pedidos, a tela de pedidos já se atualizar 
