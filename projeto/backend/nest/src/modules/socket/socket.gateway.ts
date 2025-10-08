@@ -7,7 +7,7 @@ import { CustomNestLogger } from '../logger/logger.service';
   cors: {
     origin: 'http://localhost:3000', // ou seu domínio real
     credentials: true,
-    allowedHeaders: ['role', 'user_id']
+    allowedHeaders: ['role', 'user_id', 'x_origin'],
     // origin: '*', //não funciona com 'withCredentials'(envio via cookie http only)
   },
 })
@@ -90,7 +90,13 @@ export class SocketGateway {
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!METODOS PRIVADOS
   private async verifyToken(client: Socket): Promise<any> {
-    const token = this.getTokenFromCookies(client);
+    let token = "";
+    if (client.handshake.headers['x_origin'] === 'web')
+      token = this.getTokenFromCookies(client);
+
+    if (client.handshake.headers['x_origin'] === 'mobile')
+      token = client.handshake.auth.token || client.handshake.headers.token;
+
     try {
       return await this.authService.verifyJwtAsync(token);
     } catch (error) {

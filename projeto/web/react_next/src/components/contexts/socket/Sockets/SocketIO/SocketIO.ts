@@ -11,6 +11,7 @@ export class SocketIOClient implements ISocket {
       extraHeaders: {
         role: 'cozinha',
         user_id: user.id.toString(),
+        x_origin: 'web' //adiciona o header X-Origin para identificar a origem da conexão
       },
     });
   }
