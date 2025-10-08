@@ -50,7 +50,7 @@ export class AppConfig {
         'Accept-Language',    // ✅ Para i18n
         'Accept-Encoding',    // ✅ Para compressão
         'remember-me',        // ✅ Para o cabeçalho personalizado
-        'Origin'              // ✅ Para o cabeçalho Origin
+        'X-Origin'            // ✅ Para o cabeçalho Origin
       ],
 
       credentials: true,        // ✅ OK agora que origin é específica

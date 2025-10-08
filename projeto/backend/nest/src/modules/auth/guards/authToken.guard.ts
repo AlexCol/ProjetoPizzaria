@@ -19,7 +19,7 @@ export class AuthTokenGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<FastifyRequest>();
 
-    const origin = request.headers['origin'];
+    const origin = request.headers['x-origin'];
     let token: string | null = null;
     if (origin === 'web') {
       token = this.extractTokenFromCookie(request);

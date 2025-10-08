@@ -4,6 +4,8 @@ import { IsPublic } from "src/common/decorators/isPublic";
 import { AuthService } from "./auth.service";
 import { LoginDto } from "./dto/login.dto";
 
+const ORIGIN_HEADER = 'x-origin';
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
@@ -15,18 +17,18 @@ export class AuthController {
     @Res({ passthrough: true }) res: FastifyReply,
     @Body() loginDto: LoginDto
   ) {
-    if (!req.headers.origin || (req.headers.origin !== 'web' && req.headers.origin !== 'mobile'))
+    if (!req.headers[ORIGIN_HEADER] || (req.headers[ORIGIN_HEADER] !== 'web' && req.headers[ORIGIN_HEADER] !== 'mobile'))
       throw new UnauthorizedException('Invalid credentials!!');
 
     //! se for web, retorna via cookie
-    if (req.headers.origin === 'web') {
+    if (req.headers[ORIGIN_HEADER] === 'web') {
       const auth = await this.authService.login(loginDto);
       addCookies(res, auth, req.headers['remember-me'] === 'true');
       return { message: auth.message, origin: auth.origin };
     }
 
     //! se for mobile, retorna via json
-    if (req.headers.origin === 'mobile') {
+    if (req.headers[ORIGIN_HEADER] === 'mobile') {
       const auth = await this.authService.login(loginDto);
       const mobileReturn = {
         message: auth.message,
@@ -45,11 +47,11 @@ export class AuthController {
     @Res({ passthrough: true }) res: FastifyReply,
     @Body() body: { refreshToken?: string }
   ) {
-    if (!req.headers.origin || (req.headers.origin !== 'web' && req.headers.origin !== 'mobile'))
+    if (!req.headers[ORIGIN_HEADER] || (req.headers[ORIGIN_HEADER] !== 'web' && req.headers[ORIGIN_HEADER] !== 'mobile'))
       throw new UnauthorizedException('Invalid credentials!!');
 
-    //! se for web, analisa eretorna via cookie
-    if (req.headers.origin === 'web') {
+    //! se for web, analisa e retorna via cookie
+    if (req.headers[ORIGIN_HEADER] === 'web') {
       const refreshTokenCookie = req.cookies['refreshToken'];
       const refreshToken = refreshTokenCookie;
       if (!refreshToken)
@@ -61,7 +63,7 @@ export class AuthController {
     }
 
     //! se for mobile, retorna via json
-    if (req.headers.origin === 'mobile') {
+    if (req.headers[ORIGIN_HEADER] === 'mobile') {
       if (!body.refreshToken || typeof body.refreshToken !== 'string')
         throw new Error('Refresh token not found');
 
