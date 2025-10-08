@@ -8,6 +8,7 @@ const core = axios.create({
   baseURL: baseUrl,
   headers: {
     'Content-Type': 'application/json',
+    'X-Origin': 'web', // Identifica se a requisição vem da web
   },
   withCredentials: true, // Permite o envio de cookies com as requisições
 });
