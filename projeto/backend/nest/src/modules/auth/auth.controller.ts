@@ -1,9 +1,8 @@
-import { Body, Controller, Post, Req, Res } from "@nestjs/common";
+import { Body, Controller, Post, Req, Res, UnauthorizedException } from "@nestjs/common";
+import { FastifyReply, FastifyRequest } from "fastify";
 import { IsPublic } from "src/common/decorators/isPublic";
 import { AuthService } from "./auth.service";
 import { LoginDto } from "./dto/login.dto";
-import { RefreshTokenDto } from "./dto/refresh-token.dto";
-import { FastifyReply, FastifyRequest } from "fastify";
 
 @Controller('auth')
 export class AuthController {
@@ -16,9 +15,27 @@ export class AuthController {
     @Res({ passthrough: true }) res: FastifyReply,
     @Body() loginDto: LoginDto
   ) {
-    const auth = await this.authService.login(loginDto);
-    addCookies(res, auth, req.headers['remember-me'] === 'true');
-    return { message: auth.message, origin: auth.origin };
+    if (!req.headers.origin || (req.headers.origin !== 'web' && req.headers.origin !== 'mobile'))
+      throw new UnauthorizedException('Invalid credentials!!');
+
+    //! se for web, retorna via cookie
+    if (req.headers.origin === 'web') {
+      const auth = await this.authService.login(loginDto);
+      addCookies(res, auth, req.headers['remember-me'] === 'true');
+      return { message: auth.message, origin: auth.origin };
+    }
+
+    //! se for mobile, retorna via json
+    if (req.headers.origin === 'mobile') {
+      const auth = await this.authService.login(loginDto);
+      const mobileReturn = {
+        message: auth.message,
+        accessToken: auth.accessToken,
+        refreshToken: auth.refreshToken,
+        origin: auth.origin
+      }
+      return mobileReturn;
+    }
   }
 
   @IsPublic()
@@ -26,15 +43,36 @@ export class AuthController {
   async refreshTokens(
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
+    @Body() body: { refreshToken?: string }
   ) {
-    const refreshTokenCookie = req.cookies['refreshToken'];
-    const refreshToken = refreshTokenCookie;
-    if (!refreshToken)
-      throw new Error('Refresh token not found');
+    if (!req.headers.origin || (req.headers.origin !== 'web' && req.headers.origin !== 'mobile'))
+      throw new UnauthorizedException('Invalid credentials!!');
 
-    const auth = await this.authService.refreshTokens({ refreshToken });
-    addCookies(res, auth, req.headers['remember-me'] === 'true');
-    return { message: auth.message, origin: auth.origin };
+    //! se for web, analisa eretorna via cookie
+    if (req.headers.origin === 'web') {
+      const refreshTokenCookie = req.cookies['refreshToken'];
+      const refreshToken = refreshTokenCookie;
+      if (!refreshToken)
+        throw new Error('Refresh token not found');
+
+      const auth = await this.authService.refreshTokens({ refreshToken });
+      addCookies(res, auth, req.headers['remember-me'] === 'true');
+      return { message: auth.message, origin: auth.origin };
+    }
+
+    //! se for mobile, retorna via json
+    if (req.headers.origin === 'mobile') {
+      if (!body.refreshToken || typeof body.refreshToken !== 'string')
+        throw new Error('Refresh token not found');
+
+      const auth = await this.authService.refreshTokens({ refreshToken: body.refreshToken });
+      return {
+        message: auth.message,
+        accessToken: auth.accessToken,
+        refreshToken: auth.refreshToken,
+        origin: auth.origin
+      };
+    }
   }
 
   @Post('logout')

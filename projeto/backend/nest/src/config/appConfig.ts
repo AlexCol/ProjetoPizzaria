@@ -1,8 +1,8 @@
-import { INestApplication, ValidationPipe } from "@nestjs/common";
-import { NestFastifyApplication } from "@nestjs/platform-fastify";
-import multipart from '@fastify/multipart';
-import fastifyHelmet from '@fastify/helmet';
 import fastifyCookie from "@fastify/cookie";
+import fastifyHelmet from '@fastify/helmet';
+import multipart from '@fastify/multipart';
+import { ValidationPipe } from "@nestjs/common";
+import { NestFastifyApplication } from "@nestjs/platform-fastify";
 
 export class AppConfig {
   public static async configure(app: NestFastifyApplication): Promise<void> {
@@ -50,6 +50,7 @@ export class AppConfig {
         'Accept-Language',    // ✅ Para i18n
         'Accept-Encoding',    // ✅ Para compressão
         'remember-me',        // ✅ Para o cabeçalho personalizado
+        'Origin'              // ✅ Para o cabeçalho Origin
       ],
 
       credentials: true,        // ✅ OK agora que origin é específica

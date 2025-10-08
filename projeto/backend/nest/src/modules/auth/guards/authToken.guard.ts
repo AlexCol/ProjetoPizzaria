@@ -1,11 +1,11 @@
 import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { FastifyRequest } from "fastify";
-import jwtConfig from "../config/jwt.config";
 import { ConfigType } from "@nestjs/config";
 import { Reflector } from "@nestjs/core";
+import { JwtService } from "@nestjs/jwt";
+import { FastifyRequest } from "fastify";
 import { UserResponseDto } from "src/modules/domain/models/users/dto/response-user.dto";
 import { UsersService } from "src/modules/domain/models/users/users.service";
+import jwtConfig from "../config/jwt.config";
 
 @Injectable()
 export class AuthTokenGuard implements CanActivate {
@@ -19,9 +19,13 @@ export class AuthTokenGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<FastifyRequest>();
 
-    const token =
-      this.extractTokenFromCookie(request) ??
-      this.extractTokenFromHeader(request);
+    const origin = request.headers['origin'];
+    let token: string | null = null;
+    if (origin === 'web') {
+      token = this.extractTokenFromCookie(request);
+    } else if (origin === 'mobile') {
+      token = this.extractTokenFromHeader(request);
+    }
 
     const isPublic = this.reflector.get<boolean>('isPublic', context.getHandler());
     // if (isPublic && !token) //se tiver token, mesmo que seja publico, ele será validado e barrado se mandar um jwt inválido
