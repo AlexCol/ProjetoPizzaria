@@ -1,13 +1,20 @@
 
-import { StatusBar, StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { StatusBar, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import cores from './src/cores';
+import StackRoutes from './src/routes/StackRoutes';
 
 export default function App() {
+  const Stack = createNativeStackNavigator();
   return (
-    <View style={styles.container}>
-      <Text>Pizzaria!</Text>
-      <StatusBar backgroundColor={cores.darkGray3} barStyle="light-content" translucent={false} />
-    </View>
+    <NavigationContainer>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#F0F4FF" }}>
+        <StatusBar barStyle="dark-content" backgroundColor="#F0F4FF" />
+        <StackRoutes />
+      </SafeAreaView>
+    </NavigationContainer>
   );
 }
 
