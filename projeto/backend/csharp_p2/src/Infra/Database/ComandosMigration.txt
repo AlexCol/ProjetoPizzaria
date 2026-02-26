@@ -1,0 +1,9 @@
+dotnet ef migrations add 'Cadastro_Usuario_e_Setores' --cria a migration
+
+dotnet ef database update --aplica as migrations
+
+dotnet ef database update 'migrationTeste' --reverteMigration até a de nome informado
+
+dotnet ef database update 0 --reverte todas as migrations
+
+dotnet ef migrations remove
