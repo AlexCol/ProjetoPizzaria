@@ -26,6 +26,9 @@ public static class BuilderConfig {
     // Ignora qualquer variável de ambiente ASPNETCORE_URLS
     builder.WebHost.UseUrls(); // sem argumentos, ignora a variável
 
+    //!adicionando classes para injeções de dependencia
+    DependencyInjectionBuilder.AddAutoInjectables(builder);
+
     // //!adicionando configurações
     SwaggerBuilder.AddSwagger(builder);
     DataBaseBuilder.AddDatabase(builder);
@@ -33,8 +36,5 @@ public static class BuilderConfig {
     LogBuilder.AddLogService(builder);
     EmailBuilder.AddEmailService(builder);
     ZipBuilder.AddZip(builder);
-
-    //!adicionando classes para injeções de dependencia
-    DependencyInjectionBuilder.AddAutoInjectables(builder);
   }
 }

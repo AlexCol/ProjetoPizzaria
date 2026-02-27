@@ -1,4 +1,4 @@
-namespace csharp_p2.src.Infra.Database.enumerators;
+namespace csharp_p2.src.Infra.Database.Enumerators;
 
 public enum EDataBaseType {
   Undefined = 0,

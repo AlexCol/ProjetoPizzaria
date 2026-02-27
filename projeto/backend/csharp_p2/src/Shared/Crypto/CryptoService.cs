@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-namespace csharp_p2.src.Infra.Crypto;
+namespace csharp_p2.src.Shared.Crypto;
 
 public class CryptoService : ICryptoService {
 

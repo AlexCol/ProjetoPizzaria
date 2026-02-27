@@ -1,6 +1,6 @@
 using System.Reflection;
-using csharp_p2.src.Config.builder.DI.atributes;
-using csharp_p2.src.Config.builder.DI.enumerators;
+using csharp_p2.src.Config.builder.DI.Atributes;
+using csharp_p2.src.Config.builder.DI.Enumerators;
 
 namespace csharp_p2.src.Config.builder.DI;
 

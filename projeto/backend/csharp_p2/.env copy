@@ -1,21 +1,23 @@
 TZ=America/Sao_Paulo
 PGTZ=America/Sao_Paulo
 
-########## BANCO DE DADOS (postgres)
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=pizzaria@852ad
-POSTGRES_DB=pizzaria
-POSTGRES_HOST_PORT=5444
-POSTGRES_CONTAINER_PORT=5432
+########## BANCO DE DADOS
+DB_TYPE=Postgres
+DB_HOST=localhost
+DB_PORT=5444
+DB_USER=postgres
+DB_PASS=pizzaria@852ad
+DB_NAME=pizzaria
+DB_MIN_POOL=2
+DB_MAX_POOL=10
+DB_ACQUIRE_TIMEOUT_MILLIS=30000 ## 30 segundos - tempo máximo para adquirir uma conexão
+DB_IDLE_TIMEOUT_MILLIS=300000   ## 5min sem uso = fecha
 
 ########## REDIS
+REDIS_HOST=localhost
 REDIS_PASSWORD=redis123
-REDIS_HOST_PORT=6381
-REDIS_CONTAINER_PORT=6379
+REDIS_PORT=6479
+REDIS_DB=0
 
-########## Confs para a aplicação
-Database=Postgres
-ConnectionStrings__Postgres=Server=localhost;Port=5444;Database=pizzaria;User Id=postgres;Password=pizzaria@852ad;
-Cripto__Secret=sua-chave-secreta-aqui
-teste=lendo dot env com sucesso!
-
+########## CRYPTO
+CRYPTO_SECRET=sua-chave-secreta-aqui

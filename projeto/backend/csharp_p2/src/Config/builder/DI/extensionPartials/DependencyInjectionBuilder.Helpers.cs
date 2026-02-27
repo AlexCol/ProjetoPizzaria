@@ -1,6 +1,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using csharp_p2.src.Config.builder.DI.atributes;
+using csharp_p2.src.Config.builder.DI.Atributes;
 
 namespace csharp_p2.src.Config.builder.DI;
 
