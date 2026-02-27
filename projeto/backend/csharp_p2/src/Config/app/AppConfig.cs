@@ -5,7 +5,7 @@ public static class AppConfig {
     // //!adicionando configurações
     CorsApp.AddCors(app);
     MiddlewareApp.AddMiddlewares(app);
-    ZippApp.AddZipp(app);
+    ZipApp.AddZip(app);
 
     //!adicionando configurações padrão
     app.UseAuthentication();
