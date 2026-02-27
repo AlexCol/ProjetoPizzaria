@@ -6,7 +6,7 @@ namespace csharp_p2.src.Config;
 [Injectable(typeof(EnvConfig), EServiceLifetimeType.Singleton)]
 public class EnvConfig {
   public Database Database { get; private set; }
-  public Redis Redis { get; private set; }
+  public Cache Cache { get; private set; }
   public Crypto Crypto { get; private set; }
 
   public EnvConfig(IConfiguration config) {
@@ -27,11 +27,13 @@ public class EnvConfig {
       IdleTimeoutMillis: int.Parse(config["DB_IDLE_TIMEOUT_MILLIS"] ?? "300000")
     );
 
-    Redis = new Redis(
-      Host: config["REDIS_HOST"] ?? "",
-      Port: config["REDIS_PORT"] ?? "",
-      Password: config["REDIS_PASSWORD"] ?? "",
-      Db: config["REDIS_DB"] ?? "0"
+    Cache = new Cache(
+      Type: config["CACHE_TYPE"] ?? "",
+      Host: config["CACHE_HOST"] ?? "",
+      Port: config["CACHE_PORT"] ?? "",
+      Password: config["CACHE_PASSWORD"] ?? "",
+      Db: config["CACHE_DB"] ?? "0",
+      BaseTtlInSec: int.Parse(config["CACHE_BASE_TTL_IN_SEC"] ?? "604800")
     );
 
     Crypto = new Crypto(
@@ -55,11 +57,13 @@ public record Database(
   int IdleTimeoutMillis
 );
 
-public record Redis(
+public record Cache(
+  string Type,
   string Host,
   string Port,
   string Password,
-  string Db
+  string Db,
+  int BaseTtlInSec
 );
 
 public record Crypto(

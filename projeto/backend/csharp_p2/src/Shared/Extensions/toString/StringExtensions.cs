@@ -20,4 +20,8 @@ public static class StringExtensions {
     if (str == null) return false;
     return str.Any(char.IsDigit);
   }
+
+  public static bool IsNullOrEmpty(this string str) {
+    return string.IsNullOrEmpty(str);
+  }
 }
