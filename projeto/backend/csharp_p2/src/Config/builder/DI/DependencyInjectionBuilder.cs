@@ -1,13 +1,18 @@
 using System.Reflection;
+using csharp_p2.src.Config.builder.DI.Enumerators;
 
 namespace csharp_p2.src.Config.builder.DI;
 
 public static partial class DependencyInjectionBuilder {
-  public static IServiceCollection AddAutoInjectables(WebApplicationBuilder builder, params Assembly[] assemblies) {
-    var services = builder.Services;
+  private static string BaseNamespace;
+  private static string[] ConventionSuffixes;
+  private static EServiceLifetimeType DefaultLifetime;
 
-    if (assemblies == null || assemblies.Length == 0)
-      assemblies = AppDomain.CurrentDomain.GetAssemblies();
+  public static IServiceCollection AddAutoInjectables(WebApplicationBuilder builder) {
+    var services = builder.Services;
+    LoadGlobals(builder); //carrega as tres variaveis acima, alem de validar se estão ok
+
+    var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
     var allTypes = assemblies
         .SelectMany(a => a.GetTypes())
@@ -16,7 +21,7 @@ public static partial class DependencyInjectionBuilder {
             !t.IsAbstract &&
             !t.IsCompilerGenerated() &&
             t.Namespace != null &&
-            t.Namespace.StartsWith("csharp_p2.src") //? limita a busca para as classes do projeto, evitando pegar tipos de bibliotecas externas
+            t.Namespace.StartsWith(BaseNamespace) //? limita a busca para as classes do projeto, evitando pegar tipos de bibliotecas externas
         );
 
     foreach (var classType in allTypes) {
@@ -50,4 +55,6 @@ Ordem de prioridade para injeção de dependências:
 Caso se tenha uma classe que implementa tanto uma interface específica, quando uma generica, por padrão ele vai seguir a ordem na lista acima.
 Mas se desejar que ela não injete a interface específica, basta adicionar o atributo Injectable na classe, e ele injetar a interface informada.
 [Injectable(typeof(IGenericRepository<Produto>), EServiceLifetimeType.Scoped)]
+
+Regras mais detalhadas em cada etapa (ver arquivos dos métodos correspondentes).
 */

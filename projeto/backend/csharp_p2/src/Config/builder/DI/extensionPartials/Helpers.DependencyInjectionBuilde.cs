@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using csharp_p2.src.Config.builder.DI.Atributes;
+using csharp_p2.src.Config.builder.DI.Enumerators;
 
 namespace csharp_p2.src.Config.builder.DI;
 
@@ -46,7 +47,9 @@ public static partial class DependencyInjectionBuilder {
 
     var hasInjectable = type.HasAttribute<InjectableAttribute>();
     var cleanName = type.Name.Split('`')[0];
-    var nameMatches = cleanName.EndsWith("Service") || cleanName.EndsWith("Repository");
+
+    //ConventionSuffixes declarado na principal (DependencyInjectionBuilder.cs)
+    var nameMatches = ConventionSuffixes.Any(suffix => cleanName.EndsWith(suffix));
 
     return hasInjectable || nameMatches;
   }
@@ -57,5 +60,25 @@ public static partial class DependencyInjectionBuilder {
 
   private static bool IsConcreteType(this Type type) {
     return type.IsClass && !type.IsAbstract && !type.IsInterface && !type.IsGenericTypeDefinition;
+  }
+
+  private static void LoadGlobals(WebApplicationBuilder builder) {
+    BaseNamespace = builder.Configuration.GetValue<string>("BaseNamespace");
+    if (string.IsNullOrEmpty(BaseNamespace)) {
+      throw new InvalidOperationException("BaseNamespace configuration is required for DependencyInjectionBuilder.");
+    }
+
+    ConventionSuffixes = builder.Configuration.GetSection("AutoInjectableSuffixes").Get<string[]>();
+    if (ConventionSuffixes == null || ConventionSuffixes.Length == 0) {
+      throw new InvalidOperationException("AutoInjectableSuffixes configuration is required for DependencyInjectionBuilder.");
+    }
+
+    var configDefaultLifetime = builder.Configuration.GetValue<string>("AutoInjectableDefaultLifetime");
+    if (!Enum.TryParse<EServiceLifetimeType>(configDefaultLifetime, true, out var parsedLifetime)) {
+      throw new InvalidOperationException("Invalid AutoInjectableDefaultLifetime configuration for DependencyInjectionBuilder.");
+    }
+
+    DefaultLifetime = parsedLifetime;
+
   }
 }

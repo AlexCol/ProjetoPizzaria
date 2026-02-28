@@ -109,5 +109,4 @@ trim_trailing_whitespace = true
   dotnet_naming_rule.async_method.style = async_method  
 
 dotnet_style_allow_multiple_blank_lines_experimental = false:warning
-dotnet_style_allow_statement_immediately_after_block_experimental = false:error
 csharp_style_allow_blank_lines_between_consecutive_braces_experimental = false:warning
