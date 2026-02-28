@@ -16,7 +16,7 @@ public class ExceptionHandlingMiddleware { /*para lembrete, middlewares são car
       context.Response.StatusCode = StatusCodes.Status500InternalServerError;
       context.Response.ContentType = "application/json";
 
-      var error = new ErrorResponse(ex);
+      var error = new ErrorResponseDto(ex);
       var result = JsonSerializer.Serialize(error);
       await context.Response.WriteAsync(result);
 

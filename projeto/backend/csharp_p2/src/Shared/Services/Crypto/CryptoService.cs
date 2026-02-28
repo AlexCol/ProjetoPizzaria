@@ -4,9 +4,9 @@ namespace csharp_p2.src.Shared.Crypto;
 
 public class CryptoService : ICryptoService {
 
-  private readonly string secretKey;
+  private readonly string _secretKey;
   public CryptoService(IConfiguration config) {
-    secretKey = config["Cripto:Secret"];
+    _secretKey = config["Cripto:Secret"];
   }
 
   public string ComputeHash(string password, HashAlgorithm hashAlgorithm) {
@@ -18,24 +18,25 @@ public class CryptoService : ICryptoService {
     foreach (var item in hashedBytes) {
       builder.Append(item.ToString("x2"));
     }
+
     return builder.ToString();
   }
 
   public string Decrypt(string encryptedValue) {
     try {
       using (Aes aesAlg = Aes.Create()) {
-        aesAlg.Key = Encoding.UTF8.GetBytes(secretKey);
+        aesAlg.Key = Encoding.UTF8.GetBytes(_secretKey);
         aesAlg.Mode = CipherMode.CBC;
         aesAlg.Padding = PaddingMode.PKCS7;
 
         byte[] iv = new byte[aesAlg.BlockSize / 8];
-        Array.Copy(Encoding.UTF8.GetBytes(secretKey), iv, iv.Length);
+        Array.Copy(Encoding.UTF8.GetBytes(_secretKey), iv, iv.Length);
         aesAlg.IV = iv;
 
         ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
-        var UrlSafingValue = encryptedValue.Replace('-', '+').Replace('_', '/');
-        using (MemoryStream msDecrypt = new MemoryStream(Convert.FromBase64String(UrlSafingValue)))
+        var urlSafingValue = encryptedValue.Replace('-', '+').Replace('_', '/');
+        using (MemoryStream msDecrypt = new MemoryStream(Convert.FromBase64String(urlSafingValue)))
         using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
         using (StreamReader srDecrypt = new StreamReader(csDecrypt)) {
           var decryptedValue = srDecrypt.ReadToEnd();
@@ -53,12 +54,12 @@ public class CryptoService : ICryptoService {
 
   public string Encrypt<T>(T data) {
     using (Aes aesAlg = Aes.Create()) {
-      aesAlg.Key = Encoding.UTF8.GetBytes(secretKey);
+      aesAlg.Key = Encoding.UTF8.GetBytes(_secretKey);
       aesAlg.Mode = CipherMode.CBC;
       aesAlg.Padding = PaddingMode.PKCS7;
 
       byte[] iv = new byte[aesAlg.BlockSize / 8];
-      Array.Copy(Encoding.UTF8.GetBytes(secretKey), iv, iv.Length);
+      Array.Copy(Encoding.UTF8.GetBytes(_secretKey), iv, iv.Length);
       aesAlg.IV = iv;
 
       ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
@@ -75,8 +76,8 @@ public class CryptoService : ICryptoService {
         }
 
         byte[] encryptedBytes = msEncrypt.ToArray();
-        var UrlSafingValue = Convert.ToBase64String(encryptedBytes).Replace('+', '-').Replace('/', '_');
-        return UrlSafingValue;
+        var urlSafingValue = Convert.ToBase64String(encryptedBytes).Replace('+', '-').Replace('/', '_');
+        return urlSafingValue;
       }
     }
   }

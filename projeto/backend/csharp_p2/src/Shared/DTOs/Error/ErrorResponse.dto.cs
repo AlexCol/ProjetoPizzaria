@@ -1,18 +1,18 @@
 namespace csharp_p2.src.Shared.Responses;
 
-public class ErrorResponse {
-  public ErrorResponse(string errorMessage) {
+public class ErrorResponseDto {
+  public ErrorResponseDto(string errorMessage) {
     var errors = errorMessage.Split(";");
     foreach (var error in errors) {
       ErrorMessage.Add(error);
     }
   }
 
-  public ErrorResponse(IEnumerable<string> errorMessages) {
+  public ErrorResponseDto(IEnumerable<string> errorMessages) {
     ErrorMessage.AddRange(errorMessages);
   }
 
-  public ErrorResponse(Exception exception) {
+  public ErrorResponseDto(Exception exception) {
     ErrorMessage.Add(exception.Message);
     var inner = exception.InnerException;
     while (inner != null) {
@@ -28,6 +28,7 @@ public class ErrorResponse {
     foreach (var err in ErrorMessage) {
       error += (error == "") ? err : $";{err}";
     }
+
     return error;
   }
 }

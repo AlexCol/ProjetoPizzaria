@@ -15,12 +15,12 @@ public class AppController(
 ) : ControllerBase {
 
   [HttpGet("health")]
-  public async Task<IActionResult> Health() {
+  public async Task<IActionResult> HealthAsync() {
     return Ok(new { message = "Healthy", });
   }
 
   [HttpGet("test-db")]
-  public async Task<IActionResult> TestDb() {
+  public async Task<IActionResult> TestDbAsync() {
     var dbType = env.Database.Type;
     if (dbType == "None")
       return Ok("Healthy: No database configured - " + dbType); // se o tipo de banco for None, retorna 200 com mensagem indicando que não tem banco configurado
@@ -43,7 +43,7 @@ public class AppController(
   }
 
   [HttpGet("test-cache")]
-  public async Task<IActionResult> TestCache() {
+  public async Task<IActionResult> TestCacheAsync() {
     var cacheKey = "test_cache_key";
 
     var entryOptions = new DistributedCacheEntryOptions();
