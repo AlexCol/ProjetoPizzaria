@@ -1,0 +1,21 @@
+
+------Pasta escolhida por você (bind mount)
+Exemplo: ./oracle_data:/opt/oracle/oradata
+
+Os dados ficam em uma pasta real do seu projeto/máquina.
+Você consegue abrir, copiar, versionar scripts junto etc.
+Bom para desenvolvimento quando quer “ver” os arquivos.
+Depende do caminho local (menos portátil entre máquinas).
+Em Windows/WSL, pode ter impacto de performance/permissão em alguns casos.
+
+------Pasta mantida pelo Docker (volume nomeado)
+Exemplo: oracle_data:/opt/oracle/oradata
+
+Os dados ficam no storage interno do Docker.
+Não aparece como pasta comum ao lado do compose.
+Mais portátil e normalmente mais estável para banco.
+Fácil de reutilizar entre recriações de container.
+Backup/inspeção exige comandos Docker (docker volume ...).
+Resumo prático
+Quer controlar o local e ver os arquivos: bind mount (./...).
+Quer deixar o Docker gerenciar e simplificar banco persistente: volume nomeado (nome_volume:...).
