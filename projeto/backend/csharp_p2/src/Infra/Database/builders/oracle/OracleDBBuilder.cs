@@ -19,9 +19,9 @@ public static partial class DataBaseBuilder {
       DecrPoolSize = 5, // Decremento de pool para conexões ociosas
     };
 
-    builder.Services.AddDbContext<OracleDBContext>(options => {
-      options.UseOracle(connectionStringBuilder.ConnectionString);
+    var connectionString = connectionStringBuilder.ConnectionString;
+    builder.Services.AddDbContext<BaseDBContext>(options => {
+      options.UseOracle(connectionString);
     });
-    builder.Services.AddScoped<BaseDBContext>(sp => sp.GetRequiredService<OracleDBContext>());
   }
 }

@@ -6,6 +6,6 @@ namespace csharp_p2.src.Modules.Entities;
 public abstract class BaseEntityWithId : BaseEntity {
   [Key]
   [Column("ID")]
-  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-  public int Id { get; set; }
+  //[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+  public long Id { get; set; }
 }

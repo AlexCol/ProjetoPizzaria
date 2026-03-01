@@ -21,8 +21,8 @@ public static partial class DataBaseBuilder {
     };
 
     var connectionString = connectionStringBuilder.ConnectionString;
-    builder.Services.AddDbContext<PostgresDBContext>(options =>
-        options.UseNpgsql(connectionString));
-    builder.Services.AddScoped<BaseDBContext>(sp => sp.GetRequiredService<PostgresDBContext>());
+    builder.Services.AddDbContext<BaseDBContext>(options => {
+      options.UseNpgsql(connectionString);
+    });
   }
 }

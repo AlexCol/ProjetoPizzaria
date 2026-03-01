@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace csharp_p2.src.Modules.Entities;
 
 public abstract class BaseEntity {
-  [Column("CRIADO_EM")]
-  public DateTime CriadoEm { get; set; }
+  [Column("CREATED_AT")]
+  public DateTime CreatedAt { get; set; }
 
-  [Column("EDITADO_EM")]
-  public DateTime EditadoEm { get; set; }
+  [Column("UPDATED_AT")]
+  public DateTime UpdatedAt { get; set; }
 }

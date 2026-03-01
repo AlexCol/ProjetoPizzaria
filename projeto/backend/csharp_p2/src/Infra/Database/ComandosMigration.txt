@@ -7,3 +7,24 @@ dotnet ef database update 'migrationTeste' --reverteMigration até a de nome inf
 dotnet ef database update 0 --reverte todas as migrations
 
 dotnet ef migrations remove
+
+// Quando houver mais de um DbContext, informar explicitamente:
+dotnet ef dbcontext list --project csharp_p2.csproj --startup-project csharp_p2.csproj
+
+// Exemplo (Postgres):
+dotnet ef migrations add NomeDaMigration --context csharp_p2.src.Infra.Database.PostgresDBContext --project csharp_p2.csproj --startup-project csharp_p2.csproj
+dotnet ef database update --context csharp_p2.src.Infra.Database.PostgresDBContext --project csharp_p2.csproj --startup-project csharp_p2.csproj
+
+// Exemplo (Oracle):
+dotnet ef migrations add NomeDaMigration --context csharp_p2.src.Infra.Database.OracleDBContext --project csharp_p2.csproj --startup-project csharp_p2.csproj
+dotnet ef database update --context csharp_p2.src.Infra.Database.OracleDBContext --project csharp_p2.csproj --startup-project csharp_p2.csproj
+
+////////
+Para atualizar o dotnet-ef, o caminho mais comum é:
+
+Ferramenta global:
+dotnet tool update --global dotnet-ef
+Se ainda não estiver instalado:
+dotnet tool install --global dotnet-ef
+Conferir versão:
+dotnet ef --version

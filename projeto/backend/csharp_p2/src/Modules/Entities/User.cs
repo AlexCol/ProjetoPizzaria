@@ -22,12 +22,12 @@ public class User : BaseEntityWithId {
   public string Name { get; set; }
 
   [NotNull]
-  [Column("ACTIVE")]
-  public bool Active { get; set; }
+  [Column("ACTIVE", TypeName = "NUMBER(1)")]
+  public int Active { get; set; }
 
   [NotNull]
   [Column("ROLE_ID")]
-  public int RoleId { get; set; }
+  public long RoleId { get; set; }
 
   [ForeignKey("RoleId")]
   public Role Role { get; set; }
