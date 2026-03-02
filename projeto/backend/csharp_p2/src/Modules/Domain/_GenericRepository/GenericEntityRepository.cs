@@ -181,7 +181,6 @@ public class GenericEntityRepository<T> : IGenericEntityRepository<T> where T : 
     return typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance) // Obtém todas as propriedades públicas e de instância
         .Where(p =>
               typeof(BaseEntityWithId).IsAssignableFrom(p.PropertyType) &&
-              p.GetMethod.IsVirtual &&
               p.GetCustomAttribute<NotMappedAttribute>() == null
         );
   }

@@ -2,11 +2,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using csharp_p2.src.Shared.VOs;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace csharp_p2.src.Modules.Entities;
 
-[Table("USUARIOS")]
+[Table("USERS")]
 public class User : BaseEntityWithId {
 
   [NotNull] //utilizar esse e não required, pois com isso consigo suprimir a obrigatoriedade de vir no json (ver DependenciesBuilder)

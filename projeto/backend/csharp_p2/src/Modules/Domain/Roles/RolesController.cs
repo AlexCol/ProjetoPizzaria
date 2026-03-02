@@ -27,32 +27,20 @@ public class RolesController : ControllerBase {
 
   [HttpPost]
   public async Task<IActionResult> CreateRoleAsync([FromBody] RoleDto dto) {
-    try {
-      var createdRole = await _rolesService.CreateRoleAsync(dto);
-      return CreatedAtRoute("GetRoleById", new { id = createdRole.Id }, createdRole);
-    } catch (Exception ex) {
-      return BadRequest(ex.Message);
-    }
+    var createdRole = await _rolesService.CreateRoleAsync(dto);
+    return CreatedAtRoute("GetRoleById", new { id = createdRole.Id }, createdRole);
   }
 
   [HttpPatch("{id}")]
   public async Task<IActionResult> UpdateRoleAsync(long id, [FromBody] RoleDto dto) {
-    try {
-      var updatedRole = await _rolesService.UpdateRoleAsync(id, dto);
-      return Ok(updatedRole);
-    } catch (Exception ex) {
-      return BadRequest(ex.Message);
-    }
+    var updatedRole = await _rolesService.UpdateRoleAsync(id, dto);
+    return Ok(updatedRole);
   }
 
   [HttpDelete("{id}")]
   public async Task<IActionResult> DeleteRoleAsync(long id) {
-    try {
-      var deleted = await _rolesService.DeleteRoleAsync(id);
-      if (!deleted) return NotFound();
-      return NoContent();
-    } catch (Exception ex) {
-      return BadRequest(ex.Message);
-    }
+    var deleted = await _rolesService.DeleteRoleAsync(id);
+    if (!deleted) return NotFound();
+    return NoContent();
   }
 }

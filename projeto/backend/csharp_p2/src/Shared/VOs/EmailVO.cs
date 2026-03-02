@@ -10,13 +10,13 @@ public class EmailVO : BaseVO {
 
   public EmailVO(string email) {
     if (string.IsNullOrEmpty(email)) {
-      throw new InvalidValueObjectError("Email inválido.");
+      throw new CustomError("Email inválido.");
     }
 
     string normalized = email.Trim().ToLower();
 
     if (!IsValid(normalized)) {
-      throw new InvalidValueObjectError("Email inválido.");
+      throw new CustomError("Email inválido.");
     }
 
     Value = normalized;
@@ -36,10 +36,13 @@ public class EmailVO : BaseVO {
   /************************************************************/
   /* Comparação                                               */
   /************************************************************/
-  public bool Equals(EmailVO other) {
-    if (other == null)
-      return false;
-    return Value.Equals(other.Value);
+  public override bool Equals(object obj) {
+    if (ReferenceEquals(this, obj))
+      return true;
+    if (obj == null || GetType() != obj.GetType())
+      throw new CustomError("Cannot compare EmailVO with a different type.");
+    var other = (EmailVO)obj;
+    return Value == other.Value;
   }
 
   public override int GetHashCode() {

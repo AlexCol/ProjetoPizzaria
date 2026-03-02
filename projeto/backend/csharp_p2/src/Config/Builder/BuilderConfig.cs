@@ -16,6 +16,9 @@ public static class BuilderConfig {
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddControllers(options => {
       options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true; //* Remove a validação automática do ModelState (pra poder usar NotNull e não impedir o envio do json)
+    })
+    .AddJsonOptions(options => {
+      options.JsonSerializerOptions.UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow; //* Rejeita propriedades extras não definidas no DTO
     });
     builder.Services.AddHttpContextAccessor();
 

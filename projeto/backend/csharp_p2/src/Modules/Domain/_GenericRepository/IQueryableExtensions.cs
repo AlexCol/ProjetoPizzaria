@@ -14,8 +14,8 @@ public static class IQueryableExtensions {
     var navigationProperties = entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                                         .Where(p => p.PropertyType.IsClass &&
                                                     p.PropertyType != typeof(string) &&
-                                                    p.GetMethod.IsVirtual &&
-                                                    p.GetCustomAttribute<NotMappedAttribute>() == null);
+                                                    p.GetCustomAttribute<NotMappedAttribute>() == null &&
+                                                    typeof(BaseEntityWithId).IsAssignableFrom(p.PropertyType));
 
     foreach (var property in navigationProperties) {
       var propertyName = property.Name;
@@ -38,8 +38,8 @@ public static class IQueryableExtensions {
     var navigationProperties = entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                                         .Where(p => p.PropertyType.IsClass &&
                                                     p.PropertyType != typeof(string) &&
-                                                    p.GetMethod.IsVirtual &&
-                                                    p.GetCustomAttribute<NotMappedAttribute>() == null);
+                                                    p.GetCustomAttribute<NotMappedAttribute>() == null &&
+                                                    typeof(BaseEntityWithId).IsAssignableFrom(p.PropertyType));
 
     foreach (var property in navigationProperties) {
       var propertyName = $"{parentPath}.{property.Name}";
