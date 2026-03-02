@@ -22,7 +22,7 @@ public class User : BaseEntityWithId {
   public string Name { get; set; }
 
   [NotNull]
-  [Column("ACTIVE", TypeName = "NUMBER(1)")]
+  [Column("ACTIVE")]
   public int Active { get; set; }
 
   [NotNull]
