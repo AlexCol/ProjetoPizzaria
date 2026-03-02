@@ -28,8 +28,8 @@ public class RolesService : IRolesService {
 
   }
 
-  public Task<Role> GetRoleByIdAsync(long id) {
-    return _roleRepository.GetByIdAsync(id);
+  public async Task<Role> GetRoleByIdAsync(long id) {
+    return await _roleRepository.GetByIdAsync(id);
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CREATE

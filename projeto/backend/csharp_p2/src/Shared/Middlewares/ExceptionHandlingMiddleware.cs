@@ -11,26 +11,26 @@ public class ExceptionHandlingMiddleware { /*para lembrete, middlewares são car
   }
 
   public async Task InvokeAsync(HttpContext context) {
+
+    Exception exception = null;
     try {
       await _next(context);
     } catch (CustomError ex) {
       context.Response.StatusCode = StatusCodes.Status400BadRequest;
-      context.Response.ContentType = "application/json";
-
-      var error = new ErrorResponseDto(ex);
-      var result = JsonSerializer.Serialize(error);
-      await context.Response.WriteAsync(result);
-
-      Log.Warning($"[ExceptionHandlingMiddleware] - Ocorreu um erro de argumento em: {context.Request.Path}. Erro: {error}");
+      exception = ex;
+    } catch (UnauthorizedAccessException ex) {
+      context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+      exception = ex;
     } catch (Exception ex) {
       context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-      context.Response.ContentType = "application/json";
-
-      var error = new ErrorResponseDto(ex);
-      var result = JsonSerializer.Serialize(error);
-      await context.Response.WriteAsync(result);
-
-      Log.Error($"[ExceptionHandlingMiddleware] - Ocorreu um erro em: {context.Request.Path}. Erro: {error}");
+      exception = ex;
     }
+
+    var error = new ErrorResponseDto(exception);
+    var result = JsonSerializer.Serialize(error);
+    context.Response.ContentType = "application/json";
+    await context.Response.WriteAsync(result);
+    Log.Error($"[ExceptionHandlingMiddleware] - Ocorreu um erro em: {context.Request.Path}. Erro: {error}");
+
   }
 }

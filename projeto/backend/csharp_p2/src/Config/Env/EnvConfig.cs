@@ -35,7 +35,8 @@ public class EnvConfig {
       Port: config["CACHE_PORT"] ?? "",
       Password: config["CACHE_PASSWORD"] ?? "",
       Db: config["CACHE_DB"] ?? "0",
-      BaseTtlInSec: int.Parse(config["CACHE_BASE_TTL_IN_SEC"] ?? "604800")
+      BaseTtlInSec: int.Parse(config["CACHE_BASE_TTL_IN_SEC"] ?? "604800"),
+      SessionTtlInSec: int.Parse(config["CACHE_SESSION_TTL_IN_SEC"] ?? "604800")
     );
 
     Crypto = new Crypto(
@@ -65,7 +66,8 @@ public record Cache(
   string Port,
   string Password,
   string Db,
-  int BaseTtlInSec
+  int BaseTtlInSec,
+  int SessionTtlInSec
 );
 
 public record Crypto(
