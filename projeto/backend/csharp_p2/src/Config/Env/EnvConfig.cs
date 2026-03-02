@@ -3,6 +3,8 @@ using csharp_p2.src.Config.builder.DI.Enumerators;
 
 namespace csharp_p2.src.Config;
 
+//! variaveis carregadas aqui podem ser tanto do .env quanto do appsettings,
+//! se a mesma variavel estiver nos dois, é considerada a do .env
 [Injectable(typeof(EnvConfig), EServiceLifetimeType.Singleton)]
 public class EnvConfig {
   public Database Database { get; private set; }

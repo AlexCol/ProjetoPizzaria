@@ -1,4 +1,5 @@
 using csharp_p2.src.Config;
+using csharp_p2.src.Infra.Cache;
 using csharp_p2.src.Infra.Database.builders;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ namespace csharp_p2.src.Modules;
 [Route("api")]
 public class AppController(
   BaseDBContext dbContext,
-  IDistributedCache cache,
+  ICacheClient cache,
   EnvConfig env
 ) : ControllerBase {
 
@@ -45,18 +46,15 @@ public class AppController(
   [HttpGet("test-cache")]
   public async Task<IActionResult> TestCacheAsync() {
     var cacheKey = "test_cache_key";
-
-    var entryOptions = new DistributedCacheEntryOptions();
     var ttl = TimeSpan.FromSeconds(20);
-    var cacheTestOptions = entryOptions.SetAbsoluteExpiration(ttl);
 
     string cacheValue;
     var cacheHit = false;
-    var cachedResponse = await cache.GetStringAsync(cacheKey);
+    var cachedResponse = await cache.GetAsync<string>(cacheKey);
 
     if (cachedResponse.IsNullOrEmpty()) {
       cacheValue = "This is a test cache value.";
-      await cache.SetStringAsync(cacheKey, cacheValue, cacheTestOptions);
+      await cache.SetAsync(cacheKey, cacheValue, ttl);
     } else {
       cacheValue = cachedResponse;
       cacheHit = true;

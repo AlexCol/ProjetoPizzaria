@@ -18,10 +18,12 @@ public static partial class CacheBuilder {
 
     //se adicionar mais, lembrar de olhar o context, tem coisa especifica de banco lá tbm
     if (cache == ECacheType.Memory) {
-      builder.Services.AddDistributedMemoryCache();
+      builder.Services.AddMemoryCache();
     } else if (cache == ECacheType.Redis) {
       builder.AddRedisCache(env);
     } else
       throw new Exception($"[CacheBuilder] - Process for {cache} not created!");
   }
 }
+
+//para usar, injetar: IDistributedCache, e usar os métodos de lá, tem que ser async
