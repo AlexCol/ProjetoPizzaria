@@ -1,8 +1,8 @@
 using csharp_p2.src.Config;
-using csharp_p2.src.Infra.Cache.Enumerators;
-using csharp_p2.src.Infra.Cache.Builders.Redis;
+using csharp_p2.src.Modules.Infra.Cache.Enumerators;
+using csharp_p2.src.Modules.Infra.Cache.Builders.Redis;
 
-namespace csharp_p2.src.Infra.Cache;
+namespace csharp_p2.src.Modules.Infra.Cache;
 
 public static partial class CacheBuilder {
   public static string Cache { get; private set; } = "";

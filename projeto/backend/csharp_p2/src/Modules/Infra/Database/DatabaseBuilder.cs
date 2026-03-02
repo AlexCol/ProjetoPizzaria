@@ -1,7 +1,7 @@
 using csharp_p2.src.Config;
-using csharp_p2.src.Infra.Database.Enumerators;
+using csharp_p2.src.Modules.Infra.Database.Enumerators;
 
-namespace csharp_p2.src.Infra.Database;
+namespace csharp_p2.src.Modules.Infra.Database;
 
 public static partial class DataBaseBuilder {
   public static string Database { get; private set; } = "";

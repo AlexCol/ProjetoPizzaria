@@ -1,10 +1,9 @@
 using csharp_p2.src.Modules.Entities;
 using csharp_p2.src.Shared.Helpers;
-using csharp_p2.src.Shared.VOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace csharp_p2.src.Infra.Database.builders;
+namespace csharp_p2.src.Modules.Infra.Database.builders;
 
 public class BaseDBContext : DbContext {
   public DbSet<User> Users { get; set; }

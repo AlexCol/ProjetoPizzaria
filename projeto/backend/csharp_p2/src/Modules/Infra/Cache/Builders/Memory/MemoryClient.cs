@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 
-namespace csharp_p2.src.Infra.Cache.Builders.Memory;
+namespace csharp_p2.src.Modules.Infra.Cache.Builders.Memory;
 
 public sealed class MemoryCacheClient : ICacheClient {
   private readonly IMemoryCache _cache;

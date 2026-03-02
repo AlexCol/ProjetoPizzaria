@@ -21,8 +21,8 @@ public class User : BaseEntityWithId {
   public string Name { get; set; }
 
   [NotNull]
-  [Column("ACTIVE")]
-  public int Active { get; set; }
+  [Column("STATUS")]
+  public int Status { get; set; }
 
   [NotNull]
   [Column("ROLE_ID")]

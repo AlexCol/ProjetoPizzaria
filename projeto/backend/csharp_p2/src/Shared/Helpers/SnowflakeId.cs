@@ -1,6 +1,5 @@
 using System.Net;
 using System.Security.Cryptography;
-using System.Text;
 using IdGen;
 
 namespace csharp_p2.src.Shared.Helpers;

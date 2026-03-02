@@ -2,7 +2,7 @@ using csharp_p2.src.Config;
 using Microsoft.Extensions.Caching.Redis;
 using StackExchange.Redis;
 
-namespace csharp_p2.src.Infra.Cache.Builders.Redis;
+namespace csharp_p2.src.Modules.Infra.Cache.Builders.Redis;
 
 public static class RedisCacheBuilder {
   public static void AddRedisCache(this WebApplicationBuilder builder, EnvConfig env) {

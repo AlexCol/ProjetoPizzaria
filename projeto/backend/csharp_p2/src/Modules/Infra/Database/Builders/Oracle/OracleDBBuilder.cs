@@ -1,9 +1,9 @@
 using csharp_p2.src.Config;
-using csharp_p2.src.Infra.Database.builders;
+using csharp_p2.src.Modules.Infra.Database.builders;
 using Microsoft.EntityFrameworkCore;
 using Oracle.ManagedDataAccess.Client;
 
-namespace csharp_p2.src.Infra.Database;
+namespace csharp_p2.src.Modules.Infra.Database;
 
 public static partial class DataBaseBuilder {
   private static void AddOracle(this WebApplicationBuilder builder, EnvConfig env) {

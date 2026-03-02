@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
 using System.Reflection;
-using csharp_p2.src.Infra.Database.builders;
+using csharp_p2.src.Modules.Infra.Database.builders;
 using csharp_p2.src.Modules.Entities;
 using Microsoft.EntityFrameworkCore;
 

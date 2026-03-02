@@ -1,7 +1,7 @@
 using csharp_p2.src.Config.builder.DI;
 using csharp_p2.src.Extensions;
-using csharp_p2.src.Infra.Database;
-using csharp_p2.src.Infra.Cache;
+using csharp_p2.src.Modules.Infra.Database;
+using csharp_p2.src.Modules.Infra.Cache;
 
 namespace csharp_p2.src.Config.builder;
 

@@ -12,12 +12,12 @@ dotnet ef migrations remove
 dotnet ef dbcontext list --project csharp_p2.csproj --startup-project csharp_p2.csproj
 
 // Exemplo (Postgres):
-dotnet ef migrations add NomeDaMigration --context csharp_p2.src.Infra.Database.PostgresDBContext --project csharp_p2.csproj --startup-project csharp_p2.csproj
-dotnet ef database update --context csharp_p2.src.Infra.Database.PostgresDBContext --project csharp_p2.csproj --startup-project csharp_p2.csproj
+dotnet ef migrations add NomeDaMigration --context csharp_p2.src.Modules.Infra.Database.PostgresDBContext --project csharp_p2.csproj --startup-project csharp_p2.csproj
+dotnet ef database update --context csharp_p2.src.Modules.Infra.Database.PostgresDBContext --project csharp_p2.csproj --startup-project csharp_p2.csproj
 
 // Exemplo (Oracle):
-dotnet ef migrations add NomeDaMigration --context csharp_p2.src.Infra.Database.OracleDBContext --project csharp_p2.csproj --startup-project csharp_p2.csproj
-dotnet ef database update --context csharp_p2.src.Infra.Database.OracleDBContext --project csharp_p2.csproj --startup-project csharp_p2.csproj
+dotnet ef migrations add NomeDaMigration --context csharp_p2.src.Modules.Infra.Database.OracleDBContext --project csharp_p2.csproj --startup-project csharp_p2.csproj
+dotnet ef database update --context csharp_p2.src.Modules.Infra.Database.OracleDBContext --project csharp_p2.csproj --startup-project csharp_p2.csproj
 
 ////////
 Para atualizar o dotnet-ef, o caminho mais comum é:

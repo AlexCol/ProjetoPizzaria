@@ -1,25 +1,37 @@
-using Microsoft.Extensions.Caching.Distributed;
 using csharp_p2.src.Modules.Session.Model;
-using csharp_p2.src.Shared.Helpers;
-using csharp_p2.src.Infra.Cache;
-using csharp_p2.src.Config;
 using csharp_p2.src.Modules.Entities;
 using csharp_p2.src.Modules.Domain.Roles;
-using csharp_p2.src.Shared.VOs;
 
 namespace csharp_p2.src.Modules.Session;
 
-public class SessionService {
-  private readonly IServiceProvider _serviceProvider;
+public interface ISessionService {
+  Task<CreateUserSessionResponse> CreateSession(User user);
+  Task<UserSessionPayload> MontarPayloadAsync(User user);
+}
 
-  public SessionService(IServiceProvider serviceProvider) {
+public class SessionService : ISessionService {
+  private readonly IServiceProvider _serviceProvider;
+  private readonly ISessionCacheService _sessionCacheService;
+
+  public SessionService(IServiceProvider serviceProvider, ISessionCacheService sessionCacheService) {
     _serviceProvider = serviceProvider;
+    _sessionCacheService = sessionCacheService;
   }
 
   /*****************************************************************************/
   /* Metodos Interface                                                          */
   /*****************************************************************************/
   #region Metodos Interface
+  public async Task<CreateUserSessionResponse> CreateSession(User user) {
+    var payload = await MontarPayloadAsync(user);
+    var sessionToken = await _sessionCacheService.CreateSessionAsync(payload);
+
+    return new CreateUserSessionResponse {
+      SessionToken = sessionToken,
+      UserSessionPayload = payload
+    };
+  }
+
   public async Task<UserSessionPayload> MontarPayloadAsync(User user) {
     var dadosAdicionaisUsuario = await BucarDadosAdicionaisUsuarioAsync(user);
 

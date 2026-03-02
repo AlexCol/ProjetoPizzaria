@@ -9,6 +9,7 @@ namespace csharp_p2.src.Modules.Domain.Users;
 
 public interface IUsersService {
   Task<ResponseUserDto> GetUserByIdAsync(long id);
+  Task<User> GetEntityByEmailWithPasswordAsync(EmailVO email);
   Task<IEnumerable<ResponseUserDto>> GetAllUsersAsync();
   Task<ResponseUserDto> CreateUserAsync(CreateUserDto dto);
   Task<ResponseUserDto> UpdateUserAsync(long id, UpdateUserDto dto);
@@ -37,6 +38,10 @@ public class UsersService : IUsersService {
     return new ResponseUserDto(user);
   }
 
+  public Task<User> GetEntityByEmailWithPasswordAsync(EmailVO email) {
+    return _userRepository.FindOneWithPredicateAsync(u => u.Email.Equals(email));
+  }
+
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CREATE
   public async Task<ResponseUserDto> CreateUserAsync(CreateUserDto dto) {
     var dtoEmailVO = new EmailVO(dto.Email);
@@ -62,7 +67,7 @@ public class UsersService : IUsersService {
       Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
       Name = dto.Name,
       RoleId = dto.RoleId.Value,
-      Active = (int)EUserStatus.Inactive //? usuário criado como inativo, precisa ativar por email
+      Status = (int)EUserStatus.Inactive //? usuário criado como inativo, precisa ativar por email
     };
 
     var createdUser = await _userRepository.InsertAsync(newUser);

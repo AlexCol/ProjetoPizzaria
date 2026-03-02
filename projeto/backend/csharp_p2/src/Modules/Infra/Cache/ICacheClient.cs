@@ -1,4 +1,4 @@
-namespace csharp_p2.src.Infra.Cache;
+namespace csharp_p2.src.Modules.Infra.Cache;
 
 public interface ICacheClient {
   Task<T> GetAsync<T>(string key, CancellationToken ct = default);
