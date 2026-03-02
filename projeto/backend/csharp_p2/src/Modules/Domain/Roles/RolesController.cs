@@ -1,4 +1,5 @@
 using csharp_p2.src.Modules.Entities;
+using csharp_p2.src.Shared.DTOs.Roles;
 
 namespace csharp_p2.src.Modules.Domain.Roles;
 
@@ -9,16 +10,6 @@ public class RolesController : ControllerBase {
 
   public RolesController(IRolesService rolesService) {
     _rolesService = rolesService;
-  }
-
-  [HttpPost]
-  public async Task<IActionResult> CreateRoleAsync([FromBody] Role role) {
-    try {
-      var createdRole = await _rolesService.CreateRoleAsync(role);
-      return CreatedAtRoute("GetRoleById", new { id = createdRole.Id }, createdRole);
-    } catch (Exception ex) {
-      return BadRequest(ex.Message);
-    }
   }
 
   [HttpGet("{id}", Name = "GetRoleById")]
@@ -34,11 +25,20 @@ public class RolesController : ControllerBase {
     return Ok(roles);
   }
 
-  [HttpPatch("{id}")]
-  public async Task<IActionResult> UpdateRoleAsync(long id, [FromBody] Role role) {
+  [HttpPost]
+  public async Task<IActionResult> CreateRoleAsync([FromBody] RoleDto dto) {
     try {
-      role.Id = id; //garante que o id da rota seja o mesmo do objeto
-      var updatedRole = await _rolesService.UpdateRoleAsync(role);
+      var createdRole = await _rolesService.CreateRoleAsync(dto);
+      return CreatedAtRoute("GetRoleById", new { id = createdRole.Id }, createdRole);
+    } catch (Exception ex) {
+      return BadRequest(ex.Message);
+    }
+  }
+
+  [HttpPatch("{id}")]
+  public async Task<IActionResult> UpdateRoleAsync(long id, [FromBody] RoleDto dto) {
+    try {
+      var updatedRole = await _rolesService.UpdateRoleAsync(id, dto);
       return Ok(updatedRole);
     } catch (Exception ex) {
       return BadRequest(ex.Message);
