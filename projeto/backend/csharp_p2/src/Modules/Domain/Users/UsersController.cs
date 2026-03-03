@@ -1,4 +1,5 @@
 using csharp_p2.src.Shared.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace csharp_p2.src.Modules.Domain;
 
@@ -27,6 +28,7 @@ public class UsersController : ControllerBase {
     }
   }
 
+  [Authorize(Roles = "Admin")]
   [HttpPost]
   public async Task<ActionResult<ResponseUserDto>> CreateUserAsync([FromBody] CreateUserDto dto) {
     var user = await _usersService.CreateUserAsync(dto);

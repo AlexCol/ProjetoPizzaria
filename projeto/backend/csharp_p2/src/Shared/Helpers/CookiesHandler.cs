@@ -23,7 +23,13 @@ public class CookiesHandler {
       HttpOnly = true,
       Secure = isProd,
       SameSite = isProd ? SameSiteMode.None : SameSiteMode.Lax,
-      Expires = rememberMe ? DateTime.UtcNow.AddDays(7) : (DateTime?)null
+      Expires = rememberMe ? DateTime.UtcNow.AddSeconds(_envConfig.Cache.SessionTtlInSec) : (DateTime?)null
     };
+  }
+
+  public void DeleteSessionCookies(HttpResponse response) {
+    var cookieOptions = GetSessionCookieOptions(false);
+    cookieOptions.Expires = DateTime.UtcNow.AddDays(-1); // Define uma data de expiração no passado
+    response.Cookies.Append("session_token", "", cookieOptions);
   }
 }

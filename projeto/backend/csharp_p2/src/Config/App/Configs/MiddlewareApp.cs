@@ -7,5 +7,6 @@ public static class MiddlewareApp {
     //!adicionando middlewares, importante pois a ordem em que forem declarados, serão executados
     app.UseMiddleware<ExceptionHandlingMiddleware>();
     app.UseMiddleware<LogMiddleware>();
+    app.UseMiddleware<SessionRefreshMiddleware>();
   }
 }
