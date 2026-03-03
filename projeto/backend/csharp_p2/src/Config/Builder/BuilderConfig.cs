@@ -2,6 +2,7 @@ using csharp_p2.src.Config.builder.DI;
 using csharp_p2.src.Extensions;
 using csharp_p2.src.Modules.Infra.Database;
 using csharp_p2.src.Modules.Infra.Cache;
+using csharp_p2.src.Config.Builder;
 
 namespace csharp_p2.src.Config.builder;
 
@@ -35,6 +36,7 @@ public static class BuilderConfig {
 
     // //!adicionando configurações
     SwaggerBuilder.AddSwagger(builder);
+    AuthBuilder.AddAuthentication(builder);
     DataBaseBuilder.AddDatabase(builder);
     CacheBuilder.AddCache(builder);
     CorsBuilder.AddCors(builder); //?lembrar depois de colocar useCors no app

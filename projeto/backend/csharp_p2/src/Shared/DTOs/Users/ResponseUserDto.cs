@@ -12,6 +12,8 @@ public class ResponseUserDto {
   public DateTime CreatedAt { get; set; }
   public DateTime UpdatedAt { get; set; }
 
+  public ResponseUserDto() { }
+
   public ResponseUserDto(User user) {
     Id = user.Id;
     Email = user.Email.ToString();

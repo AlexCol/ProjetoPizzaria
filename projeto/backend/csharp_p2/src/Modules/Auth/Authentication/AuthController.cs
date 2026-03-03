@@ -1,5 +1,6 @@
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace csharp_p2.src.Modules.Auth.Authentication;
 
@@ -14,6 +15,7 @@ public class AuthController : ControllerBase {
     _cookiesHandler = cookiesHandler;
   }
 
+  [AllowAnonymous]
   [HttpPost("login")]
   public async Task<IActionResult> Login([FromBody] LoginDto loginDto) {
     var auth = await _authService.Login(loginDto);
