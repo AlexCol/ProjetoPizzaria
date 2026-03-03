@@ -1,4 +1,4 @@
-namespace csharp_p2.src.Modules.Infra.Cache.Builders.Memory;
+namespace csharp_p2.src.Modules.Infra.Cache;
 
 public static class MemoryCacheBuilder {
   public static void AddMemoryCacheInfra(this WebApplicationBuilder builder) {

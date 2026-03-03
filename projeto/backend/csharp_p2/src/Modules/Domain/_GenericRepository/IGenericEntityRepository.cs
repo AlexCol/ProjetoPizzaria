@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
-using csharp_p2.src.Modules.Infra.Database.builders;
 using csharp_p2.src.Modules.Entities;
+using csharp_p2.src.Modules.Infra.Database;
 
 namespace csharp_p2.src.Modules.Domain;
 

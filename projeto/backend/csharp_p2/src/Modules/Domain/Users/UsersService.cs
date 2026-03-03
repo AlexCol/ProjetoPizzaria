@@ -1,11 +1,9 @@
-using csharp_p2.src.Modules.Domain.Roles;
-using csharp_p2.src.Modules.Domain.Users.Enumerators;
 using csharp_p2.src.Modules.Entities;
-using csharp_p2.src.Shared.DTOs.Users;
+using csharp_p2.src.Shared.DTOs;
+using csharp_p2.src.Shared.Exceptions;
 using csharp_p2.src.Shared.VOs;
-using Shared.Exceptions;
 
-namespace csharp_p2.src.Modules.Domain.Users;
+namespace csharp_p2.src.Modules.Domain;
 
 public interface IUsersService {
   Task<ResponseUserDto> GetUserByIdAsync(long id);

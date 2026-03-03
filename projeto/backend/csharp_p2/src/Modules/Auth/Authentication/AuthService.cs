@@ -1,12 +1,8 @@
-using csharp_p2.src.Modules.Domain.Users;
-using csharp_p2.src.Modules.Domain.Users.Enumerators;
+using csharp_p2.src.Modules.Domain;
 using csharp_p2.src.Modules.Entities;
 using csharp_p2.src.Modules.Session;
-using csharp_p2.src.Modules.Session.Model;
-using csharp_p2.src.Shared.Crypto;
-using csharp_p2.src.Shared.DTOs.Login;
+using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.VOs;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace csharp_p2.src.Modules.Auth.Authentication;
 
@@ -29,7 +25,7 @@ public class AuthService : IAuthService {
     return sessionData;
   }
 
-  public async Task<User> ObtemUsuario(LoginDto loginDto) {
+  private async Task<User> ObtemUsuario(LoginDto loginDto) {
     var user = await _usersService.GetEntityByEmailWithPasswordAsync(new EmailVO(loginDto.Email));
     if (user == null) throw new UnauthorizedAccessException("Usuário ou senha incorretos.");
 

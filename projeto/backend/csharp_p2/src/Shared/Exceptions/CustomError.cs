@@ -1,4 +1,4 @@
-namespace Shared.Exceptions;
+namespace csharp_p2.src.Shared.Exceptions;
 
 public class CustomError : Exception {
   public CustomError(string message) : base(message) {

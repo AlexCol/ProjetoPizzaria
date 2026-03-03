@@ -1,5 +1,6 @@
-using csharp_p2.src.Shared.Responses;
-using Shared.Exceptions;
+
+using csharp_p2.src.Shared.Exceptions;
+using csharp_p2.src.Shared.DTOs;
 
 namespace csharp_p2.src.Shared.Middlewares;
 
@@ -11,7 +12,6 @@ public class ExceptionHandlingMiddleware { /*para lembrete, middlewares são car
   }
 
   public async Task InvokeAsync(HttpContext context) {
-
     Exception exception = null;
     try {
       await _next(context);
@@ -26,11 +26,12 @@ public class ExceptionHandlingMiddleware { /*para lembrete, middlewares são car
       exception = ex;
     }
 
-    var error = new ErrorResponseDto(exception);
-    var result = JsonSerializer.Serialize(error);
-    context.Response.ContentType = "application/json";
-    await context.Response.WriteAsync(result);
-    Log.Error($"[ExceptionHandlingMiddleware] - Ocorreu um erro em: {context.Request.Path}. Erro: {error}");
-
+    if (exception is not null) {
+      var error = new ErrorResponseDto(exception);
+      var result = JsonSerializer.Serialize(error);
+      context.Response.ContentType = "application/json";
+      await context.Response.WriteAsync(result);
+      Log.Error($"[ExceptionHandlingMiddleware] - Ocorreu um erro em: {context.Request.Path}. Erro: {error}");
+    }
   }
 }

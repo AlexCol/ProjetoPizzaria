@@ -7,6 +7,7 @@ namespace csharp_p2.src.Config;
 //! se a mesma variavel estiver nos dois, é considerada a do .env
 [Injectable(typeof(EnvConfig), EServiceLifetimeType.Singleton)]
 public class EnvConfig {
+  public string Environment { get; private set; }
   public Database Database { get; private set; }
   public Cache Cache { get; private set; }
   public Crypto Crypto { get; private set; }
@@ -16,6 +17,8 @@ public class EnvConfig {
   }
 
   private void LoadVariables(IConfiguration config) {
+    Environment = config["ASPNETCORE_ENVIRONMENT"] ?? "Development";
+
     Database = new Database(
       Type: config["DB_TYPE"] ?? "",
       Host: config["DB_HOST"] ?? "",

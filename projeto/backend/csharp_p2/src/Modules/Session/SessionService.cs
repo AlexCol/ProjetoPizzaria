@@ -1,6 +1,6 @@
-using csharp_p2.src.Modules.Session.Model;
 using csharp_p2.src.Modules.Entities;
-using csharp_p2.src.Modules.Domain.Roles;
+using csharp_p2.src.Modules.Domain;
+using csharp_p2.src.Shared.DTOs;
 
 namespace csharp_p2.src.Modules.Session;
 
@@ -35,14 +35,13 @@ public class SessionService : ISessionService {
   public async Task<UserSessionPayload> MontarPayloadAsync(User user) {
     var dadosAdicionaisUsuario = await BucarDadosAdicionaisUsuarioAsync(user);
 
-    return new UserSessionPayload {
-      User = {
-        Id = user.Id,
-        Name = user.Name,
-        Email = user.Email.ToString(),
+    var payload = new UserSessionPayload {
+      User = new ResponseUserDto(user) {
         Role = dadosAdicionaisUsuario.Role
       }
     };
+
+    return payload;
   }
   #endregion
 

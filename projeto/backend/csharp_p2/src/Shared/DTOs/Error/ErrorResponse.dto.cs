@@ -1,4 +1,4 @@
-namespace csharp_p2.src.Shared.Responses;
+namespace csharp_p2.src.Shared.DTOs;
 
 public class ErrorResponseDto {
   public ErrorResponseDto(string errorMessage) {

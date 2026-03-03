@@ -1,5 +1,5 @@
 using System.Text.RegularExpressions;
-using Shared.Exceptions;
+using csharp_p2.src.Shared.Exceptions;
 
 namespace csharp_p2.src.Shared.VOs;
 

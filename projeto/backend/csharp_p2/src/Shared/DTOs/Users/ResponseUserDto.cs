@@ -1,7 +1,7 @@
 
 using csharp_p2.src.Modules.Entities;
 
-namespace csharp_p2.src.Shared.DTOs.Users;
+namespace csharp_p2.src.Shared.DTOs;
 
 public class ResponseUserDto {
   public long Id { get; set; }

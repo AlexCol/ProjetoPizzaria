@@ -1,7 +1,7 @@
 using csharp_p2.src.Modules.Infra.Cache;
 using StackExchange.Redis;
 
-namespace Microsoft.Extensions.Caching.Redis;
+namespace Microsoft.Extensions.Caching;
 
 public sealed class RedisCacheClient : ICacheClient {
   private readonly IConnectionMultiplexer _mux;

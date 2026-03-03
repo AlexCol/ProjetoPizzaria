@@ -1,4 +1,4 @@
-namespace csharp_p2.src.Modules.Domain.Users.Enumerators;
+namespace csharp_p2.src.Modules.Domain;
 
 public enum EUserStatus {
   Inactive = 0,

@@ -1,6 +1,6 @@
-using csharp_p2.src.Shared.DTOs.Users;
+using csharp_p2.src.Shared.DTOs;
 
-namespace csharp_p2.src.Modules.Domain.Users;
+namespace csharp_p2.src.Modules.Domain;
 
 [ApiController]
 [Route("api/[controller]")]

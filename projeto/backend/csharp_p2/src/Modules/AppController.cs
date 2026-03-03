@@ -1,6 +1,6 @@
 using csharp_p2.src.Config;
 using csharp_p2.src.Modules.Infra.Cache;
-using csharp_p2.src.Modules.Infra.Database.builders;
+using csharp_p2.src.Modules.Infra.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace csharp_p2.src.Modules;

@@ -1,4 +1,3 @@
-using csharp_p2.src.Modules.Session.Model;
 using csharp_p2.src.Shared.Helpers;
 using csharp_p2.src.Modules.Infra.Cache;
 using csharp_p2.src.Config;

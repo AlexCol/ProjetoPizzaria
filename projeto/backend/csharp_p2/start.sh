@@ -85,4 +85,5 @@ esac
 #! Run .NET application
 #######################################################################################
 cd "$SCRIPT_DIR"
+dotnet format csharp_p2.sln
 dotnet run

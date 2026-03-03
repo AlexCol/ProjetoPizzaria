@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace csharp_p2.src.Shared.DTOs.Users;
+namespace csharp_p2.src.Shared.DTOs;
 
 public class UpdateUserDto {
   [MinLength(8, ErrorMessage = "Password must contain at least 8 characters.")]

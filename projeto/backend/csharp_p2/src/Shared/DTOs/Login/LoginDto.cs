@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace csharp_p2.src.Shared.DTOs.Login;
+namespace csharp_p2.src.Shared.DTOs;
 
 public class LoginDto {
   [Required(ErrorMessage = "Required field.")]

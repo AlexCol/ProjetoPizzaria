@@ -3,7 +3,7 @@ using csharp_p2.src.Shared.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace csharp_p2.src.Modules.Infra.Database.builders;
+namespace csharp_p2.src.Modules.Infra.Database;
 
 public class BaseDBContext : DbContext {
   public DbSet<User> Users { get; set; }

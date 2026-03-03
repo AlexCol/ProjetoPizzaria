@@ -1,8 +1,8 @@
 using csharp_p2.src.Modules.Entities;
-using csharp_p2.src.Shared.DTOs.Roles;
-using Shared.Exceptions;
+using csharp_p2.src.Shared.DTOs;
+using csharp_p2.src.Shared.Exceptions;
 
-namespace csharp_p2.src.Modules.Domain.Roles;
+namespace csharp_p2.src.Modules.Domain;
 
 public interface IRolesService {
   Task<Role> CreateRoleAsync(RoleDto dto);
@@ -37,7 +37,7 @@ public class RolesService : IRolesService {
     await using var trx = await _roleRepository.GetContext().Database.BeginTransactionAsync();
     try {
       var existingRole = await _roleRepository.FindOneWithPredicateAsync((r) =>
-        r.Description.Equals(dto.Description, StringComparison.OrdinalIgnoreCase)
+        r.Description.ToLower() == dto.Description.ToLower()
       );
       if (existingRole != null) throw new CustomError("Role already exists");
 

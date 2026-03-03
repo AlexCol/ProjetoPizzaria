@@ -1,6 +1,4 @@
 using csharp_p2.src.Config;
-using csharp_p2.src.Modules.Infra.Cache.Enumerators;
-using csharp_p2.src.Modules.Infra.Cache.Builders.Redis;
 
 namespace csharp_p2.src.Modules.Infra.Cache;
 
