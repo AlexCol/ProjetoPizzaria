@@ -30,8 +30,8 @@ public class UsersController : ControllerBase {
 
   [Authorize(Roles = "Admin")]
   [HttpPost]
-  public async Task<ActionResult<ResponseUserDto>> CreateUserAsync([FromBody] CreateUserDto dto) {
-    var user = await _usersService.CreateUserAsync(dto);
-    return CreatedAtAction("GetUserByIdWithReferences", new { id = user.Id }, user);
+  public async Task<ActionResult<dynamic>> CreateUserAsync([FromBody] CreateUserDto dto) {
+    await _usersService.CreateUserAsync(dto);
+    return new { Message = "User created successfully. Access users email to activate the account.", };
   }
 }

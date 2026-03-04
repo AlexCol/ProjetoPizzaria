@@ -1,4 +1,4 @@
-using csharp_p2.src.Modules.Entities;
+using csharp_p2.src.Modules.Domain;
 using csharp_p2.src.Shared.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;

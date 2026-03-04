@@ -21,7 +21,6 @@
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.3" />
     <PackageReference Include="Oracle.EntityFrameworkCore" Version="10.23.26100" />
     <PackageReference Include="IdGen" Version="3.0.7" />
-    <PackageReference Include="AutoMapper" Version="16.0.0" />
   </ItemGroup>
 
 </Project>

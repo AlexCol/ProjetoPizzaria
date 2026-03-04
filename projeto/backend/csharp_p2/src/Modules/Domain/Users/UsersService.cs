@@ -1,4 +1,4 @@
-using csharp_p2.src.Modules.Entities;
+using csharp_p2.src.Modules.Infra.Email;
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Exceptions;
 using csharp_p2.src.Shared.VOs;
@@ -16,12 +16,15 @@ public interface IUsersService {
 public class UsersService : IUsersService {
   private readonly IGenericEntityRepository<User> _userRepository;
   private readonly IRolesService _roleService;
+  private readonly IServiceScopeFactory _scopeFactory;
 
-  public UsersService(IGenericEntityRepository<User> userRepository, IRolesService roleService) {
+  public UsersService(IGenericEntityRepository<User> userRepository, IRolesService roleService, IServiceScopeFactory scopeFactory) {
     _userRepository = userRepository;
     _roleService = roleService;
+    _scopeFactory = scopeFactory;
   }
 
+  #region GETS
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!GETS
   public async Task<IEnumerable<ResponseUserDto>> GetAllUsersAsync() {
     var users = await _userRepository.GetAllAsync();
@@ -39,7 +42,9 @@ public class UsersService : IUsersService {
   public Task<User> GetEntityByEmailWithPasswordAsync(EmailVO email) {
     return _userRepository.FindOneWithPredicateAsync(u => u.Email.Equals(email));
   }
+  #endregion
 
+  #region CREATE
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CREATE
   public async Task<ResponseUserDto> CreateUserAsync(CreateUserDto dto) {
     var dtoEmailVO = new EmailVO(dto.Email);
@@ -58,8 +63,6 @@ public class UsersService : IUsersService {
       throw new CustomError("Role not found.");
     }
 
-    //TODO: DISPARAR EMAIL PARA USUÁRIO ATIVAR CONTA, COM TOKEN
-
     var newUser = new User {
       Email = dtoEmailVO,
       Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
@@ -70,9 +73,14 @@ public class UsersService : IUsersService {
 
     var createdUser = await _userRepository.InsertAsync(newUser);
     var userWithRole = await _userRepository.GetByIdWithReferencesAsync(createdUser.Id); //? para retornar o role junto no dto
+
+    await SendEmailOnRegistrationAsync(newUser);
+
     return new ResponseUserDto(userWithRole);
   }
+  #endregion
 
+  #region UPDATE
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!UPDATE
   public async Task<ResponseUserDto> UpdateUserAsync(long id, UpdateUserDto dto) {
     if (dto.Password != null && dto.Password != dto.ConfirmPassword) {
@@ -103,4 +111,15 @@ public class UsersService : IUsersService {
     var userWithRole = await _userRepository.GetByIdWithReferencesAsync(updatedUser.Id); //? para retornar o role junto no dto
     return new ResponseUserDto(userWithRole);
   }
+  #endregion
+
+  #region SendEmail
+  private async Task SendEmailOnRegistrationAsync(User newUser) {
+    _ = Task.Run(async () => {
+      using var scope = _scopeFactory.CreateScope();
+      var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+      await emailService.sendRegisterEmail(newUser);
+    });
+  }
+  #endregion
 }

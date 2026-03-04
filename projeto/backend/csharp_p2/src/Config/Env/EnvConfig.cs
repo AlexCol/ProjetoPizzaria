@@ -1,5 +1,6 @@
 using csharp_p2.src.Config.builder.DI.Atributes;
 using csharp_p2.src.Config.builder.DI.Enumerators;
+using Microsoft.AspNetCore.Authentication;
 
 namespace csharp_p2.src.Config;
 
@@ -8,8 +9,10 @@ namespace csharp_p2.src.Config;
 [Injectable(typeof(EnvConfig), EServiceLifetimeType.Singleton)]
 public class EnvConfig {
   public string Environment { get; private set; }
+  public FrondEnd FrondEnd { get; private set; }
   public Database Database { get; private set; }
   public Cache Cache { get; private set; }
+  public Email Email { get; private set; }
   public Crypto Crypto { get; private set; }
 
   public EnvConfig(IConfiguration config) {
@@ -18,6 +21,10 @@ public class EnvConfig {
 
   private void LoadVariables(IConfiguration config) {
     Environment = config["ASPNETCORE_ENVIRONMENT"] ?? "Development";
+
+    FrondEnd = new FrondEnd(
+      Url: config["FROND_END_URL"] ?? ""
+    );
 
     Database = new Database(
       Type: config["DB_TYPE"] ?? "",
@@ -42,6 +49,14 @@ public class EnvConfig {
       SessionTtlInSec: int.Parse(config["CACHE_SESSION_TTL_IN_SEC"] ?? "604800")
     );
 
+    Email = new Email(
+      Host: config["EMAIL_HOST"] ?? "",
+      Port: int.Parse(config["EMAIL_PORT"] ?? "587"),
+      User: config["EMAIL_USER"] ?? "",
+      Password: config["EMAIL_PASS"] ?? "",
+      Secure: bool.Parse(config["EMAIL_SECURE"] ?? "true")
+    );
+
     Crypto = new Crypto(
       Secret: config["CRYPTO_SECRET"] ?? ""
     );
@@ -50,6 +65,9 @@ public class EnvConfig {
 
 /************************************************************************************/
 #region Records
+public record FrondEnd(
+  string Url
+);
 public record Database(
   string Type,
   string Host,
@@ -71,6 +89,14 @@ public record Cache(
   string Db,
   int BaseTtlInSec,
   int SessionTtlInSec
+);
+
+public record Email(
+  string Host,
+  int Port,
+  string User,
+  string Password,
+  bool Secure
 );
 
 public record Crypto(

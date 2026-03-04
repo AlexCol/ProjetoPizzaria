@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace csharp_p2.src.Modules.Entities;
+namespace csharp_p2.src.Modules.Domain;
 
 public abstract class BaseEntityWithId : BaseEntity {
   [Key]

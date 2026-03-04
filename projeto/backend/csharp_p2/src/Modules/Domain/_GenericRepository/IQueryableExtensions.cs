@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
-using csharp_p2.src.Modules.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace csharp_p2.src.Modules.Domain;
