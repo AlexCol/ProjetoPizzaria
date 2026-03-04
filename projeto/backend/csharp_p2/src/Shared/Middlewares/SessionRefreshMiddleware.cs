@@ -28,7 +28,7 @@ public class SessionRefreshMiddleware {
           var refreshed = await sessionService.RefreshSessionAsync(sessionToken);
 
           if (refreshed) {
-            context.Request.Headers.TryGetValue("remember-me", out var rememberMeValue);
+            var rememberMeValue = context.Request.GetHeaderValue("remember-me");
             var rememberMe = bool.TryParse(rememberMeValue.ToString(), out var parsed) && parsed;
 
             cookiesHandler.AddSessionCookies(context.Response, sessionToken, rememberMe);

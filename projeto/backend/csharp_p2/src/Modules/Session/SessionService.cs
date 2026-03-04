@@ -35,10 +35,10 @@ public class SessionService : ISessionService {
   public async Task<UserSessionPayload> MontarPayloadAsync(User user) {
     var dadosAdicionaisUsuario = await BucarDadosAdicionaisUsuarioAsync(user);
 
+    user.Role = dadosAdicionaisUsuario.Role;
+
     var payload = new UserSessionPayload {
-      User = new ResponseUserDto(user) {
-        Role = dadosAdicionaisUsuario.Role
-      }
+      User = new ResponseUserDto(user)
     };
 
     return payload;

@@ -8,9 +8,7 @@ public class ResponseUserDto {
   public string Email { get; set; }
   public string Name { get; set; }
   public int Status { get; set; }
-  public Role Role { get; set; }
-  public DateTime CreatedAt { get; set; }
-  public DateTime UpdatedAt { get; set; }
+  public ResponseRoleDto Role { get; set; }
 
   public ResponseUserDto() { }
 
@@ -19,8 +17,6 @@ public class ResponseUserDto {
     Email = user.Email.ToString();
     Name = user.Name;
     Status = user.Status;
-    CreatedAt = user.CreatedAt;
-    UpdatedAt = user.UpdatedAt;
-    Role = user.Role;
+    Role = new ResponseRoleDto(user.Role);
   }
 }

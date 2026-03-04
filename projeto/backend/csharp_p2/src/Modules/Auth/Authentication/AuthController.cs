@@ -18,19 +18,26 @@ public class AuthController : ControllerBase {
     _cookiesHandler = cookiesHandler;
   }
 
+  /**************************************************************************/
+  #region Login
+  /**************************************************************************/
   [AllowAnonymous]
   [HttpPost("login")]
   public async Task<IActionResult> Login([FromBody] LoginDto loginDto) {
     var auth = await _authService.Login(loginDto);
 
-    Request.Headers.TryGetValue("remember-me", out var rememberMeValue);
-    var rememberMe = bool.TryParse(rememberMeValue.ToString(), out var parsed) && parsed;
+    var rememberMeValue = Request.GetHeaderValue("remember-me");
+    var rememberMe = bool.TryParse(rememberMeValue, out var parsed) && parsed;
 
     _cookiesHandler.AddSessionCookies(Response, auth.SessionToken, rememberMe);
 
     return Ok(auth.UserSessionPayload);
   }
+  #endregion
 
+  /**************************************************************************/
+  #region Logout
+  /**************************************************************************/
   [HttpPost("logout")]
   public async Task<IActionResult> Logout() {
     var haveToken = Request.Cookies.TryGetValue("session_token", out var token) && !string.IsNullOrWhiteSpace(token);
@@ -41,4 +48,46 @@ public class AuthController : ControllerBase {
     _cookiesHandler.DeleteSessionCookies(Response);
     return NoContent();
   }
+
+  [HttpPost("logout/all")]
+  public async Task<IActionResult> LogoutAll() {
+    var session = HttpContext.GetSessionPayload();
+    if (session != null) {
+      await _sessionCacheService.DestroySessionsByUserIdAsync(session.User.Id);
+    }
+
+    _cookiesHandler.DeleteSessionCookies(Response);
+    return NoContent();
+  }
+  #endregion
+
+  /**************************************************************************/
+  #region Session/Me
+  /**************************************************************************/
+  [HttpGet("session")]
+  public async Task<IActionResult> GetSession() {
+    var haveToken = Request.Cookies.TryGetValue("session_token", out var token) && !string.IsNullOrWhiteSpace(token);
+    if (!haveToken) {
+      return Unauthorized();
+    }
+
+    var session = await _sessionCacheService.GetSessionAsync(token);
+    if (session == null) {
+      return Unauthorized();
+    }
+
+    return Ok(session.Payload);
+  }
+  #endregion
+
+  /**************************************************************************/
+  #region Admin-only endpoint
+  /**************************************************************************/
+  [Authorize(Roles = "Admin")]
+  [HttpPost("logout/all-users")]
+  public async Task<IActionResult> LogoutAllUsers() {
+    await _sessionCacheService.DestroyAllSessionsAsync();
+    return NoContent();
+  }
+  #endregion
 }
