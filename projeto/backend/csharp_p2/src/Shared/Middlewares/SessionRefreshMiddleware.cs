@@ -25,7 +25,7 @@ public class SessionRefreshMiddleware {
     }
 
     // Early return: sem token (tem que barrar na autenticação, não é função do middleware)
-    var sessionToken = context.Request.Cookies["session_token"];
+    var sessionToken = context.Request.GetCookieValue("session_token");
     if (string.IsNullOrWhiteSpace(sessionToken)) {
       await _next(context);
       return;

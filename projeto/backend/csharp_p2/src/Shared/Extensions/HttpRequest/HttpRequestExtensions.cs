@@ -7,4 +7,11 @@ public static class HttpRequestExtensions {
     }
     return null;
   }
+
+  public static string GetCookieValue(this HttpRequest request, string cookieName) {
+    if (request.Cookies.TryGetValue(cookieName, out var value)) {
+      return value;
+    }
+    return null;
+  }
 }
