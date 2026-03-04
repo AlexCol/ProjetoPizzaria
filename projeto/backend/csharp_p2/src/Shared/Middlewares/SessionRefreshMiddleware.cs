@@ -16,28 +16,34 @@ public class SessionRefreshMiddleware {
     ISessionCacheService sessionService,
     CookiesHandler cookiesHandler
   ) {
-    // Verifica se o endpoint é [AllowAnonymous]
+    // Early return: endpoint público
     var endpoint = context.GetEndpoint();
     var isPublic = endpoint?.Metadata.GetMetadata<AllowAnonymousAttribute>() != null;
+    if (isPublic) {
+      await _next(context);
+      return;
+    }
 
-    if (!isPublic) {
-      var sessionToken = context.Request.Cookies["session_token"];
+    // Early return: sem token (tem que barrar na autenticação, não é função do middleware)
+    var sessionToken = context.Request.Cookies["session_token"];
+    if (string.IsNullOrWhiteSpace(sessionToken)) {
+      await _next(context);
+      return;
+    }
 
-      if (!string.IsNullOrWhiteSpace(sessionToken)) {
-        try {
-          var refreshed = await sessionService.RefreshSessionAsync(sessionToken);
+    // Tenta renovar sessão
+    try {
+      var refreshed = await sessionService.RefreshSessionAsync(sessionToken);
 
-          if (refreshed) {
-            var rememberMeValue = context.Request.GetHeaderValue("remember-me");
-            var rememberMe = bool.TryParse(rememberMeValue.ToString(), out var parsed) && parsed;
+      if (refreshed) {
+        var rememberMeValue = context.Request.GetHeaderValue("remember-me");
+        var rememberMe = bool.TryParse(rememberMeValue, out var parsed) && parsed;
 
-            cookiesHandler.AddSessionCookies(context.Response, sessionToken, rememberMe);
-          }
-        } catch {
-          cookiesHandler.DeleteSessionCookies(context.Response);
-          throw;
-        }
+        cookiesHandler.AddSessionCookies(context.Response, sessionToken, rememberMe);
       }
+    } catch {
+      cookiesHandler.DeleteSessionCookies(context.Response);
+      throw;
     }
 
     await _next(context);
