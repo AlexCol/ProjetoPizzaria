@@ -16,7 +16,6 @@ public class SessionRefreshMiddleware {
     ISessionCacheService sessionService,
     CookiesHandler cookiesHandler
   ) {
-    // Early return: endpoint público
     var endpoint = context.GetEndpoint();
     var isPublic = endpoint?.Metadata.GetMetadata<AllowAnonymousAttribute>() != null;
     if (isPublic) {
@@ -24,14 +23,11 @@ public class SessionRefreshMiddleware {
       return;
     }
 
-    // Early return: sem token (tem que barrar na autenticação, não é função do middleware)
     var sessionToken = context.Request.GetCookieValue("session_token");
     if (string.IsNullOrWhiteSpace(sessionToken)) {
-      await _next(context);
-      return;
+      throw new UnauthorizedAccessException("Session token is missing.");
     }
 
-    // Tenta renovar sessão
     try {
       var refreshed = await sessionService.RefreshSessionAsync(sessionToken);
 
