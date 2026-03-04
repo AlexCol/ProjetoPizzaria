@@ -74,7 +74,7 @@ public class UsersService : IUsersService {
     var createdUser = await _userRepository.InsertAsync(newUser);
     var userWithRole = await _userRepository.GetByIdWithReferencesAsync(createdUser.Id); //? para retornar o role junto no dto
 
-    await SendEmailOnRegistrationAsync(newUser);
+    await SendEmailForActivationAsync(newUser);
 
     return new ResponseUserDto(userWithRole);
   }
@@ -114,11 +114,15 @@ public class UsersService : IUsersService {
   #endregion
 
   #region SendEmail
-  private async Task SendEmailOnRegistrationAsync(User newUser) {
+  private async Task SendEmailForActivationAsync(User newUser) {
     _ = Task.Run(async () => {
       using var scope = _scopeFactory.CreateScope();
+
+      var tokenControlService = scope.ServiceProvider.GetRequiredService<ITokenControlService>();
+      var token = await tokenControlService.RegisterProcessTokenAsync(newUser.Id, Processes.ActivateUser);
+
       var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
-      await emailService.sendRegisterEmail(newUser);
+      await emailService.sendRegisterEmail(token, newUser);
     });
   }
   #endregion

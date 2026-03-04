@@ -92,7 +92,8 @@ public class AppService : IAppService {
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!PRIVATE METHODS
   #region Seeds
   private async Task InsertRolesAsync() {
-    var existsAdminRole = await _dbContext.Set<Role>().AnyAsync(r => r.Name == "Admin");
+    var roles = await _dbContext.Set<Role>().ToListAsync();
+    var existsAdminRole = roles.Any(r => r.Name == "Admin");
     if (!existsAdminRole) {
       var adminRole = new Role() {
         Name = "Admin"
@@ -101,7 +102,7 @@ public class AppService : IAppService {
       await _dbContext.SaveChangesAsync();
     }
 
-    var existsStaffRole = await _dbContext.Set<Role>().AnyAsync(r => r.Name == "Staff");
+    var existsStaffRole = roles.Any(r => r.Name == "Staff");
     if (!existsStaffRole) {
       var staffRole = new Role() {
         Name = "Staff"
@@ -119,7 +120,7 @@ public class AppService : IAppService {
       var admin = new User() {
         Name = "Admin",
         Email = new EmailVO(_env.AdminUser.Email),
-        Password = BCrypt.Net.BCrypt.HashPassword(_env.AdminUser.Password),
+        Password = _env.AdminUser.Password, //não usar BCrypt.Net.BCrypt.HashPassword, no .env deve vir já hasheada
         RoleId = adminRole.Id,
         Status = (int)EUserStatus.Active,
       };
@@ -129,12 +130,22 @@ public class AppService : IAppService {
   }
 
   private async Task InsertProcessesAsync() {
-    var activateUserProcessExists = await _dbContext.Set<Process>().AnyAsync(p => p.Name == "Activate User");
+    var processes = await _dbContext.Set<Process>().ToListAsync();
+    var activateUserProcessExists = processes.Any(p => p.Name == Processes.ActivateUser);
     if (!activateUserProcessExists) {
       var activateUserProcess = new Process() {
-        Name = "Activate User",
+        Name = Processes.ActivateUser,
       };
       _dbContext.Set<Process>().Add(activateUserProcess);
+      await _dbContext.SaveChangesAsync();
+    }
+
+    var passwordResetProcessExists = processes.Any(p => p.Name == Processes.PasswordReset);
+    if (!passwordResetProcessExists) {
+      var passwordResetProcess = new Process() {
+        Name = Processes.PasswordReset,
+      };
+      _dbContext.Set<Process>().Add(passwordResetProcess);
       await _dbContext.SaveChangesAsync();
     }
   }

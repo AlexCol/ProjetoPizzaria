@@ -6,8 +6,8 @@ using csharp_p2.src.Modules.Domain;
 namespace csharp_p2.src.Modules.Infra.Email;
 
 public interface IEmailService {
-  Task sendRegisterEmail(User user);
-  Task sendRecoverPasswordEmail(string email);
+  Task sendRegisterEmail(string token, User user);
+  Task sendRecoverPasswordEmail(string token, string email);
 }
 
 public class EmailService : IEmailService {
@@ -16,8 +16,7 @@ public class EmailService : IEmailService {
     _env = env;
   }
 
-  public async Task sendRegisterEmail(User user) {
-    var token = "daygfuwygfvseuiyfgseiuyfg"; //criar rotina para gerar token de ativação
+  public async Task sendRegisterEmail(string token, User user) {
     var emailTo = user.Email.Value;
     var subject = "Ativação de cadastro site - Projetos Alexandre";
 
@@ -31,8 +30,7 @@ public class EmailService : IEmailService {
     await sendEmail(emailTo, subject, body);
   }
 
-  public async Task sendRecoverPasswordEmail(string email) {
-    var token = "daygfuwygfvseuiyfgseiuyfg"; //criar rotina para gerar token de ativação
+  public async Task sendRecoverPasswordEmail(string token, string email) {
     var emailTo = email;
     var subject = "Recuperação de senha - Projetos Alexandre";
 
