@@ -8,15 +8,12 @@ namespace csharp_p2.src.Modules.Domain;
 [Table("USERS")]
 public class User : BaseEntityWithId {
 
-  [NotNull] //utilizar esse e não required, pois com isso consigo suprimir a obrigatoriedade de vir no json (ver DependenciesBuilder)
   [Column("EMAIL")]
   public EmailVO Email { get; set; }
 
-  [NotNull] //utilizar esse e não required, pois com isso consigo suprimir a obrigatoriedade de vir no json (ver DependenciesBuilder)
   [Column("PASSWORD")]
   public string Password { get; set; }
 
-  [NotNull]
   [Column("NAME")]
   public string Name { get; set; }
 
@@ -42,6 +39,12 @@ public static class UserEntityConfiguration {
           vo => vo.Value,
           value => new EmailVO(value)
         );
+
+      entity.HasIndex(u => u.Email).IsUnique();
+      entity.Property(u => u.Password).IsRequired();
+      entity.Property(u => u.Name).IsRequired();
+      entity.Property(u => u.Status).IsRequired();
+      entity.Property(u => u.RoleId).IsRequired();
 
       entity.HasOne(u => u.Role)
         .WithMany()

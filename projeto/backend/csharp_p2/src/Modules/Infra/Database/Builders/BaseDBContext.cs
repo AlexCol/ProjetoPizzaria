@@ -6,8 +6,10 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 namespace csharp_p2.src.Modules.Infra.Database;
 
 public class BaseDBContext : DbContext {
-  public DbSet<User> Users { get; set; }
+  public DbSet<Process> Processes { get; set; }
   public DbSet<Role> Roles { get; set; }
+  public DbSet<TokenControl> TokenControls { get; set; }
+  public DbSet<User> Users { get; set; }
 
   public BaseDBContext(DbContextOptions options) : base(options) { }
 
@@ -23,8 +25,10 @@ public class BaseDBContext : DbContext {
   #region Entities
   private void ConfigureEntities(ModelBuilder modelBuilder) {
     // Configuracoes das entidades aqui
-    modelBuilder.ConfigureUser();
+    modelBuilder.ConfigureProcess();
     modelBuilder.ConfigureRole();
+    modelBuilder.ConfigureTokenControl();
+    modelBuilder.ConfigureUser();
   }
   #endregion
 

@@ -36,12 +36,12 @@ public class RolesService : IRolesService {
     await using var trx = await _roleRepository.GetContext().Database.BeginTransactionAsync();
     try {
       var existingRole = await _roleRepository.FindOneWithPredicateAsync((r) =>
-        r.Description.ToLower() == dto.Description.ToLower()
+        r.Name.ToLower() == dto.Name.ToLower()
       );
       if (existingRole != null) throw new CustomError("Role already exists");
 
       var role = new Role {
-        Description = dto.Description
+        Name = dto.Name
       };
       var createdRole = await _roleRepository.InsertAsync(role);
       await trx.CommitAsync();
@@ -57,7 +57,7 @@ public class RolesService : IRolesService {
     var role = await _roleRepository.GetByIdAsync(id);
     if (role == null) throw new CustomError("Role not found");
 
-    role.Description = dto.Description;
+    role.Name = dto.Name;
 
     return await _roleRepository.UpdateAsync(role)
               .ContinueWith(t => {

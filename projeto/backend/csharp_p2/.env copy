@@ -1,6 +1,10 @@
 TZ=America/Sao_Paulo
 PGTZ=America/Sao_Paulo
 
+########## Admin User
+ADMIN_EMAIL=admin@admin.com.br
+ADMIN_PASSWORD=$2a$11$Eb3TtCPyBCSBeB3JhnDOp.GqUoLaE0J2cemcBOsPcd3l9issEVLyG
+
 ########## BANCO DE DADOS
 DB_TYPE=Postgres
 DB_HOST=localhost

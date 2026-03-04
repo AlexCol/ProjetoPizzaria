@@ -1,6 +1,5 @@
 using csharp_p2.src.Config.builder.DI.Atributes;
 using csharp_p2.src.Config.builder.DI.Enumerators;
-using Microsoft.AspNetCore.Authentication;
 
 namespace csharp_p2.src.Config;
 
@@ -8,6 +7,7 @@ namespace csharp_p2.src.Config;
 //! se a mesma variavel estiver nos dois, é considerada a do .env
 [Injectable(typeof(EnvConfig), EServiceLifetimeType.Singleton)]
 public class EnvConfig {
+  public AdminUser AdminUser { get; private set; }
   public string Environment { get; private set; }
   public FrondEnd FrondEnd { get; private set; }
   public Database Database { get; private set; }
@@ -24,6 +24,11 @@ public class EnvConfig {
 
     FrondEnd = new FrondEnd(
       Url: config["FROND_END_URL"] ?? ""
+    );
+
+    AdminUser = new AdminUser(
+      Email: config["ADMIN_EMAIL"] ?? "",
+      Password: config["ADMIN_PASSWORD"] ?? ""
     );
 
     Database = new Database(
@@ -67,6 +72,11 @@ public class EnvConfig {
 #region Records
 public record FrondEnd(
   string Url
+);
+
+public record AdminUser(
+  string Email,
+  string Password
 );
 public record Database(
   string Type,
