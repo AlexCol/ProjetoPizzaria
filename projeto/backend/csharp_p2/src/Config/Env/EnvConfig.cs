@@ -23,7 +23,7 @@ public class EnvConfig {
     Environment = config["ASPNETCORE_ENVIRONMENT"] ?? "Development";
 
     FrondEnd = new FrondEnd(
-      Url: config["FROND_END_URL"] ?? ""
+      Url: config["FRONTEND_URL"] ?? ""
     );
 
     AdminUser = new AdminUser(

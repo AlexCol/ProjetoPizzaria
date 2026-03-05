@@ -34,4 +34,32 @@ public class UsersController : ControllerBase {
     await _usersService.CreateUserAsync(dto);
     return new { Message = "User created successfully. Access users email to activate the account.", };
   }
+
+  [AllowAnonymous]
+  [HttpPost("activate/{token}")]
+  public async Task<ActionResult<MessageDto>> ActivateUserAsync(string token) {
+    var result = await _usersService.ActivateUserAsync(token);
+    return Ok(result);
+  }
+
+  [AllowAnonymous]
+  [HttpPost("resend-activation-email")]
+  public async Task<ActionResult<MessageDto>> ResendActivationEmailAsync([FromBody] EmailDto dto) {
+    var result = await _usersService.ResendActivationEmailAsync(dto.Email);
+    return Ok(result);
+  }
+
+  [AllowAnonymous]
+  [HttpPost("send-password-reset-email")]
+  public async Task<ActionResult<MessageDto>> SendPasswordResetEmailAsync([FromBody] EmailDto dto) {
+    var result = await _usersService.SendPasswordResetEmailAsync(dto.Email);
+    return Ok(result);
+  }
+
+  [AllowAnonymous]
+  [HttpPost("recover-password/{token}")]
+  public async Task<ActionResult<MessageDto>> ResetPasswordAsync(string token, [FromBody] RecoverPasswordDto dto) {
+    var result = await _usersService.RecoverPasswordAsync(token, dto);
+    return Ok(result);
+  }
 }

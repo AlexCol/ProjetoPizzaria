@@ -6,8 +6,8 @@ using csharp_p2.src.Modules.Domain;
 namespace csharp_p2.src.Modules.Infra.Email;
 
 public interface IEmailService {
-  Task sendRegisterEmail(string token, User user);
-  Task sendRecoverPasswordEmail(string token, string email);
+  Task SendRegisterEmail(string token, User user);
+  Task SendRecoverPasswordEmail(string token, string email);
 }
 
 public class EmailService : IEmailService {
@@ -16,7 +16,7 @@ public class EmailService : IEmailService {
     _env = env;
   }
 
-  public async Task sendRegisterEmail(string token, User user) {
+  public async Task SendRegisterEmail(string token, User user) {
     var emailTo = user.Email.Value;
     var subject = "Ativação de cadastro site - Projetos Alexandre";
 
@@ -25,12 +25,12 @@ public class EmailService : IEmailService {
     var body = "";
     body += $"<h1>Bem vindo {EscapeString(user.Name)}!</h1>";
     body += $"<p>Seu cadastro foi realizado com sucesso. Para ativar sua conta, por favor clique no link abaixo.</p>";
-    body += $"<a href='{linkAtivaConta}'>Ative agora mesmo.</a>";
+    body += $"<a href='{linkAtivaConta}'>Clique aqui para ativar sua conta.</a>";
 
     await sendEmail(emailTo, subject, body);
   }
 
-  public async Task sendRecoverPasswordEmail(string token, string email) {
+  public async Task SendRecoverPasswordEmail(string token, string email) {
     var emailTo = email;
     var subject = "Recuperação de senha - Projetos Alexandre";
 
@@ -38,10 +38,10 @@ public class EmailService : IEmailService {
     linkRecuperaConta = linkRecuperaConta.Replace("<token>", token);
 
     var body = "";
-    body += "<h1>Recupeção de Senha!</h1>";
-    body += "<p>Você está recendo esse email devido a uma solicitação no site para recuperação de senha.</p>";
-    body += "<p>Se não mandou a requisição, pode igorar o email.</p>";
-    body += $"<a href='{linkRecuperaConta}'>Link de recuperação de senha.</a>";
+    body += "<h1>Recuperação de Senha!</h1>";
+    body += "<p>Você está recebendo esse email devido a uma solicitação no site para recuperação de senha.</p>";
+    body += "<p>Se não mandou a requisição, pode ignorar o email.</p>";
+    body += $"<a href='{linkRecuperaConta}'>Clique aqui para recuperar sua senha.</a>";
 
     await sendEmail(emailTo, subject, body);
   }
