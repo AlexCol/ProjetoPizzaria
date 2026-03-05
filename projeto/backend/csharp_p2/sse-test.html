@@ -133,6 +133,7 @@
           log("SSE conectado.");
           let buffer = "";
 
+          // Parseia blocos SSE completos (separados por \n\n)
           function read() {
             reader.read().then(({ done, value }) => {
               if (done) {
@@ -141,18 +142,42 @@
               }
 
               buffer += new TextDecoder().decode(value);
-              const lines = buffer.split("\n");
-              buffer = lines[lines.length - 1];
 
-              for (let i = 0; i < lines.length - 1; i++) {
-                const line = lines[i].trim();
-                if (!line) continue;
+              // Processa cada bloco completo (terminado em \n\n)
+              let idx;
+              while ((idx = buffer.indexOf('\n\n')) !== -1) {
+                const block = buffer.slice(0, idx);
+                buffer = buffer.slice(idx + 2);
 
-                if (line.startsWith("data:")) {
-                  const data = line.substring(5).trim();
-                  log("Mensagem SSE", data);
+                // Parse do bloco: linhas como 'event: name' e 'data: ...'
+                const lines = block.split(/\r?\n/);
+                let ev = null;
+                const dataLines = [];
+                for (const ln of lines) {
+                  const line = ln.trim();
+                  if (!line) continue;
+                  if (line.startsWith('event:')) {
+                    ev = line.substring(6).trim();
+                  } else if (line.startsWith('data:')) {
+                    dataLines.push(line.substring(5).trim());
+                  }
+                }
+
+                const dataText = dataLines.join('\n');
+                let parsed = dataText;
+                try {
+                  parsed = JSON.parse(dataText);
+                } catch (e) {
+                  // não é JSON, deixa como string
+                }
+
+                if (ev) {
+                  log(`Evento SSE: ${ev}`, parsed);
+                } else {
+                  log('Mensagem SSE', parsed);
                 }
               }
+
               read();
             });
           }
