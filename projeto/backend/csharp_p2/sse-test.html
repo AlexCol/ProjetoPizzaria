@@ -116,12 +116,15 @@
 
       // Usa fetch para conectar ao SSE, passando o token no header
       const url = `${baseUrl}/api/sse/connect`;
-      
+
+      const controller = new AbortController();
+
       fetch(url, {
         headers: {
-          "app-origin": "mobile", // Identifica como mobile
-          "Authorization": token // Apenas o token, sem "Bearer "
-        }
+          "app-origin": "mobile",
+          "Authorization": token
+        },
+        signal: controller.signal
       })
         .then(response => {
           if (!response.ok) {
@@ -133,11 +136,18 @@
           log("SSE conectado.");
           let buffer = "";
 
+          // guarda o reader e controller para podermos desconectar depois
+          eventSource = { reader, controller };
+
           // Parseia blocos SSE completos (separados por \n\n)
           function read() {
             reader.read().then(({ done, value }) => {
               if (done) {
                 log("SSE fechado pelo servidor.");
+                // marca como desconectado
+                if (eventSource && eventSource.reader === reader) {
+                  eventSource = null;
+                }
                 return;
               }
 
@@ -178,13 +188,25 @@
                 }
               }
 
+              // continua lendo enquanto não for abortado
               read();
+            }).catch(err => {
+              // erro ao ler (p.ex. abort)
+              if (err.name === 'AbortError') {
+                log('Leitura SSE abortada.');
+              } else {
+                log('Erro na leitura SSE', String(err));
+              }
+              if (eventSource && eventSource.reader === reader) {
+                eventSource = null;
+              }
             });
           }
           read();
         })
         .catch(error => {
           log("Erro ao conectar SSE", String(error));
+          eventSource = null;
         });
     }
 
@@ -194,7 +216,18 @@
         return;
       }
 
-      eventSource.close();
+      try {
+        // cancela o reader e aborta o fetch
+        if (eventSource.reader && typeof eventSource.reader.cancel === 'function') {
+          eventSource.reader.cancel().catch(() => {});
+        }
+        if (eventSource.controller && typeof eventSource.controller.abort === 'function') {
+          eventSource.controller.abort();
+        }
+      } catch (e) {
+        // ignore
+      }
+
       eventSource = null;
       log("SSE desconectado.");
     }
