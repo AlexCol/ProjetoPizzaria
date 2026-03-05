@@ -26,6 +26,11 @@ public class AuthController : ControllerBase {
   public async Task<IActionResult> Login([FromBody] LoginDto loginDto) {
     var auth = await _authService.Login(loginDto);
 
+    var appOrigin = Request.GetEntryPoint();
+    if (appOrigin == "mobile") {
+      return Ok(new { auth.UserSessionPayload, auth.SessionToken }); // Para mobile, retornamos o token no corpo da resposta (sem cookies)
+    }
+
     var rememberMeValue = Request.GetHeaderValue("remember-me");
     var rememberMe = bool.TryParse(rememberMeValue, out var parsed) && parsed;
 
@@ -40,7 +45,8 @@ public class AuthController : ControllerBase {
   /**************************************************************************/
   [HttpPost("logout")]
   public async Task<IActionResult> Logout() {
-    var haveToken = Request.Cookies.TryGetValue("session_token", out var token) && !string.IsNullOrWhiteSpace(token);
+    var token = HttpContext.GetSessionToken();
+    var haveToken = !string.IsNullOrWhiteSpace(token);
     if (haveToken) {
       await _sessionCacheService.DestroySessionAsync(token);
     }
@@ -66,7 +72,8 @@ public class AuthController : ControllerBase {
   /**************************************************************************/
   [HttpGet("session")]
   public async Task<IActionResult> GetSession() {
-    var haveToken = Request.Cookies.TryGetValue("session_token", out var token) && !string.IsNullOrWhiteSpace(token);
+    var token = HttpContext.GetSessionToken();
+    var haveToken = !string.IsNullOrWhiteSpace(token);
     if (!haveToken) {
       return Unauthorized();
     }

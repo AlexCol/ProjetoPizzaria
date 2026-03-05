@@ -14,4 +14,18 @@ public static class HttpRequestExtensions {
     }
     return null;
   }
+
+  public static string GetEntryPoint(this HttpRequest request) {
+    var appOrigin = request.GetHeaderValue("app-origin");
+    return appOrigin;
+  }
+
+  public static string GetTokenFromRequest(this HttpRequest request) {
+    var entryPoint = request.GetEntryPoint();
+    if (entryPoint == "mobile") {
+      return request.Headers.Authorization.ToString();
+    } else {
+      return request.GetCookieValue("session_token");
+    }
+  }
 }

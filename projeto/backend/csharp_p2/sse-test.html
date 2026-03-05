@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SSE Test - C#</title>
+  <style>
+    :root { font-family: "Segoe UI", Tahoma, sans-serif; }
+    body { margin: 20px; max-width: 900px; }
+    .row { display: flex; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+    input, button { padding: 8px 10px; font-size: 14px; }
+    input { min-width: 240px; }
+    #logs {
+      margin-top: 16px;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 8px;
+      min-height: 260px;
+      white-space: pre-wrap;
+      font-family: Consolas, monospace;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>SSE Test</h1>
+
+  <div class="row">
+    <input id="baseUrl" placeholder="Base URL" value="http://localhost:3300" />
+  </div>
+
+  <div class="row">
+    <input id="email" type="email" placeholder="Email" value="eu_axil@yahoo.com.br" />
+    <input id="password" type="password" placeholder="Senha" value="Ale@12345"/>
+    <button id="loginBtn">Login</button>
+  </div>
+
+  <div class="row">
+    <button id="connectBtn">Conectar SSE</button>
+    <button id="disconnectBtn">Desconectar SSE</button>
+    <button id="statusBtn">Status conexões</button>
+  </div>
+
+  <div id="logs"></div>
+
+  <script>
+    let eventSource = null;
+    let token = null; // Armazena o JWT token
+
+    function log(message, data) {
+      const line = `[${new Date().toLocaleTimeString()}] ${message}`;
+      const payload = data ? ` ${typeof data === "string" ? data : JSON.stringify(data)}` : "";
+      const logs = document.getElementById("logs");
+      logs.textContent += `${line}${payload}\n`;
+      logs.scrollTop = logs.scrollHeight;
+    }
+
+    function getBaseUrl() {
+      return document.getElementById("baseUrl").value.trim().replace(/\/+$/, "");
+    }
+
+    async function login() {
+      const baseUrl = getBaseUrl();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!email || !password) {
+        log("Preencha email e senha.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`${baseUrl}/api/Auth/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "app-origin": "mobile" // Identifica como mobile para receber token na resposta
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        if (!response.ok) {
+          const text = await response.text();
+          log(`Login falhou (${response.status})`, text);
+          return;
+        }
+
+        const payload = await response.json();
+        log("Response do Login:", payload);
+        
+        // Extrai o SessionToken da resposta
+        token = payload.SessionToken || payload.sessionToken;
+        
+        if (token) {
+          log("Login OK. Token obtido:", `${token.substring(0, 20)}...`);
+        } else {
+          log("Login OK, mas SessionToken não encontrado. Response:", JSON.stringify(payload));
+        }
+      } catch (error) {
+        log("Erro no login", String(error));
+      }
+    }
+
+    function connectSse() {
+      const baseUrl = getBaseUrl();
+      if (eventSource) {
+        log("SSE já conectado.");
+        return;
+      }
+
+      if (!token) {
+        log("Faça login primeiro para obter o token.");
+        return;
+      }
+
+      // Usa fetch para conectar ao SSE, passando o token no header
+      const url = `${baseUrl}/api/sse/connect`;
+      
+      fetch(url, {
+        headers: {
+          "app-origin": "mobile", // Identifica como mobile
+          "Authorization": token // Apenas o token, sem "Bearer "
+        }
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Erro: ${response.status}`);
+          }
+          return response.body.getReader();
+        })
+        .then(reader => {
+          log("SSE conectado.");
+          let buffer = "";
+
+          function read() {
+            reader.read().then(({ done, value }) => {
+              if (done) {
+                log("SSE fechado pelo servidor.");
+                return;
+              }
+
+              buffer += new TextDecoder().decode(value);
+              const lines = buffer.split("\n");
+              buffer = lines[lines.length - 1];
+
+              for (let i = 0; i < lines.length - 1; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                if (line.startsWith("data:")) {
+                  const data = line.substring(5).trim();
+                  log("Mensagem SSE", data);
+                }
+              }
+              read();
+            });
+          }
+          read();
+        })
+        .catch(error => {
+          log("Erro ao conectar SSE", String(error));
+        });
+    }
+
+    function disconnectSse() {
+      if (!eventSource) {
+        log("SSE já está desconectado.");
+        return;
+      }
+
+      eventSource.close();
+      eventSource = null;
+      log("SSE desconectado.");
+    }
+
+    async function getStatus() {
+      const baseUrl = getBaseUrl();
+      if (!token) {
+        log("Faça login primeiro.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`${baseUrl}/api/sse/status`, {
+          method: "GET",
+          headers: {
+            "app-origin": "mobile", // Identifica como mobile
+            "Authorization": token // Apenas o token, sem "Bearer "
+          }
+        });
+
+        const text = await response.text();
+        log(`Status SSE (${response.status})`, text);
+      } catch (error) {
+        log("Erro ao buscar status", String(error));
+      }
+    }
+
+    document.getElementById("loginBtn").addEventListener("click", login);
+    document.getElementById("connectBtn").addEventListener("click", connectSse);
+    document.getElementById("disconnectBtn").addEventListener("click", disconnectSse);
+    document.getElementById("statusBtn").addEventListener("click", getStatus);
+  </script>
+</body>
+</html>

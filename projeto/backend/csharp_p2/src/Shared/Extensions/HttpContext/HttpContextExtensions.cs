@@ -9,4 +9,11 @@ public static class HttpContextExtensions {
       ? payload
       : null;
   }
+
+  public static string GetSessionToken(this HttpContext context) {
+    if (context.Items.TryGetValue("session_token", out var token) && token is string sessionToken) {
+      return sessionToken;
+    }
+    return null;
+  }
 }

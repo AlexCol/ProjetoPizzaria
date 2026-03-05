@@ -23,7 +23,7 @@ public class SessionRefreshMiddleware {
       return;
     }
 
-    var sessionToken = context.Request.GetCookieValue("session_token");
+    var sessionToken = context.Request.GetTokenFromRequest(); // Usa a extensão para obter o token de forma unificada (header para mobile, cookie para web)
     if (string.IsNullOrWhiteSpace(sessionToken)) {
       throw new UnauthorizedAccessException("Session token is missing.");
     }

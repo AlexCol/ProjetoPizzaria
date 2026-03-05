@@ -23,8 +23,10 @@ public class SessionAuthHandler : AuthenticationHandler<AuthenticationSchemeOpti
   }
 
   protected override async Task<AuthenticateResult> HandleAuthenticateAsync() {
-    if (!Request.Cookies.TryGetValue("session_token", out var token) || string.IsNullOrWhiteSpace(token))
+    var token = Request.GetTokenFromRequest(); // Usa a extensão para obter o token de forma unificada (header para mobile, cookie para web)
+    if (string.IsNullOrWhiteSpace(token)) {
       return AuthenticateResult.NoResult();
+    }
 
     var session = await _sessionCache.GetSessionAsync(token);
     if (session is null)
@@ -43,6 +45,7 @@ public class SessionAuthHandler : AuthenticationHandler<AuthenticationSchemeOpti
     var ticket = new AuthenticationTicket(principal, SessionAuthDefaults.Scheme);
 
     Context.Items["session_payload"] = session.Payload; // equivalente ao req.user.payload
+    Context.Items["session_token"] = token; // armazena o token no contexto para uso posterior (ex: logout)
     return AuthenticateResult.Success(ticket);
   }
 

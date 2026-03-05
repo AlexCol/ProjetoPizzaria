@@ -11,6 +11,17 @@ public static class CorsBuilder {
           .AllowAnyHeader()
           .AllowAnyMethod();
       });
+
+      //? Política específica para SSE (conexões persistentes com autenticação)
+      opt.AddPolicy("SSEPolicy", build => {
+        build
+          .AllowAnyOrigin() // Wildcard origin
+          .AllowAnyHeader()
+          .AllowAnyMethod()
+          .WithExposedHeaders("Content-Type", "X-Custom-Header");
+        // Nota: AllowCredentials() não pode ser usado com AllowAnyOrigin()
+      });
+
       // opt.AddPolicy("CORSAllowLocalHost", build => {
       // 	build
       // 			.WithOrigins("http://localhost:3011") // Substitua pela origem específica do seu frontend
