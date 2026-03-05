@@ -9,6 +9,7 @@ public interface ITokenControlService {
   Task<string> RegisterProcessTokenAsync(long idObject, string processName, DateTime? expiresAt = null);
   Task<TokenControl> GetTokenControlByTokenAsync(string token);
   Task RemoveTokenControlAsync(TokenControl tokenControl);
+  Task ClearExpiredTokensAsync();
 }
 
 public class TokenControlService : ITokenControlService {
@@ -56,6 +57,28 @@ public class TokenControlService : ITokenControlService {
   public async Task RemoveTokenControlAsync(TokenControl tokenControl) {
     _context.TokenControls.Remove(tokenControl);
     await _context.SaveChangesAsync();
+  }
+
+  public async Task ClearExpiredTokensAsync() {
+    using var transaction = await _context.Database.BeginTransactionAsync();
+    try {
+      Log.Information("Starting ClearExpiredTokens job...");
+      var expiredTokens = await _context.TokenControls.Where(tc => tc.ExpiresAt.HasValue && tc.ExpiresAt.Value < DateTime.UtcNow).ToListAsync();
+      if (expiredTokens.Any()) {
+        _context.TokenControls.RemoveRange(expiredTokens);
+        await _context.SaveChangesAsync();
+      }
+
+      var tokensWithoutExpiry = await _context.TokenControls.Where(tc => !tc.ExpiresAt.HasValue && tc.CreatedAt < DateTime.UtcNow.AddDays(-30)).ToListAsync();
+      if (tokensWithoutExpiry.Any()) {
+        _context.TokenControls.RemoveRange(tokensWithoutExpiry);
+        await _context.SaveChangesAsync();
+      }
+      await transaction.CommitAsync();
+    } catch {
+      await transaction.RollbackAsync();
+      throw;
+    }
   }
 
   private async Task InvalidateExistingTokensAsync(long idObject, long idProcess) {

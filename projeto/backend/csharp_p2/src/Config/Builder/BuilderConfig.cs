@@ -39,6 +39,7 @@ public static class BuilderConfig {
     AuthBuilder.AddAuthentication(builder);
     DataBaseBuilder.AddDatabase(builder);
     CacheBuilder.AddCache(builder);
+    HangfireBuilder.AddHangfire(builder);
     CorsBuilder.AddCors(builder); //?lembrar depois de colocar useCors no app
     LogBuilder.AddLogService(builder);
     EmailBuilder.AddEmailService(builder);

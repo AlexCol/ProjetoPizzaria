@@ -4,6 +4,7 @@ public static class AppConfig {
   public static void AddConfigs(this WebApplication app) {
     // //!adicionando configurações
     CorsApp.AddCors(app);
+    HangfireApp.UseHangfire(app);
     MiddlewareApp.AddMiddlewares(app);
     ZipApp.AddZip(app);
 
