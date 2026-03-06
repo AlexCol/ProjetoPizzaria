@@ -1,3 +1,4 @@
+using csharp_p2.src.Modules.Session;
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Exceptions;
 
@@ -14,10 +15,12 @@ public interface IRolesService {
 public class RolesService : IRolesService {
   private readonly IGenericEntityRepository<Role> _roleRepository;
   private readonly IGenericEntityRepository<User> _userRepository;
+  private readonly ISessionService _sessionService;
 
-  public RolesService(IGenericEntityRepository<Role> roleRepository, IGenericEntityRepository<User> userRepository) {
+  public RolesService(IGenericEntityRepository<Role> roleRepository, IGenericEntityRepository<User> userRepository, ISessionService sessionService) {
     _roleRepository = roleRepository;
     _userRepository = userRepository;
+    _sessionService = sessionService;
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!GETS
@@ -55,15 +58,22 @@ public class RolesService : IRolesService {
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!UPDATE
   public async Task<Role> UpdateRoleAsync(long id, RoleDto dto) {
     var role = await _roleRepository.GetByIdAsync(id);
-    if (role == null) throw new CustomError("Role not found");
+    if (role == null) throw new CustomError("Role not found", 404);
+
+    if (role.Name == dto.Name)
+      throw new CustomError("No changes detected.");
 
     role.Name = dto.Name;
 
-    return await _roleRepository.UpdateAsync(role)
+    var updates = await _roleRepository.UpdateAsync(role)
               .ContinueWith(t => {
                 if (t.Result) return role;
                 throw new Exception("Erro ao atualizar Role: " + t.Exception?.Message);
               });
+
+    await SendRoleUpdateNotificationAsync(role);
+
+    return updates;
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!DELETE
@@ -81,6 +91,14 @@ public class RolesService : IRolesService {
     } catch {
       await trx.RollbackAsync();
       throw;
+    }
+  }
+
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Private Methods
+  private async Task SendRoleUpdateNotificationAsync(Role role) {
+    var usersIds = await _userRepository.SearchWithPredicateAsync(u => u.RoleId == role.Id);
+    foreach (var user in usersIds) {
+      await _sessionService.SendSessionUpdateNotificationAsync(user.Id);
     }
   }
 }

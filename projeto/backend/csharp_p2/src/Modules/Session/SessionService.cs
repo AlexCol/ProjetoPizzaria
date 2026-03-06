@@ -1,4 +1,5 @@
 using csharp_p2.src.Modules.Domain;
+using csharp_p2.src.Modules.Infra.Sse;
 using csharp_p2.src.Shared.DTOs;
 
 namespace csharp_p2.src.Modules.Session;
@@ -6,15 +7,18 @@ namespace csharp_p2.src.Modules.Session;
 public interface ISessionService {
   Task<CreateUserSessionResponse> CreateSession(User user);
   Task<UserSessionPayload> MontarPayloadAsync(User user);
+  Task SendSessionUpdateNotificationAsync(long userId);
 }
 
 public class SessionService : ISessionService {
   private readonly IServiceProvider _serviceProvider;
   private readonly ISessionCacheService _sessionCacheService;
+  private readonly IServiceScopeFactory _scopeFactory;
 
-  public SessionService(IServiceProvider serviceProvider, ISessionCacheService sessionCacheService) {
+  public SessionService(IServiceProvider serviceProvider, ISessionCacheService sessionCacheService, IServiceScopeFactory scopeFactory) {
     _serviceProvider = serviceProvider;
     _sessionCacheService = sessionCacheService;
+    _scopeFactory = scopeFactory;
   }
 
   /*****************************************************************************/
@@ -41,6 +45,18 @@ public class SessionService : ISessionService {
     };
 
     return payload;
+  }
+
+  public async Task SendSessionUpdateNotificationAsync(long userId) {
+    _ = Task.Run(async () => {
+      using var scope = _scopeFactory.CreateScope();
+      try {
+        var sseService = scope.ServiceProvider.GetRequiredService<ISseService>();
+        await sseService.SendToUserAsync(userId.ToString(), SseEvents.SessionUpdated, null);
+      } catch (Exception ex) {
+        Log.Error("Error sending session update notification: " + ex.Message);
+      }
+    });
   }
   #endregion
 

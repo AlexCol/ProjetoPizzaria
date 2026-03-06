@@ -20,12 +20,8 @@ public class UsersController : ControllerBase {
 
   [HttpGet("{id}", Name = "GetUserByIdWithReferences")]
   public async Task<ActionResult<ResponseUserDto>> GetUserByIdWithReferencesAsync(long id) {
-    try {
-      var user = await _usersService.GetUserByIdAsync(id);
-      return Ok(user);
-    } catch (Exception ex) {
-      return NotFound(ex.Message);
-    }
+    var user = await _usersService.GetUserByIdAsync(id);
+    return Ok(user);
   }
 
   [Authorize(Roles = "Admin")]
@@ -33,6 +29,21 @@ public class UsersController : ControllerBase {
   public async Task<ActionResult<dynamic>> CreateUserAsync([FromBody] CreateUserDto dto) {
     await _usersService.CreateUserAsync(dto);
     return new { Message = "User created successfully. Access users email to activate the account.", };
+  }
+
+  [HttpPatch]
+  [Route("{id}")]
+  public async Task<ActionResult<ResponseUserDto>> UpdateUserAsync(long id, [FromBody] UpdateUserDto dto) {
+    var session = HttpContext.GetSessionPayload();
+    var isAdmin = session.User.Role.Name == "Admin";
+    var isOwnAccount = session.User.Id == id;
+
+    if (!isAdmin && !isOwnAccount) {
+      return Forbid();
+    }
+
+    var updatedUser = await _usersService.UpdateUserAsync(id, dto);
+    return Ok(updatedUser);
   }
 
   [AllowAnonymous]

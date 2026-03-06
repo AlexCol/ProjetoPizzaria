@@ -1,4 +1,5 @@
 using csharp_p2.src.Shared.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace csharp_p2.src.Modules.Domain;
 
@@ -24,18 +25,21 @@ public class RolesController : ControllerBase {
     return Ok(roles);
   }
 
+  [Authorize(Roles = "Admin")]
   [HttpPost]
   public async Task<IActionResult> CreateRoleAsync([FromBody] RoleDto dto) {
     var createdRole = await _rolesService.CreateRoleAsync(dto);
     return CreatedAtRoute("GetRoleById", new { id = createdRole.Id }, createdRole);
   }
 
+  [Authorize(Roles = "Admin")]
   [HttpPatch("{id}")]
   public async Task<IActionResult> UpdateRoleAsync(long id, [FromBody] RoleDto dto) {
     var updatedRole = await _rolesService.UpdateRoleAsync(id, dto);
     return Ok(updatedRole);
   }
 
+  [Authorize(Roles = "Admin")]
   [HttpDelete("{id}")]
   public async Task<IActionResult> DeleteRoleAsync(long id) {
     var deleted = await _rolesService.DeleteRoleAsync(id);

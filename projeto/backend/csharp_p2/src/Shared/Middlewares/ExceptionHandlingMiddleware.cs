@@ -22,16 +22,18 @@ public class ExceptionHandlingMiddleware { /*para lembrete, middlewares são car
 
     if (exception is not null) {
       var error = new ErrorResponseDto(exception);
-      var result = JsonSerializer.Serialize(error);
+      var message = error.ErrorMessage[0];
       context.Response.ContentType = "application/json";
-      await context.Response.WriteAsync(result);
+
+      var jsonResponse = JsonSerializer.Serialize(new { message });
+      await context.Response.WriteAsync(jsonResponse);
       Log.Error($"[ExceptionHandlingMiddleware] - Ocorreu um erro em: {context.Request.Path}. Erro: {error}");
     }
   }
 
   private int SetStatusCodeForException(Exception ex) {
     return ex switch {
-      CustomError => StatusCodes.Status400BadRequest,
+      CustomError => (ex as CustomError).Status,
       ArgumentException => StatusCodes.Status400BadRequest,
       UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
       _ => StatusCodes.Status500InternalServerError

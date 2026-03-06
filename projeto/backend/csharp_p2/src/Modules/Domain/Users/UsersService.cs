@@ -1,4 +1,5 @@
 using csharp_p2.src.Modules.Infra.Email;
+using csharp_p2.src.Modules.Session;
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Exceptions;
 using csharp_p2.src.Shared.VOs;
@@ -36,7 +37,7 @@ public class UsersService : IUsersService {
   public async Task<ResponseUserDto> GetUserByIdAsync(long id) {
     var user = await _userRepository.GetByIdWithReferencesAsync(id);
     if (user == null) {
-      throw new CustomError("User not found.");
+      throw new CustomError("User not found.", 404);
     }
     return new ResponseUserDto(user);
   }
@@ -63,7 +64,7 @@ public class UsersService : IUsersService {
     var roleService = _serviceProvider.GetRequiredService<IRolesService>();
     var role = await roleService.GetRoleByIdAsync(dto.RoleId.Value);
     if (role == null) {
-      throw new CustomError("Role not found.");
+      throw new CustomError("Role not found.", 404);
     }
 
     var newUser = new User {
@@ -86,18 +87,24 @@ public class UsersService : IUsersService {
   #region UPDATE
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!UPDATE
   public async Task<ResponseUserDto> UpdateUserAsync(long id, UpdateUserDto dto) {
-
+    var updated = false;
     var userToUpdate = await _userRepository.GetByIdAsync(id);
     if (userToUpdate == null) {
       throw new CustomError("User not found.");
     }
 
-    if (dto.Name != null) {
+    if (dto.Name != null && dto.Name != userToUpdate.Name) {
       userToUpdate.Name = dto.Name;
+      updated = true;
     }
 
-    if (dto.RoleId != 0) {
+    if (dto.RoleId != 0 && dto.RoleId != userToUpdate.RoleId) {
       userToUpdate.RoleId = dto.RoleId;
+      updated = true;
+    }
+
+    if (!updated) {
+      throw new CustomError("No fields to update.");
     }
 
     var updatedUser = await _userRepository
@@ -105,6 +112,9 @@ public class UsersService : IUsersService {
             .ContinueWith(task => task.Result ? userToUpdate : throw new Exception("Failed to update user: " + task.Exception?.Message));
 
     var userWithRole = await _userRepository.GetByIdWithReferencesAsync(updatedUser.Id); //? para retornar o role junto no dto
+
+    await SendSessionUpdateNotificationAsync(updatedUser.Id);
+
     return new ResponseUserDto(userWithRole);
   }
 
@@ -201,6 +211,16 @@ public class UsersService : IUsersService {
     }
   }
   #endregion
+
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Private Methods
+  #region Private Methods
+  private async Task SendSessionUpdateNotificationAsync(long userId) {
+    var sessionService = _serviceProvider.GetRequiredService<ISessionService>();
+    await sessionService.SendSessionUpdateNotificationAsync(userId);
+  }
+  #endregion
+
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!SendEmail
   #region SendEmail
