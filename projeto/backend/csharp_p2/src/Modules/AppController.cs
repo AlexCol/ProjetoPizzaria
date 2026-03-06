@@ -11,6 +11,7 @@ public class AppController : ControllerBase {
     _appService = appService;
   }
 
+  [AllowAnonymous]
   [HttpGet("health")]
   public async Task<IActionResult> HealthAsync() {
     var response = _appService.HealthCheck();
