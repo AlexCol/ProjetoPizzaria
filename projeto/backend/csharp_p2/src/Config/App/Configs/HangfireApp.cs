@@ -9,6 +9,6 @@ public static class HangfireApp {
 
     SchedulerService.AddJobs();
 
-    Log.Information("✅ Hangfire configurado e dashboard disponível em /hangfire");
+    Log.Information("📊 Hangfire configurado e dashboard disponível em /hangfire");
   }
 }

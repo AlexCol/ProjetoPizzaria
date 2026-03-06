@@ -9,7 +9,7 @@ public interface ISseService {
   Task SendToUserAsync(string userId, SseEvents sseEvent, object message, CancellationToken ct = default);
   Task SendToAllAsync(SseEvents sseEvent, object message, CancellationToken ct = default);
   ActiveConnectionsDto GetActiveConnections();
-  Task DisconnectUserAsync(string userId);
+  void DisconnectUser(string userId);
   SseEvents TransformEventOrThrow(string eventName);
 }
 
@@ -25,8 +25,8 @@ public class SseService : ISseService {
     PrepareHeaders(context);
 
     var conn = new SseConnection {
-      UserId = userId,
       ConnectionId = GenerateConnectionId(),
+      UserId = userId,
       Response = context.Response
     };
 
@@ -40,6 +40,7 @@ public class SseService : ISseService {
 
     SetHeartbeatForConnection(conn, userId, connectionToken);
 
+    Log.Information("📈 Nova conexão SSE: UserId={UserId}, ConnectionId={ConnectionId}", userId, conn.ConnectionId);
     try {
       await Task.Delay(Timeout.Infinite, connectionToken);
     } catch (OperationCanceledException) {
@@ -99,17 +100,11 @@ public class SseService : ISseService {
   /*****************************************************************************/
   /* Remove todas as conexões de um usuário                                    */
   /*****************************************************************************/
-  public Task DisconnectUserAsync(string userId) {
-    if (_connections.TryRemove(userId, out var userConnections)) {
-      foreach (var connection in userConnections.Values) {
-        try {
-          connection.HeartbeatCts?.Cancel();
-          connection.Response.Body.Close();
-        } catch { }
-      }
-    }
-
-    return Task.CompletedTask;
+  public void DisconnectUser(string userId) {
+    var haveConn = _connections.TryGetValue(userId, out var userConnections);
+    if (haveConn)
+      foreach (var connection in userConnections.Values)
+        RemoveConnection(userId, connection.ConnectionId);
   }
 
   public SseEvents TransformEventOrThrow(string eventName) {
@@ -145,6 +140,8 @@ public class SseService : ISseService {
     try {
       connection.HeartbeatCts?.Cancel();
       connection.HeartbeatCts?.Dispose();
+      connection.Response.Body.Close();
+      Log.Information("📉 Conexão SSE removida: UserId={UserId}, ConnectionId={ConnectionId}", userId, connectionId);
     } catch { }
 
     if (userConnections.IsEmpty) {

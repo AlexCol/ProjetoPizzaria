@@ -56,14 +56,14 @@ public class SseController : ControllerBase {
 
   [Authorize(Roles = "Admin")]
   [HttpDelete("remove-connection/{userId}")]
-  public async Task<IActionResult> RemoveConnection(
+  public IActionResult RemoveConnection(
     [FromRoute] string userId, CancellationToken ct
   ) {
     if (string.IsNullOrWhiteSpace(userId)) {
       return Unauthorized();
     }
 
-    await _sseService.DisconnectUserAsync(userId);
+    _sseService.DisconnectUser(userId);
     return Ok(new { Message = "Conexão removida para o usuário", UserId = userId });
   }
 }
