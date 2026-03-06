@@ -5,8 +5,10 @@ public static class AppConfig {
     // //!adicionando configurações
     CorsApp.AddCors(app);
     HangfireApp.UseHangfire(app);
+    app.UseRouting();
     MiddlewareApp.AddMiddlewares(app);
     ZipApp.AddZip(app);
+    SwaggerApp.AddSwagger(app);
 
     //!adicionando configurações padrão
     app.UseAuthentication();
