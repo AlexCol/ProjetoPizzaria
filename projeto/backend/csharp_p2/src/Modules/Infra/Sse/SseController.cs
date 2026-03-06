@@ -27,24 +27,31 @@ public class SseController : ControllerBase {
     await _sseService.ConnectAsync(userId, HttpContext, linkedCts.Token);
   }
 
-  [HttpGet("status")]
   [Authorize(Roles = "Admin")]
+  [HttpGet("status")]
   public IActionResult Status() => Ok(_sseService.GetActiveConnections());
 
   [Authorize(Roles = "Admin")]
   [HttpPost("send-message/{userId}")]
-  public async Task<IActionResult> SendTestMessage(
+  public async Task<IActionResult> SendMessageToUserId(
     [FromRoute] string userId,
-    [FromBody] SseMessage sseEvent, CancellationToken ct
+    [FromBody] SseMessageDto sseEvent, CancellationToken ct
   ) {
-    if (string.IsNullOrWhiteSpace(userId)) {
-      return Unauthorized();
-    }
+    var enumEvent = _sseService.TransformEventOrThrow(sseEvent.Event);
+    await _sseService.SendToUserAsync(userId, enumEvent, sseEvent.Data, ct);
 
-    var message = new SseMessage(sseEvent.Event, sseEvent.Data);
-    await _sseService.SendToUserAsync(userId, message, ct);
+    return Ok(new { Message = "Evento enviado para o usuário.", Event = sseEvent });
+  }
 
-    return Ok(new { Message = "Evento enviado para o usuário", Event = sseEvent });
+  [Authorize(Roles = "Admin")]
+  [HttpPost("send-message/all")]
+  public async Task<IActionResult> SendMessageToAll(
+  [FromBody] SseMessageDto sseEvent, CancellationToken ct
+) {
+    var enumEvent = _sseService.TransformEventOrThrow(sseEvent.Event);
+    await _sseService.SendToAllAsync(enumEvent, sseEvent.Data, ct);
+
+    return Ok(new { Message = "Evento enviado para todos os usuários", Event = sseEvent });
   }
 
   [Authorize(Roles = "Admin")]

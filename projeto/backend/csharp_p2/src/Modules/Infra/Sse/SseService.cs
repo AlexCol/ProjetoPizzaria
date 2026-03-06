@@ -6,16 +6,18 @@ namespace csharp_p2.src.Modules.Infra.Sse;
 
 public interface ISseService {
   Task ConnectAsync(string userId, HttpContext context, CancellationToken ct);
-  Task SendToUserAsync(string userId, SseMessage message, CancellationToken ct = default);
-  Task SendToAllAsync(SseMessage message, CancellationToken ct = default);
+  Task SendToUserAsync(string userId, SseEvents sseEvent, object message, CancellationToken ct = default);
+  Task SendToAllAsync(SseEvents sseEvent, object message, CancellationToken ct = default);
   ActiveConnectionsDto GetActiveConnections();
   Task DisconnectUserAsync(string userId);
+  SseEvents TransformEventOrThrow(string eventName);
 }
 
 [Injectable(EServiceLifetimeType.Singleton)]
 public class SseService : ISseService {
   private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, SseConnection>> _connections = new();
 
+  #region Métodos da Interface
   /*****************************************************************************/
   /* Adiciona Conexão                                                          */
   /*****************************************************************************/
@@ -36,16 +38,7 @@ public class SseService : ISseService {
 
     await WriteRawAsync(conn, ": SSE connection established\n\n", connectionToken);
 
-    _ = Task.Run(async () => {
-      try {
-        while (!connectionToken.IsCancellationRequested) {
-          await Task.Delay(TimeSpan.FromSeconds(30), connectionToken);
-          await WriteRawAsync(conn, ": heartbeat\n\n", connectionToken);
-        }
-      } catch {
-        RemoveConnection(userId, conn.ConnectionId);
-      }
-    }, connectionToken);
+    SetHeartbeatForConnection(conn, userId, connectionToken);
 
     try {
       await Task.Delay(Timeout.Infinite, connectionToken);
@@ -59,10 +52,11 @@ public class SseService : ISseService {
   /*****************************************************************************/
   /* Envia mensagem para um usuário específico                                 */
   /*****************************************************************************/
-  public async Task SendToUserAsync(string userId, SseMessage message, CancellationToken ct = default) {
+  public async Task SendToUserAsync(string userId, SseEvents sseEvent, object message, CancellationToken ct = default) {
     if (!_connections.TryGetValue(userId, out var userConnections) || userConnections.Count == 0) return;
 
-    var payload = FormatSseMessage(message);
+    var sseMessage = new SseMessage(sseEvent, message);
+    var payload = FormatSseMessage(sseMessage);
     var invalidConnections = new List<string>();
 
     foreach (var connection in userConnections.Values) {
@@ -81,9 +75,9 @@ public class SseService : ISseService {
   /*****************************************************************************/
   /* Envia mensagem para todos os usuários conectados                          */
   /*****************************************************************************/
-  public async Task SendToAllAsync(SseMessage message, CancellationToken ct = default) {
+  public async Task SendToAllAsync(SseEvents sseEvent, object message, CancellationToken ct = default) {
     foreach (var userId in _connections.Keys) {
-      await SendToUserAsync(userId, message, ct);
+      await SendToUserAsync(userId, sseEvent, message, ct);
     }
   }
 
@@ -118,9 +112,32 @@ public class SseService : ISseService {
     return Task.CompletedTask;
   }
 
+  public SseEvents TransformEventOrThrow(string eventName) {
+    if (!Enum.IsDefined(typeof(SseEvents), eventName)) {
+      throw new ArgumentException("Evento inválido. Valores válidos: " + string.Join(", ", Enum.GetNames(typeof(SseEvents))));
+    }
+
+    return Enum.Parse<SseEvents>(eventName);
+  }
+  #endregion
+
+  #region Métodos Privados
   /*****************************************************************************/
-  /* Remove uma Conexão Específica                                             */
+  /* Métodos privados                                                          */
   /*****************************************************************************/
+  private void SetHeartbeatForConnection(SseConnection conn, string userId, CancellationToken ct) {
+    _ = Task.Run(async () => {
+      try {
+        while (!ct.IsCancellationRequested) {
+          await Task.Delay(TimeSpan.FromSeconds(30), ct);
+          await WriteRawAsync(conn, ": heartbeat\n\n", ct);
+        }
+      } catch {
+        RemoveConnection(userId, conn.ConnectionId);
+      }
+    }, ct);
+  }
+
   private void RemoveConnection(string userId, string connectionId) {
     if (!_connections.TryGetValue(userId, out var userConnections)) return;
     if (!userConnections.TryRemove(connectionId, out var connection)) return;
@@ -135,17 +152,15 @@ public class SseService : ISseService {
     }
   }
 
-  /*****************************************************************************/
-  /* Métodos privados                                                          */
-  /*****************************************************************************/
   private static string FormatSseMessage(SseMessage message) {
     var builder = new StringBuilder();
 
-    if (!string.IsNullOrWhiteSpace(message.Event)) {
-      builder.Append("event: ").Append(message.Event).Append('\n');
-    }
+    var formatedEventName = message.Event.ToString().ToKebabCase();
+    builder.Append("event: ").Append(formatedEventName).Append('\n');
 
-    builder.Append("data: ").Append(JsonSerializer.Serialize(message.Data)).Append("\n\n");
+    var jsonData = JsonSerializer.Serialize(message.Data);
+    builder.Append("data: ").Append(jsonData).Append("\n\n");
+
     return builder.ToString();
   }
 
@@ -169,4 +184,5 @@ public class SseService : ISseService {
       connection.WriteLock.Release();
     }
   }
+  #endregion
 }

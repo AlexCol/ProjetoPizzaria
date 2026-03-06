@@ -15,14 +15,8 @@ public class ExceptionHandlingMiddleware { /*para lembrete, middlewares são car
     Exception exception = null;
     try {
       await _next(context);
-    } catch (CustomError ex) {
-      context.Response.StatusCode = StatusCodes.Status400BadRequest;
-      exception = ex;
-    } catch (UnauthorizedAccessException ex) {
-      context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-      exception = ex;
     } catch (Exception ex) {
-      context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+      context.Response.StatusCode = SetStatusCodeForException(ex);
       exception = ex;
     }
 
@@ -33,5 +27,14 @@ public class ExceptionHandlingMiddleware { /*para lembrete, middlewares são car
       await context.Response.WriteAsync(result);
       Log.Error($"[ExceptionHandlingMiddleware] - Ocorreu um erro em: {context.Request.Path}. Erro: {error}");
     }
+  }
+
+  private int SetStatusCodeForException(Exception ex) {
+    return ex switch {
+      CustomError => StatusCodes.Status400BadRequest,
+      ArgumentException => StatusCodes.Status400BadRequest,
+      UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+      _ => StatusCodes.Status500InternalServerError
+    };
   }
 }
