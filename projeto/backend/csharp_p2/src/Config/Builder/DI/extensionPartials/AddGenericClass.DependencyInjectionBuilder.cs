@@ -1,7 +1,6 @@
 using System.Reflection;
-using csharp_p2.src.Config.builder.DI.Atributes;
 
-namespace csharp_p2.src.Config.builder.DI;
+namespace csharp_p2.src.Config.Builder;
 
 public static partial class DependencyInjectionBuilder {
   // 🔷 Processa classes genéricas abertas

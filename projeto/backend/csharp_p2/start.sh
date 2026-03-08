@@ -86,4 +86,5 @@ esac
 #######################################################################################
 cd "$SCRIPT_DIR"
 dotnet format csharp_p2.sln
+dotnet ef database update
 dotnet run

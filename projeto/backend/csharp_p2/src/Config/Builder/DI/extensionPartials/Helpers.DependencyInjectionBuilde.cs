@@ -1,9 +1,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using csharp_p2.src.Config.builder.DI.Atributes;
-using csharp_p2.src.Config.builder.DI.Enumerators;
 
-namespace csharp_p2.src.Config.builder.DI;
+namespace csharp_p2.src.Config.Builder;
 
 public static partial class DependencyInjectionBuilder {
   // 🔍 Verifica se o tipo já foi registrado

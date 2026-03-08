@@ -1,5 +1,5 @@
 using csharp_p2.src.Config.App;
-using csharp_p2.src.Config.builder;
+using csharp_p2.src.Config.Builder;
 using DotNetEnv;
 
 CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("pt-BR");

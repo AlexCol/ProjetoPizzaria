@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
-using csharp_p2.src.Config.builder.DI.Atributes;
-using csharp_p2.src.Config.builder.DI.Enumerators;
+using csharp_p2.src.Config.Builder;
 
 namespace csharp_p2.src.Modules.Infra.Sse;
 

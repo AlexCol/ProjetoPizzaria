@@ -1,10 +1,8 @@
-using csharp_p2.src.Config.builder.DI;
 using csharp_p2.src.Extensions;
 using csharp_p2.src.Modules.Infra.Database;
 using csharp_p2.src.Modules.Infra.Cache;
-using csharp_p2.src.Config.Builder;
 
-namespace csharp_p2.src.Config.builder;
+namespace csharp_p2.src.Config.Builder;
 
 public static class BuilderConfig {
   public static void AddConfigs(this WebApplicationBuilder builder) {
