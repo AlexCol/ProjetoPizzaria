@@ -10,6 +10,10 @@ public class BaseDBContext : DbContext {
   public DbSet<Role> Roles { get; set; }
   public DbSet<TokenControl> TokenControls { get; set; }
   public DbSet<User> Users { get; set; }
+  public DbSet<Categories> Categories { get; set; }
+  public DbSet<Product> Products { get; set; }
+  public DbSet<Order> Orders { get; set; }
+  public DbSet<OrderItem> OrderItems { get; set; }
 
   public BaseDBContext(DbContextOptions options) : base(options) { }
 
@@ -29,6 +33,10 @@ public class BaseDBContext : DbContext {
     modelBuilder.ConfigureRole();
     modelBuilder.ConfigureTokenControl();
     modelBuilder.ConfigureUser();
+    modelBuilder.ConfigureCategories();
+    modelBuilder.ConfigureProduct();
+    modelBuilder.ConfigureOrder();
+    modelBuilder.ConfigureOrderItem();
   }
   #endregion
 
