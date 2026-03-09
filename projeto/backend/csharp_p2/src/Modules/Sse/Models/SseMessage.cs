@@ -1,4 +1,4 @@
-namespace csharp_p2.src.Modules.Infra.Sse;
+namespace csharp_p2.src.Modules.Sse;
 
 public record SseMessage(SseEvents Event, object Data);
 public record SseMessageDto(string Event, object Data);

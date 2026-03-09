@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using csharp_p2.src.Config.Builder;
 
-namespace csharp_p2.src.Modules.Infra.Sse;
+namespace csharp_p2.src.Modules.Sse;
 
 public interface ISseService {
   Task ConnectAsync(string userId, HttpContext context, CancellationToken ct);

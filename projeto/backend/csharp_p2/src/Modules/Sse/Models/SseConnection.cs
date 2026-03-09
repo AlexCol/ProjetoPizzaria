@@ -1,4 +1,4 @@
-namespace csharp_p2.src.Modules.Infra.Sse;
+namespace csharp_p2.src.Modules.Sse;
 
 public class SseConnection {
   public string UserId { get; init; } = string.Empty;

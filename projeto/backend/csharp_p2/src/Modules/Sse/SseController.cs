@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 
-namespace csharp_p2.src.Modules.Infra.Sse;
+namespace csharp_p2.src.Modules.Sse;
 
 [ApiController]
 [Route("api/sse")]
@@ -16,6 +16,8 @@ public class SseController : ControllerBase {
   }
 
   [HttpGet("connect")]
+  [EndpointSummary("Estabelece uma conexão SSE para o usuário autenticado.")]
+  [EndpointDescription("Este endpoint é usado para estabelecer uma conexão SSE (Server-Sent Events) para o usuário autenticado. O cliente deve manter a conexão aberta para receber eventos em tempo real do servidor.")]
   public async Task Connect(CancellationToken ct) {
     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
     if (string.IsNullOrWhiteSpace(userId)) {
@@ -29,10 +31,12 @@ public class SseController : ControllerBase {
 
   [Authorize(Roles = "Admin")]
   [HttpGet("status")]
+  [ApiExplorerSettings(IgnoreApi = true)]
   public IActionResult Status() => Ok(_sseService.GetActiveConnections());
 
   [Authorize(Roles = "Admin")]
   [HttpPost("send-message/{userId}")]
+  [ApiExplorerSettings(IgnoreApi = true)]
   public async Task<IActionResult> SendMessageToUserId(
     [FromRoute] string userId,
     [FromBody] SseMessageDto sseEvent, CancellationToken ct
@@ -45,6 +49,7 @@ public class SseController : ControllerBase {
 
   [Authorize(Roles = "Admin")]
   [HttpPost("send-message/all")]
+  [ApiExplorerSettings(IgnoreApi = true)]
   public async Task<IActionResult> SendMessageToAll(
   [FromBody] SseMessageDto sseEvent, CancellationToken ct
 ) {
@@ -56,6 +61,7 @@ public class SseController : ControllerBase {
 
   [Authorize(Roles = "Admin")]
   [HttpDelete("remove-connection/{userId}")]
+  [ApiExplorerSettings(IgnoreApi = true)]
   public IActionResult RemoveConnection(
     [FromRoute] string userId, CancellationToken ct
   ) {

@@ -1,5 +1,5 @@
 using csharp_p2.src.Modules.Domain;
-using csharp_p2.src.Modules.Infra.Sse;
+using csharp_p2.src.Modules.Sse;
 using csharp_p2.src.Shared.DTOs;
 
 namespace csharp_p2.src.Modules.Session;

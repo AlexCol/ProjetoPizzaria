@@ -1,5 +1,6 @@
 using csharp_p2.src.Modules.Session;
 using csharp_p2.src.Shared.DTOs;
+using csharp_p2.src.Shared.Exceptions;
 using csharp_p2.src.Shared.Helpers;
 using Microsoft.AspNetCore.Authorization;
 
@@ -23,6 +24,10 @@ public class AuthController : ControllerBase {
   /**************************************************************************/
   [AllowAnonymous]
   [HttpPost("login")]
+  [EndpointSummary("Login do usuário")]
+  [EndpointDescription("Permite que um usuário faça login, retornando os detalhes da sessão. Cookies Http adicionado com Token da sessão.")]
+  [ProducesResponseType(typeof(UserSessionPayload), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> Login([FromBody] LoginDto loginDto) {
     var auth = await _authService.Login(loginDto);
 
@@ -37,6 +42,27 @@ public class AuthController : ControllerBase {
     _cookiesHandler.AddSessionCookies(Response, auth.SessionToken, rememberMe);
 
     return Ok(auth.UserSessionPayload);
+  }
+
+  [AllowAnonymous]
+  [HttpPost("login-app")]
+  [EndpointSummary("Login para aplicativos móveis")]
+  [EndpointDescription("Permite que usuários façam login a partir de aplicativos móveis, retornando um token de sessão no corpo da resposta.")]
+  [ProducesResponseType(typeof(MobileLoginResponseDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
+  public async Task<IActionResult> LoginApp([FromBody] LoginDto loginDto) {
+    var appOrigin = Request.GetEntryPoint();
+    if (appOrigin != "mobile") {
+      throw new CustomError("Este endpoint é destinado apenas para aplicativos móveis. Use /api/auth/login para web.");
+    }
+
+    var auth = await _authService.Login(loginDto);
+
+    var response = new MobileLoginResponseDto {
+      UserSessionPayload = auth.UserSessionPayload,
+      SessionToken = auth.SessionToken
+    };
+    return Ok(response);
   }
   #endregion
 
