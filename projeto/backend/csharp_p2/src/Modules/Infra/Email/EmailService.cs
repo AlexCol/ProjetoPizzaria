@@ -23,7 +23,7 @@ public class EmailService : IEmailService {
     var linkAtivaConta = _env.FrondEnd.Url + "/ativacao?token=<token>";
     linkAtivaConta = linkAtivaConta.Replace("<token>", token);
     var body = "";
-    body += $"<h1>Bem vindo {EscapeString(user.Name)}!</h1>";
+    body += $"<h3>Bem vindo {EscapeString(user.Name)}!</h3>";
     body += $"<p>Seu cadastro foi realizado com sucesso. Para ativar sua conta, por favor clique no link abaixo.</p>";
     body += $"<a href='{linkAtivaConta}'>Clique aqui para ativar sua conta.</a>";
 
@@ -38,7 +38,7 @@ public class EmailService : IEmailService {
     linkRecuperaConta = linkRecuperaConta.Replace("<token>", token);
 
     var body = "";
-    body += "<h1>Recuperação de Senha!</h1>";
+    body += "<h3>Recuperação de Senha!</h3>";
     body += "<p>Você está recebendo esse email devido a uma solicitação no site para recuperação de senha.</p>";
     body += "<p>Se não mandou a requisição, pode ignorar o email.</p>";
     body += $"<a href='{linkRecuperaConta}'>Clique aqui para recuperar sua senha.</a>";
