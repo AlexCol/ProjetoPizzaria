@@ -8,6 +8,6 @@ public static class TokenGenerator {
     using (var rng = RandomNumberGenerator.Create()) {
       rng.GetBytes(randomBytes);
     }
-    return Convert.ToHexString(randomBytes);
+    return Convert.ToHexString(randomBytes).ToLower();
   }
 }

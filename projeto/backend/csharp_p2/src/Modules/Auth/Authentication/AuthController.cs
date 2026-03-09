@@ -29,12 +29,12 @@ public class AuthController : ControllerBase {
   [ProducesResponseType(typeof(UserSessionPayload), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> Login([FromBody] LoginDto loginDto) {
-    var auth = await _authService.Login(loginDto);
-
     var appOrigin = Request.GetEntryPoint();
-    if (appOrigin == "mobile") {
-      return Ok(new { auth.UserSessionPayload, auth.SessionToken }); // Para mobile, retornamos o token no corpo da resposta (sem cookies)
+    if (appOrigin != "web") {
+      throw new CustomError("Este endpoint é destinado apenas para aplicativos web. Use /api/auth/login-app para mobile.");
     }
+
+    var auth = await _authService.Login(loginDto);
 
     var rememberMeValue = Request.GetHeaderValue("remember-me");
     var rememberMe = bool.TryParse(rememberMeValue, out var parsed) && parsed;
