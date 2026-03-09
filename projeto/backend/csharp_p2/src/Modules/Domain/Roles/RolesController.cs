@@ -1,7 +1,7 @@
 using csharp_p2.src.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 
-namespace csharp_p2.src.Modules.Domain;
+namespace csharp_p2.src.Modules.Domain.Roles;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -13,6 +13,10 @@ public class RolesController : ControllerBase {
   }
 
   [HttpGet("{id}", Name = "GetRoleById")]
+  [EndpointSummary("Obter Role por ID")]
+  [EndpointDescription("Retorna uma role pelo seu ID.")]
+  [ProducesResponseType(typeof(RoleDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
   public async Task<IActionResult> GetRoleByIdAsync(long id) {
     var role = await _rolesService.GetRoleByIdAsync(id);
     if (role == null) return NotFound();
@@ -20,6 +24,9 @@ public class RolesController : ControllerBase {
   }
 
   [HttpGet]
+  [EndpointSummary("Obter Todas as Roles")]
+  [EndpointDescription("Retorna uma lista de todas as roles.")]
+  [ProducesResponseType(typeof(IEnumerable<RoleDto>), StatusCodes.Status200OK)]
   public async Task<IActionResult> GetAllRolesAsync() {
     var roles = await _rolesService.GetAllRolesAsync();
     return Ok(roles);
@@ -27,6 +34,10 @@ public class RolesController : ControllerBase {
 
   [Authorize(Roles = "Admin")]
   [HttpPost]
+  [EndpointSummary("Criar Role")]
+  [EndpointDescription("Cria uma nova role.")]
+  [ProducesResponseType(typeof(RoleDto), StatusCodes.Status201Created)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> CreateRoleAsync([FromBody] RoleDto dto) {
     var createdRole = await _rolesService.CreateRoleAsync(dto);
     return CreatedAtRoute("GetRoleById", new { id = createdRole.Id }, createdRole);
@@ -34,6 +45,10 @@ public class RolesController : ControllerBase {
 
   [Authorize(Roles = "Admin")]
   [HttpPatch("{id}")]
+  [EndpointSummary("Atualizar Role")]
+  [EndpointDescription("Atualiza uma role existente.")]
+  [ProducesResponseType(typeof(RoleDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> UpdateRoleAsync(long id, [FromBody] RoleDto dto) {
     var updatedRole = await _rolesService.UpdateRoleAsync(id, dto);
     return Ok(updatedRole);
@@ -41,6 +56,10 @@ public class RolesController : ControllerBase {
 
   [Authorize(Roles = "Admin")]
   [HttpDelete("{id}")]
+  [EndpointSummary("Deletar Role")]
+  [EndpointDescription("Deleta uma role existente.")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
   public async Task<IActionResult> DeleteRoleAsync(long id) {
     var deleted = await _rolesService.DeleteRoleAsync(id);
     if (!deleted) return NotFound();

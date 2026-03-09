@@ -22,10 +22,9 @@ public class ExceptionHandlingMiddleware { /*para lembrete, middlewares são car
 
     if (exception is not null) {
       var error = new ErrorResponseDto(exception);
-      var message = error.ErrorMessage[0];
       context.Response.ContentType = "application/json";
 
-      var jsonResponse = JsonSerializer.Serialize(new { message });
+      var jsonResponse = JsonSerializer.Serialize(error);
       await context.Response.WriteAsync(jsonResponse);
       Log.Error($"[ExceptionHandlingMiddleware] - Ocorreu um erro em: {context.Request.Path}. Erro: {error}");
     }

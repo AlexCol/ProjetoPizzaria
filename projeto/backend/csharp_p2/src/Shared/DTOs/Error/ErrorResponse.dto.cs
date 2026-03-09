@@ -4,28 +4,28 @@ public class ErrorResponseDto {
   public ErrorResponseDto(string errorMessage) {
     var errors = errorMessage.Split(";");
     foreach (var error in errors) {
-      ErrorMessage.Add(error);
+      Message.Add(error);
     }
   }
 
   public ErrorResponseDto(IEnumerable<string> errorMessages) {
-    ErrorMessage.AddRange(errorMessages);
+    Message.AddRange(errorMessages);
   }
 
   public ErrorResponseDto(Exception exception) {
-    ErrorMessage.Add(exception.Message);
+    Message.Add(exception.Message);
     var inner = exception.InnerException;
     while (inner != null) {
-      ErrorMessage.Add(inner.Message);
+      Message.Add(inner.Message);
       inner = inner.InnerException;
     }
   }
 
-  public List<string> ErrorMessage { get; set; } = new List<string>();
+  public List<string> Message { get; set; } = new List<string>();
 
   public override string ToString() {
     string error = "";
-    foreach (var err in ErrorMessage) {
+    foreach (var err in Message) {
       error += (error == "") ? err : $";{err}";
     }
 

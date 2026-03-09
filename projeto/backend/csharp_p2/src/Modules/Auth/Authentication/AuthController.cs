@@ -44,6 +44,10 @@ public class AuthController : ControllerBase {
   #region Logout
   /**************************************************************************/
   [HttpPost("logout")]
+  [EndpointSummary("Logout da sessão atual.")]
+  [EndpointDescription("Permite que o usuário faça logout da sessão atual, destruindo o token associado.")]
+  [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
   public async Task<IActionResult> Logout() {
     var token = HttpContext.GetSessionToken();
     var haveToken = !string.IsNullOrWhiteSpace(token);
@@ -56,6 +60,10 @@ public class AuthController : ControllerBase {
   }
 
   [HttpPost("logout/all")]
+  [EndpointSummary("Logout de todas as sessões do usuário atual.")]
+  [EndpointDescription("Permite que o usuário faça logout de todas as suas sessões ativas.")]
+  [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
   public async Task<IActionResult> LogoutAll() {
     var session = HttpContext.GetSessionPayload();
     if (session != null) {
@@ -71,6 +79,9 @@ public class AuthController : ControllerBase {
   #region Session/Me
   /**************************************************************************/
   [HttpGet("session")]
+  [EndpointSummary("Obter os detalhes da sessão atual.")]
+  [ProducesResponseType(typeof(UserSessionPayload), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
   public async Task<IActionResult> GetSession() {
     var token = HttpContext.GetSessionToken();
     var haveToken = !string.IsNullOrWhiteSpace(token);
@@ -92,6 +103,11 @@ public class AuthController : ControllerBase {
   /**************************************************************************/
   [Authorize(Roles = "Admin")]
   [HttpPost("logout/all-users")]
+  [EndpointSummary("Logout de todos os usuários")]
+  [EndpointDescription("Permite que um administrador faça logout de todos os usuários, destruindo todas as sessões ativas.")]
+  [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
+  [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
   public async Task<IActionResult> LogoutAllUsers() {
     await _sessionCacheService.DestroyAllSessionsAsync();
     return NoContent();

@@ -1,7 +1,7 @@
 using csharp_p2.src.Modules.Domain;
 using Hangfire;
 
-namespace csharp_p2.src.Shared;
+namespace csharp_p2.src.Shared.Scheduler;
 
 public static class SchedulerService {
   public static void AddJobs() {

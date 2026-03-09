@@ -13,18 +13,21 @@ public class AppController : ControllerBase {
 
   [AllowAnonymous]
   [HttpGet("health")]
+  [ApiExplorerSettings(IgnoreApi = true)]
   public async Task<IActionResult> HealthAsync() {
     var response = _appService.HealthCheck();
     return Ok(response);
   }
 
   [HttpGet("test-db")]
+  [ApiExplorerSettings(IgnoreApi = true)]
   public async Task<IActionResult> TestDbAsync() {
     var response = _appService.TestDb();
     return Ok(response);
   }
 
   [HttpGet("test-cache")]
+  [ApiExplorerSettings(IgnoreApi = true)]
   public async Task<IActionResult> TestCacheAsync() {
     var response = await _appService.TestCache();
     return Ok(response);
@@ -32,6 +35,7 @@ public class AppController : ControllerBase {
 
   [AllowAnonymous]
   [HttpPost("run-seeds")]
+  [ApiExplorerSettings(IgnoreApi = true)]
   public async Task<IActionResult> RunSeedsAsync() {
     await _appService.RunSeedsAsync();
     return Ok(new { message = "Seeds executed successfully" });

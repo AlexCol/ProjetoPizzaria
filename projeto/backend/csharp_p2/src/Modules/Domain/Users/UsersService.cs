@@ -90,7 +90,7 @@ public class UsersService : IUsersService {
     var updated = false;
     var userToUpdate = await _userRepository.GetByIdAsync(id);
     if (userToUpdate == null) {
-      throw new CustomError("User not found.");
+      throw new CustomError("User not found.", 404);
     }
 
     if (dto.Name != null && dto.Name != userToUpdate.Name) {
@@ -128,7 +128,7 @@ public class UsersService : IUsersService {
 
       var user = await _userRepository.GetByIdAsync(tokenControl.IdObject);
       if (user == null) {
-        throw new CustomError("User not found.");
+        throw new CustomError("User not found.", 404);
       }
 
       if (user.Status != (int)EUserStatus.Inactive) {
@@ -152,7 +152,7 @@ public class UsersService : IUsersService {
   public async Task<MessageDto> ResendActivationEmailAsync(string email) {
     var user = await GetEntityByEmailWithPasswordAsync(new EmailVO(email));
     if (user == null) {
-      throw new CustomError("User not found.");
+      throw new CustomError("User not found.", 404);
     }
 
     if (user.Status == (int)EUserStatus.Active) {
@@ -168,7 +168,7 @@ public class UsersService : IUsersService {
   public async Task<MessageDto> SendPasswordResetEmailAsync(string email) {
     var user = await GetEntityByEmailWithPasswordAsync(new EmailVO(email));
     if (user == null) {
-      throw new CustomError("User not found.");
+      throw new CustomError("User not found.", 404);
     }
 
     if (user.Status != (int)EUserStatus.Active) {
@@ -192,7 +192,7 @@ public class UsersService : IUsersService {
 
       var user = await _userRepository.GetByIdAsync(tokenControl.IdObject);
       if (user == null) {
-        throw new CustomError("User not found.");
+        throw new CustomError("User not found.", 404);
       }
 
       if (dto.Password != dto.ConfirmPassword) {
