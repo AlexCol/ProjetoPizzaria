@@ -16,9 +16,6 @@ public class CreateProductDto {
   public string Description { get; set; }
 
   [Required]
-  public byte Banner { get; set; }
-
-  [Required]
-  [Range(0, long.MaxValue, ErrorMessage = "CategoryId must be a non-negative number.")]
+  [Range(1, long.MaxValue, ErrorMessage = "CategoryId must be a positive number.")]
   public long CategoryId { get; set; }
 }
