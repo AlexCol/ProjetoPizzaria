@@ -1,6 +1,7 @@
 using csharp_p2.src.Extensions;
 using csharp_p2.src.Modules.Infra.Database;
 using csharp_p2.src.Modules.Infra.Cache;
+using csharp_p2.src.Modules.Infra.FileManager;
 
 namespace csharp_p2.src.Config.Builder;
 
@@ -31,6 +32,7 @@ public static class BuilderConfig {
 
     //!adicionando classes para injeções de dependencia
     DependencyInjectionBuilder.AddAutoInjectables(builder);
+    FileManagerBuilder.AddFileManager(builder);
 
     // //!adicionando configurações
     SwaggerBuilder.AddSwagger(builder);

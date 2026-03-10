@@ -13,6 +13,7 @@ public class EnvConfig {
   public Cache Cache { get; private set; }
   public Email Email { get; private set; }
   public Crypto Crypto { get; private set; }
+  public FileManager FileManager { get; private set; }
 
   public EnvConfig(IConfiguration config) {
     LoadVariables(config);
@@ -64,6 +65,11 @@ public class EnvConfig {
     Crypto = new Crypto(
       Secret: config["CRYPTO_SECRET"] ?? ""
     );
+
+    FileManager = new FileManager(
+      Type: config["FILE_MANAGER_TYPE"] ?? "",
+      BasePath: config["FILE_MANAGER_BASE_PATH"] ?? ""
+    );
   }
 }
 
@@ -110,5 +116,10 @@ public record Email(
 
 public record Crypto(
   string Secret
+);
+
+public record FileManager(
+  string Type,
+  string BasePath
 );
 #endregion
