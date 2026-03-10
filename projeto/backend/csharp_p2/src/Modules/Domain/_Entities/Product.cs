@@ -23,7 +23,7 @@ public class Product : BaseEntityWithId {
   [Column("CATEGORY_ID")]
   public long CategoryId { get; set; }
   [ForeignKey("CategoryId")]
-  public Categories Category { get; set; }
+  public Category Category { get; set; }
 }
 
 public static class ProductEntityConfiguration {

@@ -10,7 +10,7 @@ public class BaseDBContext : DbContext {
   public DbSet<Role> Roles { get; set; }
   public DbSet<TokenControl> TokenControls { get; set; }
   public DbSet<User> Users { get; set; }
-  public DbSet<Categories> Categories { get; set; }
+  public DbSet<Category> Categories { get; set; }
   public DbSet<Product> Products { get; set; }
   public DbSet<Order> Orders { get; set; }
   public DbSet<OrderItem> OrderItems { get; set; }
