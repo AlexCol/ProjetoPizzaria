@@ -6,8 +6,8 @@ using csharp_p2.src.Modules.Domain;
 namespace csharp_p2.src.Modules.Infra.Email;
 
 public interface IEmailService {
-  Task SendRegisterEmail(string token, User user);
-  Task SendRecoverPasswordEmail(string token, string email);
+  Task SendRegisterEmailAsync(string token, User user);
+  Task SendRecoverPasswordEmailAsync(string token, string email);
 }
 
 public class EmailService : IEmailService {
@@ -16,7 +16,7 @@ public class EmailService : IEmailService {
     _env = env;
   }
 
-  public async Task SendRegisterEmail(string token, User user) {
+  public async Task SendRegisterEmailAsync(string token, User user) {
     var emailTo = user.Email.Value;
     var subject = "Ativação de cadastro site - Projetos Alexandre";
 
@@ -27,10 +27,10 @@ public class EmailService : IEmailService {
     body += $"<p>Seu cadastro foi realizado com sucesso. Para ativar sua conta, por favor clique no link abaixo.</p>";
     body += $"<a href='{linkAtivaConta}'>Clique aqui para ativar sua conta.</a>";
 
-    await sendEmail(emailTo, subject, body);
+    await SendEmailAsync(emailTo, subject, body);
   }
 
-  public async Task SendRecoverPasswordEmail(string token, string email) {
+  public async Task SendRecoverPasswordEmailAsync(string token, string email) {
     var emailTo = email;
     var subject = "Recuperação de senha - Projetos Alexandre";
 
@@ -43,11 +43,11 @@ public class EmailService : IEmailService {
     body += "<p>Se não mandou a requisição, pode ignorar o email.</p>";
     body += $"<a href='{linkRecuperaConta}'>Clique aqui para recuperar sua senha.</a>";
 
-    await sendEmail(emailTo, subject, body);
+    await SendEmailAsync(emailTo, subject, body);
   }
 
   #region Send email
-  private async Task sendEmail(string emailTo, string subject, string body) {
+  private async Task SendEmailAsync(string emailTo, string subject, string body) {
     var emailConfig = _env.Email;
     using var smtpClient = new SmtpClient(emailConfig.Host) {
       Port = emailConfig.Port,

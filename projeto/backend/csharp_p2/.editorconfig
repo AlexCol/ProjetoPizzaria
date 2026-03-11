@@ -15,7 +15,7 @@ trim_trailing_whitespace = true
 # ### se abrir no Visual Studio (não o Code), vai ter várias opções prontas, as abaixo eu montei, mas no fim do arquivo tem tres exemplos pegos do vistual studio
 
 # ######### Erros para travar Build.
-dotnet_diagnostic.IDE1006.severity = none
+## dotnet_diagnostic.IDE1006.severity = none ## esse aqui valida as convenções de nomenclatura (criadas abaixo) não pode ser desativada.
 dotnet_diagnostic.IDE0005.severity = warning
 dotnet_diagnostic.IDE0055.severity = warning
 dotnet_diagnostic.IDE0065.severity = warning

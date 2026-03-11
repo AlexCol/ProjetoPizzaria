@@ -16,7 +16,7 @@ public class ProductsController : ControllerBase {
   [EndpointDescription("Returns a list of all products in the system")]
   [ProducesResponseType(typeof(IEnumerable<Product>), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
-  public async Task<ActionResult<IEnumerable<Product>>> GetAll() {
+  public async Task<ActionResult<IEnumerable<Product>>> GetAllAsync() {
     var products = await _service.GetAllProductsAsync();
     return Ok(products);
   }
@@ -27,7 +27,7 @@ public class ProductsController : ControllerBase {
   [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
-  public async Task<ActionResult<Product>> GetById(long id) {
+  public async Task<ActionResult<Product>> GetByIdAsync(long id) {
     var product = await _service.GetProductByIdAsync(id);
     if (product == null) {
       return NotFound(new ErrorResponseDto("Product not found"));
@@ -41,7 +41,7 @@ public class ProductsController : ControllerBase {
   [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
-  public async Task<ActionResult<Product>> Create([FromForm] CreateProductDto dto, IFormFile image) {
+  public async Task<ActionResult<Product>> CreateAsync([FromForm] CreateProductDto dto, IFormFile image) {
     var product = await _service.CreateProductAsync(dto, image);
     return Ok(product);
   }

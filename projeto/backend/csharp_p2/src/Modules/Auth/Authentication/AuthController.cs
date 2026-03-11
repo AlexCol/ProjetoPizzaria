@@ -28,13 +28,13 @@ public class AuthController : ControllerBase {
   [EndpointDescription("Permite que um usuário faça login, retornando os detalhes da sessão. Cookies Http adicionado com Token da sessão.")]
   [ProducesResponseType(typeof(UserSessionPayload), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
-  public async Task<IActionResult> Login([FromBody] LoginDto loginDto) {
+  public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto) {
     var appOrigin = Request.GetEntryPoint();
     if (appOrigin != "web") {
       throw new CustomError("Este endpoint é destinado apenas para aplicativos web. Use /api/auth/login-app para mobile.");
     }
 
-    var auth = await _authService.Login(loginDto);
+    var auth = await _authService.LoginAsync(loginDto);
 
     var rememberMeValue = Request.GetHeaderValue("remember-me");
     var rememberMe = bool.TryParse(rememberMeValue, out var parsed) && parsed;
@@ -50,13 +50,13 @@ public class AuthController : ControllerBase {
   [EndpointDescription("Permite que usuários façam login a partir de aplicativos móveis, retornando um token de sessão no corpo da resposta.")]
   [ProducesResponseType(typeof(MobileLoginResponseDto), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
-  public async Task<IActionResult> LoginApp([FromBody] LoginDto loginDto) {
+  public async Task<IActionResult> LoginAppAsync([FromBody] LoginDto loginDto) {
     var appOrigin = Request.GetEntryPoint();
     if (appOrigin != "mobile") {
       throw new CustomError("Este endpoint é destinado apenas para aplicativos móveis. Use /api/auth/login para web.");
     }
 
-    var auth = await _authService.Login(loginDto);
+    var auth = await _authService.LoginAsync(loginDto);
 
     var response = new MobileLoginResponseDto {
       UserSessionPayload = auth.UserSessionPayload,
@@ -74,7 +74,7 @@ public class AuthController : ControllerBase {
   [EndpointDescription("Permite que o usuário faça logout da sessão atual, destruindo o token associado.")]
   [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
-  public async Task<IActionResult> Logout() {
+  public async Task<IActionResult> LogoutAsync() {
     var token = HttpContext.GetSessionToken();
     var haveToken = !string.IsNullOrWhiteSpace(token);
     if (haveToken) {
@@ -90,7 +90,7 @@ public class AuthController : ControllerBase {
   [EndpointDescription("Permite que o usuário faça logout de todas as suas sessões ativas.")]
   [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
-  public async Task<IActionResult> LogoutAll() {
+  public async Task<IActionResult> LogoutAllAsync() {
     var session = HttpContext.GetSessionPayload();
     if (session != null) {
       await _sessionCacheService.DestroySessionsByUserIdAsync(session.User.Id);
@@ -108,7 +108,7 @@ public class AuthController : ControllerBase {
   [EndpointSummary("Obter os detalhes da sessão atual.")]
   [ProducesResponseType(typeof(UserSessionPayload), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
-  public async Task<IActionResult> GetSession() {
+  public async Task<IActionResult> GetSessionAsync() {
     var token = HttpContext.GetSessionToken();
     var haveToken = !string.IsNullOrWhiteSpace(token);
     if (!haveToken) {
@@ -134,7 +134,7 @@ public class AuthController : ControllerBase {
   [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
   [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
-  public async Task<IActionResult> LogoutAllUsers() {
+  public async Task<IActionResult> LogoutAllUsersAsync() {
     await _sessionCacheService.DestroyAllSessionsAsync();
     return NoContent();
   }

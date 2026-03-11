@@ -233,7 +233,7 @@ public class UsersService : IUsersService {
       var token = await tokenControlService.RegisterProcessTokenAsync(newUser.Id, Processes.ActivateUser);
 
       var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
-      await emailService.SendRegisterEmail(token, newUser);
+      await emailService.SendRegisterEmailAsync(token, newUser);
     });
   }
 
@@ -246,7 +246,7 @@ public class UsersService : IUsersService {
       var token = await tokenControlService.RegisterProcessTokenAsync(user.Id, Processes.PasswordReset, DateTime.UtcNow.AddMinutes(10));
 
       var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
-      await emailService.SendRecoverPasswordEmail(token, user.Email.Value);
+      await emailService.SendRecoverPasswordEmailAsync(token, user.Email.Value);
     });
   }
   #endregion

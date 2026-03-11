@@ -52,7 +52,7 @@ public class SessionService : ISessionService {
       using var scope = _scopeFactory.CreateScope();
       try {
         var sseService = scope.ServiceProvider.GetRequiredService<ISseService>();
-        await sseService.SendToUserAsync(userId.ToString(), SseEvents.SessionUpdated, null);
+        await sseService.SendToUserAsync(userId.ToString(), ESseEvents.SessionUpdated, null);
       } catch (Exception ex) {
         Log.Error("Error sending session update notification: " + ex.Message);
       }

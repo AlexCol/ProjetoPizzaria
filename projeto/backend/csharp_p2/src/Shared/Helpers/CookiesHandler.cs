@@ -5,7 +5,7 @@ namespace csharp_p2.src.Shared.Helpers;
 
 [Injectable(typeof(CookiesHandler), EServiceLifetimeType.Scoped)]
 public class CookiesHandler {
-  public readonly EnvConfig _envConfig;
+  private readonly EnvConfig _envConfig;
 
   public CookiesHandler(EnvConfig envConfig) {
     _envConfig = envConfig;

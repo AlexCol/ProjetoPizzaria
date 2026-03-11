@@ -16,7 +16,7 @@ public class CategoriesController : ControllerBase {
   [EndpointDescription("Retorna uma lista de todas as categorias cadastradas.")]
   [ProducesResponseType(typeof(IEnumerable<Category>), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
-  public async Task<ActionResult<IEnumerable<Category>>> GetAllCategories() {
+  public async Task<ActionResult<IEnumerable<Category>>> GetAllCategoriesAsync() {
     var categories = await _service.GetAllCategoriesAsync();
     return Ok(categories);
   }
@@ -27,7 +27,7 @@ public class CategoriesController : ControllerBase {
   [ProducesResponseType(typeof(Category), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
-  public async Task<ActionResult<Category>> GetCategoryById(long id) {
+  public async Task<ActionResult<Category>> GetCategoryByIdAsync(long id) {
     var category = await _service.GetCategoryByIdAsync(id);
     if (category == null) {
       return NotFound(new ErrorResponseDto("Category not found."));
@@ -41,7 +41,7 @@ public class CategoriesController : ControllerBase {
   [ProducesResponseType(typeof(MessageDto), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
-  public async Task<ActionResult<MessageDto>> CreateCategory([FromBody] CategoriesDto dto) {
+  public async Task<ActionResult<MessageDto>> CreateCategoryAsync([FromBody] CategoriesDto dto) {
     var message = await _service.CreateCategoryAsync(dto);
     return Ok(new MessageDto(message));
   }
@@ -53,7 +53,7 @@ public class CategoriesController : ControllerBase {
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
-  public async Task<ActionResult<MessageDto>> UpdateCategory(long id, [FromBody] CategoriesDto dto) {
+  public async Task<ActionResult<MessageDto>> UpdateCategoryAsync(long id, [FromBody] CategoriesDto dto) {
     var message = await _service.UpdateCategoryAsync(id, dto);
     return Ok(new MessageDto(message));
   }
@@ -64,7 +64,7 @@ public class CategoriesController : ControllerBase {
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
-  public async Task<IActionResult> DeleteCategory(long id) {
+  public async Task<IActionResult> DeleteCategoryAsync(long id) {
     await _service.DeleteCategoryAsync(id);
     return NoContent();
   }

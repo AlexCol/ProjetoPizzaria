@@ -17,9 +17,10 @@ public class ProductsService : IProductsService {
   private readonly IFileManager _fileManager;
   private readonly IServiceProvider _serviceProvider;
 
-  public ProductsService(IGenericEntityRepository<Product> repository, IFileManager fileManager) {
+  public ProductsService(IGenericEntityRepository<Product> repository, IFileManager fileManager, IServiceProvider serviceProvider) {
     _repository = repository;
     _fileManager = fileManager;
+    _serviceProvider = serviceProvider;
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!GETS
@@ -33,6 +34,21 @@ public class ProductsService : IProductsService {
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CREATE
   public async Task<Product> CreateProductAsync(CreateProductDto dto, IFormFile image) {
+    await ValidateCategoryExistsAsync(dto.CategoryId);
+    await ValidateProductCreationAsync(dto);
+    var product = await SaveProductAsync(dto);
+    await SaveImageAsync(image, product);
+    return product;
+  }
+
+  private async Task ValidateProductCreationAsync(CreateProductDto dto) {
+    var existingProducts = await _repository.FindOneWithPredicateAsync(p => p.Name == dto.Name);
+    if (existingProducts != null) {
+      throw new CustomError("Product with the same name already exists", 400);
+    }
+  }
+
+  private async Task<Product> SaveProductAsync(CreateProductDto dto) {
     var product = new Product {
       Name = dto.Name,
       Price = dto.Price,
@@ -40,18 +56,6 @@ public class ProductsService : IProductsService {
       CategoryId = dto.CategoryId
     };
     await _repository.InsertAsync(product);
-
-    if (image != null && image.Length > 0) {
-      var ext = Path.GetExtension(image.FileName);
-      var fileName = $"{product.Id}{ext}";
-      var modulePath = $"products";
-      using var stream = image.OpenReadStream();
-      await _fileManager.SaveAsync(modulePath, fileName, stream);
-      product.Banner = fileName;
-
-      await _repository.UpdateAsync(product);
-    }
-
     return product;
   }
 
@@ -69,5 +73,25 @@ public class ProductsService : IProductsService {
       throw new CustomError("Cannot delete product that is part of an order", 400);
 
     await _repository.DeleteAsync(product.Id);
+  }
+
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!PRIVATES
+  private async Task ValidateCategoryExistsAsync(long categoryId) {
+    var categoriesService = _serviceProvider.GetService<ICategoriesService>();
+    var category = await categoriesService.GetCategoryByIdAsync(categoryId);
+    if (category == null) {
+      throw new CustomError("Category not found", 404);
+    }
+  }
+
+  private async Task SaveImageAsync(IFormFile image, Product product) {
+    var ext = Path.GetExtension(image.FileName);
+    var fileName = $"{product.Id}{ext}";
+    var modulePath = $"products";
+    using var stream = image.OpenReadStream();
+    await _fileManager.SaveAsync(modulePath, fileName, stream);
+    product.Banner = fileName;
+
+    await _repository.UpdateAsync(product);
   }
 }

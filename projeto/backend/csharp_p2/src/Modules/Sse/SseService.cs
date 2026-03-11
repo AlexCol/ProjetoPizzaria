@@ -5,11 +5,11 @@ namespace csharp_p2.src.Modules.Sse;
 
 public interface ISseService {
   Task ConnectAsync(string userId, HttpContext context, CancellationToken ct);
-  Task SendToUserAsync(string userId, SseEvents sseEvent, object message, CancellationToken ct = default);
-  Task SendToAllAsync(SseEvents sseEvent, object message, CancellationToken ct = default);
+  Task SendToUserAsync(string userId, ESseEvents sseEvent, object message, CancellationToken ct = default);
+  Task SendToAllAsync(ESseEvents sseEvent, object message, CancellationToken ct = default);
   ActiveConnectionsDto GetActiveConnections();
   void DisconnectUser(string userId);
-  SseEvents TransformEventOrThrow(string eventName);
+  ESseEvents TransformEventOrThrow(string eventName);
 }
 
 [Injectable(EServiceLifetimeType.Singleton)]
@@ -52,7 +52,7 @@ public class SseService : ISseService {
   /*****************************************************************************/
   /* Envia mensagem para um usuário específico                                 */
   /*****************************************************************************/
-  public async Task SendToUserAsync(string userId, SseEvents sseEvent, object message, CancellationToken ct = default) {
+  public async Task SendToUserAsync(string userId, ESseEvents sseEvent, object message, CancellationToken ct = default) {
     if (!_connections.TryGetValue(userId, out var userConnections) || userConnections.Count == 0) return;
 
     var sseMessage = new SseMessage(sseEvent, message);
@@ -75,7 +75,7 @@ public class SseService : ISseService {
   /*****************************************************************************/
   /* Envia mensagem para todos os usuários conectados                          */
   /*****************************************************************************/
-  public async Task SendToAllAsync(SseEvents sseEvent, object message, CancellationToken ct = default) {
+  public async Task SendToAllAsync(ESseEvents sseEvent, object message, CancellationToken ct = default) {
     foreach (var userId in _connections.Keys) {
       await SendToUserAsync(userId, sseEvent, message, ct);
     }
@@ -106,12 +106,12 @@ public class SseService : ISseService {
         RemoveConnection(userId, connection.ConnectionId);
   }
 
-  public SseEvents TransformEventOrThrow(string eventName) {
-    if (!Enum.IsDefined(typeof(SseEvents), eventName)) {
-      throw new ArgumentException("Evento inválido. Valores válidos: " + string.Join(", ", Enum.GetNames(typeof(SseEvents))));
+  public ESseEvents TransformEventOrThrow(string eventName) {
+    if (!Enum.IsDefined(typeof(ESseEvents), eventName)) {
+      throw new ArgumentException("Evento inválido. Valores válidos: " + string.Join(", ", Enum.GetNames(typeof(ESseEvents))));
     }
 
-    return Enum.Parse<SseEvents>(eventName);
+    return Enum.Parse<ESseEvents>(eventName);
   }
   #endregion
 

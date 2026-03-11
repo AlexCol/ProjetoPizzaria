@@ -8,7 +8,7 @@ public class LocalFileManager : IFileManager {
 
   public LocalFileManager(EnvConfig env) {
     _env = env;
-    _basePath = Path.GetFullPath(_env.FileManager.BasePath);
+    _basePath = PrepareBasePath();
   }
 
   /************************************************************************/
@@ -106,6 +106,20 @@ public class LocalFileManager : IFileManager {
       throw new InvalidOperationException("Invalid file path.");
 
     return fullPath;
+  }
+
+  private string PrepareBasePath() {
+    string basePath;
+
+    var configured = _env?.FileManager?.BasePath ?? string.Empty;
+    if (string.IsNullOrWhiteSpace(configured) || configured == "/" || configured == "\\") {
+      var projectRoot = Directory.GetCurrentDirectory();
+      basePath = Path.GetFullPath(Path.Combine(projectRoot, "images"));
+    } else {
+      basePath = Path.GetFullPath(configured);
+    }
+
+    return basePath;
   }
 }
 

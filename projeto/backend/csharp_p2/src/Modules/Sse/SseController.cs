@@ -18,7 +18,7 @@ public class SseController : ControllerBase {
   [HttpGet("connect")]
   [EndpointSummary("Estabelece uma conexão SSE para o usuário autenticado.")]
   [EndpointDescription("Este endpoint é usado para estabelecer uma conexão SSE (Server-Sent Events) para o usuário autenticado. O cliente deve manter a conexão aberta para receber eventos em tempo real do servidor.")]
-  public async Task Connect(CancellationToken ct) {
+  public async Task ConnectAsync(CancellationToken ct) {
     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
     if (string.IsNullOrWhiteSpace(userId)) {
       Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -37,7 +37,7 @@ public class SseController : ControllerBase {
   [Authorize(Roles = "Admin")]
   [HttpPost("send-message/{userId}")]
   [ApiExplorerSettings(IgnoreApi = true)]
-  public async Task<IActionResult> SendMessageToUserId(
+  public async Task<IActionResult> SendMessageToUserIdAsync(
     [FromRoute] string userId,
     [FromBody] SseMessageDto sseEvent, CancellationToken ct
   ) {
@@ -50,7 +50,7 @@ public class SseController : ControllerBase {
   [Authorize(Roles = "Admin")]
   [HttpPost("send-message/all")]
   [ApiExplorerSettings(IgnoreApi = true)]
-  public async Task<IActionResult> SendMessageToAll(
+  public async Task<IActionResult> SendMessageToAllAsync(
   [FromBody] SseMessageDto sseEvent, CancellationToken ct
 ) {
     var enumEvent = _sseService.TransformEventOrThrow(sseEvent.Event);

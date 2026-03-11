@@ -7,7 +7,7 @@ using csharp_p2.src.Modules.Session;
 namespace csharp_p2.src.Modules.Auth.Authentication;
 
 public static class SessionAuthDefaults {
-  public const string Scheme = "SessionToken";
+  public const string SCHEME = "SessionToken";
 }
 
 public class SessionAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions> {
@@ -40,9 +40,9 @@ public class SessionAuthHandler : AuthenticationHandler<AuthenticationSchemeOpti
       new(ClaimTypes.Role, session.Payload.User.Role?.Name ?? "")
     };
 
-    var identity = new ClaimsIdentity(claims, SessionAuthDefaults.Scheme);
+    var identity = new ClaimsIdentity(claims, SessionAuthDefaults.SCHEME);
     var principal = new ClaimsPrincipal(identity);
-    var ticket = new AuthenticationTicket(principal, SessionAuthDefaults.Scheme);
+    var ticket = new AuthenticationTicket(principal, SessionAuthDefaults.SCHEME);
 
     Context.Items["session_payload"] = session.Payload; // equivalente ao req.user.payload
     Context.Items["session_token"] = token; // armazena o token no contexto para uso posterior (ex: logout)
