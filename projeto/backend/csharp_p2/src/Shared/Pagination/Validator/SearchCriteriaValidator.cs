@@ -10,18 +10,23 @@ public class SearchCriteriaRequestValidator<T> : AbstractValidator<SearchCriteri
   public SearchCriteriaRequestValidator() {
     var allowedFields = typeof(T).GetProperties().Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
+    //! Validação para Paginação
     RuleFor(x => x.Pagination!.Page)
       .GreaterThanOrEqualTo(1)
+      .WithMessage("Page deve ser maior ou igual a 1")
       .When(x => x.Pagination is not null);
 
     RuleFor(x => x.Pagination!.Limit)
       .InclusiveBetween(1, 200)
+      .WithMessage("Limit deve ser entre 1 e 200")
       .When(x => x.Pagination is not null);
 
+    //! Validação para Ordenação
     RuleForEach(x => x.Sort!)
       .ChildRules(sort => {
         sort.RuleFor(s => s.Field)
           .NotEmpty()
+          .WithMessage("Sort field nao pode ser vazio")
           .Must(f => allowedFields.Contains(f))
           .WithMessage("Sort field invalido");
 
@@ -32,16 +37,18 @@ public class SearchCriteriaRequestValidator<T> : AbstractValidator<SearchCriteri
       })
       .When(x => x.Sort is not null);
 
+    //! Validação para Filtros
     RuleForEach(x => x.Where!)
       .ChildRules(filter => {
         filter.RuleFor(f => f.Field)
           .NotEmpty()
+          .WithMessage("Field nao pode ser vazio")
           .Must(f => allowedFields.Contains(f))
-          .WithMessage("Filter field invalido");
+          .WithMessage("Field invalido");
 
         filter.RuleFor(f => f.Value)
           .NotEmpty()
-          .WithMessage("Filter value nao pode ser vazio");
+          .WithMessage("Value nao pode ser vazio");
 
         filter.RuleFor(f => f.Operator)
           .Must(op => op is null || _allowedOperators.Contains(op))

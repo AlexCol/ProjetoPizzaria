@@ -1,4 +1,5 @@
 using csharp_p2.src.Shared.DTOs;
+using csharp_p2.src.Shared.Exceptions;
 using csharp_p2.src.Shared.Pagination;
 using Microsoft.AspNetCore.Authorization;
 
@@ -47,6 +48,7 @@ public class AppController : ControllerBase {
   [HttpPost("test-search")]
   [ApiExplorerSettings(IgnoreApi = true)]
   public async Task<IActionResult> TestSearchAsync([FromBody] SearchCriteriaRequest<CategoriesDto> request) {
+    throw new CustomError("bah");
     return Ok("ok");
   }
 }

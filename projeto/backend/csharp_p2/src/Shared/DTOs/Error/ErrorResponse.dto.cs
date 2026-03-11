@@ -4,7 +4,7 @@ public class ErrorResponseDto {
   public ErrorResponseDto(string errorMessage) {
     var errors = errorMessage.Split(";");
     foreach (var error in errors) {
-      Message.Add(error);
+      this.Message.Add(error);
     }
   }
 
@@ -21,7 +21,7 @@ public class ErrorResponseDto {
     }
   }
 
-  public List<string> Message { get; set; } = new List<string>();
+  public List<string> Message { get; set; } = [];
 
   public override string ToString() {
     string error = "";
