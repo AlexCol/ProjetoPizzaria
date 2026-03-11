@@ -29,7 +29,7 @@ public class ProductsService : IProductsService {
   }
 
   public async Task<Product> GetProductByIdAsync(long id) {
-    return await _repository.GetByIdAsync(id);
+    return await _repository.GetByIdWithReferencesAsync(id);
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CREATE
@@ -37,7 +37,8 @@ public class ProductsService : IProductsService {
     await ValidateCategoryExistsAsync(dto.CategoryId);
     await ValidateProductCreationAsync(dto);
     var product = await SaveProductAsync(dto);
-    await SaveImageAsync(image, product);
+    if (image != null)
+      await SaveImageAsync(image, product);
     return product;
   }
 
@@ -85,13 +86,18 @@ public class ProductsService : IProductsService {
   }
 
   private async Task SaveImageAsync(IFormFile image, Product product) {
-    var ext = Path.GetExtension(image.FileName);
-    var fileName = $"{product.Id}{ext}";
-    var modulePath = $"products";
-    using var stream = image.OpenReadStream();
-    await _fileManager.SaveAsync(modulePath, fileName, stream);
-    product.Banner = fileName;
+    try {
+      var ext = Path.GetExtension(image.FileName);
+      var fileName = $"{product.Id}{ext}";
+      var modulePath = $"products";
+      using var stream = image.OpenReadStream();
+      await _fileManager.SaveAsync(modulePath, fileName, stream);
+      product.Banner = fileName;
 
-    await _repository.UpdateAsync(product);
+      await _repository.UpdateAsync(product);
+    } catch (Exception ex) {
+      //não travar a criação do produto se a imagem falhar, apenas logar o erro
+      Log.Error($"Failed to save product image: {ex.Message}");
+    }
   }
 }

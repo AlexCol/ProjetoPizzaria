@@ -31,6 +31,14 @@ public class GenericEntityRepository<T> : IGenericEntityRepository<T> where T : 
   public async Task<IEnumerable<T>> GetAllAsync(int page = 1, int pageSize = 20) {
     return await _context.Set<T>()
       .AsNoTracking()
+      .Skip((page - 1) * pageSize)
+      .Take(pageSize)
+      .ToListAsync();
+  }
+
+  public async Task<IEnumerable<T>> GetAllWithReferencesAsync(int page = 1, int pageSize = 20) {
+    return await _context.Set<T>()
+      .AsNoTracking()
       .IncludeAll()
       .Skip((page - 1) * pageSize)
       .Take(pageSize)

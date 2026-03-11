@@ -8,6 +8,7 @@ public interface IGenericEntityRepository<T> where T : BaseEntityWithId {
   Task<T> GetByIdAsync(long id);
   Task<T> GetByIdWithReferencesAsync(long id);
   Task<IEnumerable<T>> GetAllAsync(int page = 1, int pageSize = 20);
+  Task<IEnumerable<T>> GetAllWithReferencesAsync(int page = 1, int pageSize = 20);
   Task<T> FindOneWithPredicateAsync(Expression<Func<T, bool>> predicate);
   Task<T> FindOneWithPredicateWithReferencesAsync(Expression<Func<T, bool>> predicate);
   Task<IEnumerable<T>> SearchWithPredicateAsync(Expression<Func<T, bool>> predicate, int page = 1, int pageSize = 20);
