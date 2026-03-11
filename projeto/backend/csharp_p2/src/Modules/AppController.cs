@@ -1,3 +1,5 @@
+using csharp_p2.src.Shared.DTOs;
+using csharp_p2.src.Shared.Pagination;
 using Microsoft.AspNetCore.Authorization;
 
 namespace csharp_p2.src.Modules;
@@ -39,5 +41,12 @@ public class AppController : ControllerBase {
   public async Task<IActionResult> RunSeedsAsync() {
     await _appService.RunSeedsAsync();
     return Ok(new { message = "Seeds executed successfully" });
+  }
+
+  [AllowAnonymous]
+  [HttpPost("test-search")]
+  [ApiExplorerSettings(IgnoreApi = true)]
+  public async Task<IActionResult> TestSearchAsync([FromBody] SearchCriteriaRequest<CategoriesDto> request) {
+    return Ok("ok");
   }
 }
