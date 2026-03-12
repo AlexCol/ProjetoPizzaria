@@ -1,4 +1,5 @@
 using csharp_p2.src.Shared.DTOs;
+using csharp_p2.src.Shared.Pagination;
 using Microsoft.AspNetCore.Authorization;
 
 namespace csharp_p2.src.Modules.Domain.Roles;
@@ -23,12 +24,14 @@ public class RolesController : ControllerBase {
     return Ok(role);
   }
 
-  [HttpGet]
+  [HttpPost("search")]
   [EndpointSummary("Obter Todas as Roles")]
   [EndpointDescription("Retorna uma lista de todas as roles.")]
   [ProducesResponseType(typeof(IEnumerable<RoleDto>), StatusCodes.Status200OK)]
-  public async Task<IActionResult> GetAllRolesAsync() {
-    var roles = await _rolesService.GetAllRolesAsync();
+  public async Task<IActionResult> GetAllRolesAsync(
+    [FromBody] SearchCriteriaRequest<Role> searchCriteria
+  ) {
+    var roles = await _rolesService.GetAllRolesAsync(searchCriteria);
     return Ok(roles);
   }
 

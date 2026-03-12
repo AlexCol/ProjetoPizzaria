@@ -1,13 +1,14 @@
 using csharp_p2.src.Modules.Session;
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Exceptions;
+using csharp_p2.src.Shared.Pagination;
 
 namespace csharp_p2.src.Modules.Domain;
 
 public interface IRolesService {
   Task<Role> CreateRoleAsync(RoleDto dto);
   Task<Role> GetRoleByIdAsync(long id);
-  Task<IEnumerable<Role>> GetAllRolesAsync();
+  Task<IEnumerable<Role>> GetAllRolesAsync(SearchCriteriaRequest<Role> searchCriteria);
   Task<Role> UpdateRoleAsync(long id, RoleDto dto);
   Task<bool> DeleteRoleAsync(long id);
 }
@@ -24,8 +25,8 @@ public class RolesService : IRolesService {
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!GETS
-  public async Task<IEnumerable<Role>> GetAllRolesAsync() {
-    var roles = await _roleRepository.GetAllAsync();
+  public async Task<IEnumerable<Role>> GetAllRolesAsync(SearchCriteriaRequest<Role> searchCriteria) {
+    var roles = await _roleRepository.GetWithSearchCriteriaAsync(searchCriteria);
     return roles;
 
   }

@@ -1,10 +1,14 @@
 using System.Linq.Expressions;
 using csharp_p2.src.Modules.Infra.Database;
+using csharp_p2.src.Shared.Pagination;
 
 namespace csharp_p2.src.Modules.Domain;
 
 public interface IGenericEntityRepository<T> where T : BaseEntityWithId {
   BaseDBContext GetContext();
+
+  Task<IEnumerable<T>> GetWithSearchCriteriaAsync(SearchCriteriaRequest<T> criteria);
+  Task<IEnumerable<T>> GetWithSearchCriteriaWithReferencesAsync(SearchCriteriaRequest<T> criteria);
 
   Task<T> GetByIdAsync(long id);
   Task<T> GetByIdWithReferencesAsync(long id);

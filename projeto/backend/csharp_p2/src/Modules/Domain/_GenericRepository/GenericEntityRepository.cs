@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
 using System.Reflection;
 using csharp_p2.src.Modules.Infra.Database;
+using csharp_p2.src.Shared.Pagination;
 using Microsoft.EntityFrameworkCore;
 
 namespace csharp_p2.src.Modules.Domain;
@@ -18,6 +19,18 @@ public class GenericEntityRepository<T> : IGenericEntityRepository<T> where T : 
 
   public BaseDBContext GetContext() {
     return _context;
+  }
+
+  public async Task<IEnumerable<T>> GetWithSearchCriteriaAsync(SearchCriteriaRequest<T> criteria) {
+    IQueryable<T> query = _context.Set<T>().AsNoTracking();
+    var items = await query.ApplySearch(criteria).ToListAsync();
+    return items;
+  }
+
+  public async Task<IEnumerable<T>> GetWithSearchCriteriaWithReferencesAsync(SearchCriteriaRequest<T> criteria) {
+    IQueryable<T> query = _context.Set<T>().AsNoTracking().IncludeAll();
+    var items = await query.ApplySearch(criteria).ToListAsync();
+    return items;
   }
 
   public async Task<T> GetByIdAsync(long id) {
