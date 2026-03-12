@@ -1,4 +1,3 @@
-using csharp_p2.src.Shared.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -22,15 +21,10 @@ public sealed class SearchCriteriaValidationFilter : IAsyncActionFilter {
 
       var result = validator.Validate(new ValidationContext<object>(arg));
       if (!result.IsValid) {
-        var errors = result.Errors.Select(e => new {
-          field = e.PropertyName,
-          message = e.ErrorMessage
-        });
-        //  var errors = result.Errors
-        // .Select(e => $"{e.PropertyName}: {e.ErrorMessage}")
-        // .ToArray();
+        var errors = result.Errors
+       .Select(e => $"{e.PropertyName}: {e.ErrorMessage}")
+       .ToArray();
 
-        throw new CustomError("bah2");
         context.Result = new BadRequestObjectResult(new { errors });
         return;
       }
