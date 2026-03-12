@@ -42,9 +42,22 @@ public class ProductsController : ControllerBase {
   [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
-  [FileValidation(MaxBytes = 2 * 1024 * 1024, AllowedExtensions = new[] { ".jpg", ".png" }, Optional = false)]
+  [FileValidation(MaxBytes = 2 * 1024 * 1024, AllowedExtensions = [".jpg", ".png"], Optional = false)]
   public async Task<ActionResult<Product>> CreateAsync([FromForm] CreateProductDto dto, IFormFile image) {
     var product = await _service.CreateProductAsync(dto, image);
     return Ok(product);
+  }
+
+  [HttpPatch("{id}")]
+  [EndpointSummary("Update an existing product")]
+  [EndpointDescription("Updates an existing product with the provided data")]
+  [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+  [FileValidation(MaxBytes = 2 * 1024 * 1024, AllowedExtensions = [".jpg", ".png"], Optional = true)]
+  public async Task<ActionResult<string>> UpdateAsync(long id, [FromForm] UpdateProductDto dto, IFormFile image) {
+    var result = await _service.UpdateProductAsync(id, dto, image);
+    return Ok(result);
   }
 }

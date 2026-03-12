@@ -8,7 +8,7 @@ public interface IProductsService {
   Task<IEnumerable<Product>> GetAllProductsAsync();
   Task<Product> GetProductByIdAsync(long id);
   Task<Product> CreateProductAsync(CreateProductDto dto, IFormFile image);
-  // Task<string> UpdateProductAsync(long id, ProductsDto product);
+  Task<MessageDto> UpdateProductAsync(long id, UpdateProductDto product, IFormFile image);
   Task DeleteProductAsync(long id);
 }
 
@@ -34,15 +34,15 @@ public class ProductsService : IProductsService {
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CREATE
   public async Task<Product> CreateProductAsync(CreateProductDto dto, IFormFile image) {
-    await ValidateCategoryExistsAsync(dto.CategoryId);
     await ValidateProductCreationAsync(dto);
     var product = await SaveProductAsync(dto);
-    if (image != null)
-      await SaveImageAsync(image, product);
+    await SaveImageAsync(image, product);
     return product;
   }
 
   private async Task ValidateProductCreationAsync(CreateProductDto dto) {
+    await ValidateCategoryExistsAsync(dto.CategoryId);
+
     var existingProducts = await _repository.FindOneWithPredicateAsync(p => p.Name == dto.Name);
     if (existingProducts != null) {
       throw new CustomError("Product with the same name already exists", 400);
@@ -61,6 +61,58 @@ public class ProductsService : IProductsService {
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!UPDATE
+  public async Task<MessageDto> UpdateProductAsync(long id, UpdateProductDto dto, IFormFile image) {
+    var product = await _repository.GetByIdAsync(id);
+    if (product == null) {
+      throw new CustomError("Product not found", 404);
+    }
+
+    await ValidateProductUpdateAsync(id, dto);
+    await UpdateProductAsync(dto, product);
+    await SaveImageAsync(image, product);
+
+    return new MessageDto("Product updated successfully");
+  }
+
+  private async Task ValidateProductUpdateAsync(long id, UpdateProductDto dto) {
+    if (dto.CategoryId is not null) {
+      await ValidateCategoryExistsAsync(dto.CategoryId.Value);
+    }
+
+    var existingProducts = await _repository.FindOneWithPredicateAsync(p => p.Name == dto.Name && p.Id != id);
+    if (existingProducts != null) {
+      throw new CustomError("Product with the same name already exists", 400);
+    }
+  }
+
+  private async Task UpdateProductAsync(UpdateProductDto dto, Product existingProduct) {
+    var needUpdate = false;
+
+    if (dto.Name != null && dto.Name != existingProduct.Name) {
+      existingProduct.Name = dto.Name;
+      needUpdate = true;
+    }
+    if (dto.Price.HasValue) {
+      existingProduct.Price = dto.Price.Value;
+      needUpdate = true;
+    }
+    if (dto.Description != null) {
+      existingProduct.Description = dto.Description;
+      needUpdate = true;
+    }
+    if (dto.Disabled.HasValue) {
+      existingProduct.Disabled = dto.Disabled.Value;
+      needUpdate = true;
+    }
+    if (dto.CategoryId.HasValue) {
+      existingProduct.CategoryId = dto.CategoryId.Value;
+      needUpdate = true;
+    }
+
+    if (needUpdate) {
+      await _repository.UpdateAsync(existingProduct);
+    }
+  }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!DELETE
   public async Task DeleteProductAsync(long id) {
@@ -86,11 +138,18 @@ public class ProductsService : IProductsService {
   }
 
   private async Task SaveImageAsync(IFormFile image, Product product) {
+    if (image == null) {
+      return;
+    }
+
     try {
       var ext = Path.GetExtension(image.FileName);
       var fileName = $"{product.Id}{ext}";
       var modulePath = $"products";
       using var stream = image.OpenReadStream();
+      if (product.Banner != null) {
+        await _fileManager.DeleteAsync(modulePath, product.Banner);
+      }
       await _fileManager.SaveAsync(modulePath, fileName, stream);
       product.Banner = fileName;
 
