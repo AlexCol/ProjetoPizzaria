@@ -1,3 +1,4 @@
+using System.Collections;
 using FluentValidation;
 
 namespace csharp_p2.src.Shared.Pagination;
@@ -48,7 +49,21 @@ public class SearchCriteriaRequestValidator<T> : AbstractValidator<SearchCriteri
 
         filter.RuleFor(f => f.Value)
           .NotEmpty()
-          .WithMessage("Value nao pode ser vazio");
+          .WithMessage("Value nao pode ser vazio")
+          .Must((filtro, value) => {
+            var isIn = string.Equals(filtro.Operator, "in", StringComparison.OrdinalIgnoreCase);
+            if (!isIn) return true;
+
+            if (value is null) return false;
+
+            if (value is JsonElement je) // Quando vem do JSON como object, normalmente chega como JsonElement
+              return je.ValueKind == JsonValueKind.Array;
+
+            if (value is string) return false; // string implementa IEnumerable, mas nao deve ser aceita como array para operador in
+
+            return value is IEnumerable;
+          })
+          .WithMessage("Quando Operator for 'in', Value deve ser um array");
 
         filter.RuleFor(f => f.Operator)
           .Must(op => op is null || _allowedOperators.Contains(op))
