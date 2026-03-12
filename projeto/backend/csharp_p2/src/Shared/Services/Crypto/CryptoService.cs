@@ -22,15 +22,16 @@ public class CryptoService : ICryptoService {
     return builder.ToString();
   }
 
-  public string Decrypt(string encryptedValue) {
+  public string Decrypt(string encryptedValue, string secretKey = null) {
+    var key = secretKey ?? _secretKey;
     try {
       using (Aes aesAlg = Aes.Create()) {
-        aesAlg.Key = Encoding.UTF8.GetBytes(_secretKey);
+        aesAlg.Key = Encoding.UTF8.GetBytes(key);
         aesAlg.Mode = CipherMode.CBC;
         aesAlg.Padding = PaddingMode.PKCS7;
 
         byte[] iv = new byte[aesAlg.BlockSize / 8];
-        Array.Copy(Encoding.UTF8.GetBytes(_secretKey), iv, iv.Length);
+        Array.Copy(Encoding.UTF8.GetBytes(key), iv, iv.Length);
         aesAlg.IV = iv;
 
         ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
@@ -48,18 +49,19 @@ public class CryptoService : ICryptoService {
     }
   }
 
-  public T Decrypt<T>(string encryptedValue) {
-    return JsonSerializer.Deserialize<T>(Decrypt(encryptedValue));
+  public T Decrypt<T>(string encryptedValue, string secretKey = null) {
+    return JsonSerializer.Deserialize<T>(Decrypt(encryptedValue, secretKey));
   }
 
-  public string Encrypt<T>(T data) {
+  public string Encrypt<T>(T data, string secretKey = null) {
+    var key = secretKey ?? _secretKey;
     using (Aes aesAlg = Aes.Create()) {
-      aesAlg.Key = Encoding.UTF8.GetBytes(_secretKey);
+      aesAlg.Key = Encoding.UTF8.GetBytes(key);
       aesAlg.Mode = CipherMode.CBC;
       aesAlg.Padding = PaddingMode.PKCS7;
 
       byte[] iv = new byte[aesAlg.BlockSize / 8];
-      Array.Copy(Encoding.UTF8.GetBytes(_secretKey), iv, iv.Length);
+      Array.Copy(Encoding.UTF8.GetBytes(key), iv, iv.Length);
       aesAlg.IV = iv;
 
       ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
