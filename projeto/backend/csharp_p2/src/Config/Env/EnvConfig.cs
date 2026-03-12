@@ -68,7 +68,9 @@ public class EnvConfig {
 
     FileManager = new FileManager(
       Type: config["FILE_MANAGER_TYPE"] ?? "",
-      BasePath: config["FILE_MANAGER_BASE_PATH"] ?? ""
+      BasePath: config["FILE_MANAGER_BASE_PATH"] ?? "",
+      MaxBytes: long.TryParse(config["FILEX_MAX_BYTES"], out var maxBytes) ? maxBytes : 0,
+      AllowedExtensions: (config["FILEX_ALLOWED_EXTENSIONS"] ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries)
     );
   }
 }
@@ -120,6 +122,8 @@ public record Crypto(
 
 public record FileManager(
   string Type,
-  string BasePath
+  string BasePath,
+  long MaxBytes,
+  string[] AllowedExtensions
 );
 #endregion

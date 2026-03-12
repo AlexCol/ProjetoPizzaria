@@ -43,3 +43,5 @@ CRYPTO_SECRET=sua-chave-secreta-aqui
 ########## File Manager
 FILE_MANAGER_TYPE=Local
 FILE_MANAGER_BASE_PATH=/
+FILEX_MAX_BYTES=5242880
+FILEX_ALLOWED_EXTENSIONS=.jpg,.jpeg,.png,.webp

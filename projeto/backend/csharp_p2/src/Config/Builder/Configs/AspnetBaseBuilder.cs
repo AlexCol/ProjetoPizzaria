@@ -1,3 +1,4 @@
+using csharp_p2.src.Shared.Filters;
 using csharp_p2.src.Shared.Pagination;
 using System.Text.Json.Serialization;
 
@@ -9,7 +10,10 @@ public static class AspnetBaseBuilder {
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddControllers(options => {
       options.ModelBinderProviders.Insert(0, new SearchCriteriaFromQueryBinderProvider());
+
       options.Filters.Add<SearchCriteriaValidationFilter>();
+      options.Filters.Add<FileValidationFilter>();
+
       options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true; //* Remove a validação automática do ModelState (pra poder usar NotNull e não impedir o envio do json)
 
     })

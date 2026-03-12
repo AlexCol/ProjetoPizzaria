@@ -1,4 +1,5 @@
 using csharp_p2.src.Shared.DTOs;
+using csharp_p2.src.Shared.Filters;
 
 namespace csharp_p2.src.Modules.Domain.Products;
 
@@ -41,6 +42,7 @@ public class ProductsController : ControllerBase {
   [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
+  [FileValidation(MaxBytes = 2 * 1024 * 1024, AllowedExtensions = new[] { ".jpg", ".png" }, Optional = false)]
   public async Task<ActionResult<Product>> CreateAsync([FromForm] CreateProductDto dto, IFormFile image) {
     var product = await _service.CreateProductAsync(dto, image);
     return Ok(product);
