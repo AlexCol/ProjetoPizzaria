@@ -21,16 +21,46 @@ public class GenericEntityRepository<T> : IGenericEntityRepository<T> where T : 
     return _context;
   }
 
-  public async Task<IEnumerable<T>> GetWithSearchCriteriaAsync(SearchCriteriaRequest<T> criteria) {
+  public async Task<PaginatedResult<T>> GetWithSearchCriteriaAsync(SearchCriteriaRequest<T> criteria) {
     IQueryable<T> query = _context.Set<T>().AsNoTracking();
     var items = await query.ApplySearch(criteria).ToListAsync();
-    return items;
+    if (criteria.Pagination != null) {
+      var totalItems = await query.CountAsync();
+      return new PaginatedResult<T> {
+        Data = items,
+        Total = totalItems,
+        Page = criteria.Pagination.Page,
+        Limit = criteria.Pagination.Limit
+      };
+    } else {
+      return new PaginatedResult<T> {
+        Data = items,
+        Total = items.Count,
+        Page = 1,
+        Limit = items.Count
+      };
+    }
   }
 
-  public async Task<IEnumerable<T>> GetWithSearchCriteriaWithReferencesAsync(SearchCriteriaRequest<T> criteria) {
+  public async Task<PaginatedResult<T>> GetWithSearchCriteriaWithReferencesAsync(SearchCriteriaRequest<T> criteria) {
     IQueryable<T> query = _context.Set<T>().AsNoTracking().IncludeAll();
     var items = await query.ApplySearch(criteria).ToListAsync();
-    return items;
+    if (criteria.Pagination != null) {
+      var totalItems = await query.CountAsync();
+      return new PaginatedResult<T> {
+        Data = items,
+        Total = totalItems,
+        Page = criteria.Pagination.Page,
+        Limit = criteria.Pagination.Limit
+      };
+    } else {
+      return new PaginatedResult<T> {
+        Data = items,
+        Total = items.Count,
+        Page = 1,
+        Limit = items.Count
+      };
+    }
   }
 
   public async Task<T> GetByIdAsync(long id) {

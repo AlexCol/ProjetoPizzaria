@@ -24,14 +24,34 @@ public class RolesController : ControllerBase {
     return Ok(role);
   }
 
-  [HttpPost("search")]
-  [EndpointSummary("Obter Todas as Roles")]
+  [HttpGet()]
+  [EndpointSummary("Obter Todas as Roles.")]
   [EndpointDescription("Retorna uma lista de todas as roles.")]
   [ProducesResponseType(typeof(IEnumerable<RoleDto>), StatusCodes.Status200OK)]
-  public async Task<IActionResult> GetAllRolesAsync(
+  public async Task<IActionResult> GetAllRolesAsync() {
+    var roles = await _rolesService.GetAllRolesAsync();
+    return Ok(roles);
+  }
+
+  [HttpGet("search")]
+  [EndpointSummary("Obter Todas as Roles com Filtros na Query.")]
+  [EndpointDescription("Retorna uma lista de todas as roles, aplicando filtros enviados na query.")]
+  [ProducesResponseType(typeof(PaginatedResult<Role>), StatusCodes.Status200OK)]
+  public async Task<IActionResult> GetRolesWithFiltersAsync(
+  [FromQuery] SearchCriteriaRequest<Role> searchCriteria
+) {
+    var roles = await _rolesService.GetRolesWithSearchCriteriaAsync(searchCriteria);
+    return Ok(roles);
+  }
+
+  [HttpPost("search")]
+  [EndpointSummary("Obter Todas as Roles com Filtros no Corpo.")]
+  [EndpointDescription("Retorna uma lista de todas as roles, aplicando filtros enviados no corpo da requisição.")]
+  [ProducesResponseType(typeof(PaginatedResult<Role>), StatusCodes.Status200OK)]
+  public async Task<IActionResult> PostAllRolesWithFiltersAsync(
     [FromBody] SearchCriteriaRequest<Role> searchCriteria
   ) {
-    var roles = await _rolesService.GetAllRolesAsync(searchCriteria);
+    var roles = await _rolesService.GetRolesWithSearchCriteriaAsync(searchCriteria);
     return Ok(roles);
   }
 

@@ -8,7 +8,8 @@ namespace csharp_p2.src.Modules.Domain;
 public interface IRolesService {
   Task<Role> CreateRoleAsync(RoleDto dto);
   Task<Role> GetRoleByIdAsync(long id);
-  Task<IEnumerable<Role>> GetAllRolesAsync(SearchCriteriaRequest<Role> searchCriteria);
+  Task<IEnumerable<Role>> GetAllRolesAsync();
+  Task<PaginatedResult<Role>> GetRolesWithSearchCriteriaAsync(SearchCriteriaRequest<Role> searchCriteria);
   Task<Role> UpdateRoleAsync(long id, RoleDto dto);
   Task<bool> DeleteRoleAsync(long id);
 }
@@ -25,14 +26,18 @@ public class RolesService : IRolesService {
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!GETS
-  public async Task<IEnumerable<Role>> GetAllRolesAsync(SearchCriteriaRequest<Role> searchCriteria) {
-    var roles = await _roleRepository.GetWithSearchCriteriaAsync(searchCriteria);
+  public async Task<IEnumerable<Role>> GetAllRolesAsync() {
+    var roles = await _roleRepository.GetAllAsync();
     return roles;
-
   }
 
   public async Task<Role> GetRoleByIdAsync(long id) {
     return await _roleRepository.GetByIdAsync(id);
+  }
+
+  public async Task<PaginatedResult<Role>> GetRolesWithSearchCriteriaAsync(SearchCriteriaRequest<Role> searchCriteria) {
+    var resultado = await _roleRepository.GetWithSearchCriteriaAsync(searchCriteria);
+    return resultado;
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CREATE

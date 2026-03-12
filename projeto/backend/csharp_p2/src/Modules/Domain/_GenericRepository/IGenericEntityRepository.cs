@@ -7,8 +7,8 @@ namespace csharp_p2.src.Modules.Domain;
 public interface IGenericEntityRepository<T> where T : BaseEntityWithId {
   BaseDBContext GetContext();
 
-  Task<IEnumerable<T>> GetWithSearchCriteriaAsync(SearchCriteriaRequest<T> criteria);
-  Task<IEnumerable<T>> GetWithSearchCriteriaWithReferencesAsync(SearchCriteriaRequest<T> criteria);
+  Task<PaginatedResult<T>> GetWithSearchCriteriaAsync(SearchCriteriaRequest<T> criteria);
+  Task<PaginatedResult<T>> GetWithSearchCriteriaWithReferencesAsync(SearchCriteriaRequest<T> criteria);
 
   Task<T> GetByIdAsync(long id);
   Task<T> GetByIdWithReferencesAsync(long id);

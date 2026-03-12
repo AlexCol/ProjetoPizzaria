@@ -1,6 +1,11 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json;
+using csharp_p2.src.Modules.Infra.Database;
 
 namespace csharp_p2.src.Shared.Pagination;
 
@@ -146,6 +151,33 @@ public static partial class DynamicQuerying {
 
   private static object ChangeType(object value, Type targetType) {
     value = UnwrapJsonElement(value);
+
+    if (targetType == typeof(DateTime)) {
+      var isOracle = string.Equals(DataBaseBuilder.Database, "Oracle", StringComparison.OrdinalIgnoreCase);
+
+      if (value is DateTime dt) {
+        if (isOracle) {
+          return DateTime.SpecifyKind(dt, DateTimeKind.Unspecified);
+        }
+
+        if (dt.Kind == DateTimeKind.Unspecified) {
+          return DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+        }
+        return dt.Kind == DateTimeKind.Utc ? dt : dt.ToUniversalTime();
+      }
+
+      var parsed = DateTime.Parse(value.ToString() ?? string.Empty, null, System.Globalization.DateTimeStyles.RoundtripKind);
+      if (isOracle) {
+        return DateTime.SpecifyKind(parsed, DateTimeKind.Unspecified);
+      }
+
+      return parsed.Kind == DateTimeKind.Utc ? parsed : DateTime.SpecifyKind(parsed, DateTimeKind.Utc);
+    }
+
+    if (targetType == typeof(DateTimeOffset)) {
+      if (value is DateTimeOffset dto) return dto.ToUniversalTime();
+      return DateTimeOffset.Parse(value.ToString() ?? string.Empty, null, System.Globalization.DateTimeStyles.RoundtripKind).ToUniversalTime();
+    }
 
     if (targetType.IsEnum) {
       return Enum.Parse(targetType, value.ToString() ?? string.Empty, true);

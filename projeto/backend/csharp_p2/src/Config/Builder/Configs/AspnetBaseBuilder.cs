@@ -8,6 +8,7 @@ public static class AspnetBaseBuilder {
     //!adicionando configurações padrão
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddControllers(options => {
+      options.ModelBinderProviders.Insert(0, new SearchCriteriaFromQueryBinderProvider());
       options.Filters.Add<SearchCriteriaValidationFilter>();
       options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true; //* Remove a validação automática do ModelState (pra poder usar NotNull e não impedir o envio do json)
 

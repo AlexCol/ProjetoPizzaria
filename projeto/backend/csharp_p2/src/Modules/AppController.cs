@@ -49,6 +49,6 @@ public class AppController : ControllerBase {
   [ApiExplorerSettings(IgnoreApi = true)]
   public async Task<IActionResult> TestSearchAsync([FromBody] SearchCriteriaRequest<CategoriesDto> request) {
     throw new CustomError("bah");
-    return Ok("ok");
+    //return Ok("ok");
   }
 }
