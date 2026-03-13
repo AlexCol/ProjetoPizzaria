@@ -5,6 +5,7 @@ using System.Reflection;
 using csharp_p2.src.Modules.Infra.Database;
 using csharp_p2.src.Shared.Pagination;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace csharp_p2.src.Modules.Domain;
 
@@ -17,8 +18,12 @@ public class GenericEntityRepository<T> : IGenericEntityRepository<T> where T : 
     _service = service;
   }
 
-  public BaseDBContext GetContext() {
-    return _context;
+  // public BaseDBContext GetContext() {
+  //   return _context;
+  // }
+
+  public async Task<IDbContextTransaction> BeginTransactionAsync() {
+    return await _context.Database.BeginTransactionAsync();
   }
 
   public async Task<PaginatedResult<T>> GetWithSearchCriteriaAsync(SearchCriteriaRequest<T> criteria) {

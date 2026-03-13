@@ -42,7 +42,7 @@ public class RolesService : IRolesService {
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CREATE
   public async Task<Role> CreateRoleAsync(RoleDto dto) {
-    await using var trx = await _roleRepository.GetContext().Database.BeginTransactionAsync();
+    await using var trx = await _roleRepository.BeginTransactionAsync();
     try {
       var existingRole = await _roleRepository.FindOneWithPredicateAsync((r) =>
         r.Name.ToLower() == dto.Name.ToLower()
@@ -84,7 +84,7 @@ public class RolesService : IRolesService {
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!DELETE
   public async Task<bool> DeleteRoleAsync(long id) {
-    await using var trx = await _roleRepository.GetContext().Database.BeginTransactionAsync();
+    await using var trx = await _roleRepository.BeginTransactionAsync();
     try {
       var usersWithRole = await _userRepository.FindOneWithPredicateAsync(u => u.RoleId == id);
       if (usersWithRole != null) {

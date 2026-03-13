@@ -42,7 +42,7 @@ public class ProductsController : ControllerBase {
   [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
-  [FileValidation(MaxBytes = 2 * 1024 * 1024, AllowedExtensions = [".jpg", ".png"], Optional = false)]
+  [FileValidation(MaxBytes = 2 * 1024 * 1024, AllowedExtensions = [".jpg", ".png", ".jpeg"], Optional = false)]
   public async Task<ActionResult<Product>> CreateAsync([FromForm] CreateProductDto dto, IFormFile image) {
     var product = await _service.CreateProductAsync(dto, image);
     return Ok(product);
@@ -55,9 +55,21 @@ public class ProductsController : ControllerBase {
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
-  [FileValidation(MaxBytes = 2 * 1024 * 1024, AllowedExtensions = [".jpg", ".png"], Optional = true)]
+  [FileValidation(MaxBytes = 2 * 1024 * 1024, AllowedExtensions = [".jpg", ".png", ".jpeg"], Optional = true)]
   public async Task<ActionResult<string>> UpdateAsync(long id, [FromForm] UpdateProductDto dto, IFormFile image) {
     var result = await _service.UpdateProductAsync(id, dto, image);
     return Ok(result);
+  }
+
+  [HttpDelete("{id}")]
+  [EndpointSummary("Delete a product")]
+  [EndpointDescription("Deletes a product by its id")]
+  [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+  public async Task<ActionResult<string>> DeleteAsync(long id) {
+    await _service.DeleteProductAsync(id);
+    return Ok(new { message = "Product deleted successfully" });
   }
 }

@@ -121,7 +121,7 @@ public class UsersService : IUsersService {
   //!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   public async Task<MessageDto> ActivateUserAsync(string token) {
-    using var trx = await _userRepository.GetContext().Database.BeginTransactionAsync();
+    using var trx = await _userRepository.BeginTransactionAsync();
     try {
       var tokenControlService = _serviceProvider.GetRequiredService<ITokenControlService>();
       var tokenControl = await tokenControlService.GetTokenControlByTokenAsync(token);
@@ -182,7 +182,7 @@ public class UsersService : IUsersService {
   //!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   public async Task<MessageDto> RecoverPasswordAsync(string token, RecoverPasswordDto dto) {
-    using var trx = await _userRepository.GetContext().Database.BeginTransactionAsync();
+    using var trx = await _userRepository.BeginTransactionAsync();
     try {
       var tokenControlService = _serviceProvider.GetRequiredService<ITokenControlService>();
       var tokenControl = await tokenControlService.GetTokenControlByTokenAsync(token);
