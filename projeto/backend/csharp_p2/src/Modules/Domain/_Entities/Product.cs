@@ -35,8 +35,8 @@ public static class ProductEntityConfiguration {
       entity.Property(p => p.Description).IsRequired();
       //entity.Property(p => p.Banner).IsRequired();
       entity.Property(p => p.Disabled).IsRequired();
-      entity.HasOne(p => p.Category)
-            .WithMany(c => c.Products)
+      entity.HasOne(p => p.Category) //? configurado assim pois tenho prop de navegação (public Category Category { get; set; })
+            .WithMany()
             .HasForeignKey(p => p.CategoryId);
     });
   }

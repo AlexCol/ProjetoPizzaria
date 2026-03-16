@@ -10,8 +10,6 @@ public class OrderItem : BaseEntityWithId {
 
   [Column("ORDER_ID")]
   public long OrderId { get; set; }
-  [ForeignKey("OrderId")]
-  public Order Order { get; set; }
 
   [Column("PRODUCT_ID")]
   public long ProductId { get; set; }
@@ -24,10 +22,10 @@ public static class OrderItemEntityConfiguration {
     modelBuilder.Entity<OrderItem>(entity => {
       entity.HasKey(oi => oi.Id);
       entity.Property(oi => oi.Amount).IsRequired();
-      entity.HasOne(oi => oi.Order)
-            .WithMany(o => o.OrderItems)
-            .HasForeignKey(oi => oi.OrderId);
-      entity.HasOne(oi => oi.Product)
+      entity.HasOne<Order>() //? configurado assim pois não tenho prop de navegação
+              .WithMany(o => o.OrderItems)
+              .HasForeignKey(oi => oi.OrderId);
+      entity.HasOne(oi => oi.Product) //? configurado assim pois tenho prop de navegação (public Product Product { get; set; })
             .WithMany()
             .HasForeignKey(oi => oi.ProductId);
     });

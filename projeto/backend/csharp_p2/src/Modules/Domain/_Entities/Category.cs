@@ -7,8 +7,6 @@ namespace csharp_p2.src.Modules.Domain;
 public class Category : BaseEntityWithId {
   [Column("NAME")]
   public string Name { get; set; }
-
-  public List<Product> Products { get; set; }
 }
 
 public static class CategoriesEntityConfiguration {

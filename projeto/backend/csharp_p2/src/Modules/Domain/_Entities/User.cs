@@ -46,7 +46,7 @@ public static class UserEntityConfiguration {
       entity.Property(u => u.Status).IsRequired();
       entity.Property(u => u.RoleId).IsRequired();
 
-      entity.HasOne(u => u.Role)
+      entity.HasOne(u => u.Role) //? configurado assim pois tenho prop de navegação (public Role Role { get; set; })
         .WithMany()
         .HasForeignKey(u => u.RoleId)
         .OnDelete(DeleteBehavior.Restrict);
