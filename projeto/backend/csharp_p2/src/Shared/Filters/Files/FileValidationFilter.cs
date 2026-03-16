@@ -69,6 +69,9 @@ public sealed class FileValidationFilter : IAsyncActionFilter {
 
     var props = arg.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
     foreach (var p in props) {
+      // Skip indexer properties (e.g. List<T>.Item[int]) that require parameters.
+      if (p.GetIndexParameters().Length > 0) continue;
+
       var val = p.GetValue(arg);
       if (val is IFormFile pf) yield return pf;
       else if (val is IEnumerable<IFormFile> pm)

@@ -20,4 +20,28 @@ public class OrderItemsController(
     }
     return Ok(items);
   }
+
+  [HttpPost("{orderId}")]
+  [EndpointSummary("Upsert order items for a specific order ID")]
+  [EndpointDescription("Creates or updates order items for a given order ID. If an item with the same product ID already exists, it will be updated; otherwise, a new item will be created.")]
+  [ProducesResponseType(typeof(MessageDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+  public async Task<IActionResult> UpsertOrderItemsAsync(long orderId, [FromBody] List<UpsertOrderItemsDto> orderItems) {
+    await orderItemsService.UpsertOrderItemAsync(orderId, orderItems);
+    return Ok(new MessageDto("Order items upserted successfully."));
+  }
+
+  [HttpDelete("{orderItemId}")]
+  [EndpointSummary("Delete an order item by ID")]
+  [EndpointDescription("Deletes a specific order item based on its ID.")]
+  [ProducesResponseType(typeof(MessageDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+  public async Task<IActionResult> DeleteOrderItemAsync(long orderItemId) {
+    await orderItemsService.DeleteOrderItemAsync(orderItemId);
+    return Ok(new MessageDto("Order item deleted successfully."));
+  }
 }
