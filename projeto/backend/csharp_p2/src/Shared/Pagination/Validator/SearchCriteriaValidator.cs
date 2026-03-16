@@ -27,9 +27,9 @@ public class SearchCriteriaRequestValidator<T> : AbstractValidator<SearchCriteri
       .ChildRules(sort => {
         sort.RuleFor(s => s.Field)
           .NotEmpty()
-          .WithMessage("Sort field nao pode ser vazio")
+          .WithMessage(f => $"Sort field {f.Field} nao pode ser vazio")
           .Must(f => allowedFields.Contains(f))
-          .WithMessage("Sort field invalido");
+          .WithMessage(f => $"Sort field {f.Field} invalido");
 
         sort.RuleFor(s => s.Order)
           .Must(o => o.Equals("asc", StringComparison.OrdinalIgnoreCase)
@@ -43,13 +43,13 @@ public class SearchCriteriaRequestValidator<T> : AbstractValidator<SearchCriteri
       .ChildRules(filter => {
         filter.RuleFor(f => f.Field)
           .NotEmpty()
-          .WithMessage("Field nao pode ser vazio")
+          .WithMessage(f => $"Field {f.Field} nao pode ser vazio")
           .Must(f => allowedFields.Contains(f))
-          .WithMessage("Field invalido");
+          .WithMessage(f => $"Field {f.Field} invalido");
 
         filter.RuleFor(f => f.Value)
           .NotEmpty()
-          .WithMessage("Value nao pode ser vazio")
+          .WithMessage(f => $"Value para o field {f.Field} nao pode ser vazio")
           .Must((filtro, value) => {
             var isIn = string.Equals(filtro.Operator, "in", StringComparison.OrdinalIgnoreCase);
             if (!isIn) return true;
@@ -63,11 +63,11 @@ public class SearchCriteriaRequestValidator<T> : AbstractValidator<SearchCriteri
 
             return value is IEnumerable;
           })
-          .WithMessage("Quando Operator for 'in', Value deve ser um array");
+          .WithMessage(f => $"Quando Operator for 'in', Value para o field {f.Field} deve ser um array");
 
         filter.RuleFor(f => f.Operator)
           .Must(op => op is null || _allowedOperators.Contains(op))
-          .WithMessage("Operator invalido");
+          .WithMessage(f => $"Operator para o field {f.Field} invalido");
       })
       .When(x => x.Where is not null);
   }

@@ -25,7 +25,7 @@ public static class OrderItemEntityConfiguration {
       entity.HasKey(oi => oi.Id);
       entity.Property(oi => oi.Amount).IsRequired();
       entity.HasOne(oi => oi.Order)
-            .WithMany()
+            .WithMany(o => o.OrderItems)
             .HasForeignKey(oi => oi.OrderId);
       entity.HasOne(oi => oi.Product)
             .WithMany()

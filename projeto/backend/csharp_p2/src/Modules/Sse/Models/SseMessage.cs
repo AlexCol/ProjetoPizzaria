@@ -11,5 +11,6 @@ public enum ESseEvents {
   SessionUpdated,
   UserSessionsRevoked,
   AllSessionsRevoked,
-  SystemNotification
+  SystemNotification,
+  OrderStatusChanged
 }
