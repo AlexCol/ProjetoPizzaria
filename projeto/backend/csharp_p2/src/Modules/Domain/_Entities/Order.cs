@@ -16,8 +16,6 @@ public class Order : BaseEntityWithId {
 
   [Column("USER_ID")]
   public long UserId { get; set; }
-  [ForeignKey("UserId")]
-  public User User { get; set; }
 
   public List<OrderItem> OrderItems { get; set; }
 }
@@ -29,9 +27,7 @@ public static class OrderEntityConfiguration {
       entity.Property(o => o.TableNumber).IsRequired();
       entity.Property(o => o.Status).IsRequired();
       entity.Property(o => o.Name);
-      entity.HasOne(o => o.User)
-            .WithMany()
-            .HasForeignKey(o => o.UserId);
+      entity.Property(o => o.UserId).IsRequired();
     });
   }
 }
