@@ -28,6 +28,9 @@ public static class OrderEntityConfiguration {
       entity.Property(o => o.Status).IsRequired();
       entity.Property(o => o.Name);
       entity.Property(o => o.UserId).IsRequired();
+      entity.HasOne<User>() //? configurado assim pois não tenho prop de navegação (public User User { get; set; })
+            .WithMany()
+            .HasForeignKey(o => o.UserId);
     });
   }
 }
