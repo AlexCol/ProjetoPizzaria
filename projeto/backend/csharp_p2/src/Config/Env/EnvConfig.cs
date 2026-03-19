@@ -69,6 +69,12 @@ public class EnvConfig {
     FileManager = new FileManager(
       Type: config["FILE_MANAGER_TYPE"] ?? "",
       BasePath: config["FILE_MANAGER_BASE_PATH"] ?? "",
+      Endpoint: config["FILE_MANAGER_ENDPOINT"] ?? "",
+      Region: config["FILE_MANAGER_REGION"] ?? "",
+      Bucket: config["FILE_MANAGER_BUCKET"] ?? "",
+      AccessKey: config["FILE_MANAGER_ACCESS_KEY"] ?? "",
+      SecretKey: config["FILE_MANAGER_SECRET_KEY"] ?? "",
+      Folder: config["FILE_MANAGER_FOLDER"] ?? "",
       MaxBytes: long.TryParse(config["FILEX_MAX_BYTES"], out var maxBytes) ? maxBytes : 0,
       AllowedExtensions: (config["FILEX_ALLOWED_EXTENSIONS"] ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries)
     );
@@ -123,6 +129,12 @@ public record Crypto(
 public record FileManager(
   string Type,
   string BasePath,
+  string Endpoint,
+  string Region,
+  string Bucket,
+  string AccessKey,
+  string SecretKey,
+  string Folder,
   long MaxBytes,
   string[] AllowedExtensions
 );

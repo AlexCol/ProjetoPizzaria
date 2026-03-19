@@ -10,6 +10,9 @@ public class FileManagerBuilder {
     if (managerType.Equals("local", StringComparison.OrdinalIgnoreCase)) {
       builder.Services.AddSingleton<IFileManager, LocalFileManager>();
       Log.Information("[DI] Registered LocalFileManager as IFileManager - FileManagerBuilder");
+    } else if (managerType.Equals("cloudinary", StringComparison.OrdinalIgnoreCase)) {
+      builder.Services.AddSingleton<IFileManager, CloudinaryFileManager>();
+      Log.Information("[DI] Registered CloudinaryFileManager as IFileManager - FileManagerBuilder");
     } else
       throw new Exception($"[FileManagerBuilder] - File manager type '{managerType}' not supported!");
   }
