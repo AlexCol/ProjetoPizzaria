@@ -1,4 +1,5 @@
 using csharp_p2.src.Shared.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace csharp_p2.src.Modules.Domain.Categories;
 
@@ -39,6 +40,7 @@ public class CategoriesController : ControllerBase {
   }
 
   [HttpPost]
+  [Authorize(Roles = "Admin")]
   [EndpointSummary("Criar categoria")]
   [EndpointDescription("Cria uma nova categoria.")]
   [ProducesResponseType(typeof(MessageDto), StatusCodes.Status200OK)]
@@ -50,6 +52,7 @@ public class CategoriesController : ControllerBase {
   }
 
   [HttpPatch("{id}")]
+  [Authorize(Roles = "Admin")]
   [EndpointSummary("Atualizar categoria")]
   [EndpointDescription("Atualiza os dados de uma categoria.")]
   [ProducesResponseType(typeof(MessageDto), StatusCodes.Status200OK)]
@@ -62,6 +65,7 @@ public class CategoriesController : ControllerBase {
   }
 
   [HttpDelete("{id}")]
+  [Authorize(Roles = "Admin")]
   [EndpointSummary("Deletar categoria")]
   [EndpointDescription("Deleta uma categoria pelo seu id.")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]

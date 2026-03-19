@@ -1,5 +1,6 @@
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Filters;
+using Microsoft.AspNetCore.Authorization;
 
 namespace csharp_p2.src.Modules.Domain.Products;
 
@@ -37,6 +38,7 @@ public class ProductsController : ControllerBase {
   }
 
   [HttpPost]
+  [Authorize(Roles = "Admin")]
   [EndpointSummary("Create a new product")]
   [EndpointDescription("Creates a new product with the provided data")]
   [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
@@ -49,6 +51,7 @@ public class ProductsController : ControllerBase {
   }
 
   [HttpPatch("{id}")]
+  [Authorize(Roles = "Admin")]
   [EndpointSummary("Update an existing product")]
   [EndpointDescription("Updates an existing product with the provided data")]
   [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
@@ -62,6 +65,7 @@ public class ProductsController : ControllerBase {
   }
 
   [HttpDelete("{id}")]
+  [Authorize(Roles = "Admin")]
   [EndpointSummary("Delete a product")]
   [EndpointDescription("Deletes a product by its id")]
   [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
