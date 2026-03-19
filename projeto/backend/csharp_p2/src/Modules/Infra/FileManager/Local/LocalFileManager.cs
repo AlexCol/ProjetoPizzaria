@@ -14,43 +14,7 @@ public class LocalFileManager : IFileManager {
   /************************************************************************/
   /* Metodos da Interface                                                 */
   /************************************************************************/
-  public Task DeleteAsync(string modulePath, string fileName, CancellationToken cancellationToken = default) {
-    var fullPath = ResolvePath(modulePath, fileName);
-    File.Delete(fullPath);
-    return Task.CompletedTask;
-  }
-
-  public Task<bool> ExistsAsync(string modulePath, string fileName, CancellationToken cancellationToken = default) {
-    var fullPath = ResolvePath(modulePath, fileName);
-    return Task.FromResult(File.Exists(fullPath));
-  }
-
-  public Task<Stream> ReadAsync(string modulePath, string fileName, CancellationToken cancellationToken = default) {
-    var fullPath = ResolvePath(modulePath, fileName);
-
-    Stream stream = new FileStream(
-        fullPath,
-        FileMode.Open,
-        FileAccess.Read,
-        FileShare.Read,
-        bufferSize: 4096,
-        useAsync: true
-    );
-
-    return Task.FromResult(stream);
-  }
-
-  public Task<byte[]> ReadBytesAsync(string modulePath, string fileName, CancellationToken cancellationToken = default) {
-    var fullPath = ResolvePath(modulePath, fileName);
-
-    return File.ReadAllBytesAsync(fullPath, cancellationToken);
-  }
-
-  public Task<string> ReadTextAsync(string modulePath, string fileName, CancellationToken cancellationToken = default) {
-    var fullPath = ResolvePath(modulePath, fileName);
-    return File.ReadAllTextAsync(fullPath, cancellationToken);
-  }
-
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!SAVE
   public async Task SaveAsync(string modulePath, string fileName, Stream content, CancellationToken cancellationToken = default) {
     var fullPath = ResolvePath(modulePath, fileName);
 
@@ -69,24 +33,33 @@ public class LocalFileManager : IFileManager {
     await content.CopyToAsync(fileStream, cancellationToken);
   }
 
-  public Task SaveBytesAsync(string modulePath, string fileName, byte[] content, CancellationToken cancellationToken = default) {
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!READ
+  public Task<Stream> ReadAsync(string modulePath, string fileName, CancellationToken cancellationToken = default) {
     var fullPath = ResolvePath(modulePath, fileName);
 
-    var directory = Path.GetDirectoryName(fullPath)!;
-    Directory.CreateDirectory(directory);
+    Stream stream = new FileStream(
+        fullPath,
+        FileMode.Open,
+        FileAccess.Read,
+        FileShare.Read,
+        bufferSize: 4096,
+        useAsync: true
+    );
 
-    return File.WriteAllBytesAsync(fullPath, content, cancellationToken);
+    return Task.FromResult(stream);
   }
 
-  public Task SaveTextAsync(string modulePath, string fileName, string content, Encoding encoding = null, CancellationToken cancellationToken = default) {
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!DELETE
+  public Task DeleteAsync(string modulePath, string fileName, CancellationToken cancellationToken = default) {
     var fullPath = ResolvePath(modulePath, fileName);
+    File.Delete(fullPath);
+    return Task.CompletedTask;
+  }
 
-    var directory = Path.GetDirectoryName(fullPath)!;
-    Directory.CreateDirectory(directory);
-
-    encoding ??= Encoding.UTF8;
-
-    return File.WriteAllTextAsync(fullPath, content, encoding, cancellationToken);
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!EXISTS
+  public Task<bool> ExistsAsync(string modulePath, string fileName, CancellationToken cancellationToken = default) {
+    var fullPath = ResolvePath(modulePath, fileName);
+    return Task.FromResult(File.Exists(fullPath));
   }
 
   /************************************************************************/

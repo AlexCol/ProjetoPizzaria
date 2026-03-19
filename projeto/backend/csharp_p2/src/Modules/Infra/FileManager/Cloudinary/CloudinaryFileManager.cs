@@ -21,15 +21,12 @@ public class CloudinaryFileManager : IFileManager {
       throw new InvalidOperationException("[CloudinaryFileManager] Missing credentials. Expected FILE_MANAGER_BUCKET, FILE_MANAGER_ACCESS_KEY and FILE_MANAGER_SECRET_KEY.");
 
     var account = new Account(cloudName, apiKey, apiSecret);
-    _cloudinary = new Cloudinary(account) {
-      Api = {
-        Secure = true
-      }
-    };
+    _cloudinary = new Cloudinary(account) { Api = { Secure = true } };
 
     _baseFolder = NormalizePath(env.FileManager.Folder);
   }
 
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!SAVE
   public async Task SaveAsync(string modulePath, string fileName, Stream content, CancellationToken cancellationToken = default) {
     if (content.CanSeek)
       content.Position = 0;
@@ -52,25 +49,13 @@ public class CloudinaryFileManager : IFileManager {
       throw new InvalidOperationException($"[CloudinaryFileManager] Upload failed: {result.Error.Message}");
   }
 
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!READ
   public async Task<Stream> ReadAsync(string modulePath, string fileName, CancellationToken cancellationToken = default) {
     var bytes = await ReadBytesAsync(modulePath, fileName, cancellationToken);
     return new MemoryStream(bytes);
   }
 
-  public async Task<bool> ExistsAsync(string modulePath, string fileName, CancellationToken cancellationToken = default) {
-    foreach (var publicId in BuildPublicIdCandidates(modulePath, fileName)) {
-      try {
-        var result = await GetResourceByPublicIdAsync(publicId);
-        if (result != null && result.Error == null)
-          return true;
-      } catch {
-        // Try next candidate.
-      }
-    }
-
-    return false;
-  }
-
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!DELETE
   public async Task DeleteAsync(string modulePath, string fileName, CancellationToken cancellationToken = default) {
     foreach (var publicId in BuildPublicIdCandidates(modulePath, fileName)) {
       try {
@@ -91,23 +76,25 @@ public class CloudinaryFileManager : IFileManager {
     }
   }
 
-  public Task SaveTextAsync(string modulePath, string fileName, string content, Encoding encoding = null, CancellationToken cancellationToken = default) {
-    encoding ??= Encoding.UTF8;
-    var bytes = encoding.GetBytes(content ?? string.Empty);
-    return SaveBytesAsync(modulePath, fileName, bytes, cancellationToken);
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!EXISTS
+  public async Task<bool> ExistsAsync(string modulePath, string fileName, CancellationToken cancellationToken = default) {
+    foreach (var publicId in BuildPublicIdCandidates(modulePath, fileName)) {
+      try {
+        var result = await GetResourceByPublicIdAsync(publicId);
+        if (result != null && result.Error == null)
+          return true;
+      } catch {
+        // Try next candidate.
+      }
+    }
+
+    return false;
   }
 
-  public async Task<string> ReadTextAsync(string modulePath, string fileName, CancellationToken cancellationToken = default) {
-    var bytes = await ReadBytesAsync(modulePath, fileName, cancellationToken);
-    return Encoding.UTF8.GetString(bytes);
-  }
-
-  public async Task SaveBytesAsync(string modulePath, string fileName, byte[] content, CancellationToken cancellationToken = default) {
-    await using var stream = new MemoryStream(content);
-    await SaveAsync(modulePath, fileName, stream, cancellationToken);
-  }
-
-  public async Task<byte[]> ReadBytesAsync(string modulePath, string fileName, CancellationToken cancellationToken = default) {
+  /*****************************************************************/
+  /* Metodos Privados                                              */
+  /*****************************************************************/
+  private async Task<byte[]> ReadBytesAsync(string modulePath, string fileName, CancellationToken cancellationToken = default) {
     var errors = new List<string>();
 
     foreach (var publicId in BuildPublicIdCandidates(modulePath, fileName)) {
@@ -134,9 +121,6 @@ public class CloudinaryFileManager : IFileManager {
     throw new InvalidOperationException($"[CloudinaryFileManager] Read failed. Tried all public_id patterns. {details}");
   }
 
-  /*****************************************************************/
-  /* Metodos Privados                                              */
-  /*****************************************************************/
   private string BuildPublicId(string modulePath, string fileName) {
     var module = NormalizePath(modulePath);
     var file = BuildFilePublicId(fileName);
