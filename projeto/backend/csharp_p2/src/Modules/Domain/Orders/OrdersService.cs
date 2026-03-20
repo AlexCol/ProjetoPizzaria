@@ -41,12 +41,13 @@ public class OrdersService(
   public async Task<Order> CreateOrderAsync(long userId, CreateOrderDto order) {
     try {
       await OrderCreationValidationAsync(order);
+      var orderItems = order.OrderItems ?? [];
 
       var newOrder = new Order {
         TableNumber = order.TableNumber,
         Name = order.Name,
         UserId = userId,
-        OrderItems = [.. order.OrderItems.Select(oi => new OrderItem { Amount = oi.Amount, ProductId = oi.ProductId })]
+        OrderItems = [.. orderItems.Select(oi => new OrderItem { Amount = oi.Amount, ProductId = oi.ProductId })]
       };
       var createdOrder = await ordersRepository.InsertAsync(newOrder);
       return createdOrder;
