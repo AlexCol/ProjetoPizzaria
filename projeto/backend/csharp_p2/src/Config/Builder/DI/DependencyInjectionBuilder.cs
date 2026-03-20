@@ -18,6 +18,7 @@ public static partial class DependencyInjectionBuilder {
             !t.IsAbstract &&
             !t.IsCompilerGenerated() &&
             t.Namespace != null &&
+            t.GetCustomAttributes(typeof(IgnoreInjectionAttribute), false).Length == 0 && //? ignorar classes que tem a anotação pra serem ignoradas na DI
             t.Namespace.StartsWith(BaseNamespace) //? limita a busca para as classes do projeto, evitando pegar tipos de bibliotecas externas
         );
 

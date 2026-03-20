@@ -7,7 +7,7 @@ public class ResponseUserDto {
   public long Id { get; set; }
   public string Email { get; set; }
   public string Name { get; set; }
-  public int Status { get; set; }
+  public EUserStatus Status { get; set; }
   public ResponseRoleDto Role { get; set; }
 
   public ResponseUserDto() { }

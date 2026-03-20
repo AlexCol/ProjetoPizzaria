@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using csharp_p2.src.Modules.Domain;
 
 namespace csharp_p2.src.Shared.DTOs;
 
@@ -15,6 +16,6 @@ public class UpdateProductDto {
   [Range(1, long.MaxValue, ErrorMessage = "CategoryId must be a positive number.")]
   public long? CategoryId { get; set; }
 
-  [Range(0, 1, ErrorMessage = "Disabled must be 0 or 1.")]
-  public int? Disabled { get; set; }
+  [Range(0, 1, ErrorMessage = "Status must be 0 or 1.")]
+  public EProductStatus? Status { get; set; }
 }

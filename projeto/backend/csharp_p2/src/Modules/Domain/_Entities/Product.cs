@@ -17,8 +17,8 @@ public class Product : BaseEntityWithId {
   [Column("BANNER")]
   public string Banner { get; set; }
 
-  [Column("DISABLED")]
-  public int Disabled { get; set; }
+  [Column("STATUS")]
+  public EProductStatus Status { get; set; }
 
   [Column("CATEGORY_ID")]
   public long CategoryId { get; set; }
@@ -34,7 +34,11 @@ public static class ProductEntityConfiguration {
       entity.Property(p => p.Price).HasPrecision(18, 2).IsRequired();
       entity.Property(p => p.Description).IsRequired();
       //entity.Property(p => p.Banner).IsRequired();
-      entity.Property(p => p.Disabled).IsRequired();
+      entity.Property(p => p.Status)
+        .IsRequired()
+        .HasConversion(status => ((char)(int)status).ToString(), value => (EProductStatus)value[0])
+        .HasColumnType("CHAR(1)")
+        .HasDefaultValue(EProductStatus.Active);
       entity.HasOne(p => p.Category) //? configurado assim pois tenho prop de navegação (public Category Category { get; set; })
             .WithMany()
             .HasForeignKey(p => p.CategoryId);

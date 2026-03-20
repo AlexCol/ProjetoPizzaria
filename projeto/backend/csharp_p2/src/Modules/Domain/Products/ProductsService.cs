@@ -1,12 +1,14 @@
 using csharp_p2.src.Modules.Infra.FileManager;
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Exceptions;
+using csharp_p2.src.Shared.Pagination;
 
 namespace csharp_p2.src.Modules.Domain.Products;
 
 public interface IProductsService {
-  Task<IEnumerable<Product>> GetAllProductsAsync();
+  Task<IEnumerable<Product>> GetAllProductsAsync(EProductStatus? status);
   Task<Product> GetProductByIdAsync(long id);
+  Task<PaginatedResult<Product>> GetProductsWithSearchCriteriaAsync(SearchCriteriaRequest<Product> searchCriteria);
   Task<Product> CreateProductAsync(CreateProductDto dto, IFormFile image);
   Task<MessageDto> UpdateProductAsync(long id, UpdateProductDto product, IFormFile image);
   Task DeleteProductAsync(long id);
@@ -24,7 +26,10 @@ public class ProductsService : IProductsService {
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!GETS
-  public async Task<IEnumerable<Product>> GetAllProductsAsync() {
+  public async Task<IEnumerable<Product>> GetAllProductsAsync(EProductStatus? disabled) {
+    if (disabled.HasValue) {
+      return await _repository.SearchWithPredicateAsync(p => p.Status == disabled.Value);
+    }
     return await _repository.GetAllAsync();
   }
 
@@ -32,6 +37,10 @@ public class ProductsService : IProductsService {
     return await _repository.GetByIdWithReferencesAsync(id);
   }
 
+  public async Task<PaginatedResult<Product>> GetProductsWithSearchCriteriaAsync(SearchCriteriaRequest<Product> searchCriteria) {
+    var products = await _repository.GetWithSearchCriteriaAsync(searchCriteria);
+    return products;
+  }
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CREATE
   public async Task<Product> CreateProductAsync(CreateProductDto dto, IFormFile image) {
     await ValidateProductCreationAsync(dto);
@@ -100,8 +109,8 @@ public class ProductsService : IProductsService {
       existingProduct.Description = dto.Description;
       needUpdate = true;
     }
-    if (dto.Disabled.HasValue) {
-      existingProduct.Disabled = dto.Disabled.Value;
+    if (dto.Status.HasValue) {
+      existingProduct.Status = dto.Status.Value;
       needUpdate = true;
     }
     if (dto.CategoryId.HasValue) {

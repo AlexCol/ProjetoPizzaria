@@ -19,7 +19,7 @@ public class User : BaseEntityWithId {
 
   [NotNull]
   [Column("STATUS")]
-  public int Status { get; set; }
+  public EUserStatus Status { get; set; }
 
   [NotNull]
   [Column("ROLE_ID")]
@@ -43,7 +43,10 @@ public static class UserEntityConfiguration {
       entity.HasIndex(u => u.Email).IsUnique();
       entity.Property(u => u.Password).IsRequired();
       entity.Property(u => u.Name).IsRequired();
-      entity.Property(u => u.Status).IsRequired();
+      entity.Property(u => u.Status)
+        .IsRequired()
+        .HasConversion(status => ((char)(int)status).ToString(), value => (EUserStatus)value[0])
+        .HasColumnType("CHAR(1)");
       entity.Property(u => u.RoleId).IsRequired();
 
       entity.HasOne(u => u.Role) //? configurado assim pois tenho prop de navegação (public Role Role { get; set; })

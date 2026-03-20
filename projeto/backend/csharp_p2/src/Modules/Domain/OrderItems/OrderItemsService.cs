@@ -1,3 +1,4 @@
+using csharp_p2.src.Modules.Domain.Products;
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Exceptions;
 
@@ -11,7 +12,8 @@ public interface IOrderItemsService {
 
 public class OrderItemsService(
   IGenericEntityRepository<OrderItem> orderItemsRepository,
-  IGenericEntityRepository<Order> ordersRepository
+  IGenericEntityRepository<Order> ordersRepository,
+  IProductsService productsService
 ) : IOrderItemsService {
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!GETS
@@ -26,6 +28,7 @@ public class OrderItemsService(
   #region Create/Update
   public async Task UpsertOrderItemAsync(long orderId, List<UpsertOrderItemsDto> orderItems) {
     await IsOrderDraftOrThrowAsync(orderId);
+    await ThrowIfProductInactiveAsync(orderItems);
 
     using var trx = await orderItemsRepository.BeginTransactionAsync();
     try {
@@ -70,6 +73,18 @@ public class OrderItemsService(
     await orderItemsRepository.UpdateAsync(existingItem);
   }
 
+  private async Task ThrowIfProductInactiveAsync(List<UpsertOrderItemsDto> orderItems) {
+    if (orderItems.Count == 0) return;
+
+    var productIds = orderItems.Select(oi => oi.ProductId).ToList();
+    var inactiveProducts = await productsService.GetAllProductsAsync(EProductStatus.Inactive);
+    var disabledProductOnOrder = inactiveProducts.Any(p => orderItems.Any(oi => oi.ProductId == p.Id));
+
+    if (disabledProductOnOrder) {
+      throw new CustomError("One or more products in the order are currently inactive.", 400);
+    }
+  }
+
   private void ThrowIfProductNotFoundError(Exception ex) {
     if (ex.Message.Contains("FK_ORDER_ITEMS_PRODUCTS_PRODUCT_ID")) {
       throw new CustomError("One or more products in the order do not exist.", 400);
@@ -97,7 +112,7 @@ public class OrderItemsService(
     var order = await ordersRepository.FindOneWithPredicateAsync(oi => oi.Id == orderId);
     if (order == null) throw new CustomError("Order not found", 404);
 
-    if (order.Status != (int)EOrderStatus.Draft) {
+    if (order.Status != EOrderStatus.Draft) {
       throw new CustomError("Only items from orders in draft status can be added, modified or deleted.");
     }
   }

@@ -35,8 +35,8 @@ public class AuthService : IAuthService {
   }
 
   private async Task LoginValidationAsync(LoginDto loginDto, User user) {
-    if (user.Status == (int)EUserStatus.Inactive) throw new Exception("Usuário inativo");
-    if (user.Status == (int)EUserStatus.Blocked) throw new Exception("Usuário bloqueado");
+    if (user.Status == EUserStatus.Inactive) throw new Exception("Usuário inativo");
+    if (user.Status == EUserStatus.Blocked) throw new Exception("Usuário bloqueado");
 
     var passwordMatch = BCrypt.Net.BCrypt.Verify(loginDto.Password, user.Password);
     if (!passwordMatch) throw new UnauthorizedAccessException("Usuário ou senha incorretos.");

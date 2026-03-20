@@ -1,3 +1,4 @@
+using csharp_p2.src.Modules.Domain.Products;
 using csharp_p2.src.Modules.Sse;
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Exceptions;
@@ -17,6 +18,7 @@ public interface IOrdersService {
 public class OrdersService(
   IGenericEntityRepository<Order> ordersRepository,
   IGenericEntityRepository<OrderItem> orderItemsRepository,
+  IProductsService productsService,
   IServiceScopeFactory scopeFactory
 ) : IOrdersService {
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!GETS
@@ -37,12 +39,9 @@ public class OrdersService(
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CREATE
   public async Task<Order> CreateOrderAsync(long userId, CreateOrderDto order) {
-    var openOrderOnTable = await ordersRepository.FindOneWithPredicateAsync(o => o.TableNumber == order.TableNumber && o.Status != (int)EOrderStatus.Done);
-    if (openOrderOnTable != null) {
-      throw new CustomError("There is already an open order on this table.", 400);
-    }
-
     try {
+      await OrderCreationValidationAsync(order);
+
       var newOrder = new Order {
         TableNumber = order.TableNumber,
         Name = order.Name,
@@ -54,6 +53,22 @@ public class OrdersService(
     } catch (Exception ex) {
       ThrowIfProductNotFoundError(ex);
       throw new CustomError($"Error creating order: {ex.Message}", 500);
+    }
+  }
+
+  private async Task OrderCreationValidationAsync(CreateOrderDto order) {
+    var openOrderOnTable = await ordersRepository.FindOneWithPredicateAsync(o => o.TableNumber == order.TableNumber && o.Status != EOrderStatus.Done);
+    if (openOrderOnTable != null) {
+      throw new CustomError("There is already an open order on this table.", 400);
+    }
+
+    var orderItems = order.OrderItems ?? [];
+    if (orderItems.Count > 0) {
+      var disabledProduct = await productsService.GetAllProductsAsync(EProductStatus.Inactive);
+      var disabledProductOnOrder = disabledProduct.Any(p => orderItems.Any(oi => oi.ProductId == p.Id));
+      if (disabledProductOnOrder) {
+        throw new CustomError("One or more products in the order are currently inactive.", 400);
+      }
     }
   }
 
@@ -71,17 +86,26 @@ public class OrdersService(
   public async Task<string> UpdateOrderStatusAsync(long id, UpdateOrderStatusDto orderStatus) {
     var order = await GetOrderByIdOrThrowAsync(id);
 
-    if (Math.Abs(order.Status - (int)orderStatus.Status) != 1) {
+    if (!IsValidStatusTransition(order.Status, orderStatus.Status)) {
       throw new CustomError("Invalid status transition. Status can only be updated to the next sequential status.");
     }
 
-    order.Status = (int)orderStatus.Status;
+    order.Status = orderStatus.Status;
     await ordersRepository.UpdateAsync(order);
 
     await SendOrderStatusChangeNotificationAsync(order);
 
     return $"Order with id {id} updated successfully.";
 
+  }
+
+  private static bool IsValidStatusTransition(EOrderStatus currentStatus, EOrderStatus nextStatus) {
+    return currentStatus switch {
+      EOrderStatus.Draft => nextStatus == EOrderStatus.Pending,
+      EOrderStatus.Pending => nextStatus == EOrderStatus.Done || nextStatus == EOrderStatus.Draft,
+      EOrderStatus.Done => nextStatus == EOrderStatus.Pending,
+      _ => false
+    };
   }
 
   //? update order details (table number and name)
@@ -95,13 +119,13 @@ public class OrdersService(
 
   //+ validations
   private async Task ValidateUpdateOrderAsync(Order order, UpdateOrderDto orderDto) {
-    if (order.Status != (int)EOrderStatus.Draft) {
+    if (order.Status != EOrderStatus.Draft) {
       throw new CustomError("Only orders in Draft status can be updated.");
     }
 
     if (orderDto.TableNumber != 0) {
       var openOrderOnTable = await ordersRepository.FindOneWithPredicateAsync(o =>
-        o.TableNumber == orderDto.TableNumber && o.Status != (int)EOrderStatus.Done && o.Id != order.Id
+        o.TableNumber == orderDto.TableNumber && o.Status != EOrderStatus.Done && o.Id != order.Id
       );
       if (openOrderOnTable != null) {
         throw new CustomError("There is already an open order on this table.");
@@ -132,7 +156,7 @@ public class OrdersService(
   public async Task DeleteOrderAsync(long id) {
     var order = await GetOrderByIdOrThrowAsync(id);
 
-    if (order.Status != (int)EOrderStatus.Draft) {
+    if (order.Status != EOrderStatus.Draft) {
       throw new CustomError("Only orders in Draft status can be deleted.");
     }
 

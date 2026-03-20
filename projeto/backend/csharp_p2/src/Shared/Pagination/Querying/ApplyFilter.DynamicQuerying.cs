@@ -19,7 +19,7 @@ public static partial class DynamicQuerying {
 
       var parameter = Expression.Parameter(typeof(T), "x");
       var member = Expression.Property(parameter, property);
-      var op = (filter.Operator ?? "=").Trim().ToLowerInvariant();
+      var op = BuildeOperator(member, filter);
 
       Expression predicate = op switch {
         "like" => BuildLike(member, filter.Value),
@@ -200,6 +200,17 @@ public static partial class DynamicQuerying {
       JsonValueKind.Array => json,
       _ => json.ToString()
     };
+  }
+
+  private static string BuildeOperator(Expression member, FilterCriteria filter) {
+    var op = (filter.Operator ?? "=").Trim().ToLowerInvariant();
+
+    //!exceções (principalmente por causa dos campos virem em query params)
+    if (op == "like" && member.Type != typeof(string)) {
+      op = "="; //? se for like mas o campo não for string, cai pra comparação direta
+    }
+
+    return op;
   }
   #endregion
 }

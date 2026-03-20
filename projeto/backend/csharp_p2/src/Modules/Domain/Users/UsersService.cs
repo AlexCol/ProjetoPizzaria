@@ -72,7 +72,7 @@ public class UsersService : IUsersService {
       Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
       Name = dto.Name,
       RoleId = dto.RoleId.Value,
-      Status = (int)EUserStatus.Inactive //? usuário criado como inativo, precisa ativar por email
+      Status = EUserStatus.Inactive //? usuário criado como inativo, precisa ativar por email
     };
 
     var createdUser = await _userRepository.InsertAsync(newUser);
@@ -131,11 +131,11 @@ public class UsersService : IUsersService {
         throw new CustomError("User not found.", 404);
       }
 
-      if (user.Status != (int)EUserStatus.Inactive) {
+      if (user.Status != EUserStatus.Inactive) {
         throw new CustomError("User is not inactive.");
       }
 
-      user.Status = (int)EUserStatus.Active;
+      user.Status = EUserStatus.Active;
       await _userRepository.UpdateAsync(user);
       await tokenControlService.RemoveTokenControlAsync(tokenControl);
 
@@ -155,7 +155,7 @@ public class UsersService : IUsersService {
       throw new CustomError("User not found.", 404);
     }
 
-    if (user.Status == (int)EUserStatus.Active) {
+    if (user.Status == EUserStatus.Active) {
       throw new CustomError("User is already active.");
     }
 
@@ -171,7 +171,7 @@ public class UsersService : IUsersService {
       throw new CustomError("User not found.", 404);
     }
 
-    if (user.Status != (int)EUserStatus.Active) {
+    if (user.Status != EUserStatus.Active) {
       throw new CustomError("User is not active.");
     }
 

@@ -21,6 +21,9 @@ public static class AspnetBaseBuilder {
       //Rejeita propriedades extras não definidas no DTO
       options.JsonSerializerOptions.UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow;
 
+      // Serializa enums como texto (ex.: Active/Inactive) em vez de número (65/73).
+      options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(allowIntegerValues: false));
+
       // Ignora ciclos: inclui a primeira referência (Category -> Products)
       // e corta referências cíclicas seguintes (Product.Category ficará nulo).
       options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;

@@ -122,7 +122,7 @@ public class AppService : IAppService {
         Email = new EmailVO(_env.AdminUser.Email),
         Password = _env.AdminUser.Password, //não usar BCrypt.Net.BCrypt.HashPassword, no .env deve vir já hasheada
         RoleId = adminRole.Id,
-        Status = (int)EUserStatus.Active,
+        Status = EUserStatus.Active,
       };
       _dbContext.Set<User>().Add(admin);
       await _dbContext.SaveChangesAsync();

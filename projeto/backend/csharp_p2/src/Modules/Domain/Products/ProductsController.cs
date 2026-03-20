@@ -1,5 +1,6 @@
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Filters;
+using csharp_p2.src.Shared.Pagination;
 using Microsoft.AspNetCore.Authorization;
 
 namespace csharp_p2.src.Modules.Domain.Products;
@@ -18,8 +19,10 @@ public class ProductsController : ControllerBase {
   [EndpointDescription("Returns a list of all products in the system")]
   [ProducesResponseType(typeof(IEnumerable<Product>), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
-  public async Task<ActionResult<IEnumerable<Product>>> GetAllAsync() {
-    var products = await _service.GetAllProductsAsync();
+  public async Task<ActionResult<IEnumerable<Product>>> GetAllAsync(
+    [FromQuery] EProductStatus? status
+  ) {
+    var products = await _service.GetAllProductsAsync(status);
     return Ok(products);
   }
 
@@ -35,6 +38,16 @@ public class ProductsController : ControllerBase {
       return NotFound(new ErrorResponseDto("Product not found"));
     }
     return Ok(product);
+  }
+
+  [HttpGet("search")]
+  [EndpointSummary("Get products with search criteria")]
+  [EndpointDescription("Returns a paginated list of products based on search criteria")]
+  [ProducesResponseType(typeof(PaginatedResult<Product>), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
+  public async Task<ActionResult<PaginatedResult<Product>>> GetWithSearchCriteriaAsync([FromQuery] SearchCriteriaRequest<Product> searchCriteria) {
+    var products = await _service.GetProductsWithSearchCriteriaAsync(searchCriteria);
+    return Ok(products);
   }
 
   [HttpPost]

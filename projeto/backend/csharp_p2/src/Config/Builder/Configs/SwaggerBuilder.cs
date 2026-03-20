@@ -1,10 +1,28 @@
 using Microsoft.OpenApi;
+using System.Text.Json.Nodes;
 
 namespace csharp_p2.src.Extensions;
 
 public static class SwaggerBuilder {
   public static void AddSwagger(WebApplicationBuilder builder) {
     builder.Services.AddOpenApi("v1", options => {
+
+      //! processo para mapear enums como string (ex.: Active/Inactive) em vez de número (65/73).
+      options.AddSchemaTransformer((schema, context, _) => {
+        var type = context.JsonTypeInfo.Type;
+        var enumType = Nullable.GetUnderlyingType(type) ?? type;
+        if (!enumType.IsEnum) {
+          return Task.CompletedTask;
+        }
+
+        schema.Type = JsonSchemaType.String;
+        schema.Format = null;
+        schema.Enum = Enum.GetNames(enumType)
+          .Select(name => (JsonNode)JsonValue.Create(name)!)
+          .ToList();
+
+        return Task.CompletedTask;
+      });
 
       //! processo para mapear os parametros em caso de useo do SearchCriteriaRequest em QueryParam
       options.AddOperationTransformer((operation, _, _) => {
@@ -58,6 +76,7 @@ public static class SwaggerBuilder {
         return Task.CompletedTask;
       });
 
+      //! processo para adicionar informações gerais da API (titulo, descrição, versão)
       options.AddDocumentTransformer((document, _, _) => {
         document.Info = new() {
           Title = "Pizzaria API",
