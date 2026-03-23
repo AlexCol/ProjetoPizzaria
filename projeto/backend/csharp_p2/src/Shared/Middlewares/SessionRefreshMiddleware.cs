@@ -16,7 +16,19 @@ public class SessionRefreshMiddleware {
     ISessionCacheService sessionService,
     CookiesHandler cookiesHandler
   ) {
+    var path = context.Request.Path;
+    var isDocsRoute = path.StartsWithSegments("/swagger") || path.StartsWithSegments("/api/docs");
+    if (isDocsRoute) {
+      await _next(context);
+      return;
+    }
+
     var endpoint = context.GetEndpoint();
+    if (endpoint is null) {
+      await _next(context);
+      return;
+    }
+
     var isPublic = endpoint?.Metadata.GetMetadata<AllowAnonymousAttribute>() != null;
     if (isPublic) {
       await _next(context);
