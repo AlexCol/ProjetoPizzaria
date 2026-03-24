@@ -1,26 +1,170 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*********************************************************************/
+/** Delacaração de variaveis                                        **/
+/*********************************************************************/
+@variant dark (&:where(.dark, .dark *)); /* Define variantes para aplicar estilos quando .dark está presente */
+@variant light (&:where(.light, .light *)); /* Define variantes para aplicar estilos quando .light está presente */
+
+/*********************************************************************/
+/** Configuração de tema claro e escuro                             **/
+/*********************************************************************/
+html {
+  color-scheme: light dark; /* Informa ao navegador que a página suporta tema claro e escuro, ajustando elementos nativos conforme o tema do sistema */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Oculta o conteúdo do body até que o ThemeProvider defina a classe .dark ou .light, evitando flash de tema errado */
+html:not(.dark):not(.light) body {
+  visibility: hidden;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/*********************************************************************/
+/** Classes customizadas adicionais                                 **/
+/*********************************************************************/
+/*!classe customizada para remover o spine de inputs 'number'*/
+@layer utilities {
+  /* Chrome, Safari, Edge, Opera */
+  .no-spinner::-webkit-outer-spin-button,
+  .no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  .no-spinner[type='number'] {
+    appearance: textfield;
+    -moz-appearance: textfield;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/*!classe customizada para ocultar o scroll*/
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE e Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}
+
+/*!classe customizada para evitar mudança de layout ao aparecer o scroll*/
+@layer utilities {
+  .scrollbar-stable {
+    scrollbar-gutter: stable;
+  }
+
+  .scrollbar-stable-both {
+    scrollbar-gutter: stable both-edges;
+  }
+
+  /* Custom scrollbar para navegadores baseados em Webkit (Chrome, Edge, Safari) */
+  .sidebar-scrollbar-personalizado::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+  }
+
+  .sidebar-scrollbar-personalizado::-webkit-scrollbar-thumb {
+    background: #64748b33; /* cor do thumb, ajuste conforme seu tema */
+    border-radius: 8px;
+  }
+
+  .sidebar-scrollbar-personalizado::-webkit-scrollbar-thumb:hover {
+    background: #64748b66;
+  }
+
+  /* Firefox */
+  .sidebar-scrollbar-personalizado {
+    scrollbar-width: thin;
+    scrollbar-color: #64748b33 transparent;
+  }
+}
+
+/*!classe customizada para animação de fundo gradiente*/
+@layer utilities {
+  .animate-gradient {
+    background-size: 400% 400%;
+    animation: gradientAnimation 10s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  @keyframes gradientAnimation {
+    0%,
+    100% {
+      background-position: 0% 0%;
+      opacity: 0.8;
+    }
+    50% {
+      background-position: 100% 100%;
+      opacity: 0.95;
+    }
+  }
+}
+
+/*********************************************************************/
+/** Configuração de temas utilizando variaveis CSS                  **/
+/*********************************************************************/
+:root {
+  /********************************************** minhas classes */
+  /* Cores principais --- primary e secondary são do proprio shadcn */
+  --primary: #2563eb;
+  --secondary: #10b981;
+  --tertiary: #f59e0b;
+
+  /* Botões / status */
+  --success: #16a34a;
+  --danger: #dc2626;
+  --warning: #f59e0b;
+  --info: #2563eb;
+  --disabled: #9ca3af;
+
+  /* Fundo e texto */
+  --background: #f9fafb;
+  --background-2: #ececee;
+  --foreground: #374151;
+  --primary-text: #111827;
+  --border: #6a7282;
+}
+.dark {
+  /********************************************** minhas classes */
+  /* Cores principais --- primary e secondary são do proprio shadcn */
+  --primary: #3b82f6;
+  --secondary: #34d399;
+  --tertiary: #fbbf24;
+
+  /* Botões / status */
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #facc15;
+  --info: #3b82f6;
+  --disabled: #6b7280;
+
+  /* Fundo e texto */
+  --background: #111827;
+  --background-2: #1f2937;
+  --foreground: #e5e7eb;
+  --primary-text: #f9fafb;
+  --border: #99a1af;
+}
+
+@theme inline {
+  /********************************************** minhas classes */
+  /* Cores principais --- primary e secondary são do proprio shadcn */
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-tertiary: var(--tertiary);
+
+  /* Botões / status */
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-disabled: var(--disabled);
+
+  /* Fundo e texto */
+  --color-background: var(--background);
+  --color-background-2: var(--background-2);
+  --color-foreground: var(--foreground);
+  --color-primary-text: var(--primary-text);
+  --color-border: var(--border);
 }
