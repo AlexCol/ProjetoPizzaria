@@ -41,8 +41,9 @@ function useAuthProvider() {
   const authHandler = useCallback(async (params?: signInParams, setLoad = true) => {
     let data: UserSessionPayload | string;
     try {
-      if (setLoad)
+      if (setLoad) {
         setIsLoading(true);
+      }
 
       const controller = getAuth();
       if (params) {
@@ -56,11 +57,13 @@ function useAuthProvider() {
       setLoggedUser(data);
     } catch (error) {
       const shouldShowError = loggedUserRef.current || params;
-      if (shouldShowError && error instanceof Error)
+      if (shouldShowError && error instanceof Error) {
         toast.error(error.message || 'Erro ao autenticar!');
+      }
     } finally {
-      if (setLoad)
+      if (setLoad) {
         setIsLoading(false);
+      }
     }
   }, []);
 

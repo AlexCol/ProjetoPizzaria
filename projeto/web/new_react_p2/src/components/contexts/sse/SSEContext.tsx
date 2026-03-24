@@ -27,8 +27,9 @@ function useSseProvider() {
     unregisterCommand(eventName); //? garante que nao tenha comando duplicado, se tiver, remove o antigo antes de adicionar o novo
 
     commandList.set(eventName, { onMessage, onError: onError ?? (() => undefined) });
-    if (eventSourceRef.current)
+    if (eventSourceRef.current) {
       eventSourceRef.current.addEventListener(eventName, handleEvent);
+    }
   }
 
   function unregisterCommand(eventName: string) {
@@ -50,17 +51,20 @@ function useSseProvider() {
   //? internal methods
   //?????????????????????????????????????????????????????????????????????????????????
   //! metodo para lidar com eventos SSE
-  const handleEvent = useCallback((event: MessageEvent) => {
-    const callback = commandList.get(event.type);
-    if (callback && callback.onMessage) {
-      try {
-        const data = JSON.parse(event.data);
-        callback.onMessage(data);
-      } catch {
-        callback.onError?.();
+  const handleEvent = useCallback(
+    (event: MessageEvent) => {
+      const callback = commandList.get(event.type);
+      if (callback && callback.onMessage) {
+        try {
+          const data = JSON.parse(event.data);
+          callback.onMessage(data);
+        } catch {
+          callback.onError?.();
+        }
       }
-    }
-  }, [commandList]);
+    },
+    [commandList],
+  );
 
   //! metodos para cadastrar os eventos do EventSource (onopen, onerror e os comandos)
   const cadastraOnOpen = useCallback((eventSource: EventSource) => {
@@ -72,11 +76,14 @@ function useSseProvider() {
   }, []);
 
   //*
-  const cadastraComandos = useCallback((eventSource: EventSource) => {
-    for (const eventName of commandList.keys()) {
-      eventSource.addEventListener(eventName, handleEvent);
-    }
-  }, [commandList, handleEvent],);
+  const cadastraComandos = useCallback(
+    (eventSource: EventSource) => {
+      for (const eventName of commandList.keys()) {
+        eventSource.addEventListener(eventName, handleEvent);
+      }
+    },
+    [commandList, handleEvent],
+  );
 
   //*
   const cadastraOnError = useCallback((eventSource: EventSource) => {

@@ -1,4 +1,3 @@
-
 type LoggedUser = {
   usuarioId: string;
   email: string;

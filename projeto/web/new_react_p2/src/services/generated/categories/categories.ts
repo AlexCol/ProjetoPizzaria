@@ -8,7 +8,6 @@
 import { apiClient } from '../../api-mutator';
 import type { CategoriesDto, Category, GetApiCategoriesParams, MessageDto } from '../models';
 
-
 export const getCategories = () => {
   /**
    * Retorna uma lista de todas as categorias cadastradas.

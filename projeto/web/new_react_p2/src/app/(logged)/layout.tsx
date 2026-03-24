@@ -37,9 +37,7 @@ export default function LayoutAuthOnly({ children }: Readonly<{ children: React.
       {/* Sidebar */}
 
       {/* Main Content Area */}
-      <div className='h-full flex flex-col flex-1 overflow-hidden'>
-        {children}
-      </div>
+      <div className='h-full flex flex-col flex-1 overflow-hidden'>{children}</div>
     </div>
   );
 }

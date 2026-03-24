@@ -15,7 +15,6 @@ import type {
   UpdateUserDto,
 } from '../models';
 
-
 export const getUsers = () => {
   /**
    * Retorna uma lista de todos os usuários cadastrados.
