@@ -1,12 +1,13 @@
 'use client';
 
-import { setAuthFailHandler } from '@/services/api';
+import { forgetMe, setAuthFailHandler, setRememberMe } from '@/services/api';
 import { getAuth } from '@/services/generated/auth/auth';
-import { LoginDto, UserSessionPayload } from '@/services/generated/models';
+import { UserSessionPayload } from '@/services/generated/models';
 import Logger from '@/utils/Logger';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useSseContext } from '../sse/SSEContext';
+import { signInParams } from './types/signInParams';
 
 //*************************************************************
 //* Tipagens para o contexto
@@ -37,31 +38,28 @@ function useAuthProvider() {
   //?????????????????????????????????????????????????????????????????????????????????
   //? internal methods
   //?????????????????????????????????????????????????????????????????????????????????
-  async function authHandler(params?: LoginDto, setLoad = true) {
-    if (setLoad) {
-      setIsLoading(true);
-    }
-
+  async function authHandler(params?: signInParams, setLoad = true) {
     let data: UserSessionPayload | string;
-    const controller = getAuth();
-    if (params) {
-      data = await controller.postApiAuthLogin(params);
-    } else {
-      data = await controller.getApiAuthSession();
-    }
+    try {
+      if (setLoad)
+        setIsLoading(true);
 
-    if (typeof data === 'string') {
-      if (data && (loggedUser || params)) {
-        //adicionado loggedUser para não aparecer mensagem de erro ao abrir a primeira vez a pagina e não existir ou estiver invalida a sessao
-        toast.error(data);
+      const controller = getAuth();
+      if (params) {
+        setRememberMe(params.rememberMe);
+        data = await controller.postApiAuthLogin(params);
+        forgetMe();
+      } else {
+        data = await controller.getApiAuthSession();
       }
-      setLoggedUser(null);
-    } else {
-      setLoggedUser(data);
-    }
 
-    if (setLoad) {
-      setIsLoading(false);
+      setLoggedUser(data);
+    } catch (error) {
+      if ((loggedUser || params) && error instanceof Error)
+        toast.error(error.message || 'Erro ao autenticar!');
+    } finally {
+      if (setLoad)
+        setIsLoading(false);
     }
   }
 

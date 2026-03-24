@@ -4,12 +4,13 @@ import axios, { AxiosError } from 'axios';
 /*****************************************************************/
 /* Configuração base                                             */
 /*****************************************************************/
-const baseUrl = process.env.NEXT_PUBLIC_API || 'http://localhost:3300'; // Valor padrão para desenvolvimento
+const baseUrl = process.env.NEXT_PUBLIC_BASE || 'http://localhost:3300'; // Valor padrão para desenvolvimento
 
 const core = axios.create({
   baseURL: baseUrl,
   headers: {
     'Content-Type': 'application/json',
+    'app-origin': 'web', // Identificador para o backend
   },
   withCredentials: true,
 });
