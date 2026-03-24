@@ -13,11 +13,12 @@ public static class AuthBuilder {
       .AddScheme<AuthenticationSchemeOptions, SessionAuthHandler>(
         SessionAuthDefaults.SCHEME, _ => { });
 
-    builder.Services.AddAuthorization(options => {
-      options.FallbackPolicy = new AuthorizationPolicyBuilder()
-        .AddAuthenticationSchemes(SessionAuthDefaults.SCHEME)
-        .RequireAuthenticatedUser()
-        .Build();
-    });
+    builder.Services.AddAuthorizationBuilder()
+      .SetFallbackPolicy(
+        new AuthorizationPolicyBuilder()
+          .AddAuthenticationSchemes(SessionAuthDefaults.SCHEME)
+          .RequireAuthenticatedUser()
+          .Build()
+      );
   }
 }
