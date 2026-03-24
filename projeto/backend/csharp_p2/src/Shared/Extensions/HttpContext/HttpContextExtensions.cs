@@ -1,4 +1,5 @@
 using csharp_p2.src.Modules.Session;
+using Microsoft.AspNetCore.Authorization;
 
 namespace csharp_p2.src.Shared.Extensions;
 
@@ -15,5 +16,10 @@ public static class HttpContextExtensions {
       return sessionToken;
     }
     return null;
+  }
+
+  public static bool IsPublicEndpoint(this HttpContext context) {
+    var endpoint = context.GetEndpoint();
+    return endpoint?.Metadata.GetMetadata<AllowAnonymousAttribute>() != null;
   }
 }

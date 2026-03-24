@@ -20,7 +20,7 @@ public class AuthController : ControllerBase {
   }
 
   /**************************************************************************/
-  #region Login
+  #region Login-Web
   /**************************************************************************/
   [AllowAnonymous]
   [HttpPost("login")]
@@ -46,7 +46,11 @@ public class AuthController : ControllerBase {
     _cookiesHandler.AddSessionCookies(Response, auth.SessionToken, rememberMe);
     return Ok(auth.UserSessionPayload);
   }
+  #endregion
 
+  /**************************************************************************/
+  #region Login-App
+  /**************************************************************************/
   [AllowAnonymous]
   [HttpPost("login-app")]
   [EndpointSummary("Login para aplicativos móveis")]
@@ -73,7 +77,7 @@ public class AuthController : ControllerBase {
   #endregion
 
   /**************************************************************************/
-  #region Logout
+  #region Logout-Self
   /**************************************************************************/
   [HttpPost("logout")]
   [EndpointSummary("Logout da sessão atual.")]
@@ -90,7 +94,11 @@ public class AuthController : ControllerBase {
     _cookiesHandler.DeleteSessionCookies(Response);
     return NoContent();
   }
+  #endregion
 
+  /**************************************************************************/
+  #region Logout-All
+  /**************************************************************************/
   [HttpPost("logout/all")]
   [EndpointSummary("Logout de todas as sessões do usuário atual.")]
   [EndpointDescription("Permite que o usuário faça logout de todas as suas sessões ativas.")]

@@ -1,6 +1,5 @@
 using csharp_p2.src.Modules.Session;
 using csharp_p2.src.Shared.Helpers;
-using Microsoft.AspNetCore.Authorization;
 
 namespace csharp_p2.src.Shared.Middlewares;
 
@@ -16,10 +15,7 @@ public class SessionRefreshMiddleware {
     ISessionCacheService sessionService,
     CookiesHandler cookiesHandler
   ) {
-    var endpoint = context.GetEndpoint();
-
-    var isPublic = endpoint?.Metadata.GetMetadata<AllowAnonymousAttribute>() != null;
-    if (isPublic) {
+    if (context.IsPublicEndpoint()) { // Se a rota permite acesso anônimo, não tenta renovar sessão e simplesmente continua o pipeline normalmente, sem tentar acessar dados de sessão ou renovar token.
       await _next(context);
       return;
     }

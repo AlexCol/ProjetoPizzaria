@@ -36,4 +36,9 @@ public static class StringExtensions {
     s = s.Replace("_", "-").Replace(" ", "-");
     return s.ToLowerInvariant();
   }
+
+  public static bool In(this string str, params string[] values) {
+    if (str == null) return false;
+    return values.Contains(str);
+  }
 }

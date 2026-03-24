@@ -1,3 +1,5 @@
+using csharp_p2.src.Shared.Exceptions;
+
 namespace csharp_p2.src.Shared.Extensions;
 
 public static class HttpRequestExtensions {
@@ -17,17 +19,19 @@ public static class HttpRequestExtensions {
 
   public static string GetEntryPoint(this HttpRequest request) {
     var appOrigin = request.GetHeaderValue("app-origin");
+    if (!appOrigin.In("mobile", "web")) {
+      throw new CustomError("Invalid or missing app-origin.");
+    }
     return appOrigin;
   }
 
   public static string GetTokenFromRequest(this HttpRequest request) {
-    var entryPoint = request.GetEntryPoint();
-    if (entryPoint == "mobile") {
-      return request.Headers.Authorization.ToString();
-    } else if (entryPoint == "web") {
-      return request.GetCookieValue("session_token");
-    } else {
-      throw new InvalidOperationException("Unknown app origin. Cannot determine where to get the token from.");
+    var tokenFromHeader = request.GetHeaderValue("Authorization");
+    if (!tokenFromHeader.IsNullOrEmpty()) {
+      return tokenFromHeader;
     }
+
+    var tokenFromCookie = request.GetCookieValue("session_token");
+    return tokenFromCookie;
   }
 }
