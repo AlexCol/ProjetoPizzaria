@@ -1,36 +1,43 @@
-namespace csharp_p2.src.Extensions;
+﻿namespace csharp_p2.src.Extensions;
 
 public static class CorsBuilder {
   public static void AddCors(WebApplicationBuilder builder) {
-    //! adicionando liberação para que se permita o consumo da API por outra origem que não C# e fora do dominio
-    //? precisa depois adicionar o useCors no app
+    var env = new Config.EnvConfig(builder.Configuration);
+    var frontendUrl = (env.FrondEnd.Url ?? string.Empty).Trim().TrimEnd('/');
+
+    var allowedOrigins = string.IsNullOrWhiteSpace(frontendUrl)
+      ? new[] {
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://localhost:3000",
+        "https://127.0.0.1:3000"
+      }
+      : new[] {
+        frontendUrl,
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://localhost:3000",
+        "https://127.0.0.1:3000"
+      };
+
     builder.Services.AddCors(opt => {
       opt.AddDefaultPolicy(build => {
         build
-          .AllowAnyOrigin()
-          .AllowAnyHeader()
-          .AllowAnyMethod();
-      });
-
-      //? Política específica para SSE (conexões persistentes com autenticação)
-      opt.AddPolicy("SSEPolicy", build => {
-        build
-          .AllowAnyOrigin() // Wildcard origin
+          .WithOrigins(allowedOrigins)
           .AllowAnyHeader()
           .AllowAnyMethod()
-          .WithExposedHeaders("Content-Type", "X-Custom-Header");
-        // Nota: AllowCredentials() não pode ser usado com AllowAnyOrigin()
+          .AllowCredentials();
       });
 
-      // opt.AddPolicy("CORSAllowLocalHost", build => {
-      // 	build
-      // 			.WithOrigins("http://localhost:3011") // Substitua pela origem específica do seu frontend
-      // 			.SetIsOriginAllowedToAllowWildcardSubdomains() // Permite subdomínios (opcional) -- necessário se não informar a porta
-      // 			.AllowAnyHeader()
-      // 			.AllowAnyMethod()
-      // 			.AllowCredentials();
-      // });
-    }
-    );
+      // Politica especifica para SSE (conexoes persistentes com autenticacao)
+      opt.AddPolicy("SSEPolicy", build => {
+        build
+          .WithOrigins(allowedOrigins)
+          .AllowAnyHeader()
+          .AllowAnyMethod()
+          .AllowCredentials()
+          .WithExposedHeaders("Content-Type", "X-Custom-Header");
+      });
+    });
   }
 }
