@@ -15,14 +15,13 @@ import { signInParams } from './types/signInParams';
 function useAuthProvider() {
   const { registerCommand, unregisterCommand } = useSseContext();
   const [loggedUser, setLoggedUser] = useState<UserSessionPayload | null>(null);
-  const [avatarBase64Image, setAvatarBase64Image] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const isAuthenticated = !!loggedUser;
 
   //?????????????????????????????????????????????????????????????????????????????????
   //? Metodos do contexto
   //?????????????????????????????????????????????????????????????????????????????????
-  async function signInHandler(data: { email: string; password: string; rememberMe: boolean }) {
+  async function signInHandler(data: signInParams) {
     if (!data.email || !data.password || data.rememberMe === null) {
       toast.error('Dados de login inválidos!');
       return;
@@ -31,7 +30,7 @@ function useAuthProvider() {
   }
 
   async function signOutHandler() {
-    //await signOut();
+    await getAuth().postApiAuthLogout();
     setLoggedUser(null);
   }
 
@@ -63,11 +62,6 @@ function useAuthProvider() {
     }
   }
 
-  //? metodo para solicitar a imagem do avatar ao servidor
-  async function fetchAvatarImage() {
-
-  }
-
   //? metodo interno para limpar o usuário (que será dado para o serviço 'api' usar - use effect abaixo)
   function invalidateAuth() {
     if (!isAuthenticated) {
@@ -96,10 +90,6 @@ function useAuthProvider() {
   }, []);
 
   useEffect(() => {
-    fetchAvatarImage();
-  }, [loggedUser]);
-
-  useEffect(() => {
     //! jogar processo de 'desautenticar' o usuário para service 'api' poder usar
     setAuthFailHandler(invalidateAuth);
   }, [invalidateAuth]);
@@ -114,7 +104,6 @@ function useAuthProvider() {
     userData: loggedUser,
     signIn: signInHandler,
     signOut: signOutHandler,
-    avatarBase64Image,
   };
 }
 export type AuthContextType = ReturnType<typeof useAuthProvider>;
