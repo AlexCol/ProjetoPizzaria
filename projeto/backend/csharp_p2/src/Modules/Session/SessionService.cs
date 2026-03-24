@@ -5,7 +5,7 @@ using csharp_p2.src.Shared.DTOs;
 namespace csharp_p2.src.Modules.Session;
 
 public interface ISessionService {
-  Task<CreateUserSessionResponse> CreateSession(User user);
+  Task<CreateUserSessionResponse> CreateSession(User user, SessionOptionsDto options);
   Task<UserSessionPayload> MontarPayloadAsync(User user);
   Task SendSessionUpdateNotificationAsync(long userId);
 }
@@ -25,9 +25,9 @@ public class SessionService : ISessionService {
   /* Metodos Interface                                                          */
   /*****************************************************************************/
   #region Metodos Interface
-  public async Task<CreateUserSessionResponse> CreateSession(User user) {
+  public async Task<CreateUserSessionResponse> CreateSession(User user, SessionOptionsDto options) {
     var payload = await MontarPayloadAsync(user);
-    var sessionToken = await _sessionCacheService.CreateSessionAsync(payload);
+    var sessionToken = await _sessionCacheService.CreateSessionAsync(payload, options);
 
     return new CreateUserSessionResponse {
       SessionToken = sessionToken,

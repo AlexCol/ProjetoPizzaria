@@ -1,14 +1,15 @@
 using csharp_p2.src.Shared.Helpers;
 using csharp_p2.src.Modules.Infra.Cache;
 using csharp_p2.src.Config;
+using csharp_p2.src.Shared.DTOs;
 
 namespace csharp_p2.src.Modules.Session;
 
 public interface ISessionCacheService {
   Task<UserSession> GetSessionAsync(string sessionId);
   Task<SessionsPerUserRecordDto> GetActiveSessionsCountPerUserAsync();
-  Task<string> CreateSessionAsync(UserSessionPayload payload);
-  Task<bool> RefreshSessionAsync(string sessionToken);
+  Task<string> CreateSessionAsync(UserSessionPayload payload, SessionOptionsDto options);
+  Task<(bool, UserSession)> RefreshSessionAsync(string sessionToken);
   Task<int> UpdateSessionsByUserIdAsync(long userId, UserSessionPayload newPayload);
   Task DestroySessionAsync(string sessionToken);
   Task<int> DestroySessionsByUserIdAsync(long userId);
@@ -59,12 +60,13 @@ public class SessionCacheService : ISessionCacheService {
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CREATE
   #region Create
-  public async Task<string> CreateSessionAsync(UserSessionPayload payload) {
+  public async Task<string> CreateSessionAsync(UserSessionPayload payload, SessionOptionsDto options) {
     var sessionToken = TokenGenerator.GenerateToken();
     var now = DateTime.UtcNow;
 
     var session = new UserSession {
       Payload = payload,
+      Options = options,
       CreatedAt = now,
       ExpiresAt = now.AddSeconds(_env.Cache.SessionTtlInSec)
     };
@@ -78,7 +80,7 @@ public class SessionCacheService : ISessionCacheService {
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!UPDATE
   #region Update
-  public async Task<bool> RefreshSessionAsync(string sessionToken) {
+  public async Task<(bool, UserSession)> RefreshSessionAsync(string sessionToken) {
     var sessionData = await GetSessionAsync(sessionToken);
     if (sessionData is null)
       throw new UnauthorizedAccessException("Sessão inválida ou expirada");
@@ -89,14 +91,14 @@ public class SessionCacheService : ISessionCacheService {
     var timeToExpiry = sessionData.ExpiresAt - now;
 
     if (timeToExpiry > oneDay) //! regra explicada abaixo
-      return false;
+      return (false, sessionData);
 
     sessionData.ExpiresAt = now.Add(oneDay);
 
     var newSessionData = JsonSerializer.Serialize(sessionData);
     await _cache.SetAsync($"{CACHE_KEY_PREFIX}{sessionToken}", newSessionData, oneDay);
 
-    return true;
+    return (true, sessionData);
   }
 
   public async Task<int> UpdateSessionsByUserIdAsync(long userId, UserSessionPayload newPayload) {

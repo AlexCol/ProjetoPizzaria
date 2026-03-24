@@ -8,6 +8,7 @@ public class ResponseUserDto {
   public string Email { get; set; }
   public string Name { get; set; }
   public EUserStatus Status { get; set; }
+  public long? RoleId { get; set; }
   public ResponseRoleDto Role { get; set; }
 
   public ResponseUserDto() { }
@@ -17,6 +18,7 @@ public class ResponseUserDto {
     Email = user.Email.ToString();
     Name = user.Name;
     Status = user.Status;
-    Role = new ResponseRoleDto(user.Role);
+    RoleId = user.Role is null ? user.RoleId : null;
+    Role = user.Role is not null ? new ResponseRoleDto(user.Role) : null;
   }
 }

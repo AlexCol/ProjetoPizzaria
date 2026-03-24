@@ -24,8 +24,10 @@ public static class HttpRequestExtensions {
     var entryPoint = request.GetEntryPoint();
     if (entryPoint == "mobile") {
       return request.Headers.Authorization.ToString();
-    } else {
+    } else if (entryPoint == "web") {
       return request.GetCookieValue("session_token");
+    } else {
+      throw new InvalidOperationException("Unknown app origin. Cannot determine where to get the token from.");
     }
   }
 }

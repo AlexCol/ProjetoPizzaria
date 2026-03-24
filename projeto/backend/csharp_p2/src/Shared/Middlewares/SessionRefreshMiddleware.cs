@@ -30,12 +30,11 @@ public class SessionRefreshMiddleware {
     }
 
     try {
-      var refreshed = await sessionService.RefreshSessionAsync(sessionToken);
+      var (refreshed, sessionData) = await sessionService.RefreshSessionAsync(sessionToken);
 
-      if (refreshed) {
-        var rememberMeValue = context.Request.GetHeaderValue("remember-me");
-        var rememberMe = bool.TryParse(rememberMeValue, out var parsed) && parsed;
-
+      var isFromWeb = sessionData?.Options.AppOrigin == "web"; //não precisa verificar se tem web ou mobile, pois isso é validado no GetTokenFromRequest.
+      if (refreshed && isFromWeb) {
+        var rememberMe = sessionData.Options?.RememberMe ?? false;
         cookiesHandler.AddSessionCookies(context.Response, sessionToken, rememberMe);
       }
     } catch {

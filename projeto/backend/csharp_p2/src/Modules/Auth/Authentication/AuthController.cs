@@ -30,17 +30,20 @@ public class AuthController : ControllerBase {
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto) {
     var appOrigin = Request.GetEntryPoint();
-    if (appOrigin != "web") {
+    if (appOrigin != "web")
       throw new CustomError("Este endpoint é destinado apenas para aplicativos web. Use /api/auth/login-app para mobile.");
-    }
-
-    var auth = await _authService.LoginAsync(loginDto);
 
     var rememberMeValue = Request.GetHeaderValue("remember-me");
     var rememberMe = bool.TryParse(rememberMeValue, out var parsed) && parsed;
 
-    _cookiesHandler.AddSessionCookies(Response, auth.SessionToken, rememberMe);
+    var loginOptions = new SessionOptionsDto(
+      RememberMe: rememberMe,
+      AppOrigin: appOrigin
+    );
 
+    var auth = await _authService.LoginAsync(loginDto, loginOptions);
+
+    _cookiesHandler.AddSessionCookies(Response, auth.SessionToken, rememberMe);
     return Ok(auth.UserSessionPayload);
   }
 
@@ -52,12 +55,15 @@ public class AuthController : ControllerBase {
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> LoginAppAsync([FromBody] LoginDto loginDto) {
     var appOrigin = Request.GetEntryPoint();
-    if (appOrigin != "mobile") {
+    if (appOrigin != "mobile")
       throw new CustomError("Este endpoint é destinado apenas para aplicativos móveis. Use /api/auth/login para web.");
-    }
 
-    var auth = await _authService.LoginAsync(loginDto);
+    var loginOptions = new SessionOptionsDto(
+      RememberMe: false,
+      AppOrigin: appOrigin
+    );
 
+    var auth = await _authService.LoginAsync(loginDto, loginOptions);
     var response = new MobileLoginResponseDto {
       UserSessionPayload = auth.UserSessionPayload,
       SessionToken = auth.SessionToken

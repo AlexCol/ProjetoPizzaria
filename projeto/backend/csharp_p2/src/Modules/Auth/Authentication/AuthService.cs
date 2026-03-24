@@ -6,7 +6,7 @@ using csharp_p2.src.Shared.VOs;
 namespace csharp_p2.src.Modules.Auth.Authentication;
 
 public interface IAuthService {
-  Task<CreateUserSessionResponse> LoginAsync(LoginDto loginDto);
+  Task<CreateUserSessionResponse> LoginAsync(LoginDto loginDto, SessionOptionsDto sessionOptions);
 }
 
 public class AuthService : IAuthService {
@@ -18,9 +18,10 @@ public class AuthService : IAuthService {
     _sessionService = sessionService;
   }
 
-  public async Task<CreateUserSessionResponse> LoginAsync(LoginDto loginDto) {
+  public async Task<CreateUserSessionResponse> LoginAsync(LoginDto loginDto, SessionOptionsDto sessionOptions) {
     var user = await ObtemUsuarioAsync(loginDto);
-    var sessionData = await _sessionService.CreateSession(user);
+
+    var sessionData = await _sessionService.CreateSession(user, sessionOptions);
     return sessionData;
   }
 

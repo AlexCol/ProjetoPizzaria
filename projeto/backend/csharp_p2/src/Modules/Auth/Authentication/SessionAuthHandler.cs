@@ -3,6 +3,7 @@ using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 using csharp_p2.src.Modules.Session;
+using csharp_p2.src.Shared.Exceptions;
 
 namespace csharp_p2.src.Modules.Auth.Authentication;
 
@@ -30,7 +31,12 @@ public class SessionAuthHandler : AuthenticationHandler<AuthenticationSchemeOpti
 
     var session = await _sessionCache.GetSessionAsync(token);
     if (session is null)
-      return AuthenticateResult.Fail("Sessão inválida ou expirada.");
+      throw new CustomError("Invalid session token, no session found for the provided token.", 401);
+
+    var entryPoint = Request.GetEntryPoint();
+    if (entryPoint != session.Options.AppOrigin) {
+      throw new CustomError("Token origin mismatch, The token's origin does not match the request's origin.", 401);
+    }
 
     var claims = new List<Claim>
     {
