@@ -5,9 +5,9 @@
  * API para gerenciamento de pedidos e clientes.
  * OpenAPI spec version: 1.0
  */
+import { apiClient } from '../../api-mutator';
 import type { CategoriesDto, Category, GetApiCategoriesParams, MessageDto } from '../models';
 
-import { apiClient } from '../../api-mutator';
 
 export const getCategories = () => {
   /**

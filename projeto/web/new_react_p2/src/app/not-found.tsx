@@ -1,7 +1,7 @@
 'use client';
 
-import FuzzyText from '@/components/singles/_reactbits/FuzzyText';
 import Link from 'next/link';
+import FuzzyText from '@/components/singles/_reactbits/FuzzyText';
 
 export default function NotFound() {
   return (

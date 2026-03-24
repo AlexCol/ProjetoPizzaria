@@ -4,7 +4,10 @@ import axios, { AxiosError } from 'axios';
 /*****************************************************************/
 /* Configuração base                                             */
 /*****************************************************************/
-const baseUrl = process.env.NEXT_PUBLIC_BASE || 'http://localhost:3300'; // Valor padrão para desenvolvimento
+const baseUrl = process.env.NEXT_PUBLIC_BASE;
+if (!baseUrl) {
+  throw new Error('NEXT_PUBLIC_BASE não está definido. API client não pode ser criado.');
+}
 
 const core = axios.create({
   baseURL: baseUrl,

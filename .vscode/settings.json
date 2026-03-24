@@ -20,7 +20,8 @@
   },
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
-    "source.organizeImports": "explicit"
+    "source.removeUnusedImports": "explicit"
+    //"source.organizeImports": "explicit"
   },
   "peacock.color": "#5406c2",
 }

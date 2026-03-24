@@ -1,6 +1,6 @@
-import { AuthProvider } from "@/components/contexts/auth/AuthContext";
-import { SseProvider } from "@/components/contexts/sse/SSEContext";
-import ToastContext from "@/components/contexts/toast/ToastContext";
+import { AuthProvider } from '@/components/contexts/auth/AuthContext';
+import { SseProvider } from '@/components/contexts/sse/SSEContext';
+import ToastContext from '@/components/contexts/toast/ToastContext';
 
 function App({ children }: { children: React.ReactNode }) {
   //providers e contexts globais aqui

@@ -5,6 +5,7 @@
  * API para gerenciamento de pedidos e clientes.
  * OpenAPI spec version: 1.0
  */
+import { apiClient } from '../../api-mutator';
 import type {
   CreateOrderDto,
   GetApiOrdersParams,
@@ -14,7 +15,6 @@ import type {
   UpdateOrderStatusDto,
 } from '../models';
 
-import { apiClient } from '../../api-mutator';
 
 export const getOrders = () => {
   /**

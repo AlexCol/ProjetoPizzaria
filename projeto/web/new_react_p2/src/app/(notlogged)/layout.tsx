@@ -1,8 +1,8 @@
 'use client';
-import { useAuthContext } from '@/components/contexts/auth/AuthContext';
-import GradientBackground from '@/components/singles/GradientBackground';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
+import { useAuthContext } from '@/components/contexts/auth/AuthContext';
+import GradientBackground from '@/components/singles/GradientBackground';
 import Loading from '../loading';
 
 export default function LayoutUnAuthOnly({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -16,7 +16,7 @@ export default function LayoutUnAuthOnly({ children }: Readonly<{ children: Reac
     if (isAuthenticated && !isLoading) {
       router.replace('/');
     }
-  }, [isAuthenticated, isLoading]);
+  }, [isAuthenticated, isLoading, router]);
 
   /********************/
   /* Returns          */

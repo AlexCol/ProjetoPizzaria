@@ -1,5 +1,5 @@
-import DarkMode from '@/components/contexts/darkMode/DarkMode';
 import type { Metadata } from 'next';
+import DarkMode from '@/components/contexts/darkMode/DarkMode';
 import App from './app';
 import './globals.css';
 

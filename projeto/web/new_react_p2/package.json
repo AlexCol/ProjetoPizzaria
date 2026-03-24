@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "format": "prettier --write .",
-    "lint": "eslint --fix src --ext .ts",
-    "orval": "npx orval --config ./orval.config.ts"
+    "lint": "eslint --fix src --ext .ts,.tsx,.js,.jsx",
+    "orval": "npx orval --config ./orval.config.ts && npm run lint && npm run format"
   },
   "dependencies": {
     "axios": "^1.13.6",
@@ -36,3 +36,4 @@
     "typescript": "^5"
   }
 }
+

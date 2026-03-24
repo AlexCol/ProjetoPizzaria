@@ -5,9 +5,9 @@
  * API para gerenciamento de pedidos e clientes.
  * OpenAPI spec version: 1.0
  */
+import { apiClient } from '../../api-mutator';
 import type { FileStreamResult, GetApiFileDownloadParams, GetApiFileViewParams } from '../models';
 
-import { apiClient } from '../../api-mutator';
 
 export const getFile = () => {
   /**

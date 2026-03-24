@@ -1,43 +1,36 @@
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
-import { defineConfig, globalIgnores } from "eslint/config";
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import tsEslintPlugin from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTs from 'eslint-config-next/typescript';
+import importPlugin from 'eslint-plugin-import';
+import unusedImports from 'eslint-plugin-unused-imports';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  // Override default ignores of eslint-config-next.
-  globalIgnores([
-    // Default ignores of eslint-config-next:
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
-  ]),
+  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
   {
-    files: ['**/*.ts', '**/*.js', '**/*.tsx', '**/*.jsx'],
-    ignores: [
-      '.next/**',
-      'out/**',
-      'build/**',
-      'node_modules/**',
-      'next-env.d.ts',
-      'src/components/ui/**',
-      'src/components/primitives/**',
-    ],
+    files: ['**/*.{ts,tsx,js,jsx}'],
+    ignores: ['src/components/ui/**', 'src/components/primitives/**'],
     languageOptions: {
-      parser: (await import('@typescript-eslint/parser')).default,
+      parser: tsParser,
       parserOptions: {
-        project: ['./tsconfig.app.json', './tsconfig.node.json'],
+        project: ['./tsconfig.json'],
         tsconfigRootDir: __dirname,
         ecmaVersion: 'latest',
         sourceType: 'module',
-        ecmaFeatures: { legacyDecorators: true },
       },
     },
     plugins: {
-      '@typescript-eslint': (await import('@typescript-eslint/eslint-plugin')).default,
-      import: (await import('eslint-plugin-import')).default,
-      'unused-imports': (await import('eslint-plugin-unused-imports')).default,
+      '@typescript-eslint': tsEslintPlugin,
+      import: importPlugin,
+      'unused-imports': unusedImports,
     },
     rules: {
       'no-console': 'warn',
@@ -69,22 +62,14 @@ const eslintConfig = defineConfig([
           },
         },
       ],
-      'no-restricted-syntax': [
-        'error',
-        {
-          selector:
-            "JSXOpeningElement[name.type='JSXIdentifier'][name.name=/^(div|span|p|h1|h2|h3|h4|h5|h6|section|article|main|aside|header|footer|nav|form|label|input|textarea|select|option|button|a|ul|ol|li|table|thead|tbody|tr|th|td)$/]",
-          message:
-            'Nao use tags HTML diretas no app. Use componentes de UI/primitives (ex: Box, Text, Stack, Button, Input, AppLink, Field).',
-        },
-      ],
+      quotes: ['error', 'single', { avoidEscape: true, allowTemplateLiterals: true }],
+      'jsx-quotes': ['error', 'prefer-single'],
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-inferrable-types': 'off',
-      '@typescript-eslint/no-floating-promises': 'warn',
+      '@typescript-eslint/no-floating-promises': 'error',
     },
   },
-  prettier,
 ]);
 
 export default eslintConfig;
