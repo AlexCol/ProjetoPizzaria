@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-BR" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- <link rel="icon" type="image/svg+xml" href="/mini-logo.png" /> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pizzaria Coletti</title>
+
+    <!-- Script para evitar flash de conteúdo ao carregar dark mode -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme');
+          var isDark = stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          var root = document.documentElement;
+          root.classList.toggle('dark', isDark);
+          root.classList.toggle('light', !isDark);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="h-full">
+    <div id="root" class="h-full bg-background text-primary-text transition-colors duration-300"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
