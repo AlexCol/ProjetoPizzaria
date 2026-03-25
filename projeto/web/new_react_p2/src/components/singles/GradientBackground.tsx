@@ -15,7 +15,7 @@ export default function GradientBackground() {
         absolute 
         inset-0 
         animate-gradient 
-        bg-linear-to-br from-primary via-secondary to-tertiary'
+        bg-linear-to-br from-primary to-secondary'
       />
 
       {/* camada radial suave */}

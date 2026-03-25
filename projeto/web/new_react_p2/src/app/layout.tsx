@@ -1,7 +1,12 @@
 import type { Metadata } from 'next';
+import { Manrope, Geist_Mono } from 'next/font/google';
 import DarkMode from '@/components/contexts/darkMode/DarkMode';
+import { cn } from '@/lib/utils';
 import App from './app';
 import './globals.css';
+
+const geistMonoHeading = Geist_Mono({ subsets: ['latin'], variable: '--font-heading' });
+const manrope = Manrope({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
   title: 'Pizzaria Coletti',
@@ -10,7 +15,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang='pt-BR' className={htmlTC} suppressHydrationWarning>
+    <html
+      lang='pt-BR'
+      className={cn(htmlTC, 'font-sans', manrope.variable, geistMonoHeading.variable)}
+      suppressHydrationWarning
+    >
       <head>
         {/*esse script é pra já iniciar o dark mode no lado do cliente e evitar um flash de conteúdo */}
         <script

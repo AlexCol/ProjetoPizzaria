@@ -4,7 +4,8 @@ export default function LoadingTailwind() {
       <div className={wrapperTailwindClass}>
         <span className={`${ballBaseTailwindClass} ${ballColor1TC}`} style={{ animationDelay: '0s' }} />
         <span className={`${ballBaseTailwindClass} ${ballColor2TC}`} style={{ animationDelay: '0.2s' }} />
-        <span className={`${ballBaseTailwindClass} ${ballColor3TC}`} style={{ animationDelay: '0.4s' }} />
+        <span className={`${ballBaseTailwindClass} ${ballColor1TC}`} style={{ animationDelay: '0.4s' }} />
+        <span className={`${ballBaseTailwindClass} ${ballColor2TC}`} style={{ animationDelay: '0.6s' }} />
       </div>
     </div>
   );
@@ -32,4 +33,3 @@ const ballBaseTailwindClass = `
 
 const ballColor1TC = `bg-primary`; // Cor da primeira bolinha
 const ballColor2TC = `bg-secondary`; // Cor da segunda bolinha
-const ballColor3TC = `bg-tertiary`; // Cor da terceira bolinha
