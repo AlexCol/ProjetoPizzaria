@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import Main from '@/app/(logged)/main';
 import NotFound from '@/app/_NotFound/not-found';
 
@@ -12,6 +12,7 @@ function LoggedRoutes() {
         {/* <Main> */}
         <Routes>
           <Route path='/' element={<Main />} />
+          <Route path='/auth/login' element={<Navigate to='/' replace />} />
           <Route path='*' element={<NotFound />} />
         </Routes>
         {/* </Main> */}

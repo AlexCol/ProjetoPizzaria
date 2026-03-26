@@ -23,7 +23,8 @@ function useAuthProvider() {
   //? Metodos do contexto
   //?????????????????????????????????????????????????????????????????????????????????
   async function signInHandler(data: signInParams) {
-    if (!data.email || !data.password || data.rememberMe === null) {
+    const { credentials: { email, password }, rememberMe } = data;
+    if (!email || !password || rememberMe === null) {
       toast.error('Dados de login inválidos!');
       return;
     }
@@ -48,7 +49,7 @@ function useAuthProvider() {
       const controller = getAuth();
       if (params) {
         setRememberMe(params.rememberMe);
-        data = await controller.postApiAuthLogin(params);
+        data = await controller.postApiAuthLogin(params.credentials);
         forgetMe();
       } else {
         data = await controller.getApiAuthSession();

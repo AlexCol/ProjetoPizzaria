@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 function Login() {
-  const { emailRef, passwordRef, rememberMeRef, signInHandler, isLoading } = useLogin();
+  const { emailRef, passwordRef, rememberMeRef, signInHandler } = useLogin();
 
   return (
     <div className={loginStyles.containerTC}>
@@ -58,8 +58,8 @@ function Login() {
             </button>
           </div>
 
-          <Button type='submit' variant='default' size='default' className={loginStyles.submitButtonTC} disabled={isLoading}>
-            {isLoading ? 'Entrando...' : 'Entrar'}
+          <Button type='submit' variant='default' size='default' className={loginStyles.submitButtonTC}>
+            Entrar
           </Button>
         </form>
 

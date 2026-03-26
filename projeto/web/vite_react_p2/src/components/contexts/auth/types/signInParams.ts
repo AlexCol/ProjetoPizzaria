@@ -1,5 +1,7 @@
 export type signInParams = {
-  email: string;
-  password: string;
+  credentials: {
+    email: string;
+    password: string;
+  },
   rememberMe: boolean;
 };

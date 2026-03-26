@@ -35,11 +35,7 @@ export function getApiClient() {
 /*****************************************************************/
 //! funções de controle para rememberMe (se cookie vai ser de sessão ou persistente)
 export function setRememberMe(rememberMe: boolean) {
-  if (!rememberMe) {
-    delete core.defaults.headers.common['remember-me'];
-  } else {
-    core.defaults.headers.common['remember-me'] = rememberMe;
-  }
+  core.defaults.headers.common['remember-me'] = rememberMe;
 }
 
 //! função para limpar o remember-me, útil para logout
