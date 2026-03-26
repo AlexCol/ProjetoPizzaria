@@ -1,5 +1,7 @@
+import { LockIcon } from "lucide-react";
 import loginStyles from "./login.styles";
 import useLogin from "./useLogin";
+import Icon from "@/components/singles/Icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,8 +12,16 @@ function Login() {
   return (
     <div className={loginStyles.containerTC}>
       <div className={loginStyles.cardTC}>
+        <Icon // {/* Logo/Ícone */}
+          icon={LockIcon}
+          containerClassName='mb-6'
+          iconContainerClassName='w-16 h-16'
+          iconClassName='w-10 h-10'
+          pulse={true}
+        />
+
         <div className={loginStyles.titleContainerTC}>
-          <h1 className={loginStyles.titleH1TC}>Entrar</h1>
+          <h1 className={loginStyles.titleH1TC}>Pizzaria Coletti</h1>
           <p className={loginStyles.titlePTC}>Acesse sua conta para continuar.</p>
         </div>
 

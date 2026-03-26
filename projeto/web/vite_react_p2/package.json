@@ -11,14 +11,14 @@
     "lint": "eslint --fix src --ext .ts,.tsx,.js,.jsx",
     "orval": "npx orval --config ./orval.config.ts && npm run lint && npm run format"
   },
-"dependencies": {
+  "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
     "axios": "^1.13.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "focus-trap-react": "^12.0.0",
     "framer-motion": "^12.34.0",
-    "lucide-react": "^0.563.0",
+    "lucide-react": "^1.7.0",
     "next-themes": "^0.4.6",
     "radix-ui": "^1.4.3",
     "react": "^19.2.0",
