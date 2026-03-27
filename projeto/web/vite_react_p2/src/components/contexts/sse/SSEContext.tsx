@@ -1,5 +1,6 @@
 'use client';
 
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import Logger from '@/utils/Logger';
@@ -15,9 +16,9 @@ interface CommandsCallbacks {
 function useSseProvider() {
   const [isConnected, setIsConnected] = useState(false);
   const [sseEnabled, setSseEnabledState] = useState(false);
-  const eventSourceRef = useRef<EventSource | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const isConnectedRef = useRef(false);
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isConnectingRef = useRef(false);
   const commandList = useRef(new Map<string, CommandsCallbacks>()).current;
 
   //?????????????????????????????????????????????????????????????????????????????????
@@ -26,22 +27,20 @@ function useSseProvider() {
   function registerCommand(eventName: string, onMessage: (data: any) => void, onError?: () => void) {
     unregisterCommand(eventName); //? garante que nao tenha comando duplicado, se tiver, remove o antigo antes de adicionar o novo
 
-    commandList.set(eventName, { onMessage, onError: onError ?? (() => undefined) });
-    if (eventSourceRef.current) {
-      eventSourceRef.current.addEventListener(eventName, handleEvent);
-    }
+    commandList.set(eventName, {
+      onMessage,
+      onError: onError ?? (() => undefined),
+    });
   }
 
   function unregisterCommand(eventName: string) {
     commandList.delete(eventName);
-    if (eventSourceRef.current) {
-      eventSourceRef.current.removeEventListener(eventName, handleEvent);
-    }
   }
 
   const setSseEnabled = useCallback((enabled: boolean) => {
     setSseEnabledState(enabled);
     if (!enabled) {
+      isConnectingRef.current = false;
       isConnectedRef.current = false;
       setIsConnected(false);
     }
@@ -52,96 +51,136 @@ function useSseProvider() {
   //?????????????????????????????????????????????????????????????????????????????????
   //! metodo para lidar com eventos SSE
   const handleEvent = useCallback(
-    (event: MessageEvent) => {
-      const callback = commandList.get(event.type);
-      if (callback && callback.onMessage) {
-        try {
-          const data = JSON.parse(event.data);
-          callback.onMessage(data);
-        } catch {
-          callback.onError?.();
-        }
+    (eventName: string, rawData: string) => {
+      const callback = commandList.get(eventName);
+      if (!callback?.onMessage) return;
+
+      let data: unknown = rawData;
+
+      try {
+        data = rawData ? JSON.parse(rawData) : undefined;
+      } catch {
+        data = rawData || undefined;
+      }
+
+      try {
+        callback.onMessage(data);
+      } catch (error) {
+        Logger.error(`Erro ao processar evento SSE "${eventName}":`, error);
+        callback.onError?.();
       }
     },
     [commandList],
   );
 
-  //! metodos para cadastrar os eventos do EventSource (onopen, onerror e os comandos)
-  const cadastraOnOpen = useCallback((eventSource: EventSource) => {
-    eventSource.onopen = () => {
-      isConnectedRef.current = true;
-      setIsConnected(true);
-      Logger.log('SSE conectado com sucesso');
-    };
-  }, []);
-
-  //*
-  const cadastraComandos = useCallback(
-    (eventSource: EventSource) => {
-      for (const eventName of commandList.keys()) {
-        eventSource.addEventListener(eventName, handleEvent);
-      }
-    },
-    [commandList, handleEvent],
-  );
-
-  //*
-  const cadastraOnError = useCallback((eventSource: EventSource) => {
-    eventSource.onerror = (error) => {
-      isConnectedRef.current = false;
-      setIsConnected(false);
-      Logger.error('Erro na conexao SSE:', error);
-    };
-  }, []);
-
-  //! metodo de conexao, sera automatica assim que receber authenticated = true
-  const connect = useCallback(() => {
-    if (!sseEnabled || isConnectedRef.current) return;
+  //! metodo de conexao com fetch-event-source (permite enviar headers)
+  const connect = useCallback(async () => {
+    if (!sseEnabled || isConnectedRef.current || isConnectingRef.current) return;
 
     const baseUrl = import.meta.env.VITE_API_URL || '';
     if (!baseUrl) {
-      toast.error('VITE_API_URL não está definido. SSE não pode se conectar.');
+      toast.error('VITE_API_URL nao esta definido. SSE nao pode se conectar.');
       return;
     }
 
-    const url = `${baseUrl}sse/connect`;
-    try {
-      const eventSource = new EventSource(url, {
-        withCredentials: true,
-      });
+    const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    const url = `${normalizedBaseUrl}/api/sse/connect`;
 
-      cadastraOnOpen(eventSource);
-      cadastraComandos(eventSource);
-      cadastraOnError(eventSource);
-
-      eventSourceRef.current = eventSource;
-    } catch (error) {
-      Logger.error('Erro ao criar conexao SSE:', error);
-      isConnectedRef.current = false;
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
     }
-  }, [cadastraComandos, cadastraOnError, cadastraOnOpen, sseEnabled]);
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    isConnectingRef.current = true;
+
+    try {
+      await fetchEventSource(url, {
+        method: 'GET',
+        signal: controller.signal,
+        credentials: 'include',
+        openWhenHidden: true,
+        headers: {
+          Accept: 'text/event-stream',
+          'app-origin': 'web',
+        },
+
+        async onopen(response) {
+          if (!response.ok) {
+            throw new Error(`Falha ao abrir SSE: ${response.status}`);
+          }
+
+          if (abortControllerRef.current !== controller) return;
+
+          isConnectingRef.current = false;
+          isConnectedRef.current = true;
+          setIsConnected(true);
+          Logger.log('SSE conectado com sucesso');
+        },
+
+        async onmessage(event) {
+          Logger.log('Evento SSE recebido:', event);
+          if (abortControllerRef.current !== controller) return;
+
+          const eventName = event.event || 'message';
+          handleEvent(eventName, event.data);
+        },
+
+        onclose() {
+          if (abortControllerRef.current !== controller) return;
+
+          isConnectingRef.current = false;
+          isConnectedRef.current = false;
+          setIsConnected(false);
+          Logger.log('SSE conexao encerrada');
+        },
+
+        onerror(error) {
+          if (abortControllerRef.current !== controller) return;
+
+          isConnectingRef.current = false;
+          isConnectedRef.current = false;
+          setIsConnected(false);
+          Logger.error('Erro na conexao SSE:', error);
+        },
+      });
+    } catch (error) {
+      isConnectingRef.current = false;
+      isConnectedRef.current = false;
+      setIsConnected(false);
+
+      if ((error as Error).name !== 'AbortError') {
+        Logger.error('Erro ao criar conexao SSE:', error);
+      }
+    } finally {
+      if (abortControllerRef.current === controller && !isConnectedRef.current) {
+        abortControllerRef.current = null;
+      }
+    }
+  }, [handleEvent, sseEnabled]);
 
   //! metodo de desconexao
   const disconnect = useCallback(() => {
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-      reconnectTimeoutRef.current = null;
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
     }
 
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
-      eventSourceRef.current = null;
-      isConnectedRef.current = false;
-      Logger.log('SSE desconectado');
-    }
+    isConnectingRef.current = false;
+    isConnectedRef.current = false;
+    setIsConnected(false);
+    Logger.log('SSE desconectado');
   }, []);
 
   //?????????????????????????????????????????????????????????????????????????????????
   //? useEffects
   //?????????????????????????????????????????????????????????????????????????????????
   useEffect(() => {
-    if (sseEnabled) connect();
-    else disconnect();
+    if (sseEnabled) {
+      void connect();
+    } else {
+      disconnect();
+    }
 
     return () => {
       disconnect();
@@ -192,9 +231,11 @@ Fluxo:
 
 1. consumidor chama registerCommand(<eventName>, onMessage, onError?)
 2. isso salva no commandList
-3. cadastraComandos registra no EventSource cada eventName com o listener genérico handleEvent
-4. quando chega evento, o browser chama handleEvent
-5. handleEvent usa event.type para buscar no commandList o callback real
-6. executa onMessage; se falhar parse/processamento, chama onError (se houver)
+3. quando sseEnabled = true, connect() abre a conexao com fetchEventSource
+4. no onmessage, o provider identifica o nome do evento recebido (event.event ou "message")
+5. handleEvent busca no commandList o callback correspondente ao eventName
+6. o payload tenta ser convertido de JSON; se nao for JSON valido, segue como texto bruto
+7. executa onMessage; se o processamento do callback falhar, chama onError (se houver)
+8. quando sseEnabled = false ou o provider desmonta, disconnect() aborta a conexao atual
 */
 //#endregion

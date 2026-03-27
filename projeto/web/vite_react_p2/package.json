@@ -12,6 +12,7 @@
     "orval": "npx orval --config ./orval.config.ts && npm run lint && npm run format"
   },
   "dependencies": {
+    "@microsoft/fetch-event-source": "^2.0.1",
     "@tailwindcss/vite": "^4.1.18",
     "axios": "^1.13.5",
     "class-variance-authority": "^0.7.1",

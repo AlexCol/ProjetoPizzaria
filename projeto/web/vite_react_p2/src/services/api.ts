@@ -56,7 +56,7 @@ async function handleException(error: unknown) {
   let errorMessage = error instanceof Error ? error.message : 'Ocorreu um erro desconhecido';
 
   if (error instanceof AxiosError) {
-    errorMessage = error.response?.data?.message || errorMessage;
+    errorMessage = error.response?.data?.Message || errorMessage;
     checkIfNeedToLogout(error);
   }
 
