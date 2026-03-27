@@ -49,7 +49,7 @@ public class UsersService : IUsersService {
   }
 
   public async Task<PaginatedResult<ResponseUserDto>> GetUsersWithSearchCriteriaAsync(SearchCriteriaRequest<User> searchCriteria) {
-    var resultado = await _userRepository.GetWithSearchCriteriaAsync(searchCriteria);
+    var resultado = await _userRepository.GetWithSearchCriteriaWithReferencesAsync(searchCriteria);
     var resultadoDto = new PaginatedResult<ResponseUserDto> {
       Data = resultado.Data.Select(user => new ResponseUserDto(user)).ToList(),
       Total = resultado.Total,

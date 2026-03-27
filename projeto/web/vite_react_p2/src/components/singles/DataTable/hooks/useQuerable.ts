@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import type { DataTableServerSideManager } from '../interfaces/DataTableProps';
-import type { QueryParams } from '@/services/util/buildQueryParams';
 import type { PaginatedDtoResponse } from '@/services/util/paginatedDtoResponse';
+import type { QueryParams } from '@/services/util/QueryParams';
 import Logger from '@/utils/Logger';
 
 type Querable<T> = {
@@ -58,17 +58,20 @@ export default function useQuerable<T>(querable: Querable<T>) {
   async function loadData(setLoading: boolean = true) {
     if (setLoading) setIsLoading(true);
     try {
-      const queryParams: QueryParams = {
-        where: filters,
-        ordernation: {
-          orderDirection: orderDirection,
-          orderField: orderField,
-        },
-        paginations: {
-          page: page,
-          limit: limit,
-        },
-      };
+      const queryParams = {} as any;
+      if (orderField) {
+        queryParams['sort-field'] = orderField;
+        queryParams['sort-order'] = orderDirection;
+      }
+      if (page) queryParams.page = page;
+      if (limit) queryParams.limit = limit;
+
+      if (filters.length > 0) {
+        filters.forEach((filter) => {
+          queryParams[filter.field] = filter.value;
+        });
+      }
+
       const dados = await querable.searcher(queryParams);
       setTotalItems(dados.total);
       setDados(dados);
