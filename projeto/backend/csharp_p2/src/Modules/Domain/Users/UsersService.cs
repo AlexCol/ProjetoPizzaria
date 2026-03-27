@@ -1,9 +1,9 @@
-using csharp_p2.src.Modules.Infra.Email;
 using csharp_p2.src.Modules.Session;
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Exceptions;
 using csharp_p2.src.Shared.Pagination;
 using csharp_p2.src.Shared.VOs;
+using Hangfire;
 
 namespace csharp_p2.src.Modules.Domain;
 
@@ -64,8 +64,7 @@ public class UsersService : IUsersService {
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CREATE
   public async Task<ResponseUserDto> CreateUserAsync(CreateUserDto dto) {
     var dtoEmailVO = new EmailVO(dto.Email);
-    var users = await _userRepository.GetAllAsync();
-    var existingUser = users.FirstOrDefault(u => u.Email.Equals(dtoEmailVO));
+    var existingUser = await _userRepository.FindOneWithPredicateAsync(u => u.Email.Equals(dtoEmailVO));
     if (existingUser != null) {
       throw new CustomError("Email already in use.");
     }
@@ -91,7 +90,7 @@ public class UsersService : IUsersService {
     var createdUser = await _userRepository.InsertAsync(newUser);
     var userWithRole = await _userRepository.GetByIdWithReferencesAsync(createdUser.Id); //? para retornar o role junto no dto
 
-    await SendEmailForActivationAsync(newUser);
+    await SendEmailForActivationAsync(newUser.Id);
 
     return new ResponseUserDto(userWithRole);
   }
@@ -172,7 +171,7 @@ public class UsersService : IUsersService {
       throw new CustomError("User is already active.");
     }
 
-    await SendEmailForActivationAsync(user);
+    await SendEmailForActivationAsync(user.Id);
     return new MessageDto("Activation email resent successfully. Please check your email.");
   }
 
@@ -188,7 +187,7 @@ public class UsersService : IUsersService {
       throw new CustomError("User is not active.");
     }
 
-    await SendEmailForPasswordResetAsync(user);
+    await SendEmailForPasswordResetAsync(user.Id);
     return new MessageDto("Password reset email sent successfully. Please check your email.");
   }
 
@@ -237,30 +236,16 @@ public class UsersService : IUsersService {
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!SendEmail
   #region SendEmail
-  private async Task SendEmailForActivationAsync(User newUser) {
-    _ = Task.Run(async () => {
-      var scopeFactory = _serviceProvider.GetRequiredService<IServiceScopeFactory>();
-      using var scope = scopeFactory.CreateScope();
-
-      var tokenControlService = scope.ServiceProvider.GetRequiredService<ITokenControlService>();
-      var token = await tokenControlService.RegisterProcessTokenAsync(newUser.Id, Processes.ActivateUser);
-
-      var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
-      await emailService.SendRegisterEmailAsync(token, newUser);
-    });
+  private Task SendEmailForActivationAsync(long userId) {
+    var backgroundJobClient = _serviceProvider.GetRequiredService<IBackgroundJobClient>();
+    backgroundJobClient.Enqueue<IUsersEmailJob>(job => job.SendActivationEmailAsync(userId));
+    return Task.CompletedTask;
   }
 
-  private async Task SendEmailForPasswordResetAsync(User user) {
-    _ = Task.Run(async () => {
-      var scopeFactory = _serviceProvider.GetRequiredService<IServiceScopeFactory>();
-      using var scope = scopeFactory.CreateScope();
-
-      var tokenControlService = scope.ServiceProvider.GetRequiredService<ITokenControlService>();
-      var token = await tokenControlService.RegisterProcessTokenAsync(user.Id, Processes.PasswordReset, DateTime.UtcNow.AddMinutes(10));
-
-      var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
-      await emailService.SendRecoverPasswordEmailAsync(token, user.Email.Value);
-    });
+  private Task SendEmailForPasswordResetAsync(long userId) {
+    var backgroundJobClient = _serviceProvider.GetRequiredService<IBackgroundJobClient>();
+    backgroundJobClient.Enqueue<IUsersEmailJob>(job => job.SendPasswordResetEmailAsync(userId));
+    return Task.CompletedTask;
   }
   #endregion
 }

@@ -17,11 +17,8 @@ public class CategoriesController : ControllerBase {
   [EndpointDescription("Retorna uma lista de todas as categorias cadastradas.")]
   [ProducesResponseType(typeof(IEnumerable<Category>), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
-  public async Task<ActionResult<IEnumerable<Category>>> GetAllCategoriesAsync(
-    [FromQuery] int page = 1,
-    [FromQuery] int pageSize = 10
-  ) {
-    var categories = await _service.GetAllCategoriesAsync(page, pageSize);
+  public async Task<ActionResult<IEnumerable<Category>>> GetAllCategoriesAsync() {
+    var categories = await _service.GetAllCategoriesAsync();
     return Ok(categories);
   }
 

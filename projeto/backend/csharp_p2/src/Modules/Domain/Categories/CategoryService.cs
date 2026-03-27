@@ -4,7 +4,7 @@ using csharp_p2.src.Shared.Exceptions;
 namespace csharp_p2.src.Modules.Domain;
 
 public interface ICategoriesService {
-  Task<IEnumerable<Category>> GetAllCategoriesAsync(int page, int pageSize);
+  Task<IEnumerable<Category>> GetAllCategoriesAsync();
   Task<Category> GetCategoryByIdAsync(long id);
   Task<string> CreateCategoryAsync(CategoriesDto category);
   Task<string> UpdateCategoryAsync(long id, CategoriesDto category);
@@ -21,8 +21,8 @@ public class CategoriesService : ICategoriesService {
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!GETS
-  public async Task<IEnumerable<Category>> GetAllCategoriesAsync(int page, int pageSize) {
-    return await _repository.GetAllAsync(page, pageSize);
+  public async Task<IEnumerable<Category>> GetAllCategoriesAsync() {
+    return await _repository.GetAllAsync();
   }
 
   public async Task<Category> GetCategoryByIdAsync(long id) {
