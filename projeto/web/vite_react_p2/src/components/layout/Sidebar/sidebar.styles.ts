@@ -3,10 +3,8 @@ export const sidebarStyles = {
     flex
     flex-col
     min-h-screen
-    bg-sidebar
-    text-sidebar-foreground
     border-r
-    border-sidebar-border
+    border-border
     transition-all
     duration-300
     ease-in-out

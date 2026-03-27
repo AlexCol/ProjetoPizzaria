@@ -26,11 +26,10 @@ const styles = {
     mt-auto
     h-14
     border-t
-    border-sidebar-border
+    border-border
     px-3
     flex
     items-center
-    bg-sidebar
     transition-colors
     duration-300
   `,

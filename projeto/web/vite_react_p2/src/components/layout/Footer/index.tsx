@@ -3,7 +3,7 @@ function Footer() {
 
   return (
     <footer className={footerTailwindClass}>
-      <span className='text-sm'>{`© ${currentYear} Translator Server.`}</span>
+      <span className='text-sm'>{`© ${currentYear} Pizzaria Coletti.`}</span>
     </footer>
   );
 }

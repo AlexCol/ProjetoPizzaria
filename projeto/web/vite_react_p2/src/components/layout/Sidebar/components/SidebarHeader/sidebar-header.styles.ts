@@ -7,8 +7,7 @@ export const sidebarHeaderStyles = {
     px-5
     py-5
     border-b
-    border-sidebar-border
-    bg-sidebar
+    border-border
     transition-all
     duration-300
   `,
@@ -26,6 +25,8 @@ export const sidebarHeaderStyles = {
     whitespace-nowrap
   `,
   toggleButtonTC: `
-    hover:text-sidebar-primary
+    hover:text-primary
+    transition-all
+    duration-300
   `,
 };
