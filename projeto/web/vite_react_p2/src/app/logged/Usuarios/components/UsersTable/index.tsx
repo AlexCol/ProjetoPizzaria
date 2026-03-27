@@ -4,7 +4,7 @@ import { useUsersTableColumns } from './useUsersTableColumns';
 import { DataTable } from '@/components/singles/DataTable/DataTable';
 
 function UsuariosTable({ states }: UsersStates) {
-  const { dadosUsuarios, isLoading } = states;
+  const { dadosUsuarios, isLoading, datatableServerSideManager } = states;
 
   const columns = useUsersTableColumns({ states });
 
@@ -17,7 +17,7 @@ function UsuariosTable({ states }: UsersStates) {
         emptyMessage='Nenhum usuário encontrado'
         showPagination={true}
         isLoading={isLoading}
-      //datatableServerSideManager={datatableServerSideManager}
+        datatableServerSideManager={datatableServerSideManager}
       />
     </div>
   );
