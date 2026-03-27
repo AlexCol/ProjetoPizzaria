@@ -17,6 +17,7 @@ public class OrderItem : BaseEntityWithId {
   public Product Product { get; set; }
 }
 
+[EntityConfiguration]
 public static class OrderItemEntityConfiguration {
   public static void ConfigureOrderItem(this ModelBuilder modelBuilder) {
     modelBuilder.Entity<OrderItem>(entity => {

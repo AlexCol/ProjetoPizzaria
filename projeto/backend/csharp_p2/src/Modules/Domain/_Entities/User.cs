@@ -29,6 +29,7 @@ public class User : BaseEntityWithId {
   public Role Role { get; set; }
 }
 
+[EntityConfiguration]
 public static class UserEntityConfiguration {
   public static void ConfigureUser(this ModelBuilder modelBuilder) {
     modelBuilder.Entity<User>(entity => {

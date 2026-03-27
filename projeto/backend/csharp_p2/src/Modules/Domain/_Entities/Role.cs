@@ -10,6 +10,7 @@ public class Role : BaseEntityWithId {
   public string Name { get; set; }
 }
 
+[EntityConfiguration]
 public static class RoleEntityConfiguration {
   public static void ConfigureRole(this ModelBuilder modelBuilder) {
     modelBuilder.Entity<Role>(entity => {

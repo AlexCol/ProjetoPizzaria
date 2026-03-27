@@ -26,6 +26,7 @@ public class Product : BaseEntityWithId {
   public Category Category { get; set; }
 }
 
+[EntityConfiguration]
 public static class ProductEntityConfiguration {
   public static void ConfigureProduct(this ModelBuilder modelBuilder) {
     modelBuilder.Entity<Product>(entity => {

@@ -9,6 +9,7 @@ public class Category : BaseEntityWithId {
   public string Name { get; set; }
 }
 
+[EntityConfiguration]
 public static class CategoriesEntityConfiguration {
   public static void ConfigureCategories(this ModelBuilder modelBuilder) {
     modelBuilder.Entity<Category>(entity => {

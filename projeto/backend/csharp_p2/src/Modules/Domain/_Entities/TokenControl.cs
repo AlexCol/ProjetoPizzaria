@@ -21,6 +21,7 @@ public class TokenControl {
   public DateTime? ExpiresAt { get; set; }
 }
 
+[EntityConfiguration]
 public static class TokenControlEntityConfiguration {
   public static void ConfigureTokenControl(this ModelBuilder modelBuilder) {
     modelBuilder.Entity<TokenControl>(entity => {

@@ -2,6 +2,7 @@ using csharp_p2.src.Modules.Domain;
 using csharp_p2.src.Shared.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Reflection;
 
 namespace csharp_p2.src.Modules.Infra.Database;
 
@@ -28,15 +29,25 @@ public class BaseDBContext : DbContext {
   /**********************************************/
   #region Entities
   private void ConfigureEntities(ModelBuilder modelBuilder) {
-    // Configuracoes das entidades aqui
-    modelBuilder.ConfigureProcess();
-    modelBuilder.ConfigureRole();
-    modelBuilder.ConfigureTokenControl();
-    modelBuilder.ConfigureUser();
-    modelBuilder.ConfigureCategories();
-    modelBuilder.ConfigureProduct();
-    modelBuilder.ConfigureOrder();
-    modelBuilder.ConfigureOrderItem();
+    var methods = typeof(BaseDBContext).Assembly
+      .GetTypes()
+      .Where(type => type.IsClass
+        && type.IsAbstract
+        && type.IsSealed
+        && type.GetCustomAttribute<EntityConfigurationAttribute>() is not null)
+      .SelectMany(type => type.GetMethods(BindingFlags.Public | BindingFlags.Static))
+      .Where(method => method.ReturnType == typeof(void))
+      .Where(method => {
+        var parameters = method.GetParameters();
+        return parameters.Length == 1 && parameters[0].ParameterType == typeof(ModelBuilder);
+      })
+      .OrderBy(method => method.DeclaringType?.Name)
+      .ThenBy(method => method.Name)
+      .ToList();
+
+    foreach (var method in methods) {
+      method.Invoke(null, [modelBuilder]);
+    }
   }
   #endregion
 

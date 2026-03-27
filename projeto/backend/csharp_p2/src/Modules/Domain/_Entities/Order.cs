@@ -20,6 +20,7 @@ public class Order : BaseEntityWithId {
   public List<OrderItem> OrderItems { get; set; }
 }
 
+[EntityConfiguration]
 public static class OrderEntityConfiguration {
   public static void ConfigureOrder(this ModelBuilder modelBuilder) {
     modelBuilder.Entity<Order>(entity => {

@@ -76,20 +76,16 @@ public class GenericEntityRepository<T> : IGenericEntityRepository<T> where T : 
     return await FindByIdAsync(id, true);
   }
 
-  public async Task<IEnumerable<T>> GetAllAsync(int page = 1, int pageSize = 20) {
+  public async Task<IEnumerable<T>> GetAllAsync() {
     return await _context.Set<T>()
       .AsNoTracking()
-      .Skip((page - 1) * pageSize)
-      .Take(pageSize)
       .ToListAsync();
   }
 
-  public async Task<IEnumerable<T>> GetAllWithReferencesAsync(int page = 1, int pageSize = 20) {
+  public async Task<IEnumerable<T>> GetAllWithReferencesAsync() {
     return await _context.Set<T>()
       .AsNoTracking()
       .IncludeAll()
-      .Skip((page - 1) * pageSize)
-      .Take(pageSize)
       .ToListAsync();
   }
 
@@ -106,21 +102,17 @@ public class GenericEntityRepository<T> : IGenericEntityRepository<T> where T : 
       .FirstOrDefaultAsync(predicate);
   }
 
-  public async Task<IEnumerable<T>> SearchWithPredicateAsync(Expression<Func<T, bool>> predicate, int page = 1, int pageSize = 20) {
+  public async Task<IEnumerable<T>> SearchWithPredicateAsync(Expression<Func<T, bool>> predicate) {
     return await _context.Set<T>()
       .AsNoTracking()
       .Where(predicate)
-      .Skip((page - 1) * pageSize)
-      .Take(pageSize)
       .ToListAsync();
   }
 
-  public async Task<IEnumerable<T>> SearchWithPredicateWithReferencesAsync(Expression<Func<T, bool>> predicate, int page = 1, int pageSize = 20) {
+  public async Task<IEnumerable<T>> SearchWithPredicateWithReferencesAsync(Expression<Func<T, bool>> predicate) {
     return await _context.Set<T>()
       .AsNoTracking()
       .Where(predicate)
-      .Skip((page - 1) * pageSize)
-      .Take(pageSize)
       .IncludeAll()
       .ToListAsync();
   }

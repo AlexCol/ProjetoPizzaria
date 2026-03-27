@@ -9,6 +9,7 @@ public class Process : BaseEntityWithId {
   public string Name { get; set; }
 }
 
+[EntityConfiguration]
 public static class ProcessEntityConfiguration {
   public static void ConfigureProcess(this ModelBuilder modelBuilder) {
     modelBuilder.Entity<Process>(entity => {
