@@ -1,7 +1,6 @@
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import type { useSidebarType } from '../../useSidebar';
 import { sidebarHeaderStyles } from './sidebar-header.styles';
-import { Button } from '@/components/ui/button';
 
 type SideBarHeaderProps = {
   states: useSidebarType;
@@ -11,7 +10,7 @@ function SideBarHeader(props: SideBarHeaderProps) {
   const { isCollapsed, toggleSidebar } = props.states;
   return (
     <div className={sidebarHeaderStyles.headerTC}>
-      <Button
+      <button
         type='button'
         onClick={toggleSidebar}
         className={sidebarHeaderStyles.toggleButtonTC}
@@ -20,7 +19,7 @@ function SideBarHeader(props: SideBarHeaderProps) {
         <div className='transition-transform duration-300'>
           {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
         </div>
-      </Button>
+      </button>
       {!isCollapsed && (
         <h2 className={`${sidebarHeaderStyles.titleTC}`}>
           Pizzaria Coletti

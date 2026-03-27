@@ -3,7 +3,6 @@ import MenuItemChildless from './components/MenuItemChildless';
 import MenuItemWithChildren from './components/MenuItemWithChildren';
 import { menuItemStyles } from './menu-item.styles';
 import useMenuItem from './useMenuItem';
-import { cn } from '@/lib/utils';
 
 export type MenuItemProps = {
   menu: MenuItemDetails;
@@ -39,11 +38,10 @@ export function MenuItem(menuStates: MenuItemProps) {
 }
 
 function buildClassNames(isCollapsed: boolean, isActive: boolean) {
-  const baseClassName = cn(
+  const baseClassName = [
     menuItemStyles.menuItemTC,
-    { [menuItemStyles.menuItemCollapsedTC]: isCollapsed },
-    { [menuItemStyles.menuItemActiveTC]: isActive, [menuItemStyles.menuItemInactiveTC]: !isActive },
-  );
-
+    isCollapsed ? menuItemStyles.menuItemCollapsedTC : '',
+    isActive ? menuItemStyles.menuItemActiveTC : menuItemStyles.menuItemInactiveTC,
+  ].filter(Boolean).join(' ');
   return { baseClassName };
 }

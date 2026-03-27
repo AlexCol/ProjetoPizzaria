@@ -1,10 +1,9 @@
 import { LockIcon } from "lucide-react";
 import loginStyles from "./login.styles";
 import useLogin from "./useLogin";
+import Button from "@/components/singles/Button";
 import Icon from "@/components/singles/Icon";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import Input from "@/components/singles/Input";
 
 function Login() {
   const { emailRef, passwordRef, rememberMeRef, signInHandler } = useLogin();
@@ -27,27 +26,25 @@ function Login() {
 
         <form className={loginStyles.formTC} onSubmit={signInHandler}>
           <div className={loginStyles.fieldTC}>
-            <Label htmlFor='email'>E-mail</Label>
             <Input
-              id='email'
               type='email'
               ref={emailRef}
               placeholder='voce@exemplo.com'
               autoComplete='email'
+              label="E-Mail"
               required
               className={loginStyles.inputTC}
             />
           </div>
 
           <div className={loginStyles.fieldTC}>
-            <Label htmlFor='password'>Senha</Label>
             <Input
-              id='password'
               type='password'
               ref={passwordRef}
               placeholder='Sua senha'
               autoComplete='current-password'
               required
+              label="Senha"
               className={loginStyles.inputTC}
             />
           </div>
@@ -68,9 +65,10 @@ function Login() {
             </button>
           </div>
 
-          <Button type='submit' variant='default' size='default' className={loginStyles.submitButtonTC}>
-            Entrar
-          </Button>
+          <Button
+            type='submit'
+            className={loginStyles.submitButtonTC}
+            label="Entrar" />
         </form>
 
         <p className={loginStyles.registrarContainerTC}>
