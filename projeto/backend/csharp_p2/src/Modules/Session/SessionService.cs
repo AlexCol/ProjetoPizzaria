@@ -1,6 +1,6 @@
 using csharp_p2.src.Modules.Domain;
-using csharp_p2.src.Modules.Sse;
 using csharp_p2.src.Shared.DTOs;
+using Hangfire;
 
 namespace csharp_p2.src.Modules.Session;
 
@@ -11,14 +11,14 @@ public interface ISessionService {
 }
 
 public class SessionService : ISessionService {
+  private readonly IBackgroundJobClient _backgroundJobClient;
   private readonly IServiceProvider _serviceProvider;
   private readonly ISessionCacheService _sessionCacheService;
-  private readonly IServiceScopeFactory _scopeFactory;
 
-  public SessionService(IServiceProvider serviceProvider, ISessionCacheService sessionCacheService, IServiceScopeFactory scopeFactory) {
+  public SessionService(IServiceProvider serviceProvider, ISessionCacheService sessionCacheService, IBackgroundJobClient backgroundJobClient) {
     _serviceProvider = serviceProvider;
     _sessionCacheService = sessionCacheService;
-    _scopeFactory = scopeFactory;
+    _backgroundJobClient = backgroundJobClient;
   }
 
   /*****************************************************************************/
@@ -47,23 +47,9 @@ public class SessionService : ISessionService {
     return payload;
   }
 
-  public async Task UpdateSessionAsync(long userId) {
-    // _ = Task.Run(async () => {
-    //   using var scope = _scopeFactory.CreateScope();
-    //   try {
-    //     var userRepository = scope.ServiceProvider.GetRequiredService<IGenericEntityRepository<User>>();
-    //     var user = await userRepository.GetByIdWithReferencesAsync(userId);
-    //     if (user == null) return;
-
-    //     var payload = await MontarPayloadAsync(user);
-
-    //     await _sessionCacheService.UpdateSessionsByUserIdAsync(userId, payload);
-
-    //     await SendSessionUpdateNotificationAsync(userId, scope);
-    //   } catch (Exception ex) {
-    //     Log.Error("Error sending session update notification: " + ex.Message);
-    //   }
-    // });
+  public Task UpdateSessionAsync(long userId) {
+    _backgroundJobClient.Enqueue<ISessionUpdateJob>(job => job.ExecuteAsync(userId));
+    return Task.CompletedTask;
   }
 
   #endregion
@@ -72,14 +58,6 @@ public class SessionService : ISessionService {
   /* Metodos Privados                                                          */
   /*****************************************************************************/
   #region Metodos Privados
-  private async Task SendSessionUpdateNotificationAsync(long userId, IServiceScope scope) {
-    // try {
-    //   var sseService = scope.ServiceProvider.GetRequiredService<ISseService>();
-    //   await sseService.SendToUserAsync(userId.ToString(), ESseEvents.SessionUpdated, null);
-    // } catch (Exception ex) {
-    //   Log.Error("Error sending session update notification: " + ex.Message);
-    // }
-  }
   private record DadosAdicionaisUsuario {
     public Role Role { get; init; }
   }
