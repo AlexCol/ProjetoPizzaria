@@ -119,7 +119,7 @@ function useSseProvider() {
         },
 
         async onmessage(event) {
-          Logger.log('Evento SSE recebido:', event);
+          //console.log('Evento SSE recebido:', event);
           if (abortControllerRef.current !== controller) return;
 
           const eventName = event.event || 'message';

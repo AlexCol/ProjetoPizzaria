@@ -1,8 +1,8 @@
 'use client';
 
-import SidebarFooter from './components/SidebarFooter/SidebarFooter';
-import SideBarHeader from './components/SidebarHeader/SidebarHeader';
-import SidebarMenu from './components/SideBarMenu/SideBarMenu';
+import SidebarFooter from './components/SidebarFooter';
+import SideBarHeader from './components/SidebarHeader';
+import SidebarMenu from './components/SideBarMenu';
 import { sidebarStyles } from './sidebar.styles';
 import useSidebar from './useSidebar';
 

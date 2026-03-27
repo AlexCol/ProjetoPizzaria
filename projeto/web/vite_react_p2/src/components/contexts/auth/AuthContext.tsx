@@ -88,14 +88,14 @@ function useAuthProvider() {
     void authHandler();
 
     //! registra comando SSE para atualização de sessão
-    registerCommand('session-update', () => {
-      Logger.log('SSE: session-update received, refreshing auth session');
+    registerCommand('session-updated', () => {
+      Logger.log('SSE: session-updated received, refreshing auth session');
       void authHandler(undefined, false);
     });
 
     return () => {
       //! limpa o comando ao desmontar o componente
-      unregisterCommand('session-update');
+      unregisterCommand('session-updated');
     };
   }, [authHandler, registerCommand, unregisterCommand]);
 

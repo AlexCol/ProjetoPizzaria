@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import Login from '@/app/(notlogged)/auth/login';
+import Login from '@/app/not-logged/auth/login';
 import GradientBackground from '@/components/singles/GradientBackground';
 
 function NotLoggedRoutes() {
