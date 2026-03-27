@@ -2,6 +2,7 @@ using csharp_p2.src.Modules.Infra.Email;
 using csharp_p2.src.Modules.Session;
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Exceptions;
+using csharp_p2.src.Shared.Pagination;
 using csharp_p2.src.Shared.VOs;
 
 namespace csharp_p2.src.Modules.Domain;
@@ -10,6 +11,7 @@ public interface IUsersService {
   Task<ResponseUserDto> GetUserByIdAsync(long id);
   Task<User> GetEntityByEmailWithPasswordAsync(EmailVO email);
   Task<IEnumerable<ResponseUserDto>> GetAllUsersAsync();
+  Task<PaginatedResult<ResponseUserDto>> GetUsersWithSearchCriteriaAsync(SearchCriteriaRequest<User> searchCriteria);
   Task<ResponseUserDto> CreateUserAsync(CreateUserDto dto);
   Task<ResponseUserDto> UpdateUserAsync(long id, UpdateUserDto dto);
   Task<MessageDto> ActivateUserAsync(string token);
@@ -44,6 +46,17 @@ public class UsersService : IUsersService {
 
   public Task<User> GetEntityByEmailWithPasswordAsync(EmailVO email) {
     return _userRepository.FindOneWithPredicateAsync(u => u.Email.Equals(email));
+  }
+
+  public async Task<PaginatedResult<ResponseUserDto>> GetUsersWithSearchCriteriaAsync(SearchCriteriaRequest<User> searchCriteria) {
+    var resultado = await _userRepository.GetWithSearchCriteriaAsync(searchCriteria);
+    var resultadoDto = new PaginatedResult<ResponseUserDto> {
+      Data = resultado.Data.Select(user => new ResponseUserDto(user)).ToList(),
+      Total = resultado.Total,
+      Page = resultado.Page,
+      Limit = resultado.Limit,
+    };
+    return resultadoDto;
   }
   #endregion
 

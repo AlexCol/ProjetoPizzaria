@@ -1,4 +1,5 @@
 using csharp_p2.src.Shared.DTOs;
+using csharp_p2.src.Shared.Pagination;
 using Microsoft.AspNetCore.Authorization;
 
 namespace csharp_p2.src.Modules.Domain;
@@ -31,6 +32,17 @@ public class UsersController : ControllerBase {
   public async Task<ActionResult<ResponseUserDto>> GetUserByIdWithReferencesAsync(long id) {
     var user = await _usersService.GetUserByIdAsync(id);
     return Ok(user);
+  }
+
+  [HttpGet("search")]
+  [EndpointSummary("Obter Todas os Usuários com Filtros na Query.")]
+  [EndpointDescription("Retorna uma lista de todas os usuários, aplicando filtros enviados na query.")]
+  [ProducesResponseType(typeof(PaginatedResult<ResponseUserDto>), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
+  public async Task<IActionResult> GetUsersWithFiltersAsync(
+  [FromQuery] SearchCriteriaRequest<User> searchCriteria) {
+    var users = await _usersService.GetUsersWithSearchCriteriaAsync(searchCriteria);
+    return Ok(users);
   }
 
   [Authorize(Roles = "Admin")]
