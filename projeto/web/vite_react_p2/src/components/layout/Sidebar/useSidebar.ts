@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import GetMenuTree from './data/menu-itens';
 import type { MenuItemDetails } from './types/types';
 import { useAuthContext } from '@/components/contexts/auth/AuthContext';
+import GetMenuTree from '@/router/data/menu-itens';
 
 export default function useSidebar() {
   const { userData } = useAuthContext();
