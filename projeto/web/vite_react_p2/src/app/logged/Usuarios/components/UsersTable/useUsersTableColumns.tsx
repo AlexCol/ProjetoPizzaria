@@ -1,4 +1,3 @@
-
 import type { ColumnDef } from '@tanstack/react-table';
 import type { UsersStates } from '../../useUsers';
 import useCreateDataTableColumn from '@/components/singles/DataTable/hooks/useCreateDataTableColumn';

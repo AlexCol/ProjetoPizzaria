@@ -1,4 +1,3 @@
-
 import type { UsersStates } from '../../useUsers';
 import usuarioCreateStyles from './usuario-create.styles';
 import Button from '@/components/singles/Button';
@@ -18,7 +17,7 @@ function UsuarioCreate({ states }: UsersStates) {
         </div>
 
         {/* Formulário */}
-        <Form className='w-full' onSubmit={() => { }} autoComplete='off'>
+        <Form className='w-full' onSubmit={() => {}} autoComplete='off'>
           <div className={usuarioCreateStyles.formGridTC}>
             {/* Campo de Email - Span 2 colunas */}
             {/* <div className={usuarioCreateStyles.fullWidthFieldTC}>

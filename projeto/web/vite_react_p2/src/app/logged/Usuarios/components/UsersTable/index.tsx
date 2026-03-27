@@ -1,4 +1,3 @@
-
 import type { UsersStates } from '../../useUsers';
 import { useUsersTableColumns } from './useUsersTableColumns';
 import { DataTable } from '@/components/singles/DataTable/DataTable';
