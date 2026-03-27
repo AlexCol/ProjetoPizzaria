@@ -1,4 +1,3 @@
-
 import { useReactTable, type CellContext, type ColumnDef, type HeaderContext } from '@tanstack/react-table';
 import { Filter, FilterX } from 'lucide-react';
 import { useRef } from 'react';
@@ -44,32 +43,32 @@ export default function useCreateDataTableColumn<T>(params: UseCreateDataTableCo
       ? params.customHeader
       : params.enableFiltering
         ? ({ column }) => (
-          <FilterHeader
-            column={column}
-            headerValue={params.headerValue}
-            filterPlaceholder={params.filterPlaceholder}
-            filterType={params.filterType}
-            filterOptions={params.filterOptions}
-          />
-        )
+            <FilterHeader
+              column={column}
+              headerValue={params.headerValue}
+              filterPlaceholder={params.filterPlaceholder}
+              filterType={params.filterType}
+              filterOptions={params.filterOptions}
+            />
+          )
         : () => <span className='font-medium'>{params.headerValue || 'Header'}</span>,
 
     cell: params.customCell
       ? params.customCell
       : ({ getValue }) => {
-        const value = getValue();
-        const fieldType = params.fieldType || 'string';
+          const value = getValue();
+          const fieldType = params.fieldType || 'string';
 
-        if (fieldType === 'number') {
-          return <span className={`${params.cellClassName} flex pl-10`}>{String(value)}</span>; // Convert to string
-        }
+          if (fieldType === 'number') {
+            return <span className={`${params.cellClassName} flex pl-10`}>{String(value)}</span>; // Convert to string
+          }
 
-        if (fieldType === 'date') {
-          return <span className={params.cellClassName}>{new Date(value as string).toLocaleString('pt-BR')}</span>; // Ensure string conversion
-        }
+          if (fieldType === 'date') {
+            return <span className={params.cellClassName}>{new Date(value as string).toLocaleString('pt-BR')}</span>; // Ensure string conversion
+          }
 
-        return <span className={params.cellClassName}>{String(value)}</span>; // Convert to string
-      },
+          return <span className={params.cellClassName}>{String(value)}</span>; // Convert to string
+        },
   };
 
   return column;

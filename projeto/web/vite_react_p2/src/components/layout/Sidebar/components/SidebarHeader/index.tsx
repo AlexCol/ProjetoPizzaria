@@ -20,11 +20,7 @@ function SideBarHeader(props: SideBarHeaderProps) {
           {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
         </div>
       </button>
-      {!isCollapsed && (
-        <h2 className={`${sidebarHeaderStyles.titleTC}`}>
-          Pizzaria Coletti
-        </h2>
-      )}
+      {!isCollapsed && <h2 className={`${sidebarHeaderStyles.titleTC}`}>Pizzaria Coletti</h2>}
     </div>
   );
 }

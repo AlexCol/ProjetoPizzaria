@@ -77,34 +77,34 @@ export default function useDataTable<TData>({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnFiltersChange: isControlledFiltering
       ? (updater) => {
-        // Pega o estado atual dos filtros do servidor
-        const currentServerFilters = filters.map((f) => ({ id: f.field, value: f.value }));
-        const newFilters = typeof updater === 'function' ? updater(currentServerFilters) : updater;
-        const filterArray = newFilters.map((filter) => ({
-          field: filter.id,
-          value: filter.value,
-        }));
-        onFiltersChange(filterArray);
-        // Volta para a primeira página ao filtrar
-        if (onPageChange) {
-          onPageChange(1);
+          // Pega o estado atual dos filtros do servidor
+          const currentServerFilters = filters.map((f) => ({ id: f.field, value: f.value }));
+          const newFilters = typeof updater === 'function' ? updater(currentServerFilters) : updater;
+          const filterArray = newFilters.map((filter) => ({
+            field: filter.id,
+            value: filter.value,
+          }));
+          onFiltersChange(filterArray);
+          // Volta para a primeira página ao filtrar
+          if (onPageChange) {
+            onPageChange(1);
+          }
         }
-      }
       : setColumnFilters,
     //!ordenação
     getSortedRowModel: !isControlledPagination ? getSortedRowModel() : undefined,
     ...(isControlledSorting
       ? {
-        manualSorting: true, // Desabilita ordenação automática
-      }
+          manualSorting: true, // Desabilita ordenação automática
+        }
       : {}),
     onSortingChange: isControlledSorting
       ? (updater) => {
-        const newSorting = typeof updater === 'function' ? updater(sorting) : updater;
-        if (newSorting[0]) {
-          onSortChange(newSorting[0].id, newSorting[0].desc ? 'desc' : 'asc');
+          const newSorting = typeof updater === 'function' ? updater(sorting) : updater;
+          if (newSorting[0]) {
+            onSortChange(newSorting[0].id, newSorting[0].desc ? 'desc' : 'asc');
+          }
         }
-      }
       : setSorting,
     //!paginacao
     getPaginationRowModel: !isControlledPagination ? getPaginationRowModel() : undefined,
@@ -119,9 +119,9 @@ export default function useDataTable<TData>({
     },
     ...(isControlledPagination
       ? {
-        manualPagination: true,
-        pageCount: Math.ceil(totalItems! / pageSize),
-      }
+          manualPagination: true,
+          pageCount: Math.ceil(totalItems! / pageSize),
+        }
       : {}),
   });
 

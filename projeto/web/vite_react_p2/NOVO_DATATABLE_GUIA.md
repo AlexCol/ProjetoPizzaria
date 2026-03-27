@@ -1,18 +1,22 @@
 ﻿# Novo DataTable com TanStack - Guia de Implementacao (Simples e Manutenivel)
 
 ## Objetivo
+
 Construir um novo `DataTable` com `@tanstack/react-table`, mantendo consumo simples na tela e suporte a:
+
 - Busca
 - Ordenacao
 - Paginacao
 
 Modos:
+
 - `client`: dados em memoria
 - `server`: backend controla query
 
 ---
 
 ## Dependencias
+
 Obrigatoria:
 
 ```bash
@@ -34,6 +38,7 @@ npm i lucide-react
 ---
 
 ## Principios
+
 1. Uma API unica (`<DataTable ... />`).
 2. Mesmo componente para `client` e `server`.
 3. Sem hacks de renderizacao.
@@ -43,6 +48,7 @@ npm i lucide-react
 ---
 
 ## Estrutura sugerida (sem redundancia)
+
 Crie em `src/components/singles/DataTable`:
 
 ```txt
@@ -60,6 +66,7 @@ Se o time preferir, pode separar por pasta `components/`, mas evitando nomes rep
 ---
 
 ## 1. Tipos base (`types.ts`)
+
 Use `ColumnDef<TData, TValue>` do TanStack.
 
 ```ts
@@ -101,6 +108,7 @@ export type DataTableProps<TData> = ClientProps<TData> | ServerProps<TData>;
 ```
 
 ### Dica importante sobre union type
+
 Mantenha a union para seguranca da API publica, mas evite `narrowing` em todo o hook com um normalizador:
 
 ```ts
@@ -137,20 +145,25 @@ function normalizeProps<TData>(props: DataTableProps<TData>) {
 ---
 
 ## 2. Hook unico (`useDataTableState.ts`)
+
 No hook, inicialize `useReactTable` e concentre regra de client/server.
 
 TanStack recomendado:
+
 - `getCoreRowModel`
 - `getFilteredRowModel`
 - `getSortedRowModel`
 - `getPaginationRowModel`
 
 Regras:
+
 1. `client`
+
 - `sorting`, `globalFilter` e `pagination` locais.
 - TanStack processa em memoria.
 
 2. `server`
+
 - `manualSorting: true`
 - `manualFiltering: true`
 - `manualPagination: true`
@@ -162,6 +175,7 @@ Regras:
 ---
 
 ## 3. Componentes visuais (burros)
+
 - `toolbar.tsx`: busca global + total
 - `table.tsx`: header/body + clique de ordenacao
 - `pagination.tsx`: page size + navegacao
@@ -174,6 +188,7 @@ Sem regra de negocio pesada no JSX.
 ## 4. Casos de borda que devem estar no guia
 
 ### Coluna sem `accessorKey`
+
 Para colunas de acao/calculo, use `id` + `accessorFn` (quando precisar valor):
 
 ```ts
@@ -185,6 +200,7 @@ Para colunas de acao/calculo, use `id` + `accessorFn` (quando precisar valor):
 ```
 
 ### Celula customizada
+
 Muito comum em producao:
 
 ```ts
@@ -196,6 +212,7 @@ Muito comum em producao:
 ```
 
 ### Coluna de acoes
+
 Sem busca e sem ordenacao:
 
 ```ts
@@ -209,10 +226,11 @@ Sem busca e sem ordenacao:
 ```
 
 ### Valores nulos/undefined
+
 Defina fallback no `cell`:
 
 ```ts
-cell: ({ getValue }) => getValue() ?? '-'
+cell: ({ getValue }) => getValue() ?? '-';
 ```
 
 ---
@@ -237,7 +255,7 @@ const columns: ColumnDef<Usuario>[] = [
   initialPageSize={20}
   pageSizeOptions={[10, 20, 50]}
   emptyMessage='Nenhum usuario encontrado'
-/>
+/>;
 ```
 
 ---
@@ -269,7 +287,7 @@ const { data, isFetching } = useQuery({
   onQueryChange={setQueryState}
   loading={isFetching}
   emptyMessage='Nenhum registro encontrado'
-/>
+/>;
 ```
 
 Observacao: `useEffect` pode funcionar, mas React Query/SWR e o caminho esperado hoje para cache, refetch e estado de carregamento.
@@ -277,12 +295,15 @@ Observacao: `useEffect` pode funcionar, mas React Query/SWR e o caminho esperado
 ---
 
 ## 7. Extensibilidade: selecao de linhas
+
 Mesmo fora do MVP, deixe previsto no contrato:
+
 - `enableRowSelection?: boolean`
 - `selectedRowIds?: Record<string, boolean>`
 - `onSelectedRowIdsChange?: (state) => void`
 
 No TanStack:
+
 - usar `rowSelection` no `state`
 - habilitar `onRowSelectionChange`
 - adicionar coluna de checkbox apenas quando `enableRowSelection = true`
@@ -290,6 +311,7 @@ No TanStack:
 ---
 
 ## 8. Mapeamento recomendado para backend
+
 Request:
 
 ```ts
@@ -314,6 +336,7 @@ Response:
 ---
 
 ## 9. Checklist de qualidade
+
 1. Nao usar `useReactTable({} as any)` em subcomponentes.
 2. Nao duplicar estado sem necessidade.
 3. Resetar pagina ao mudar busca/ordenacao/pageSize.
@@ -324,7 +347,9 @@ Response:
 ---
 
 ## 10. DoD (Definicao de pronto)
+
 Pronto quando:
+
 1. Busca, ordenacao e paginacao funcionam em `client`.
 2. Busca, ordenacao e paginacao funcionam em `server`.
 3. API de consumo continua curta.
@@ -334,6 +359,7 @@ Pronto quando:
 ---
 
 ## 11. Implementacao incremental
+
 1. Criar `types.ts` + `normalizeProps`.
 2. Entregar modo `client` completo.
 3. Adicionar modo `server` controlado.

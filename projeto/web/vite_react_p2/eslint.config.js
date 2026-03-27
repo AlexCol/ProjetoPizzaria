@@ -8,14 +8,7 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig([
   {
-    ignores: [
-      '.next/**',
-      'out/**',
-      'build/**',
-      'node_modules/**',
-      'next-env.d.ts',
-      'src/components/ui/**',
-    ],
+    ignores: ['.next/**', 'out/**', 'build/**', 'node_modules/**', 'next-env.d.ts', 'src/components/ui/**'],
   },
   {
     files: ['**/*.ts', '**/*.js', '**/*.tsx', '**/*.jsx'],

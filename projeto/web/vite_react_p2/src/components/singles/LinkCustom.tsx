@@ -1,6 +1,6 @@
-import type { LucideProps } from "lucide-react";
-import { isValidElement, type ForwardRefExoticComponent, type RefAttributes } from "react";
-import { Link } from "react-router-dom";
+import type { LucideProps } from 'lucide-react';
+import { isValidElement, type ForwardRefExoticComponent, type RefAttributes } from 'react';
+import { Link } from 'react-router-dom';
 
 type linkCustomProps = {
   href: string;

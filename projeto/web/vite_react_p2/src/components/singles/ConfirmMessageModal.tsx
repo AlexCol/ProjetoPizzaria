@@ -51,12 +51,7 @@ function ConfirmMessageModal(props: Props) {
             onClick={onConfirm}
             className={buttonTC || 'px-6 py-2 min-w-25'}
           />
-          <Button
-            label='Cancelar'
-            buttonType='Danger'
-            onClick={onClose}
-            className={buttonTC || 'px-6 py-2 min-w-25'}
-          />
+          <Button label='Cancelar' buttonType='Danger' onClick={onClose} className={buttonTC || 'px-6 py-2 min-w-25'} />
         </div>
       </div>
     </Modal>

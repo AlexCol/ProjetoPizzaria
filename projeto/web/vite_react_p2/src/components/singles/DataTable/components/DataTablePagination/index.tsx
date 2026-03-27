@@ -1,5 +1,6 @@
 import type { DataTableStates } from '../../useDataTable';
-import { Button } from '@/components/ui/button';
+import Button from '@/components/singles/Button';
+// ...existing code...
 
 function DataTablePagination<TData = unknown>({ states }: DataTableStates<TData>) {
   const {
@@ -57,17 +58,16 @@ function DataTablePagination<TData = unknown>({ states }: DataTableStates<TData>
           onClick={handleFirstPage}
           disabled={!canPreviousPage}
           className={mergedClassNames.paginationButton}
-        >
-          Primeira
-        </Button>
+          label='Primeira'
+          allowSpam
+        />
         <Button
           onClick={handlePreviousPage}
           disabled={!canPreviousPage}
           className={mergedClassNames.paginationButton}
-        >
-          Anterior
-        </Button>
-
+          label='Anterior'
+          allowSpam
+        />
         <span className={mergedClassNames.paginationText}>
           <div>Página </div>
           <strong>
@@ -78,16 +78,16 @@ function DataTablePagination<TData = unknown>({ states }: DataTableStates<TData>
           onClick={handleNextPage}
           disabled={!canNextPage}
           className={mergedClassNames.paginationButton}
-        >
-          Próxima
-        </Button>
+          label='Próxima'
+          allowSpam
+        />
         <Button
           onClick={handleLastPage}
           disabled={!canNextPage}
           className={mergedClassNames.paginationButton}
-        >
-          Última
-        </Button>
+          label='Última'
+          allowSpam
+        />
       </div>
     </div>
   );

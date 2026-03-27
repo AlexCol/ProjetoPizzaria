@@ -1,4 +1,4 @@
-import { DataTableStates } from '../../useDataTable';
+import type { DataTableStates } from '../../useDataTable';
 import TableBody from './components/TableBody';
 import TableHeader from './components/TableHeader';
 

@@ -9,12 +9,13 @@ import { apiClient } from '../../api-mutator';
 import type {
   CreateUserDto,
   EmailDto,
+  GetApiUsersSearchParams,
   MessageDto,
+  PaginatedResultOfResponseUserDto,
   RecoverPasswordDto,
   ResponseUserDto,
   UpdateUserDto,
 } from '../models';
-
 
 export const getUsers = () => {
   /**
@@ -54,6 +55,13 @@ export const getUsers = () => {
       headers: { 'Content-Type': 'application/json' },
       data: updateUserDto,
     });
+  };
+  /**
+   * Retorna uma lista de todas os usuários, aplicando filtros enviados na query. Query params customizados: use 'sort-field', 'sort-order', 'page', 'limit'. Qualquer outro query param vira filtro com operator=like.
+   * @summary Obter Todas os Usuários com Filtros na Query.
+   */
+  const getApiUsersSearch = (params?: GetApiUsersSearchParams) => {
+    return apiClient<PaginatedResultOfResponseUserDto>({ url: `/api/Users/search`, method: 'GET', params });
   };
   /**
    * Ativa a conta com o token enviado por e-mail.
@@ -103,6 +111,7 @@ export const getUsers = () => {
     postApiUsers,
     getUserByIdWithReferences,
     patchApiUsersId,
+    getApiUsersSearch,
     postApiUsersActivateToken,
     postApiUsersResendActivationEmail,
     postApiUsersSendPasswordResetEmail,
@@ -115,6 +124,9 @@ export type GetUserByIdWithReferencesResult = NonNullable<
   Awaited<ReturnType<ReturnType<typeof getUsers>['getUserByIdWithReferences']>>
 >;
 export type PatchApiUsersIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUsers>['patchApiUsersId']>>>;
+export type GetApiUsersSearchResult = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof getUsers>['getApiUsersSearch']>>
+>;
 export type PostApiUsersActivateTokenResult = NonNullable<
   Awaited<ReturnType<ReturnType<typeof getUsers>['postApiUsersActivateToken']>>
 >;

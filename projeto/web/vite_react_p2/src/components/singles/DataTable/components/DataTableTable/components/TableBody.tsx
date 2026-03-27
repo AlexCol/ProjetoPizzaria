@@ -13,8 +13,9 @@ function TableBody<TData = unknown>({ states }: DataTableStates<TData>) {
         table.getRowModel().rows.map((row) => (
           <tr
             key={row.id}
-            className={`${mergedClassNames.tbodyRow} ${onRowClick ? 'hover:bg-background-2 cursor-pointer' : mergedClassNames.tbodyRowHover
-              }`}
+            className={`${mergedClassNames.tbodyRow} ${
+              onRowClick ? 'hover:bg-background-2 cursor-pointer' : mergedClassNames.tbodyRowHover
+            }`}
             onClick={() => onRowClick?.(row.original)}
           >
             {row.getVisibleCells().map((cell) => (

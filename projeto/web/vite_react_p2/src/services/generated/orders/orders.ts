@@ -15,7 +15,6 @@ import type {
   UpdateOrderStatusDto,
 } from '../models';
 
-
 export const getOrders = () => {
   /**
    * Retorna um pedido pelo seu ID.

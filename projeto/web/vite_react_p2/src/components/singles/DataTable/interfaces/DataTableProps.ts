@@ -1,5 +1,5 @@
-import type { ColumnDef } from "@tanstack/react-table";
-import type { DataTableClassNames } from "./DataTableClassNames";
+import type { ColumnDef } from '@tanstack/react-table';
+import type { DataTableClassNames } from './DataTableClassNames';
 
 export type DataTableServerSideManager = {
   where: {

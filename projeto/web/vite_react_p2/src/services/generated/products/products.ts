@@ -15,7 +15,6 @@ import type {
   Product,
 } from '../models';
 
-
 export const getProducts = () => {
   /**
    * Returns a list of all products in the system

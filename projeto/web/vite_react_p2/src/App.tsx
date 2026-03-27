@@ -1,4 +1,3 @@
-
 import { useAuthContext } from './components/contexts/auth/AuthContext';
 import LoadingTailwind from './components/singles/LoadingTailwind';
 import Router from './router';

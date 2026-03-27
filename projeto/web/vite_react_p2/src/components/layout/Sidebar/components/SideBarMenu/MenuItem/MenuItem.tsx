@@ -42,6 +42,8 @@ function buildClassNames(isCollapsed: boolean, isActive: boolean) {
     menuItemStyles.menuItemTC,
     isCollapsed ? menuItemStyles.menuItemCollapsedTC : '',
     isActive ? menuItemStyles.menuItemActiveTC : menuItemStyles.menuItemInactiveTC,
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
   return { baseClassName };
 }

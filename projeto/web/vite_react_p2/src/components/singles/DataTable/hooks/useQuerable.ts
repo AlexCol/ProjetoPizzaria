@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import { DataTableServerSideManager } from '../interfaces/DataTableProps';
-import { QueryParams } from '@/services/util/buildQueryParams';
-import { PaginatedDtoResponse } from '@/services/util/paginatedDtoResponse';
+import { toast } from 'sonner';
+import type { DataTableServerSideManager } from '../interfaces/DataTableProps';
+import type { QueryParams } from '@/services/util/buildQueryParams';
+import type { PaginatedDtoResponse } from '@/services/util/paginatedDtoResponse';
 import Logger from '@/utils/Logger';
 
 type Querable<T> = {
@@ -86,9 +86,9 @@ export default function useQuerable<T>(querable: Querable<T>) {
   useEffect(() => {
     if (firstLoad) {
       setFirstLoad(false);
-      loadData(true);
+      void loadData(true);
     } else {
-      loadData(false);
+      void loadData(false);
     }
   }, [page, limit, orderField, orderDirection, filters]);
 

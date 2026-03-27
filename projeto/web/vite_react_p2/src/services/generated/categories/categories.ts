@@ -6,16 +6,15 @@
  * OpenAPI spec version: 1.0
  */
 import { apiClient } from '../../api-mutator';
-import type { CategoriesDto, Category, GetApiCategoriesParams, MessageDto } from '../models';
-
+import type { CategoriesDto, Category, MessageDto } from '../models';
 
 export const getCategories = () => {
   /**
    * Retorna uma lista de todas as categorias cadastradas.
    * @summary Listar categorias
    */
-  const getApiCategories = (params?: GetApiCategoriesParams) => {
-    return apiClient<Category[]>({ url: `/api/Categories`, method: 'GET', params });
+  const getApiCategories = () => {
+    return apiClient<Category[]>({ url: `/api/Categories`, method: 'GET' });
   };
   /**
    * Cria uma nova categoria.

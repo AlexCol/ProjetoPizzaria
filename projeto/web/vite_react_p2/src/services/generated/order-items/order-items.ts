@@ -8,7 +8,6 @@
 import { apiClient } from '../../api-mutator';
 import type { MessageDto, OrderItem, UpsertOrderItemsDto } from '../models';
 
-
 export const getOrderItems = () => {
   /**
    * Returns a list of order items associated with a specific order ID.

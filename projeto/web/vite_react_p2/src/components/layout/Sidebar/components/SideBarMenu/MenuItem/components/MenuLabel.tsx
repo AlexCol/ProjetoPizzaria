@@ -7,10 +7,6 @@ type MenuLabelProps = {
 
 function MenuLabel({ label, isCollapsed }: MenuLabelProps) {
   if (isCollapsed) return null;
-  return (
-    <span className={`${menuItemStyles.menuLabelTC}`}>
-      {label}
-    </span>
-  );
+  return <span className={`${menuItemStyles.menuLabelTC}`}>{label}</span>;
 }
 export default MenuLabel;

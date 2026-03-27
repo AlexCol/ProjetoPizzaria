@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import NotFound from '@/app/_not-found/not-found';
 import Home from '@/app/logged/Home';
-import Usuarios from '@/app/logged/Usuarios';
+import Users from '@/app/logged/Usuarios';
 import { useAuthContext } from '@/components/contexts/auth/AuthContext';
 import Footer from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
@@ -25,7 +25,7 @@ function LoggedRoutes() {
 
             {isAdmin ? (
               <>
-                <Route path='/usuarios' element={<Usuarios />} />
+                <Route path='/usuarios' element={<Users />} />
               </>
             ) : (
               <></>

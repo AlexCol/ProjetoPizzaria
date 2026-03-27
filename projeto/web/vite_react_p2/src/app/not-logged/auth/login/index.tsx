@@ -1,9 +1,9 @@
-import { LockIcon } from "lucide-react";
-import loginStyles from "./login.styles";
-import useLogin from "./useLogin";
-import Button from "@/components/singles/Button";
-import Icon from "@/components/singles/Icon";
-import Input from "@/components/singles/Input";
+import { LockIcon } from 'lucide-react';
+import loginStyles from './login.styles';
+import useLogin from './useLogin';
+import Button from '@/components/singles/Button';
+import Icon from '@/components/singles/Icon';
+import Input from '@/components/singles/Input';
 
 function Login() {
   const { emailRef, passwordRef, rememberMeRef, signInHandler } = useLogin();
@@ -31,7 +31,7 @@ function Login() {
               ref={emailRef}
               placeholder='voce@exemplo.com'
               autoComplete='email'
-              label="E-Mail"
+              label='E-Mail'
               required
               className={loginStyles.inputTC}
             />
@@ -44,19 +44,14 @@ function Login() {
               placeholder='Sua senha'
               autoComplete='current-password'
               required
-              label="Senha"
+              label='Senha'
               className={loginStyles.inputTC}
             />
           </div>
 
           <div className={loginStyles.lembrarAndEsqueciContainerTC}>
             <label htmlFor='remember-me' className={loginStyles.lembrarContainerTC}>
-              <input
-                id='remember-me'
-                type='checkbox'
-                ref={rememberMeRef}
-                className={loginStyles.lembrarCheckboxTC}
-              />
+              <input id='remember-me' type='checkbox' ref={rememberMeRef} className={loginStyles.lembrarCheckboxTC} />
               Lembrar de mim
             </label>
 
@@ -65,10 +60,7 @@ function Login() {
             </button>
           </div>
 
-          <Button
-            type='submit'
-            className={loginStyles.submitButtonTC}
-            label="Entrar" />
+          <Button type='submit' className={loginStyles.submitButtonTC} label='Entrar' />
         </form>
 
         <p className={loginStyles.registrarContainerTC}>

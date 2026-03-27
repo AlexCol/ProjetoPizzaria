@@ -8,7 +8,6 @@
 import { apiClient } from '../../api-mutator';
 import type { GetApiRolesSearchParams, PaginatedResultOfRole, RoleDto, SearchCriteriaRequestOfRole } from '../models';
 
-
 export const getRoles = () => {
   /**
    * Retorna uma role pelo seu ID.

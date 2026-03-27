@@ -146,7 +146,7 @@ html:not(.dark):not(.light) body {
   --foreground: #f0f0f0;
   --primary-text: #f0f0f0;
   --border: #33353a;
-  --card:#222327;
+  --card: #222327;
   --card-foreground: #f0f0f0;
 }
 

@@ -8,7 +8,6 @@
 import { apiClient } from '../../api-mutator';
 import type { LoginDto, MobileLoginResponseDto, UserSessionPayload } from '../models';
 
-
 export const getAuth = () => {
   /**
    * Permite que um usuário faça login, retornando os detalhes da sessão. Cookies Http adicionado com Token da sessão.

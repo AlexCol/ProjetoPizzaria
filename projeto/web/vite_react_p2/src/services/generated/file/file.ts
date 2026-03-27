@@ -8,7 +8,6 @@
 import { apiClient } from '../../api-mutator';
 import type { FileStreamResult, GetApiFileDownloadParams, GetApiFileViewParams } from '../models';
 
-
 export const getFile = () => {
   /**
    * Permite o download de um arquivo específico, fornecendo o caminho do módulo e o nome do arquivo.

@@ -1,5 +1,12 @@
-import type { LucideProps } from "lucide-react";
-import type { ChangeEventHandler, ForwardRefExoticComponent, HTMLInputAutoCompleteAttribute, HTMLInputTypeAttribute, Ref, RefAttributes } from "react";
+import type { LucideProps } from 'lucide-react';
+import type {
+  ChangeEventHandler,
+  ForwardRefExoticComponent,
+  HTMLInputAutoCompleteAttribute,
+  HTMLInputTypeAttribute,
+  Ref,
+  RefAttributes,
+} from 'react';
 
 type inputProps = {
   type?: HTMLInputTypeAttribute | undefined;

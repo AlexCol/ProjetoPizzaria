@@ -1,4 +1,4 @@
-import type { DataTableClassNames } from "./interfaces/DataTableClassNames";
+import type { DataTableClassNames } from './interfaces/DataTableClassNames';
 
 const containeTC = `h-full overflow-hidden`;
 const tableWrapperTC = `h-full flex flex-col bg-background`;
