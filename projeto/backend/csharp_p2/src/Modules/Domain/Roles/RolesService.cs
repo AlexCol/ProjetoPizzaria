@@ -104,7 +104,7 @@ public class RolesService : IRolesService {
   private async Task SendRoleUpdateNotificationAsync(Role role) {
     var usersIds = await _userRepository.SearchWithPredicateAsync(u => u.RoleId == role.Id);
     foreach (var user in usersIds) {
-      await _sessionService.SendSessionUpdateNotificationAsync(user.Id);
+      await _sessionService.UpdateSessionAsync(user.Id);
     }
   }
 }

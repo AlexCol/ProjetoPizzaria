@@ -216,7 +216,7 @@ public class UsersService : IUsersService {
   #region Private Methods
   private async Task SendSessionUpdateNotificationAsync(long userId) {
     var sessionService = _serviceProvider.GetRequiredService<ISessionService>();
-    await sessionService.SendSessionUpdateNotificationAsync(userId);
+    await sessionService.UpdateSessionAsync(userId);
   }
   #endregion
 
