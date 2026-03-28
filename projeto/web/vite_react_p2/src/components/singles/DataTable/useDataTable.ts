@@ -96,6 +96,7 @@ export default function useDataTable<TData>({
     ...(isControlledSorting
       ? {
           manualSorting: true, // Desabilita ordenação automática
+          enableSortingRemoval: false, // Em modo controlado, alterna apenas entre asc e desc
         }
       : {}),
     onSortingChange: isControlledSorting
