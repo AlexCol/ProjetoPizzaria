@@ -56,14 +56,14 @@ function DataTablePagination<TData = unknown>({ states }: DataTableStates<TData>
         <Button
           onClick={handleFirstPage}
           disabled={!canPreviousPage}
-          className={`${mergedClassNames.paginationButton} !w-auto shrink-0`}
+          className={`${mergedClassNames.paginationButton} w-auto! shrink-0`}
           label='Primeira'
           allowSpam
         />
         <Button
           onClick={handlePreviousPage}
           disabled={!canPreviousPage}
-          className={`${mergedClassNames.paginationButton} !w-auto shrink-0`}
+          className={`${mergedClassNames.paginationButton} w-auto! shrink-0`}
           label='Anterior'
           allowSpam
         />
@@ -76,14 +76,14 @@ function DataTablePagination<TData = unknown>({ states }: DataTableStates<TData>
         <Button
           onClick={handleNextPage}
           disabled={!canNextPage}
-          className={`${mergedClassNames.paginationButton} !w-auto shrink-0`}
+          className={`${mergedClassNames.paginationButton} w-auto! shrink-0`}
           label='Proxima'
           allowSpam
         />
         <Button
           onClick={handleLastPage}
           disabled={!canNextPage}
-          className={`${mergedClassNames.paginationButton} !w-auto shrink-0`}
+          className={`${mergedClassNames.paginationButton} w-auto! shrink-0`}
           label='Ultima'
           allowSpam
         />
