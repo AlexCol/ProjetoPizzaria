@@ -1,6 +1,5 @@
 import type { DataTableStates } from '../../useDataTable';
 import Button from '@/components/singles/Button';
-// ...existing code...
 
 function DataTablePagination<TData = unknown>({ states }: DataTableStates<TData>) {
   const {
@@ -23,53 +22,53 @@ function DataTablePagination<TData = unknown>({ states }: DataTableStates<TData>
 
   return (
     <div className={mergedClassNames.paginationContainer}>
-      {/* Bloco de lista de itens por pagina */}
-      <div className='flex items-center gap-2'>
-        <label className='text-sm text-foreground'>Linhas por página:</label>
-        <select
-          value={pageSize}
-          onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-          className={mergedClassNames.paginationSelect}
-        >
-          {pageSizeOptions.map((size) => (
-            <option key={size} value={size}>
-              {size}
-            </option>
-          ))}
-        </select>
+      <div className='flex flex-wrap items-center gap-6'>
+        <div className='flex items-center gap-2'>
+          <label className='text-sm text-foreground'>Linhas por pagina:</label>
+          <select
+            value={pageSize}
+            onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+            className={mergedClassNames.paginationSelect}
+          >
+            {pageSizeOptions.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className='flex items-center gap-2'>
+          <label className='text-sm text-foreground'>Ir para pagina:</label>
+          <input
+            type='number'
+            value={goToPage}
+            onChange={(e) => setGoToPage(e.target.value)}
+            onKeyDown={handleGoToPage}
+            placeholder='#'
+            className={`${mergedClassNames.paginationSelect} w-16 text-center no-spinner`}
+          />
+          <span className='text-xs text-foreground opacity-70'>de {totalPages}</span>
+        </div>
       </div>
 
-      <div className='flex items-center gap-2'>
-        <label className='text-sm text-foreground'>Ir para página:</label>
-        <input
-          type='number'
-          value={goToPage}
-          onChange={(e) => setGoToPage(e.target.value)}
-          onKeyDown={handleGoToPage}
-          placeholder='#'
-          className={`${mergedClassNames.paginationSelect} w-16 text-center no-spinner`}
-        />
-        <span className='text-xs text-foreground opacity-70'>de {totalPages}</span>
-      </div>
-
-      {/* Bloco de navegação entre páginas */}
-      <div className='flex items-center gap-2'>
+      <div className='flex flex-wrap items-center gap-2 lg:ml-auto'>
         <Button
           onClick={handleFirstPage}
           disabled={!canPreviousPage}
-          className={mergedClassNames.paginationButton}
+          className={`${mergedClassNames.paginationButton} !w-auto shrink-0`}
           label='Primeira'
           allowSpam
         />
         <Button
           onClick={handlePreviousPage}
           disabled={!canPreviousPage}
-          className={mergedClassNames.paginationButton}
+          className={`${mergedClassNames.paginationButton} !w-auto shrink-0`}
           label='Anterior'
           allowSpam
         />
         <span className={mergedClassNames.paginationText}>
-          <div>Página </div>
+          <div>Pagina </div>
           <strong>
             {displayedPage} de {totalPages}
           </strong>
@@ -77,15 +76,15 @@ function DataTablePagination<TData = unknown>({ states }: DataTableStates<TData>
         <Button
           onClick={handleNextPage}
           disabled={!canNextPage}
-          className={mergedClassNames.paginationButton}
-          label='Próxima'
+          className={`${mergedClassNames.paginationButton} !w-auto shrink-0`}
+          label='Proxima'
           allowSpam
         />
         <Button
           onClick={handleLastPage}
           disabled={!canNextPage}
-          className={mergedClassNames.paginationButton}
-          label='Última'
+          className={`${mergedClassNames.paginationButton} !w-auto shrink-0`}
+          label='Ultima'
           allowSpam
         />
       </div>

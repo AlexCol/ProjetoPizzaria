@@ -16,7 +16,7 @@ const emptyRowTC = ``;
 const emptyCellTC = `text-center py-12 text-foreground text-lg`;
 const footerTC = `px-6 py-4 bg-background-2 border-t border-border`;
 const footerTextTC = `text-sm text-foreground`;
-const paginationContainerTC = `flex items-center justify-between rounded-lg px-6 p-4`;
+const paginationContainerTC = `flex flex-col gap-4 rounded-lg px-6 p-4 lg:flex-row lg:items-center lg:justify-between`;
 const paginationSelectTC = `border border-border rounded px-3 py-0.5 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary`;
 const paginationButtonTC = `px-3 py-1.5! text-sm border border-border`;
 const paginationButtonDisabledTC = ``;
@@ -51,3 +51,4 @@ export const defaultClassNames: DataTableClassNames = {
   loadingSpinner: loadingSpinnerTC,
   loadingText: loadingTextTC,
 };
+
