@@ -1,15 +1,20 @@
-import { useState, type SubmitEventHandler } from 'react';
+import { useRef, useState, type RefObject, type SubmitEventHandler } from 'react';
+import { toast } from 'sonner';
 import useQuerable from '@/components/singles/DataTable/hooks/useQuerable';
-import type { CreateUserDto, ResponseUserDto } from '@/services/generated/models';
+import type { CreateUserDto, ResponseRoleDto, ResponseUserDto } from '@/services/generated/models';
+import { getRoles } from '@/services/generated/roles/roles';
 import { getUsers } from '@/services/generated/users/users';
+import Logger from '@/utils/Logger';
 
 export default function useUsers() {
   //?????????????????????????????????????????????????????????????????????????????????
   //? Estados
   //?????????????????????????????????????????????????????????????????????????????????
-  const { getApiUsersSearch } = getUsers();
+  const { getApiUsersSearch, postApiUsers } = getUsers();
   const query = useQuerable<ResponseUserDto>({ searcher: getApiUsersSearch as any });
   const { dados: dadosUsuarios, isLoading, loadData, datatableServerSideManager } = query;
+  const [roles, setRoles] = useState<ResponseRoleDto[]>([]);
+
   //status para controle (salvando e carregando)
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const disableButtons = isLoading || isSaving;
@@ -18,26 +23,23 @@ export default function useUsers() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   //refs para criação de usuario
-  // const emailRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
-  // const nomeRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
-  // const sobrenomeRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
-  // const matriculaRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
-  // const cargoRef = useRef<HTMLSelectElement>(null) as RefObject<HTMLSelectElement>;
-  // const tipoUsuarioRef = useRef<HTMLSelectElement>(null) as RefObject<HTMLSelectElement>;
-  // const senhaRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
-  // const confirmarSenhaRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
+  const emailRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
+  const nameRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
+  const passwordRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
+  const confirmPasswordRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
+  const roleIdRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
 
   //?????????????????????????????????????????????????????????????????????????????????
   //? Metodos Publicos
   //?????????????????????????????????????????????????????????????????????????????????
   function handleModalClose() {
-    // clearRefs();
+    clearRefs();
     setIsModalOpen(false);
   }
 
   async function openModalNovoUsuario() {
     setIsModalOpen(true);
-    // await loadCargos();
+    await loadRoles();
   }
 
   const signUpHandler: SubmitEventHandler<HTMLFormElement> = async (e) => {
@@ -46,8 +48,14 @@ export default function useUsers() {
     let processed = false;
     setIsSaving(true);
 
-    // const usuario = {} satisfies CreateUserDto;
-    // processed = await handleNovoUsuario(usuario);
+    const usuario = {
+      email: emailRef.current?.value ?? null,
+      name: nameRef.current?.value ?? null,
+      password: passwordRef.current?.value ?? null,
+      confirmPassword: confirmPasswordRef.current?.value ?? null,
+      roleId: roleIdRef.current?.value ?? null,
+    } satisfies CreateUserDto;
+    processed = await handleNovoUsuario(usuario);
     processed = true;
 
     setIsSaving(false);
@@ -61,27 +69,34 @@ export default function useUsers() {
   //? Metodos Privados
   //?????????????????????????????????????????????????????????????????????????????????
   async function handleNovoUsuario(usuario: CreateUserDto): Promise<boolean> {
-    return false;
-    //   try {
-    //     await createUsuario(usuario);
-    //     toast.success('Usuário criado com sucesso. Enviado email para ativação da conta.');
-    //     return true;
-    //   } catch (error) {
-    //     toast.error('Erro ao criar usuário: ' + (error instanceof Error ? error.message : ''));
-    //     Logger.error('useConfigUsuarios - handleNovoUsuario', error);
-    //     return false;
-    //   }
-    // }
+    try {
+      await postApiUsers(usuario);
+      toast.success('Usuário criado com sucesso. Enviado email para ativação da conta.');
+      return true;
+    } catch (error) {
+      toast.error('Erro ao criar usuário: ' + (error instanceof Error ? error.message : ''));
+      Logger.error('useConfigUsuarios - handleNovoUsuario', error);
+      return false;
+    }
+  }
 
-    // function clearRefs() {
-    //   if (emailRef.current) emailRef.current.value = '';
-    //   if (nomeRef.current) nomeRef.current.value = '';
-    //   if (sobrenomeRef.current) sobrenomeRef.current.value = '';
-    //   if (matriculaRef.current) matriculaRef.current.value = '';
-    //   if (cargoRef.current) cargoRef.current.value = '';
-    //   if (tipoUsuarioRef.current) tipoUsuarioRef.current.value = '';
-    //   if (senhaRef.current) senhaRef.current.value = '';
-    //   if (confirmarSenhaRef.current) confirmarSenhaRef.current.value = '';
+  function clearRefs() {
+    if (emailRef.current) emailRef.current.value = '';
+    if (nameRef.current) nameRef.current.value = '';
+    if (passwordRef.current) passwordRef.current.value = '';
+    if (confirmPasswordRef.current) confirmPasswordRef.current.value = '';
+    if (roleIdRef.current) roleIdRef.current.value = '';
+  }
+
+  async function loadRoles() {
+    if (roles.length > 1) return; //ja carregou
+    try {
+      const response = await getRoles().getApiRolesSearch();
+      setRoles(response.data || []);
+    } catch (error) {
+      toast.error('Erro ao carregar cargos: ' + (error instanceof Error ? error.message : ''));
+      Logger.error('useConfigUsuarios - loadRoles', error);
+    }
   }
 
   //?????????????????????????????????????????????????????????????????????????????????
@@ -100,15 +115,13 @@ export default function useUsers() {
     handleModalClose,
 
     //refs - modal
-    // emailRef,
-    // nomeRef,
-    // sobrenomeRef,
-    // matriculaRef,
-    // cargoRef,
-    // tipoUsuarioRef,
-    // senhaRef,
-    // confirmarSenhaRef,
+    emailRef,
+    nameRef,
+    passwordRef,
+    confirmPasswordRef,
+    roleIdRef,
     signUpHandler,
+    roles,
 
     //metodos para pagina
     openModalNovoUsuario,
