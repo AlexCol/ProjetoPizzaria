@@ -1,7 +1,7 @@
-import { useRef, useState, type RefObject, type SubmitEventHandler } from 'react';
+import { useEffect, useRef, useState, type RefObject, type SubmitEventHandler } from 'react';
 import { toast } from 'sonner';
 import useQuerable from '@/components/singles/DataTable/hooks/useQuerable';
-import type { CreateUserDto, ResponseRoleDto, ResponseUserDto } from '@/services/generated/models';
+import type { CreateUserDto, ResponseUserDto, UpdateUserDto } from '@/services/generated/models';
 import { getRoles } from '@/services/generated/roles/roles';
 import { getUsers } from '@/services/generated/users/users';
 import Logger from '@/utils/Logger';
@@ -10,16 +10,17 @@ export default function useUsers() {
   //?????????????????????????????????????????????????????????????????????????????????
   //? Estados
   //?????????????????????????????????????????????????????????????????????????????????
-  const { getApiUsersSearch, postApiUsers } = getUsers();
+  const { getApiUsersSearch, postApiUsers, patchApiUsersId } = getUsers();
   const query = useQuerable<ResponseUserDto>({ searcher: getApiUsersSearch as any });
   const { dados: dadosUsuarios, isLoading, loadData, datatableServerSideManager } = query;
-  const [roles, setRoles] = useState<ResponseRoleDto[]>([]);
+  const [roleOptions, setRoleOptions] = useState<{ label: string; value: string }[]>([]);
 
   //status para controle (salvando e carregando)
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const disableButtons = isLoading || isSaving;
 
   //controle do modal
+  const [mode, setMode] = useState<'edit' | 'create'>('create');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   //refs para criação de usuario
@@ -27,7 +28,13 @@ export default function useUsers() {
   const nameRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
   const passwordRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
   const confirmPasswordRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
-  const roleIdRef = useRef<HTMLInputElement>(null) as RefObject<HTMLInputElement>;
+  const roleIdRef = useRef<HTMLSelectElement>(null) as RefObject<HTMLSelectElement>;
+
+  //refs para atualização/criação de setor
+  const idRef = useRef<string>('');
+  const emailPendingRef = useRef<string>('');
+  const namePendingRef = useRef<string>('');
+  const roleIdPendingRef = useRef<string>('');
 
   //?????????????????????????????????????????????????????????????????????????????????
   //? Metodos Publicos
@@ -37,26 +44,51 @@ export default function useUsers() {
     setIsModalOpen(false);
   }
 
-  async function openModalNovoUsuario() {
+  async function openModalNovo() {
     setIsModalOpen(true);
     await loadRoles();
+    setMode('create');
   }
 
-  const signUpHandler: SubmitEventHandler<HTMLFormElement> = async (e) => {
-    e.preventDefault();
+  async function openModalEditar(usuario: ResponseUserDto) {
+    await loadRoles();
+    idRef.current = String(usuario.id);
+    emailPendingRef.current = usuario.email ?? '';
+    namePendingRef.current = usuario.name ?? '';
+    roleIdPendingRef.current = String(usuario.role?.id ?? '');
+    setMode('edit');
+    setIsModalOpen(true);
+  }
+
+  const signUpHandler: SubmitEventHandler<HTMLFormElement> = async (ev) => {
+    ev.preventDefault();
 
     let processed = false;
     setIsSaving(true);
 
-    const usuario = {
-      email: emailRef.current?.value ?? null,
-      name: nameRef.current?.value ?? null,
-      password: passwordRef.current?.value ?? null,
-      confirmPassword: confirmPasswordRef.current?.value ?? null,
-      roleId: roleIdRef.current?.value ?? null,
-    } satisfies CreateUserDto;
-    processed = await handleNovoUsuario(usuario);
-    processed = true;
+    if (mode === 'create') {
+      const usuario = {
+        email: emailRef.current?.value,
+        name: nameRef.current?.value,
+        password: passwordRef.current?.value,
+        confirmPassword: confirmPasswordRef.current?.value,
+        roleId: roleIdRef.current?.value,
+      } satisfies CreateUserDto;
+
+      if (!isUserDataValid(usuario)) {
+        setIsSaving(false);
+        return;
+      }
+
+      processed = await handleNovoUsuario(usuario);
+    } else if (mode === 'edit') {
+      const usuario = {
+        name: nameRef.current?.value,
+        roleId: roleIdRef.current?.value,
+      } satisfies UpdateUserDto;
+
+      processed = await handleEditarUsuario(idRef.current, usuario);
+    }
 
     setIsSaving(false);
     if (processed) {
@@ -80,6 +112,37 @@ export default function useUsers() {
     }
   }
 
+  function isUserDataValid(usuario: CreateUserDto) {
+    if (usuario.password !== usuario.confirmPassword) {
+      toast.error('As senhas não coincidem.');
+      return false;
+    }
+    return true;
+  }
+
+  async function handleEditarUsuario(userId: string, usuario: UpdateUserDto) {
+    try {
+      if (!isUserUpdateDataValid(usuario)) {
+        toast.error('Nenhum dado alterado.');
+        return false;
+      }
+      await patchApiUsersId(userId, usuario);
+      toast.success('Usuário editado com sucesso.');
+      return true;
+    } catch (error) {
+      toast.error('Erro ao editar usuário: ' + (error instanceof Error ? error.message : ''));
+      Logger.error('useConfigUsuarios - handleEditarUsuario', error);
+      return false;
+    }
+  }
+
+  function isUserUpdateDataValid(usuario: UpdateUserDto) {
+    if (usuario.name === namePendingRef.current && usuario.roleId === roleIdPendingRef.current) {
+      return false;
+    }
+    return true;
+  }
+
   function clearRefs() {
     if (emailRef.current) emailRef.current.value = '';
     if (nameRef.current) nameRef.current.value = '';
@@ -89,10 +152,18 @@ export default function useUsers() {
   }
 
   async function loadRoles() {
-    if (roles.length > 1) return; //ja carregou
+    if (roleOptions.length > 1) return; //ja carregou
     try {
       const response = await getRoles().getApiRolesSearch();
-      setRoles(response.data || []);
+
+      const roleOptions = (response.data || [])
+        .filter((role) => role.id !== null && role.id !== undefined)
+        .map((role) => ({
+          label: role.name ?? 'Sem nome',
+          value: String(role.id),
+        }));
+
+      setRoleOptions(roleOptions);
     } catch (error) {
       toast.error('Erro ao carregar cargos: ' + (error instanceof Error ? error.message : ''));
       Logger.error('useConfigUsuarios - loadRoles', error);
@@ -102,6 +173,19 @@ export default function useUsers() {
   //?????????????????????????????????????????????????????????????????????????????????
   //? useEffects
   //?????????????????????????????????????????????????????????????????????????????????
+  useEffect(() => {
+    if (isModalOpen && mode === 'edit') {
+      if (emailRef.current) {
+        emailRef.current.value = emailPendingRef.current;
+      }
+      if (nameRef.current) {
+        nameRef.current.value = namePendingRef.current;
+      }
+      if (roleIdRef.current) {
+        roleIdRef.current.value = roleIdPendingRef.current;
+      }
+    }
+  }, [isModalOpen, mode]);
 
   return {
     //estados
@@ -121,10 +205,12 @@ export default function useUsers() {
     confirmPasswordRef,
     roleIdRef,
     signUpHandler,
-    roles,
+    roleOptions,
+    mode,
 
     //metodos para pagina
-    openModalNovoUsuario,
+    openModalNovo,
+    openModalEditar,
 
     //controle dataTable server-side
     datatableServerSideManager,

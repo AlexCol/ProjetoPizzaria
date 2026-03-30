@@ -2,10 +2,12 @@ import type { UsersStates } from '../../useUsers';
 import usuarioCreateStyles from './usuario-create.styles';
 import Button from '@/components/singles/Button';
 import Form from '@/components/singles/Form';
+import Input from '@/components/singles/Input';
+import Select from '@/components/singles/Select';
 
 function UsuarioCreate({ states }: UsersStates) {
   const { signUpHandler, handleModalClose } = states; //metodos
-  const { isSaving } = states; //estados
+  const { emailRef, nameRef, passwordRef, confirmPasswordRef, roleIdRef, roleOptions, isSaving, mode } = states; //estados
 
   return (
     <div className={usuarioCreateStyles.containerTC}>
@@ -17,103 +19,78 @@ function UsuarioCreate({ states }: UsersStates) {
         </div>
 
         {/* Formulário */}
-        <Form className='w-full' onSubmit={() => {}} autoComplete='off'>
+        <Form className='w-full' onSubmit={signUpHandler} autoComplete='off'>
           <div className={usuarioCreateStyles.formGridTC}>
             {/* Campo de Email - Span 2 colunas */}
-            {/* <div className={usuarioCreateStyles.fullWidthFieldTC}>
+            <div className={usuarioCreateStyles.fullWidthFieldTC}>
               <Input
                 type='email'
-                disabled={isSaving}
+                disabled={isSaving || mode === 'edit'}
                 ref={emailRef}
                 placeholder='usuario@email.com'
                 className={usuarioCreateStyles.inputTC}
                 label='Email'
                 required
               />
-            </div> */}
+            </div>
 
             {/* Campo de Nome */}
-            {/* <Input
-              type='text'
-              disabled={isSaving}
-              ref={nomeRef}
-              placeholder='Primeiro Nome'
-              className={usuarioCreateStyles.inputTC}
-              label='Nome'
-              maxLength={30}
-              required
-            /> */}
+            <div className={usuarioCreateStyles.fullWidthFieldTC}>
+              <Input
+                type='text'
+                disabled={isSaving}
+                ref={nameRef}
+                placeholder='Nome'
+                className={usuarioCreateStyles.inputTC}
+                label='Nome'
+                maxLength={30}
+                required
+              />
+            </div>
 
-            {/* Campo de Sobrenome */}
-            {/* <Input
-              type='text'
-              disabled={isSaving}
-              ref={sobrenomeRef}
-              placeholder='Sobrenome'
-              className={usuarioCreateStyles.inputTC}
-              label='Sobrenome'
-              maxLength={30}
-              required
-            /> */}
-
-            {/* Campo de Matricula */}
-            {/* <Input
-              type='text'
-              disabled={isSaving}
-              ref={matriculaRef}
-              placeholder='Matricula'
-              className={usuarioCreateStyles.inputTC}
-              label='Matricula'
-              maxLength={30}
-              required
-            /> */}
-
-            {/* <Select
-              valueRef={tipoUsuarioRef}
-              label='Tipo de Usuário'
-              options={optionsTipoUsuario}
-              required
-              disabled={isSaving}
-              classeNames={{
-                selectClassName: usuarioCreateStyles.selectTC,
-              }}
-            /> */}
-
-            {/* <div className={usuarioCreateStyles.fullWidthFieldTC}>
+            <div className={usuarioCreateStyles.fullWidthFieldTC}>
               <Select
-                valueRef={cargoRef}
+                valueRef={roleIdRef}
                 label='Cargo'
-                options={cargos.map((cargo) => ({ label: cargo.descricao, value: cargo.id! }))}
+                options={roleOptions}
                 required
                 disabled={isSaving}
                 classeNames={{
                   selectClassName: usuarioCreateStyles.selectTC,
                 }}
               />
-            </div> */}
+            </div>
 
-            {/* <PasswordInput
-              disabled={isSaving}
-              ref={senhaRef}
-              placeholder='Senha'
-              className={usuarioCreateStyles.inputTC}
-              label='Senha'
-              autoComplete='new-password'
-            />
-            <PasswordInput
-              disabled={isSaving}
-              ref={confirmarSenhaRef}
-              placeholder='Confirmar Senha'
-              className={usuarioCreateStyles.inputTC}
-              label='Confirmar Senha'
-              autoComplete='new-password'
-            /> */}
+            {mode === 'create' && (
+              <>
+                <Input
+                  disabled={isSaving}
+                  type='password'
+                  ref={passwordRef}
+                  required
+                  placeholder='Senha'
+                  className={usuarioCreateStyles.inputTC}
+                  label='Senha'
+                  autoComplete='new-password'
+                />
+                <Input
+                  disabled={isSaving}
+                  type='password'
+                  ref={confirmPasswordRef}
+                  required
+                  placeholder='Confirmar Senha'
+                  className={usuarioCreateStyles.inputTC}
+                  label='Confirmar Senha'
+                  autoComplete='new-password'
+                />
+              </>
+            )}
           </div>
 
           {/* Botão de Cadastro */}
           <div className='flex justify-end gap-4 pt-3'>
             <Button
-              label={isSaving ? 'Cadastrando...' : 'Cadastrar'}
+              label={isSaving ? 'Salvando...' : mode === 'edit' ? 'Salvar Alterações' : 'Cadastrar'}
               buttonType='Success'
               className='py-3'
               type='submit'

@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, type SubmitEvent } from 'react';
 import { toast } from 'sonner';
 
 type FormProps = {
   children: React.ReactNode;
   className?: string;
-  onSubmit?: (e: React.FormEvent<HTMLFormElement>) => void;
+  onSubmit?: (e: SubmitEvent<HTMLFormElement>) => void;
   autoComplete?: string;
   allowSpam?: boolean;
   spamDelay?: number;
@@ -15,7 +15,7 @@ function Form(props: FormProps) {
   const shouldPreventSpam = props.allowSpam !== true;
   const delay = props.spamDelay || 2000; // Default 2 segundos
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (shouldPreventSpam && isThrottled) {
       toast.warning('Aguarde antes de enviar novamente.');

@@ -2,6 +2,7 @@ import { LockIcon } from 'lucide-react';
 import loginStyles from './login.styles';
 import useLogin from './useLogin';
 import Button from '@/components/singles/Button';
+import Form from '@/components/singles/Form';
 import Icon from '@/components/singles/Icon';
 import Input from '@/components/singles/Input';
 
@@ -24,7 +25,7 @@ function Login() {
           <p className={loginStyles.titlePTC}>Acesse sua conta para continuar.</p>
         </div>
 
-        <form className={loginStyles.formTC} onSubmit={signInHandler}>
+        <Form className={loginStyles.formTC} onSubmit={signInHandler}>
           <div className={loginStyles.fieldTC}>
             <Input
               type='email'
@@ -61,7 +62,7 @@ function Login() {
           </div>
 
           <Button type='submit' className={loginStyles.submitButtonTC} label='Entrar' />
-        </form>
+        </Form>
 
         <p className={loginStyles.registrarContainerTC}>
           <span className={loginStyles.registrarLabelTC}>Nao tem conta? </span>

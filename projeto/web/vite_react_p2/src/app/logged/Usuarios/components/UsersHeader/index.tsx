@@ -3,14 +3,14 @@ import usersHeaderStyles from './users-header.styles';
 import Button from '@/components/singles/Button';
 
 function UsuariosHeader({ states }: UsersStates) {
-  const { openModalNovoUsuario, disableButtons } = states;
+  const { openModalNovo, disableButtons } = states;
   return (
     <>
       {/* Header */}
       <div className={usersHeaderStyles.headerTC}>
         <h1 className={usersHeaderStyles.tittleTC}>Usuários</h1>
         <Button
-          onClick={openModalNovoUsuario}
+          onClick={openModalNovo}
           label='Novo Usuario'
           title='Novo Usuario'
           className={usersHeaderStyles.buttonTC}
