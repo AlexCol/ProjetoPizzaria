@@ -1,5 +1,6 @@
 using csharp_p2.src.Shared.Filters;
 using csharp_p2.src.Shared.Pagination;
+using csharp_p2.src.Shared.Serialization;
 using System.Text.Json.Serialization;
 
 namespace csharp_p2.src.Config.Builder;
@@ -23,6 +24,10 @@ public static class AspnetBaseBuilder {
 
       // Serializa enums como texto (ex.: Active/Inactive) em vez de número (65/73).
       options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(allowIntegerValues: false));
+
+      // Serializa Int64 como string para preservar precisão no frontend JavaScript.
+      options.JsonSerializerOptions.Converters.Add(new LongAsStringJsonConverter());
+      options.JsonSerializerOptions.Converters.Add(new NullableLongAsStringJsonConverter());
 
       // Ignora ciclos: inclui a primeira referência (Category -> Products)
       // e corta referências cíclicas seguintes (Product.Category ficará nulo).
