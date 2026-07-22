@@ -11,12 +11,19 @@
     "statusBar.background": "#5406c2",
     "statusBar.foreground": "#e7e7e7",
     "statusBarItem.hoverBackground": "#6908f3",
-    "statusBarItem.remoteBackground": "#5406c2",
+    "statusBarItem.remoteBackground": "#000000",
     "statusBarItem.remoteForeground": "#e7e7e7",
     "titleBar.activeBackground": "#5406c2",
     "titleBar.activeForeground": "#e7e7e7",
     "titleBar.inactiveBackground": "#5406c299",
-    "titleBar.inactiveForeground": "#e7e7e799"
+    "titleBar.inactiveForeground": "#e7e7e799",
+    "activityBarTop.activeBackground": "#6908f3",
+    "activityBarTop.background": "#6908f3",
+    "activityBarTop.foreground": "#e7e7e7",
+    "activityBarTop.inactiveForeground": "#e7e7e799",
+    "commandCenter.foreground": "#e7e7e7",
+    "statusBar.debuggingBackground": "#5406c2",
+    "statusBar.debuggingForeground": "#e7e7e7"
   },
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
