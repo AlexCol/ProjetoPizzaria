@@ -1,0 +1,20 @@
+<header class="site-header">
+  <a class="brand" routerLink="/home" aria-label="Página inicial">
+    <span class="brand-mark" aria-hidden="true">P</span>
+    <span>Pizzaria</span>
+  </a>
+
+  <nav aria-label="Navegação principal">
+    <a routerLink="/home" routerLinkActive="active">Home</a>
+    <button
+      class="theme-toggle"
+      type="button"
+      (click)="toggleTheme()"
+      [attr.aria-label]="isDark ? 'Ativar modo claro' : 'Ativar modo escuro'"
+      [attr.title]="isDark ? 'Ativar modo claro' : 'Ativar modo escuro'"
+    >
+      <span aria-hidden="true">{{ isDark ? '☀️' : '🌙' }}</span>
+    </button>
+    <a routerLink="/auth/login" (click)="logout()">Sair</a>
+  </nav>
+</header>

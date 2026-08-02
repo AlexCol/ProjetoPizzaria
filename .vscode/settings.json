@@ -30,5 +30,11 @@
     "source.removeUnusedImports": "explicit"
     //"source.organizeImports": "explicit"
   },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "peacock.color": "#5406c2",
 }

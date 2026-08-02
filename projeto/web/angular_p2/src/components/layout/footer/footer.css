@@ -1,0 +1,17 @@
+:host {
+  display: block;
+}
+
+footer {
+  min-height: 4rem;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: var(--color-surface);
+  text-align: center;
+}
+
+p {
+  margin: 0;
+  font-size: 0.875rem;
+}

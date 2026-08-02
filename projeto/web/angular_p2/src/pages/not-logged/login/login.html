@@ -1,0 +1,56 @@
+<main class="login-page">
+  <section class="login-card" aria-labelledby="login-title">
+    <a class="brand" routerLink="/home" aria-label="Ir para a página inicial">
+      <span class="brand-mark" aria-hidden="true">P</span>
+      <span>Pizzaria</span>
+    </a>
+
+    <h1 id="login-title">Acesse sua conta</h1>
+
+    <form #loginForm="ngForm" (ngSubmit)="login(loginForm)" novalidate>
+      <div class="field">
+        <label for="email">E-mail</label>
+        <input
+          #email="ngModel"
+          [(ngModel)]="credentials.email"
+          id="email"
+          name="email"
+          type="email"
+          placeholder="seu@email.com"
+          autocomplete="email"
+          required
+          email
+        />
+        @if (email.invalid && email.touched) {
+          <small>Informe um e-mail válido.</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="password">Senha</label>
+        <input
+          #password="ngModel"
+          [(ngModel)]="credentials.password"
+          id="password"
+          name="password"
+          type="password"
+          placeholder="Sua senha"
+          autocomplete="current-password"
+          required
+        />
+        @if (password.invalid && password.touched) {
+          <small>Informe sua senha.</small>
+        }
+      </div>
+
+      <button class="submit-button" type="submit">Acessar</button>
+
+      <label class="remember-option">
+        <input [(ngModel)]="credentials.remember" name="remember" type="checkbox" />
+        <span>Lembrar-me</span>
+      </label>
+    </form>
+
+    <a class="signup-link" href="#">Não tem uma conta? Cadastre-se</a>
+  </section>
+</main>
