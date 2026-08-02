@@ -34,7 +34,6 @@ export class ThemeService {
   }
 
   private applyTheme(theme: Theme): void {
-    console.log(this.document.documentElement);
     this.document.documentElement.dataset['theme'] = theme;
     this.document.documentElement.style.colorScheme = theme;
   }
