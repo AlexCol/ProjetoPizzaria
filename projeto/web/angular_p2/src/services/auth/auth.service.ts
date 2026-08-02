@@ -28,6 +28,12 @@ export class AuthService {
   get isLoading() {
     return this._status() === 'loading';
   }
+  /****************************************/
+  /* Metodos publicos                     */
+  /****************************************/
+  expireSession(): void {
+    this.clearUser();
+  }
 
   /****************************************/
   /* Metodos Api (Observables)            */
@@ -55,8 +61,9 @@ export class AuthService {
     return this._httpClient.get<User>('/auth/session').pipe(
       tap((user: User) => this.setUser(user)),
       catchError((error: HttpErrorResponse) => {
+        const hadUser = this._userData() !== undefined;
         this.clearUser();
-        if (this._userData() !== undefined) {
+        if (hadUser) {
           return processaErros(error);
         }
         return of(null);

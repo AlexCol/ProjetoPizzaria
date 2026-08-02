@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { LoggerService } from '../../services/logger/logger.service';
 
 @Component({
   selector: 'app-not-logged-layout',
@@ -7,8 +8,9 @@ import { RouterOutlet } from '@angular/router';
   imports: [RouterOutlet],
 })
 export class NotLoggedLayoutComponent {
+  private readonly _logger = inject(LoggerService);
+
   constructor() {
-    // eslint-disable-next-line no-console
-    console.log('NotLoggedLayoutComponent constructor');
+    this._logger.log('[NotLoggedLayoutComponent] constructor');
   }
 }

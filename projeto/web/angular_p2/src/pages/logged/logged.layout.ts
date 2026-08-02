@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FooterComponent } from '../../components/layout/footer/footer';
 import { HeaderComponent } from '../../components/layout/header/header';
+import { LoggerService } from '../../services/logger/logger.service';
 
 @Component({
   selector: 'app-logged-layout',
@@ -10,8 +11,9 @@ import { HeaderComponent } from '../../components/layout/header/header';
   imports: [FooterComponent, RouterOutlet, HeaderComponent],
 })
 export class LoggedLayout {
+  private readonly _logger = inject(LoggerService);
+
   constructor() {
-    // eslint-disable-next-line no-console
-    console.log('LoggedLayout constructor');
+    this._logger.log('[LoggedLayout] constructor');
   }
 }
