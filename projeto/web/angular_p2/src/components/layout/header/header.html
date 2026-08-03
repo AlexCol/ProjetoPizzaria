@@ -12,6 +12,7 @@
 
   <nav aria-label="Navegação principal">
     <a routerLink="/home" routerLinkActive="active">Home</a>
+    <a routerLink="/products" routerLinkActive="active">Produtos</a>
     <button
       class="theme-toggle"
       type="button"
@@ -21,6 +22,6 @@
     >
       <span aria-hidden="true">{{ isDark ? '☀️' : '🌙' }}</span>
     </button>
-    <a routerLink="/auth/login" (click)="logout()">Sair</a>
+    <button type="button" class="logout-button" (click)="logout()">Sair</button>
   </nav>
 </header>

@@ -5,24 +5,24 @@ import { environment } from '../../environments/environment.development';
   providedIn: 'root',
 })
 export class LoggerService {
-  log(message: string): void {
+  log(...data: any[]): void {
     if (!environment.production) {
       // eslint-disable-next-line no-console
-      console.log(`[LOG]${message}`);
+      console.log('[LOG]', ...data);
     }
   }
 
-  warn(message: string): void {
+  warn(...data: any[]): void {
     if (!environment.production) {
       // eslint-disable-next-line no-console
-      console.warn(`[WARN]${message}`);
+      console.warn('[WARN]', ...data);
     }
   }
 
-  error(message: string): void {
+  error(...data: any[]): void {
     if (!environment.production) {
       // eslint-disable-next-line no-console
-      console.error(`[ERROR]${message}`);
+      console.error('[ERROR]', ...data);
     }
   }
 }

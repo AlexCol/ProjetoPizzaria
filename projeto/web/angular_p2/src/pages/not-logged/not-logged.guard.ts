@@ -11,7 +11,7 @@ export const notLoggedGuard: CanMatchFn = (
   const router = inject(Router);
   const authService = inject(AuthService);
   const logger = inject(LoggerService);
-  const isAuth = authService.isAuthenticated; // This returns a signal, not a boolean
+  const isAuth = authService.isAuthenticated; // Getter que retorna o estado atual como boolean.
 
   logger.log(`[notLoggedGuard] isAuth: ${isAuth}`);
 

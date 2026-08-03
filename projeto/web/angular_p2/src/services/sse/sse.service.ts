@@ -1,6 +1,6 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
-import { LoggerService } from '../logger/logger.service';
 import { environment } from '../../environments/environment.development';
+import { LoggerService } from '../logger/logger.service';
 
 interface CommandsCallbacks {
   onMessage: (data?: any) => void;
@@ -19,9 +19,6 @@ export class SSEService {
   private _sseEnabled = signal(false);
   private _eventSourceRef: EventSource | null = null;
   private _commandList = new Map<string, CommandsCallbacks>();
-  private readonly _eventHandler = (event: Event) => {
-    this.handleEvent(event as MessageEvent);
-  };
 
   /****************************************/
   /* Construtor                           */
@@ -62,7 +59,7 @@ export class SSEService {
     this._commandList.set(command, callbacks);
 
     if (this._eventSourceRef) {
-      this._eventSourceRef.addEventListener(command, this._eventHandler);
+      this._eventSourceRef.addEventListener(command, this.handleEvent);
     }
     this._logger.log(`Command ${command} registered successfully.`);
   }
@@ -71,7 +68,7 @@ export class SSEService {
     this._logger.log(`Unregistering command: ${command}`);
 
     if (this._eventSourceRef) {
-      this._eventSourceRef.removeEventListener(command, this._eventHandler);
+      this._eventSourceRef.removeEventListener(command, this.handleEvent);
     }
 
     this._commandList.delete(command);
@@ -80,22 +77,25 @@ export class SSEService {
   /****************************************/
   /* Metodos privados                     */
   /****************************************/
-  private handleEvent(event: MessageEvent) {
-    const callbacks = this._commandList.get(event.type);
-    if (callbacks && callbacks.onMessage) {
-      try {
-        const data = JSON.parse(event.data);
-        callbacks.onMessage(data);
-      } catch (error) {
-        this._logger.error(`Error handling event ${event.type}: ${error}`);
-        if (callbacks.onError) {
-          callbacks.onError();
-        }
-      }
-    } else {
-      this._logger.warn(`No callbacks registered for event type: ${event.type}`);
+  //! Arrow function preserva o `this` do serviço e mantém uma referência estável,
+  //! permitindo usar o mesmo handler no addEventListener e removeEventListener.
+  private readonly handleEvent = (messageEvent: MessageEvent) => {
+    const callbacks = this._commandList.get(messageEvent.type);
+
+    if (!callbacks?.onMessage) {
+      this._logger.warn(`No callbacks registered for event type: ${messageEvent.type}`);
+      return;
     }
-  }
+
+    try {
+      const data = JSON.parse(messageEvent.data);
+      callbacks.onMessage(data);
+    } catch (error) {
+      this._logger.error(`Error handling event ${messageEvent.type}: ${error}`);
+
+      callbacks.onError?.();
+    }
+  };
 
   private connect() {
     if (this._eventSourceRef) {
@@ -127,14 +127,14 @@ export class SSEService {
 
   private cadastraComandos(eventSource: EventSource) {
     for (const eventName of this._commandList.keys()) {
-      eventSource.addEventListener(eventName, this._eventHandler);
+      eventSource.addEventListener(eventName, this.handleEvent);
     }
   }
 
   private cadastraOnError(eventSource: EventSource) {
     eventSource.onerror = (error) => {
       this._isConnected.set(false);
-      this._logger.error(`❌ Erro na conexão SSE: ${error}`);
+      this._logger.error(`❌ Erro na conexão SSE. Tentando reconectar...`, error);
     };
   }
 

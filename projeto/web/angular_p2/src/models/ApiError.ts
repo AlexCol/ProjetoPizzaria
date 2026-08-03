@@ -17,7 +17,7 @@ export function processaErros(httpError: HttpErrorResponse): Observable<never> {
   }
 
   const apiError: ApiError = {
-    message: [httpError.error.Message || 'Ocorreu um erro desconhecido.'],
+    message: [httpError.error.Message || 'Ocorreu um erro desconhecido. Tente novamente mais tarde.'],
   };
   return throwError(() => apiError.message.join(', '));
 }
