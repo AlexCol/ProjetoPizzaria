@@ -12,6 +12,13 @@ export class LoggerService {
     }
   }
 
+  warn(message: string): void {
+    if (!environment.production) {
+      // eslint-disable-next-line no-console
+      console.warn(`[WARN]${message}`);
+    }
+  }
+
   error(message: string): void {
     if (!environment.production) {
       // eslint-disable-next-line no-console

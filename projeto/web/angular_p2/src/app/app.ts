@@ -17,10 +17,14 @@ export class App {
   private readonly _authService = inject(AuthService);
   private readonly _sseService = inject(SSEService);
 
+  get isLoading() {
+    return this._authService.isLoading;
+  }
+
   constructor() {
     inject(ThemeService);
 
-    // Responsável pela navegação
+    //! Responsável pela navegação
     effect(() => {
       const isLoading = this._authService.isLoading;
       if (isLoading) {
@@ -31,24 +35,18 @@ export class App {
       void this._router.navigateByUrl(destination);
     });
 
-    // Responsável pela conexão SSE
-    // effect((onCleanup) => {
-    //   if (!this._authService.isAuthenticated) {
-    //     return;
-    //   }
+    //! Responsável pela conexão SSE
+    effect((onCleanup) => {
+      const isAuthenticated = this._authService.isAuthenticated;
+      if (!isAuthenticated) {
+        this._sseService.setEnableSSE = false;
+        return;
+      }
+      this._sseService.setEnableSSE = true;
 
-    //   const subscription = this._sseService.listen<any>().subscribe({
-    //     next: (event) => {
-    //       // Processar evento recebido
-    //     },
-    //     error: (error) => {
-    //       // Registrar/tratar erro da conexão
-    //     },
-    //   });
-
-    //   onCleanup(() => {
-    //     subscription.unsubscribe();
-    //   });
-    // });
+      onCleanup(() => {
+        this._sseService.setEnableSSE = false;
+      });
+    });
   }
 }
