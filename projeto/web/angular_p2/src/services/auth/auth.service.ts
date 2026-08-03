@@ -36,6 +36,11 @@ export class AuthService {
     this.clearUser();
   }
 
+  hasAnyRole(allowedRoles: readonly string[]): boolean {
+    const userRole = this.user?.role?.name;
+    return !!userRole && allowedRoles.includes(userRole);
+  }
+
   /****************************************/
   /* Metodos Api (Observables)            */
   /****************************************/

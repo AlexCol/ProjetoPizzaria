@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthDirective } from '../../../directives/auth.directive';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ThemeService } from '../../../services/theme/theme.service';
 
@@ -7,7 +8,7 @@ import { ThemeService } from '../../../services/theme/theme.service';
   selector: 'app-header',
   templateUrl: './header.html',
   styleUrl: './header.css',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, AuthDirective],
 })
 export class HeaderComponent {
   private readonly authService = inject(AuthService);

@@ -45,10 +45,19 @@ export class App {
     if (isLoading) {
       return;
     }
-    const isAuthenticated = this._authService.isAuthenticated;
-    const destination = isAuthenticated ? '/home' : '/auth/login';
 
-    void this._router.navigateByUrl(destination);
+    //! com esse bloco, sempre que informado uma url na mão, o usuário será
+    //! redirecionado para a tela de login caso não esteja autenticado.
+    //! ou para a tela de home se estiver autenticado.
+    // const isAuthenticated = this._authService.isAuthenticated;
+    // const destination = isAuthenticated ? '/home' : '/auth/login';
+    // void this._router.navigateByUrl(destination);
+
+    // pra evitar o caso acima, deixado esse aqui pros casos não autenticados
+    // e no login realiza o redirect para home
+    if (!this._authService.isAuthenticated) {
+      void this._router.navigateByUrl('/auth/login');
+    }
   }
 
   private registerSSEGlobalCommands() {

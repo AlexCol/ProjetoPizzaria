@@ -1,6 +1,6 @@
 import { Route } from '@angular/router';
 import { loginRoute } from './login/login.route';
-import { notLoggedGuard } from './not-logged.guard';
+import { notLoggedGuard } from '../../guards/not-logged.guard';
 
 export const notLoggedRoutes: Route = {
   path: 'auth',

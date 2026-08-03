@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Credentials } from '../../../models/Credentials';
 import { AuthService } from '../../../services/auth/auth.service';
@@ -14,6 +14,7 @@ import { AuthService } from '../../../services/auth/auth.service';
 })
 export class LoginComponent {
   private readonly _authService = inject(AuthService);
+  private readonly _router = inject(Router);
   private readonly _toast = inject(ToastrService);
   private readonly _destroyRef = inject(DestroyRef);
 
@@ -35,6 +36,7 @@ export class LoginComponent {
       .subscribe({
         next: (response) => {
           this._toast.success(`Bem-vindo(a) ${response.name}`, 'Sucesso');
+          void this._router.navigateByUrl('/home');
         },
         error: (error: string) => {
           this._toast.error(error, 'Erro');
