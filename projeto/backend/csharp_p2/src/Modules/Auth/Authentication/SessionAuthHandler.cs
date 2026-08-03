@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using csharp_p2.src.Modules.Session;
 using csharp_p2.src.Shared.Exceptions;
 using csharp_p2.src.Shared.DTOs;
+using csharp_p2.src.Shared.Atributtes;
 
 namespace csharp_p2.src.Modules.Auth.Authentication;
 
@@ -25,13 +26,19 @@ public class SessionAuthHandler : AuthenticationHandler<AuthenticationSchemeOpti
   }
 
   protected override async Task<AuthenticateResult> HandleAuthenticateAsync() {
+    var allowInference = Context
+    .GetEndpoint()?
+    .Metadata
+    .GetMetadata<IgnoreAppOriginAttribute>() is not null;
+
     if (Context.IsPublicEndpoint()) // Se a rota permite acesso anônimo, não tenta autenticar e simplesmente retorna NoResult para que o pipeline continue sem um usuário autenticado.
       return AuthenticateResult.NoResult();
 
     var token = GetTokenFromRequestOrThrow(); // Obtém o token da requisição (header para mobile, cookie para web) e lança erro se não encontrar
     var session = await GetSessionFromRequestOrThrowAsync(token);
 
-    IsCorrectOriginOrThrow(session.Options); // Verifica se o token é usado na origem correta (web/mobile)
+    if (!allowInference)
+      IsCorrectOriginOrThrow(session.Options); // Verifica se o token é usado na origem correta (web/mobile)
 
     var claims = PrepareClaims(session.Payload); // Prepara as claims com base no payload da sessão (id, email, nome, role)
     var ticket = CreateAuthenticationTicket(claims); // Cria o AuthenticationTicket que representa o usuário autenticado no contexto do ASP.NET Core
