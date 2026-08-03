@@ -1,10 +1,11 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { catchError, of, tap } from 'rxjs';
+import { catchError, map, of, tap } from 'rxjs';
 import { processaErros } from '../../models/ApiError';
 import { User } from '../../models/User';
 
 type AuthStatus = 'loading' | 'authenticated' | 'anonymous';
+type UserSessionPayload = { user: User };
 
 @Injectable({
   providedIn: 'root',
@@ -40,9 +41,16 @@ export class AuthService {
   /****************************************/
   login(email: string, password: string, remember: boolean) {
     return this._httpClient
-      .post<User>('/auth/login', { email, password }, { headers: { 'remember-me': remember ? 'true' : 'false' } })
+      .post<UserSessionPayload>(
+        '/auth/login',
+        { email, password },
+        { headers: { 'remember-me': remember ? 'true' : 'false' } },
+      )
       .pipe(
-        tap((user: User) => this.setUser(user)),
+        map((payload) => {
+          this.setUser(payload.user);
+          return payload.user;
+        }),
         catchError(processaErros),
       );
   }
@@ -58,8 +66,11 @@ export class AuthService {
   }
 
   getMe() {
-    return this._httpClient.get<User>('/auth/session').pipe(
-      tap((user: User) => this.setUser(user)),
+    return this._httpClient.get<UserSessionPayload>('/auth/session').pipe(
+      map((payload) => {
+        this.setUser(payload.user);
+        return payload.user;
+      }),
       catchError((error: HttpErrorResponse) => {
         const hadUser = this._userData() !== undefined;
         this.clearUser();

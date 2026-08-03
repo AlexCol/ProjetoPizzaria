@@ -1,5 +1,5 @@
-@import './components/shared/loader/loader.css';
-@import './providers/visual/toast/toastr.css';
+/* @import './components/shared/loader/loader.css'; */
+@import './app/providers/visual/toast/toastr.css';
 
 :root {
   --color-red: #d7263d;

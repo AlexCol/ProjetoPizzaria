@@ -17,6 +17,14 @@ export class HeaderComponent {
     return this.themeService.isDark();
   }
 
+  get userName() {
+    return this.authService.user?.name ?? '';
+  }
+
+  get roleName() {
+    return this.authService.user?.role?.name ?? '';
+  }
+
   logout() {
     this.authService.logout().subscribe();
   }

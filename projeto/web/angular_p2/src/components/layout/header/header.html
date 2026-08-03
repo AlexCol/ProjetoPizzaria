@@ -4,6 +4,12 @@
     <span>Pizzaria</span>
   </a>
 
+  <div class="user-info" aria-label="Usuário conectado">
+    <span class="user-name">{{ userName }}</span>
+    <span> - </span>
+    <span class="user-role">{{ roleName }}</span>
+  </div>
+
   <nav aria-label="Navegação principal">
     <a routerLink="/home" routerLinkActive="active">Home</a>
     <button

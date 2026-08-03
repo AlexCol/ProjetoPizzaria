@@ -1,4 +1,4 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, effect, EffectCleanupRegisterFn, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterOutlet } from '@angular/router';
 import { LoaderComponent } from '../components/shared/loader/loader';
@@ -22,31 +22,74 @@ export class App {
   }
 
   constructor() {
+    //! Apenas injetando themeService, só injetar ele se vira
     inject(ThemeService);
 
+    //! Registra uma única vez os comandos SSE globais.
+    //! Não é necessário registrá-los novamente a cada reconexão.
+    this.registerSSEGlobalCommands();
+
     //! Responsável pela navegação
-    effect(() => {
-      const isLoading = this._authService.isLoading;
-      if (isLoading) {
-        return;
-      }
-      const isAuthenticated = this._authService.isAuthenticated;
-      const destination = isAuthenticated ? '/home' : '/auth/login';
-      void this._router.navigateByUrl(destination);
-    });
+    effect(() => this.setAuthentication());
 
     //! Responsável pela conexão SSE
-    effect((onCleanup) => {
-      const isAuthenticated = this._authService.isAuthenticated;
-      if (!isAuthenticated) {
-        this._sseService.setEnableSSE = false;
-        return;
-      }
-      this._sseService.setEnableSSE = true;
+    effect((onCleanup) => this.configureSSE(onCleanup));
+  }
 
+  /****************************************/
+  /* Metodos Privados (usados nos Effect  */
+  /* para deixar o componente mais limpo) */
+  /****************************************/
+  private setAuthentication() {
+    const isLoading = this._authService.isLoading;
+    if (isLoading) {
+      return;
+    }
+    const isAuthenticated = this._authService.isAuthenticated;
+    const destination = isAuthenticated ? '/home' : '/auth/login';
+
+    void this._router.navigateByUrl(destination);
+  }
+
+  private registerSSEGlobalCommands() {
+    this._sseService.registerCommand('session-updated', {
+      onMessage: () => this._authService.getMe().subscribe(),
+      // onError: () => this._authService.expireSession(),
+    });
+  }
+
+  private configureSSE(onCleanup: EffectCleanupRegisterFn) {
+    const isAuthenticated = this._authService.isAuthenticated;
+    this._sseService.setEnableSSE = isAuthenticated;
+
+    // só registra o onCleanup se o usuário estiver autenticado,
+    // caso contrário, não há necessidade de desconectar o SSE.
+    // ver fluxo cleanUp abaixo
+    if (isAuthenticated) {
       onCleanup(() => {
         this._sseService.setEnableSSE = false;
       });
-    });
+    }
   }
 }
+
+/* fluxo cleanUp sem o if
+Login
+  effect executa
+  habilita SSE
+  registra cleanup A
+
+Logout
+  executa cleanup A
+  desabilita SSE
+  effect executa novamente
+  mantém SSE desabilitado
+  registra cleanup B
+
+Novo login
+  executa cleanup B
+  desabilita SSE
+  effect executa novamente
+  habilita SSE
+  registra cleanup C
+*/

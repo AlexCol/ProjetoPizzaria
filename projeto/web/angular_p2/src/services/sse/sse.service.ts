@@ -4,7 +4,7 @@ import { environment } from '../../environments/environment.development';
 
 interface CommandsCallbacks {
   onMessage: (data?: any) => void;
-  onError: () => void | undefined;
+  onError?: () => void | undefined;
 }
 
 @Injectable({
@@ -44,6 +44,10 @@ export class SSEService {
   }
 
   set setEnableSSE(value: boolean) {
+    // if (value === this._sseEnabled()) {
+    //   return;
+    // }
+    // não precisa testar se o valor é diferente, pois o signal já faz isso internamente.
     this._sseEnabled.set(value);
   }
   /****************************************/

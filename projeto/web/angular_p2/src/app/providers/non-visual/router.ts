@@ -1,5 +1,5 @@
 import { provideRouter, withComponentInputBinding, withRouterConfig } from '@angular/router';
-import { routes } from '../../app/app.routes';
+import { routes } from '../../app.routes';
 
 export const provideRouterConfig = provideRouter(
   routes,
