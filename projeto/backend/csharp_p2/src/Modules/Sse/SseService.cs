@@ -55,8 +55,9 @@ public class SseService : ISseService {
   public async Task SendToUserAsync(string userId, ESseEvents sseEvent, object message, CancellationToken ct = default) {
     if (!_connections.TryGetValue(userId, out var userConnections) || userConnections.Count == 0) return;
 
+    var formatedEvend = sseEvent.ToString().ToKebabCase();
     Log.Debug("Enviando mensagem SSE para UserId={UserId} em {ConnectionCount} conexões: Event={Event}, Message={Message}",
-              userId, userConnections.Count, sseEvent, message);
+              userId, userConnections.Count, formatedEvend, message);
 
     var sseMessage = new SseMessage(sseEvent, message);
     var payload = FormatSseMessage(sseMessage);
