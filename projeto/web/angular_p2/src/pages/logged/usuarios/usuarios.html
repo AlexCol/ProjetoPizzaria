@@ -1,0 +1,5 @@
+<button type="button" (click)="modalOpen.set(true)">Abrir modal</button>
+
+<app-modal [(isOpen)]="modalOpen" ariaLabel="Cadastro de usuário" [blockBackdropClose]="true">
+  <app-usuario-modal (closeModal)="modalOpen.set(false)" [user]="undefined" [mode]="'create'" />
+</app-modal>
