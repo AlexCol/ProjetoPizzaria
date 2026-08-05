@@ -1,76 +1,80 @@
-/* @import './components/shared/loader/loader.css'; */
-@import './app/providers/visual/toast/toastr.css';
+@import 'tailwindcss';
+@import './pure-css.css';
 
+/*********************************************************************/
+/** Delacaração de variaveis                                        **/
+/*********************************************************************/
+@custom-variant dark (&:where(.dark, .dark *)); /* Define variantes para aplicar estilos quando .dark está presente */
+@custom-variant light (&:where(.light, .light *)); /* Define variantes para aplicar estilos quando .light está presente */
+
+/*********************************************************************/
+/** Configuração de temas utilizando variaveis CSS                  **/
+/*********************************************************************/
 :root {
-  --color-red: #d7263d;
-  --color-green: #1ebc61;
-  --color-background: #f4f4f4;
-  --color-surface: #e5e5e5;
-  --color-text: #333;
-  --color-border: #8c8c8c;
-  --radius: 0.4rem;
-  font-family: Arial, Helvetica, sans-serif;
-  color: var(--color-text);
-  background: var(--color-background);
-  color-scheme: light;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  /********************************************** minhas classes */
+  /* Cores principais --- primary e secondary são do proprio shadcn */
+  --primary: #2563eb;
+  --secondary: #10b981;
+  --tertiary: #f59e0b;
+
+  /* Botões / status */
+  --success: #16a34a;
+  --danger: #dc2626;
+  --warning: #f59e0b;
+  --info: #2563eb;
+  --disabled: #9ca3af;
+
+  /* Fundo e texto */
+  --background: #f9fafb;
+  --background-2: #ececee;
+  --foreground: #374151;
+  --primary-text: #111827;
+  --border: #6a7282;
+
+  /* Scrollbar */
+  --scrollbar-thumb: #64748b33;
+  --scrollbar-thumb-hover: #64748b66;
+}
+.dark {
+  /********************************************** minhas classes */
+  /* Cores principais --- primary e secondary são do proprio shadcn */
+  --primary: #3b82f6;
+  --secondary: #34d399;
+  --tertiary: #fbbf24;
+
+  /* Botões / status */
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #facc15;
+  --info: #3b82f6;
+  --disabled: #6b7280;
+
+  /* Fundo e texto */
+  --background: #111827;
+  --background-2: #1f2937;
+  --foreground: #e5e7eb;
+  --primary-text: #f9fafb;
+  --border: #99a1af;
 }
 
-:root[data-theme='dark'] {
-  --color-background: #171717;
-  --color-surface: #262626;
-  --color-text: #f2f2f2;
-  --color-border: #737373;
-}
+@theme inline {
+  /********************************************** minhas classes */
+  /* Cores principais --- primary e secondary são do proprio shadcn */
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-tertiary: var(--tertiary);
 
-* {
-  box-sizing: border-box;
-}
+  /* Botões / status */
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-disabled: var(--disabled);
 
-html,
-body {
-  min-width: 320px;
-  min-height: 100%;
-  margin: 0;
-}
-
-body {
-  min-height: 100dvh;
-  color: var(--color-text);
-  background: var(--color-background);
-  transition: color 200ms ease, background-color 200ms ease;
-}
-
-button,
-input {
-  font: inherit;
-}
-
-button,
-a {
-  cursor: pointer;
-}
-
-a {
-  text-decoration: none;
-}
-
-input:not([type='checkbox']) {
-  min-height: 2.75rem;
-  padding: 0.6rem 0.9rem;
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius);
-  outline: none;
-  color: var(--color-text);
-  background: var(--color-surface);
-  transition: border-color 160ms ease;
-}
-
-input:not([type='checkbox']):hover {
-  border-color: var(--color-red);
-}
-
-input:not([type='checkbox']):focus {
-  border-color: var(--color-green);
+  /* Fundo e texto */
+  --color-background: var(--background);
+  --color-background-2: var(--background-2);
+  --color-foreground: var(--foreground);
+  --color-primary-text: var(--primary-text);
+  --color-border: var(--border);
 }

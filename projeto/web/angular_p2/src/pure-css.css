@@ -1,0 +1,155 @@
+@import './app/providers/visual/toast/toastr.css';
+
+/*********************************************************************/
+/** Configuração de tema claro e escuro                             **/
+/*********************************************************************/
+html {
+  color-scheme: light dark; /* Informa ao navegador que a página suporta tema claro e escuro, ajustando elementos nativos conforme o tema do sistema */
+}
+
+/* Oculta o conteúdo do body até que o ThemeProvider defina a classe .dark ou .light, evitando flash de tema errado */
+html:not(.dark):not(.light) body {
+  visibility: hidden;
+}
+
+/* A troca de tema usa um único crossfade; transições locais não participam da captura. */
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after,
+html.theme-switching *::backdrop {
+  transition: none !important;
+}
+
+::view-transition-group(root) {
+  animation-duration: 300ms;
+  animation-timing-function: ease;
+}
+
+/*********************************************************************/
+/** Classes customizadas adicionais                                 **/
+/*********************************************************************/
+/*!classe customizada para remover o spine de inputs 'number'*/
+@layer utilities {
+  /* Chrome, Safari, Edge, Opera */
+  .no-spinner::-webkit-outer-spin-button,
+  .no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  .no-spinner[type='number'] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+}
+
+/*********************************************************************/
+/** Keyframes que não possuem equivalente direto no Tailwind        **/
+/*********************************************************************/
+@keyframes loader-text {
+  0% {
+    text-shadow:
+      0 0 var(--primary-text),
+      11ch 0 var(--secondary),
+      22ch 0 var(--danger),
+      33ch 0 var(--info),
+      44ch 0 var(--primary-text);
+  }
+  25% {
+    text-shadow:
+      -11ch 0 var(--primary-text),
+      0 0 var(--secondary),
+      11ch 0 var(--danger),
+      22ch 0 var(--info),
+      33ch 0 var(--primary-text);
+  }
+  50% {
+    text-shadow:
+      -22ch 0 var(--primary-text),
+      -11ch 0 var(--secondary),
+      0 0 var(--danger),
+      11ch 0 var(--info),
+      22ch 0 var(--primary-text);
+  }
+  75% {
+    text-shadow:
+      -33ch 0 var(--primary-text),
+      -22ch 0 var(--secondary),
+      -11ch 0 var(--danger),
+      0 0 var(--info),
+      11ch 0 var(--primary-text);
+  }
+  100% {
+    text-shadow:
+      -44ch 0 var(--primary-text),
+      -33ch 0 var(--secondary),
+      -22ch 0 var(--danger),
+      -11ch 0 var(--info),
+      0 0 var(--primary-text);
+  }
+}
+
+/*!classe customizada para ocultar o scroll*/
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE e Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}
+
+/*!classe customizada para evitar mudança de layout ao aparecer o scroll*/
+@layer utilities {
+  .scrollbar-stable {
+    scrollbar-gutter: stable;
+  }
+
+  .scrollbar-stable-both {
+    scrollbar-gutter: stable both-edges;
+  }
+
+  /* Custom scrollbar para navegadores baseados em Webkit (Chrome, Edge, Safari) */
+  .sidebar-scrollbar-personalizado::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+  }
+
+  .sidebar-scrollbar-personalizado::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 8px;
+  }
+
+  .sidebar-scrollbar-personalizado::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+
+  /* Firefox */
+  .sidebar-scrollbar-personalizado {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+}
+
+/*!classe customizada para animação de fundo gradiente*/
+@layer utilities {
+  .animate-gradient {
+    background-size: 400% 400%;
+    animation: gradientAnimation 10s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  @keyframes gradientAnimation {
+    0%,
+    100% {
+      background-position: 0% 0%;
+      opacity: 0.8;
+    }
+    50% {
+      background-position: 100% 100%;
+      opacity: 0.95;
+    }
+  }
+}

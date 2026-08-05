@@ -1,9 +1,12 @@
 import { Component, ElementRef, effect, input, model, output, viewChild } from '@angular/core';
+import { modalStyles } from './modal.styles';
 
 @Component({
   selector: 'app-modal',
   templateUrl: './modal.html',
-  styleUrl: './modal.css',
+  host: {
+    '[class]': 'styles.host',
+  },
 })
 export class ModalComponent {
   readonly isOpen = model(false); //indica se o modal está aberto ou fechado
@@ -29,7 +32,17 @@ export class ModalComponent {
     });
   }
 
-  protected handleBackdropClick(event: MouseEvent): void {
+  /*******************************************/
+  /* Getter de estilos                       */
+  /*******************************************/
+  get styles() {
+    return modalStyles;
+  }
+
+  /*******************************************/
+  /* Metodos                                 */
+  /*******************************************/
+  handleBackdropClick(event: MouseEvent): void {
     const clickedBackdrop = event.target === event.currentTarget;
 
     if (clickedBackdrop && !this.blockBackdropClose()) {
@@ -37,20 +50,20 @@ export class ModalComponent {
     }
   }
 
-  protected handleCancel(event: Event): void {
+  handleCancel(event: Event): void {
     // Impede o fechamento automático para manter isOpen sincronizado.
     event.preventDefault();
     this.isOpen.set(false);
   }
 
-  protected handleKeydown(event: KeyboardEvent): void {
+  handleKeydown(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
       event.preventDefault();
       this.isOpen.set(false);
     }
   }
 
-  protected handleClose(): void {
+  handleClose(): void {
     if (this.isOpen()) {
       this.isOpen.set(false);
     }

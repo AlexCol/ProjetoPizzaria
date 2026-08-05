@@ -1,6 +1,6 @@
 <dialog
   #dialog
-  class="modal-dialog"
+  [class]="styles.dialog"
   tabindex="-1"
   [attr.aria-label]="ariaLabel()"
   (cancel)="handleCancel($event)"
@@ -8,7 +8,7 @@
   (keydown)="handleKeydown($event)"
   (close)="handleClose()"
 >
-  <div class="modal-content">
+  <div [class]="styles.content">
     <ng-content />
   </div>
 </dialog>

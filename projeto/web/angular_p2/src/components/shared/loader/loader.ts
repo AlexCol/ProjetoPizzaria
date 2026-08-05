@@ -1,8 +1,15 @@
 import { Component } from '@angular/core';
+import { loaderStyles } from './loader.styles';
 
 @Component({
   selector: 'app-loader',
-  template: '<div class="loading-screen"><div class="loader"></div></div>',
-  styleUrl: './loader.css',
+  template: '<div [class]="styles.screen"><div [class]="styles.loader"></div></div>',
+  host: {
+    '[class]': 'styles.host',
+  },
 })
-export class LoaderComponent {}
+export class LoaderComponent {
+  protected get styles() {
+    return loaderStyles;
+  }
+}

@@ -10,7 +10,6 @@ import { ThemeService } from '../services/theme/theme.service';
   selector: 'app-root',
   imports: [FormsModule, RouterOutlet, LoaderComponent],
   templateUrl: './app.html',
-  styleUrl: './app.css',
 })
 export class App {
   private readonly _router = inject(Router);

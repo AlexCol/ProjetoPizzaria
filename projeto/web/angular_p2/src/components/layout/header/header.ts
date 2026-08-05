@@ -1,18 +1,26 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthDirective } from '../../../directives/auth.directive';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ThemeService } from '../../../services/theme/theme.service';
+import { ButtonComponent } from '../../shared/button/button';
+import { LinkComponent } from '../../shared/link/link';
+import { headerStyles } from './header.styles';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.html',
-  styleUrl: './header.css',
-  imports: [RouterLink, RouterLinkActive, AuthDirective],
+  host: {
+    '[class]': 'styles.host',
+  },
+  imports: [AuthDirective, ButtonComponent, LinkComponent],
 })
 export class HeaderComponent {
   private readonly authService = inject(AuthService);
   private readonly themeService = inject(ThemeService);
+
+  protected get styles() {
+    return headerStyles;
+  }
 
   get isDark() {
     return this.themeService.isDark();

@@ -1,0 +1,72 @@
+<main [class]="styles.page">
+  <section [class]="styles.card" aria-labelledby="login-title">
+    <app-link
+      routerLink="/home"
+      variant="unstyled"
+      ariaLabel="Ir para a página inicial"
+      [className]="styles.brand"
+    >
+      <span [class]="styles.brandMark" aria-hidden="true">P</span>
+      <span>Pizzaria</span>
+    </app-link>
+
+    <h1 id="login-title" [class]="styles.title">Acesse sua conta</h1>
+
+    <form #loginForm="ngForm" [class]="styles.form" (ngSubmit)="login(loginForm)" novalidate>
+      <div [class]="styles.field">
+        <label for="email" [class]="styles.label">E-mail</label>
+        <input
+          #email="ngModel"
+          [(ngModel)]="credentials.email"
+          id="email"
+          name="email"
+          type="email"
+          placeholder="seu@email.com"
+          autocomplete="email"
+          required
+          email
+          [class]="styles.input"
+        />
+        @if (email.invalid && email.touched) {
+          <small [class]="styles.validationError">Informe um e-mail válido.</small>
+        }
+      </div>
+
+      <div [class]="styles.field">
+        <label for="password" [class]="styles.label">Senha</label>
+        <input
+          #password="ngModel"
+          [(ngModel)]="credentials.password"
+          id="password"
+          name="password"
+          type="password"
+          placeholder="Sua senha"
+          autocomplete="current-password"
+          required
+          [class]="styles.input"
+        />
+        @if (password.invalid && password.touched) {
+          <small [class]="styles.validationError">Informe sua senha.</small>
+        }
+      </div>
+
+      <app-button label="Acessar" type="submit" />
+
+      <label [class]="styles.rememberOption">
+        <input
+          [(ngModel)]="credentials.remember"
+          name="remember"
+          type="checkbox"
+          [class]="styles.rememberInput"
+        />
+        <span>Lembrar-me</span>
+      </label>
+    </form>
+
+    <app-link
+      label="Não tem uma conta? Cadastre-se"
+      href="#"
+      [className]="styles.signupLink"
+    />
+  </section>
+</main>

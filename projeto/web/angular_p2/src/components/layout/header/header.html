@@ -1,27 +1,29 @@
-<header class="site-header">
-  <a class="brand" routerLink="/home" aria-label="Página inicial">
-    <span class="brand-mark" aria-hidden="true">P</span>
-    <span>Pizzaria</span>
-  </a>
+<header [class]="styles.header">
+  <app-link routerLink="/home" variant="unstyled" ariaLabel="Página inicial" [className]="styles.brand">
+    <span [class]="styles.brandMark" aria-hidden="true">P</span>
+    <span [class]="styles.brandLabel">Pizzaria</span>
+  </app-link>
 
-  <div class="user-info" aria-label="Usuário conectado">
-    <span class="user-name">{{ userName }}</span>
+  <div [class]="styles.userInfo" aria-label="Usuário conectado">
+    <span [class]="styles.userName">{{ userName }}</span>
     <span> - </span>
-    <span class="user-role">{{ roleName }}</span>
+    <span [class]="styles.userRole">{{ roleName }}</span>
   </div>
 
-  <nav aria-label="Navegação principal">
-    <a routerLink="/home" routerLinkActive="active">Home</a>
-    <a *appAuth="['Admin']" routerLink="/usuarios" routerLinkActive="active">Usuários</a>
-    <button
-      class="theme-toggle"
+  <nav [class]="styles.nav" aria-label="Navegação principal">
+    <app-link label="Home" routerLink="/home" activeClassName="text-secondary!" />
+    <app-link *appAuth="['Admin']" label="Usuários" routerLink="/usuarios" activeClassName="text-secondary!" />
+    <app-button
+      variant="default"
       type="button"
-      (click)="toggleTheme()"
-      [attr.aria-label]="isDark ? 'Ativar modo claro' : 'Ativar modo escuro'"
-      [attr.title]="isDark ? 'Ativar modo claro' : 'Ativar modo escuro'"
+      allowSpam
+      [fullWidth]="false"
+      [ariaLabel]="isDark ? 'Ativar modo claro' : 'Ativar modo escuro'"
+      [title]="isDark ? 'Ativar modo claro' : 'Ativar modo escuro'"
+      (clicked)="toggleTheme()"
     >
       <span aria-hidden="true">{{ isDark ? '☀️' : '🌙' }}</span>
-    </button>
-    <button type="button" class="logout-button" (click)="logout()">Sair</button>
+    </app-button>
+    <app-button label="Sair" variant="link" type="button" [fullWidth]="false" (clicked)="logout()" />
   </nav>
 </header>

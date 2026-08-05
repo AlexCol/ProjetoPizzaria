@@ -1,0 +1,11 @@
+<section [class]="styles.form">
+  @if (mode() === 'create') {
+    <h2 [class]="styles.title">Novo usuário</h2>
+  } @else {
+    <h2 [class]="styles.title">Editar usuário</h2>
+  }
+
+  <!-- Conteúdo do modal -->
+
+  <app-button type="button" label="Fechar" variant="danger" (click)="clickClose()" />
+</section>
