@@ -1,0 +1,41 @@
+<div [class]="styles.container">
+  @if (label()) {
+    <label [attr.for]="inputId()" [class]="labelClasses()">
+      {{ label() }}
+      @if (required()) {
+        <span [class]="styles.requiredMark" aria-hidden="true">*</span>
+      }
+    </label>
+  }
+
+  <div [class]="styles.field">
+    <span [class]="iconClasses()" aria-hidden="true">
+      <ng-content select="[input-icon]" />
+    </span>
+
+    <input
+      #inputElement
+      [attr.accept]="accept() || null"
+      [attr.aria-describedby]="ariaDescribedBy() || null"
+      [attr.aria-invalid]="ariaInvalid() ? true : null"
+      [attr.aria-label]="ariaLabel() || null"
+      [attr.autocomplete]="autoComplete() || null"
+      [attr.max]="max() || null"
+      [attr.maxlength]="maxLength()"
+      [attr.min]="min() || null"
+      [attr.minlength]="minLength()"
+      [attr.name]="name() || null"
+      [attr.placeholder]="placeholder() || null"
+      [attr.step]="step() || null"
+      [class]="inputClasses()"
+      [disabled]="isDisabled()"
+      [id]="inputId()"
+      [readOnly]="readOnly()"
+      [required]="required()"
+      [type]="type()"
+      [value]="value() ?? ''"
+      (blur)="handleBlur($event)"
+      (input)="handleInput($event)"
+    />
+  </div>
+</div>

@@ -1,0 +1,199 @@
+<div [class]="containerClasses()">
+  @if (loading()) {
+    <div [class]="styles.loadingContainer" role="status" aria-live="polite">
+      <div [class]="styles.loadingContent">
+        <span [class]="styles.loadingSpinner" aria-hidden="true"></span>
+        <span [class]="styles.loadingText">Carregando...</span>
+      </div>
+    </div>
+  } @else {
+    <div [class]="styles.tableContainer">
+      <table [attr.aria-label]="ariaLabel()" [class]="styles.table">
+        <thead [class]="styles.header">
+          @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
+            <tr [class]="styles.headerRow">
+              @for (header of headerGroup.headers; track header.id) {
+                <th
+                  [attr.colspan]="header.colSpan"
+                  [class]="styles.headerCell + ' ' + (columnMeta(header.column).headerClassName ?? '')"
+                  scope="col"
+                >
+                  @if (!header.isPlaceholder) {
+                    <div [class]="styles.headerContent">
+                      @if (header.column.getCanSort()) {
+                        <button
+                          type="button"
+                          [attr.aria-label]="'Ordenar coluna. ' + sortLabel(header.column)"
+                          [class]="styles.sortButton"
+                          (click)="toggleSorting(header.column, $event)"
+                        >
+                          <span [class]="styles.headerLabel">
+                            <ng-container *flexRenderHeader="header; let value">{{ value }}</ng-container>
+                          </span>
+                          <span [class]="styles.sortIcon" aria-hidden="true">
+                            @switch (header.column.getIsSorted()) {
+                              @case ('asc') {
+                                ▲
+                              }
+                              @case ('desc') {
+                                ▼
+                              }
+                              @default {
+                                ◆
+                              }
+                            }
+                          </span>
+                        </button>
+                      } @else {
+                        <span [class]="styles.headerLabel">
+                          <ng-container *flexRenderHeader="header; let value">{{ value }}</ng-container>
+                        </span>
+                      }
+                    </div>
+
+                    @if (columnMeta(header.column).filter; as filter) {
+                      <div [class]="styles.filterContainer">
+                        @if (filter.type === 'select') {
+                          <select
+                            [attr.aria-label]="filter.placeholder || 'Filtrar coluna'"
+                            [class]="styles.filterControl"
+                            [value]="filterValue(header.column)"
+                            (change)="applySelectFilter(header.column, $event)"
+                          >
+                            <option value="">{{ filter.placeholder || 'Todos' }}</option>
+                            @for (option of filter.options ?? []; track option.value) {
+                              <option [value]="option.value">{{ option.label }}</option>
+                            }
+                          </select>
+                        } @else {
+                          <input
+                            type="text"
+                            [attr.aria-label]="filter.placeholder || 'Filtrar coluna'"
+                            [attr.placeholder]="filter.placeholder || 'Filtrar...'"
+                            [class]="styles.filterControl"
+                            [value]="filterValue(header.column)"
+                            (blur)="applyTextFilter(header.column, $event)"
+                            (keydown.enter)="applyTextFilter(header.column, $event)"
+                          />
+                        }
+
+                        @if (filterValue(header.column)) {
+                          <button
+                            type="button"
+                            aria-label="Limpar filtro"
+                            title="Limpar filtro"
+                            [class]="styles.clearFilterButton"
+                            (click)="clearFilter(header.column)"
+                          >
+                            ×
+                          </button>
+                        }
+                      </div>
+                    }
+                  }
+                </th>
+              }
+            </tr>
+          }
+        </thead>
+
+        <tbody [class]="styles.body">
+          @for (row of rows(); track row.id) {
+            <tr
+              [class]="styles.bodyRow + (rowClickable() ? ' ' + styles.clickableRow : '')"
+              (click)="handleRowClick(row.original, $event)"
+            >
+              @for (cell of row.getAllCells(); track cell.id) {
+                <td [class]="styles.bodyCell + ' ' + (columnMeta(cell.column).cellClassName ?? '')">
+                  <ng-container *flexRenderCell="cell; let value">{{ value }}</ng-container>
+                </td>
+              }
+            </tr>
+          } @empty {
+            <tr>
+              <td [attr.colspan]="columns().length" [class]="styles.emptyCell">
+                {{ emptyMessage() }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (showPagination()) {
+      <footer [class]="styles.footer">
+        <p [class]="styles.summary">
+          Exibindo {{ startItem() }}–{{ endItem() }} de {{ displayedTotal() }}
+        </p>
+
+        <div [class]="styles.pagination">
+          <label [class]="styles.fieldGroup">
+            <span [class]="styles.fieldLabel">Linhas por página:</span>
+            <select [class]="styles.select" [value]="pagination().pageSize" (change)="changePageSize($event)">
+              @for (size of normalizedPageSizeOptions(); track size) {
+                <option [value]="size">{{ size }}</option>
+              }
+            </select>
+          </label>
+
+          <span [class]="styles.pageStatus">
+            Página <strong>{{ currentPage() }} de {{ pageCount() }}</strong>
+          </span>
+
+          <label [class]="styles.fieldGroup">
+            <span [class]="styles.fieldLabel">Ir para:</span>
+            <input
+              type="number"
+              min="1"
+              [attr.aria-label]="'Ir para página, entre 1 e ' + pageCount()"
+              [attr.max]="pageCount()"
+              [class]="styles.pageInput"
+              [value]="goToPageValue()"
+              (input)="updateGoToPage($event)"
+              (keydown.enter)="goToPage()"
+            />
+          </label>
+
+          <div class="flex items-center gap-1">
+            <app-button
+              label="Primeira"
+              variant="unstyled"
+              [allowSpam]="true"
+              [className]="styles.paginationButton"
+              [disabled]="!canPreviousPage()"
+              [fullWidth]="false"
+              (clicked)="firstPage()"
+            />
+            <app-button
+              label="Anterior"
+              variant="unstyled"
+              [allowSpam]="true"
+              [className]="styles.paginationButton"
+              [disabled]="!canPreviousPage()"
+              [fullWidth]="false"
+              (clicked)="previousPage()"
+            />
+            <app-button
+              label="Próxima"
+              variant="unstyled"
+              [allowSpam]="true"
+              [className]="styles.paginationButton"
+              [disabled]="!canNextPage()"
+              [fullWidth]="false"
+              (clicked)="nextPage()"
+            />
+            <app-button
+              label="Última"
+              variant="unstyled"
+              [allowSpam]="true"
+              [className]="styles.paginationButton"
+              [disabled]="!canNextPage()"
+              [fullWidth]="false"
+              (clicked)="lastPage()"
+            />
+          </div>
+        </div>
+      </footer>
+    }
+  }
+</div>
