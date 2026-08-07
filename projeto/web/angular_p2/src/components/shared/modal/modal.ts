@@ -1,4 +1,5 @@
-import { Component, ElementRef, effect, input, model, output, viewChild } from '@angular/core';
+import { Component, ElementRef, effect, inject, input, model, output, viewChild } from '@angular/core';
+import { ToastOverlay } from '../../../app/providers/visual/toast/toast-overlay';
 import { modalStyles } from './modal.styles';
 
 @Component({
@@ -15,6 +16,7 @@ export class ModalComponent {
   readonly closed = output<void>(); //evento emitido quando o modal é fechado, seja pelo botão de fechar ou pelo backdrop
 
   private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('dialog');
+  private readonly toastOverlay = inject(ToastOverlay);
 
   constructor() {
     effect(() => {
@@ -26,6 +28,7 @@ export class ModalComponent {
 
       if (this.isOpen() && !dialog.open) {
         dialog.showModal();
+        this.toastOverlay.bringToFront();
       } else if (!this.isOpen() && dialog.open) {
         dialog.close();
       }

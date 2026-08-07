@@ -90,6 +90,18 @@ button.toast-close-button {
   position: fixed;
   z-index: 999999;
 }
+.overlay-container[popover] {
+  position: fixed;
+  inset: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  pointer-events: none;
+}
 .toast-container * {
   box-sizing: border-box;
 }

@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { ButtonComponent } from '../../../../components/shared/button/button';
 import { ModalComponent } from '../../../../components/shared/modal/modal';
 import { UsuarioModalComponent } from './usuario-modal/usuario-modal';
@@ -13,7 +14,8 @@ import { usuariosStyles } from './usuarios.styles';
   imports: [ModalComponent, UsuarioModalComponent, ButtonComponent],
 })
 export class UsuariosComponent {
-  protected readonly modalOpen = signal(false);
+  private toast = inject(ToastrService);
+  modalOpen = signal(false);
 
   protected get styles() {
     return usuariosStyles;
@@ -21,5 +23,9 @@ export class UsuariosComponent {
 
   onModalClose() {
     //se desejar fazer algo quando o output do modal for emitido, faça aqui
+  }
+
+  openToast() {
+    this.toast.success('Operation successful');
   }
 }

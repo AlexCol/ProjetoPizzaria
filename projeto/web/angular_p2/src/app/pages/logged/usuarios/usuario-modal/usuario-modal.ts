@@ -16,6 +16,7 @@ export class UsuarioModalComponent {
   user = input.required<User | undefined>();
 
   closeModal = output<void>();
+  outputSignal = output<void>();
 
   protected get styles() {
     return usuarioModalStyles;
@@ -23,5 +24,8 @@ export class UsuarioModalComponent {
 
   clickClose() {
     this.closeModal.emit();
+  }
+  sendOutput() {
+    this.outputSignal.emit();
   }
 }
