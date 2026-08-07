@@ -1,5 +1,5 @@
 <app-button label="Abrir modal" (click)="openModal()" />
 
 <app-modal [(isOpen)]="modalOpen" ariaLabel="Cadastro de usuário" [blockBackdropClose]="true">
-  <app-usuario-modal [user]="selectedUser()" (saveUser)="saveUser($event)" />
+  <app-usuario-modal (closeModal)="modalOpen.set(false)" [user]="selectedUser()" (saveUser)="saveUser($event)" />
 </app-modal>
