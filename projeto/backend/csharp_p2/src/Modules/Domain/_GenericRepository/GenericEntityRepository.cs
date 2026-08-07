@@ -30,7 +30,7 @@ public class GenericEntityRepository<T> : IGenericEntityRepository<T> where T : 
     IQueryable<T> query = _context.Set<T>().AsNoTracking();
     var items = await query.ApplySearch(criteria).ToListAsync();
     if (criteria.Pagination != null) {
-      var totalItems = await query.CountAsync();
+      var totalItems = await query.ApplySearch(WithoutPagination(criteria)).CountAsync();
       return new PaginatedResult<T> {
         Data = items,
         Total = totalItems,
@@ -51,7 +51,7 @@ public class GenericEntityRepository<T> : IGenericEntityRepository<T> where T : 
     IQueryable<T> query = _context.Set<T>().AsNoTracking().IncludeAll();
     var items = await query.ApplySearch(criteria).ToListAsync();
     if (criteria.Pagination != null) {
-      var totalItems = await query.CountAsync();
+      var totalItems = await query.ApplySearch(WithoutPagination(criteria)).CountAsync();
       return new PaginatedResult<T> {
         Data = items,
         Total = totalItems,
@@ -159,6 +159,14 @@ public class GenericEntityRepository<T> : IGenericEntityRepository<T> where T : 
     _context.Remove(obj);
     await _context.SaveChangesAsync();
     return true;
+  }
+
+  private static SearchCriteriaRequest<T> WithoutPagination(SearchCriteriaRequest<T> criteria) {
+    return new SearchCriteriaRequest<T> {
+      Where = criteria.Where,
+      Sort = criteria.Sort,
+      Pagination = null
+    };
   }
 
   // ? FIM DOS METODOS PUBLICOS

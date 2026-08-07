@@ -80,6 +80,20 @@ public class UsersController : ControllerBase {
     return Ok(new MessageDto("User updated successfully."));
   }
 
+  [Authorize(Roles = "Admin")]
+  [HttpDelete("{id}")]
+  [EndpointSummary("Excluir usuário")]
+  [EndpointDescription("Exclui um usuário sem pedidos associados e encerra suas sessões ativas.")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
+  [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+  public async Task<IActionResult> DeleteUserAsync(long id) {
+    await _usersService.DeleteUserAsync(id);
+    return NoContent();
+  }
+
   [AllowAnonymous]
   [HttpPost("activate/{token}")]
   [EndpointSummary("Ativar usuário")]

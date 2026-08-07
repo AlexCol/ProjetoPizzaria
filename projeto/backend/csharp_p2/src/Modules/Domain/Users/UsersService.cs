@@ -14,6 +14,7 @@ public interface IUsersService {
   Task<PaginatedResult<ResponseUserDto>> GetUsersWithSearchCriteriaAsync(SearchCriteriaRequest<User> searchCriteria);
   Task<ResponseUserDto> CreateUserAsync(CreateUserDto dto);
   Task<ResponseUserDto> UpdateUserAsync(long id, UpdateUserDto dto);
+  Task DeleteUserAsync(long id);
   Task<MessageDto> ActivateUserAsync(string token);
   Task<MessageDto> ResendActivationEmailAsync(string email);
   Task<MessageDto> SendPasswordResetEmailAsync(string email);
@@ -221,6 +222,26 @@ public class UsersService : IUsersService {
       await trx.RollbackAsync();
       throw new CustomError("Failed to reset password: " + ex.Message);
     }
+  }
+  #endregion
+
+  #region DELETE
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!DELETE
+  public async Task DeleteUserAsync(long id) {
+    var user = await _userRepository.GetByIdAsync(id);
+    if (user == null) {
+      throw new CustomError("User not found.", 404);
+    }
+
+    var orderRepository = _serviceProvider.GetRequiredService<IGenericEntityRepository<Order>>();
+    var existingOrder = await orderRepository.FindOneWithPredicateAsync(order => order.UserId == id);
+    if (existingOrder != null) {
+      throw new CustomError("Cannot delete user with associated orders.");
+    }
+
+    var sessionCacheService = _serviceProvider.GetRequiredService<ISessionCacheService>();
+    await sessionCacheService.DestroySessionsByUserIdAsync(id);
+    await _userRepository.DeleteAsync(id);
   }
   #endregion
 
