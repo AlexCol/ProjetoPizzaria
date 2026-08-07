@@ -1,5 +1,5 @@
 <section [class]="styles.form">
-  @if (mode() === 'create') {
+  @if (!user()) {
     <h2 [class]="styles.title">Novo usuário</h2>
   } @else {
     <h2 [class]="styles.title">Editar usuário</h2>
@@ -7,6 +7,6 @@
 
   <!-- Conteúdo do modal -->
 
-  <app-button type="button" label="Fechar" variant="danger" (click)="clickClose()" />
-  <app-button type="submit" label="Salvar" variant="success" (click)="sendOutput()" />
+  <app-button type="button" label="Fechar" variant="danger" (click)="close()" />
+  <app-button type="submit" label="Salvar" variant="success" (click)="save()" />
 </section>

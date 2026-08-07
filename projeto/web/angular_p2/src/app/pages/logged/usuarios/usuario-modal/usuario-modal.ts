@@ -12,20 +12,20 @@ import { usuarioModalStyles } from './usuario-modal.styles';
   imports: [ButtonComponent],
 })
 export class UsuarioModalComponent {
-  mode = input.required<'create' | 'edit'>();
   user = input.required<User | undefined>();
 
   closeModal = output<void>();
-  outputSignal = output<void>();
+  saveUser = output<User>();
 
   protected get styles() {
     return usuarioModalStyles;
   }
 
-  clickClose() {
+  close() {
     this.closeModal.emit();
   }
-  sendOutput() {
-    this.outputSignal.emit();
+  save() {
+    const newUser: any = {};
+    this.saveUser.emit(newUser);
   }
 }

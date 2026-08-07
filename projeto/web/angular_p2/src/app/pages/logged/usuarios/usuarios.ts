@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { ButtonComponent } from '../../../../components/shared/button/button';
 import { ModalComponent } from '../../../../components/shared/modal/modal';
+import { User } from '../../../../models/User';
 import { UsuarioModalComponent } from './usuario-modal/usuario-modal';
 import { usuariosStyles } from './usuarios.styles';
 
@@ -15,17 +16,25 @@ import { usuariosStyles } from './usuarios.styles';
 })
 export class UsuariosComponent {
   private toast = inject(ToastrService);
-  modalOpen = signal(false);
+  modalOpen = signal(false); //usado como two way bingind, pro modal poder ele mesmo controlar o fechamento
+  selectedUser = signal<User | undefined>(undefined);
 
-  protected get styles() {
+  get styles() {
     return usuariosStyles;
   }
 
-  onModalClose() {
-    //se desejar fazer algo quando o output do modal for emitido, faça aqui
+  openModal(user?: User) {
+    this.selectedUser.set(user);
+    this.modalOpen.set(true);
   }
 
-  openToast() {
+  saveUser(user: User) {
+    if (user.id) {
+      console.log('Updating user:', user);
+    } else {
+      console.log('Creating new user:', user);
+    }
+    this.modalOpen.set(false);
     this.toast.success('Operation successful');
   }
 }
