@@ -1,11 +1,9 @@
 <dialog
   #dialog
   [class]="styles.dialog"
-  tabindex="-1"
   [attr.aria-label]="ariaLabel()"
   (cancel)="handleCancel($event)"
-  (click)="handleBackdropClick($event)"
-  (keydown)="handleKeydown($event)"
+  (pointerdown)="handleBackdropPointerDown($event)"
   (close)="handleClose()"
 >
   <div [class]="styles.content">

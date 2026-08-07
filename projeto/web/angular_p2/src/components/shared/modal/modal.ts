@@ -10,42 +10,39 @@ import { modalStyles } from './modal.styles';
   },
 })
 export class ModalComponent {
-  readonly isOpen = model(false); //indica se o modal está aberto ou fechado
-  readonly blockBackdropClose = input(false); //bloquear ou não o fechamento do modal ao clicar no backdrop
-  readonly ariaLabel = input('Janela modal'); // rótulo de acessibilidade para o modal
-  readonly closed = output<void>(); //evento emitido quando o modal é fechado, seja pelo botão de fechar ou pelo backdrop
+  /*****************************************/
+  /* Propriedades Privadas                 */
+  /*****************************************/
+  private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('dialog'); // Referência ao elemento <dialog> nativo do template.
+  private readonly toastOverlay = inject(ToastOverlay); // Mantém os toasts acima do modal na top layer do navegador.
 
-  private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('dialog');
-  private readonly toastOverlay = inject(ToastOverlay);
+  /*****************************************/
+  /* Propriedades Publicas                 */
+  /*****************************************/
+  readonly styles = modalStyles; // Estilos utilizados pelo componente.
 
+  /*****************************************/
+  /* Inputs e Outputs                      */
+  /*****************************************/
+  readonly isOpen = model(false); // Controla a abertura do modal e permite que ele atualize o estado ao fechar por Escape ou backdrop.
+  readonly blockBackdropClose = input(false); // Impede o fechamento pelo backdrop. Não interfere no fechamento por Escape.
+  readonly ariaLabel = input('Janela modal'); // Nome acessível aplicado ao <dialog> através de aria-label.
+  readonly closed = output<void>(); // Emitido quando o <dialog> conclui seu fechamento.
+
+  /*****************************************/
+  /* Metodos Construtor                    */
+  /*****************************************/
   constructor() {
-    effect(() => {
-      const dialog = this.dialog()?.nativeElement;
-
-      if (!dialog) {
-        return;
-      }
-
-      if (this.isOpen() && !dialog.open) {
-        dialog.showModal();
-        this.toastOverlay.bringToFront();
-      } else if (!this.isOpen() && dialog.open) {
-        dialog.close();
-      }
-    });
+    // Reage às alterações de isOpen para abrir ou fechar o <dialog> nativo.
+    effect(this.handleEffect);
   }
 
-  /*******************************************/
-  /* Getter de estilos                       */
-  /*******************************************/
-  get styles() {
-    return modalStyles;
-  }
-
-  /*******************************************/
-  /* Metodos                                 */
-  /*******************************************/
-  handleBackdropClick(event: MouseEvent): void {
+  /*****************************************/
+  /* Metodos Publicos                      */
+  /*****************************************/
+  // Disparado ao pressionar o ponteiro sobre o <dialog>.
+  // Fecha quando a interação ocorre diretamente na área do dialog/backdrop.
+  handleBackdropPointerDown(event: PointerEvent): void {
     const clickedBackdrop = event.target === event.currentTarget;
 
     if (clickedBackdrop && !this.blockBackdropClose()) {
@@ -53,24 +50,37 @@ export class ModalComponent {
     }
   }
 
+  // Disparado pelo <dialog> ao solicitar fechamento, normalmente ao pressionar Escape.
+  // Cancela o fechamento nativo para que isOpen continue sendo a fonte de verdade.
   handleCancel(event: Event): void {
-    // Impede o fechamento automático para manter isOpen sincronizado.
     event.preventDefault();
     this.isOpen.set(false);
   }
 
-  handleKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      this.isOpen.set(false);
-    }
-  }
-
+  // Disparado depois que o <dialog> é efetivamente fechado.
+  // Informa externamente o fechamento, permitindo executar ações posteriores.
   handleClose(): void {
-    if (this.isOpen()) {
-      this.isOpen.set(false);
-    }
-
     this.closed.emit();
   }
+
+  /*****************************************/
+  /* Metodos Privados                      */
+  /*****************************************/
+  // Sincroniza isOpen com os métodos imperativos showModal() e close() do <dialog>.
+  private readonly handleEffect = (): void => {
+    const dialog = this.dialog()?.nativeElement;
+
+    if (!dialog) {
+      return;
+    }
+
+    if (this.isOpen() && !dialog.open) {
+      dialog.showModal();
+
+      // showModal() coloca o dialog na top layer; reposiciona os toasts acima dele.
+      this.toastOverlay.bringToFront();
+    } else if (!this.isOpen() && dialog.open) {
+      dialog.close();
+    }
+  };
 }

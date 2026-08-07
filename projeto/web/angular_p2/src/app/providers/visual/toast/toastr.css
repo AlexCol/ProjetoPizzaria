@@ -178,7 +178,7 @@ button.toast-close-button {
 
 /* Responsive Design */
 @media all and (max-width: 240px) {
-  .toast-container .ngx-toastr.div {
+  .toast-container .ngx-toastr {
     padding: 8px 8px 8px 50px;
     width: 11em;
   }
@@ -188,7 +188,7 @@ button.toast-close-button {
   }
 }
 @media all and (min-width: 241px) and (max-width: 480px) {
-  .toast-container .ngx-toastr.div {
+  .toast-container .ngx-toastr {
     padding: 8px 8px 8px 50px;
     width: 18em;
   }
@@ -198,7 +198,7 @@ button.toast-close-button {
   }
 }
 @media all and (min-width: 481px) and (max-width: 768px) {
-  .toast-container .ngx-toastr.div {
+  .toast-container .ngx-toastr {
     padding: 15px 15px 15px 50px;
     width: 25em;
   }
