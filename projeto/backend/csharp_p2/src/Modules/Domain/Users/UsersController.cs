@@ -117,7 +117,6 @@ public class UsersController : ControllerBase {
   [EndpointDescription("Reenvia o e-mail de ativação para o usuário, caso ele não tenha recebido ou o token tenha expirado.")]
   [ProducesResponseType(typeof(MessageDto), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status429TooManyRequests)]
   public async Task<ActionResult<MessageDto>> ResendActivationEmailAsync([FromBody] EmailDto dto) {
     var result = await _usersService.ResendActivationEmailAsync(dto.Email);
@@ -131,7 +130,6 @@ public class UsersController : ControllerBase {
   [EndpointDescription("Envia um e-mail com um token para redefinição de senha.")]
   [ProducesResponseType(typeof(MessageDto), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status429TooManyRequests)]
   public async Task<ActionResult<MessageDto>> SendPasswordResetEmailAsync([FromBody] EmailDto dto) {
     var result = await _usersService.SendPasswordResetEmailAsync(dto.Email);

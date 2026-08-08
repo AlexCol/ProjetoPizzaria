@@ -167,32 +167,28 @@ public class UsersService : IUsersService {
 
   public async Task<MessageDto> ResendActivationEmailAsync(string email) {
     var user = await GetEntityByEmailWithPasswordAsync(new EmailVO(email));
-    if (user == null) {
-      throw new CustomError("User not found.", 404);
+
+    if (user?.Status == EUserStatus.Inactive) {
+      await SendEmailForActivationAsync(user.Id);
     }
 
-    if (user.Status == EUserStatus.Active) {
-      throw new CustomError("User is already active.");
-    }
-
-    await SendEmailForActivationAsync(user.Id);
-    return new MessageDto("Activation email resent successfully. Please check your email.");
+    return new MessageDto(
+      "If an inactive account exists for this email, an activation message will be sent."
+    );
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   public async Task<MessageDto> SendPasswordResetEmailAsync(string email) {
     var user = await GetEntityByEmailWithPasswordAsync(new EmailVO(email));
-    if (user == null) {
-      throw new CustomError("User not found.", 404);
+
+    if (user?.Status == EUserStatus.Active) {
+      await SendEmailForPasswordResetAsync(user.Id);
     }
 
-    if (user.Status != EUserStatus.Active) {
-      throw new CustomError("User is not active.");
-    }
-
-    await SendEmailForPasswordResetAsync(user.Id);
-    return new MessageDto("Password reset email sent successfully. Please check your email.");
+    return new MessageDto(
+      "If an eligible account exists for this email, password reset instructions will be sent."
+    );
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -254,6 +250,7 @@ public class UsersService : IUsersService {
     var sessionService = _serviceProvider.GetRequiredService<ISessionService>();
     await sessionService.UpdateSessionAsync(userId);
   }
+
   #endregion
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -261,14 +258,24 @@ public class UsersService : IUsersService {
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!SendEmail
   #region SendEmail
   private Task SendEmailForActivationAsync(long userId) {
-    var backgroundJobClient = _serviceProvider.GetRequiredService<IBackgroundJobClient>();
-    backgroundJobClient.Enqueue<IUsersEmailJob>(job => job.SendActivationEmailAsync(userId));
+    try {
+      var backgroundJobClient = _serviceProvider.GetRequiredService<IBackgroundJobClient>();
+      backgroundJobClient.Enqueue<IUsersEmailJob>(job => job.SendActivationEmailAsync(userId));
+    } catch (Exception ex) {
+      Log.Error(ex, "[UsersService] Failed to enqueue activation email for userId {UserId}", userId);
+    }
+
     return Task.CompletedTask;
   }
 
   private Task SendEmailForPasswordResetAsync(long userId) {
-    var backgroundJobClient = _serviceProvider.GetRequiredService<IBackgroundJobClient>();
-    backgroundJobClient.Enqueue<IUsersEmailJob>(job => job.SendPasswordResetEmailAsync(userId));
+    try {
+      var backgroundJobClient = _serviceProvider.GetRequiredService<IBackgroundJobClient>();
+      backgroundJobClient.Enqueue<IUsersEmailJob>(job => job.SendPasswordResetEmailAsync(userId));
+    } catch (Exception ex) {
+      Log.Error(ex, "[UsersService] Failed to enqueue password reset email for userId {UserId}", userId);
+    }
+
     return Task.CompletedTask;
   }
   #endregion
