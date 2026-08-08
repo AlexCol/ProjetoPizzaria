@@ -20,7 +20,7 @@ public class EmailService : IEmailService {
     var emailTo = user.Email.Value;
     var subject = "Ativação de cadastro site - Projetos Alexandre";
 
-    var linkAtivaConta = _env.FrondEnd.Url + "/ativacao?token=<token>";
+    var linkAtivaConta = _env.FrondEnd.Url + "/auth/activate-account?token=<token>";
     linkAtivaConta = linkAtivaConta.Replace("<token>", token);
     var body = "";
     body += $"<h3>Bem vindo {EscapeString(user.Name)}!</h3>";
