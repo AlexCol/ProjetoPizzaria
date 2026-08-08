@@ -2,7 +2,9 @@ using csharp_p2.src.Modules.Session;
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Exceptions;
 using csharp_p2.src.Shared.Helpers;
+using csharp_p2.src.Shared.RateLimiting;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace csharp_p2.src.Modules.Auth.Authentication;
 
@@ -23,11 +25,13 @@ public class AuthController : ControllerBase {
   #region Login-Web
   /**************************************************************************/
   [AllowAnonymous]
+  [EnableRateLimiting(RateLimitPolicies.LOGIN)]
   [HttpPost("login")]
   [EndpointSummary("Login do usuário")]
   [EndpointDescription("Permite que um usuário faça login, retornando os detalhes da sessão. Cookies Http adicionado com Token da sessão.")]
   [ProducesResponseType(typeof(UserSessionPayload), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status429TooManyRequests)]
   public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto) {
     var appOrigin = Request.GetEntryPoint();
     if (appOrigin != "web")
@@ -52,11 +56,13 @@ public class AuthController : ControllerBase {
   #region Login-App
   /**************************************************************************/
   [AllowAnonymous]
+  [EnableRateLimiting(RateLimitPolicies.LOGIN)]
   [HttpPost("login-app")]
   [EndpointSummary("Login para aplicativos móveis")]
   [EndpointDescription("Permite que usuários façam login a partir de aplicativos móveis, retornando um token de sessão no corpo da resposta.")]
   [ProducesResponseType(typeof(MobileLoginResponseDto), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status429TooManyRequests)]
   public async Task<IActionResult> LoginAppAsync([FromBody] LoginDto loginDto) {
     var appOrigin = Request.GetEntryPoint();
     if (appOrigin != "mobile")

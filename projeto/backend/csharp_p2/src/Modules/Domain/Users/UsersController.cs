@@ -1,6 +1,8 @@
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Pagination;
+using csharp_p2.src.Shared.RateLimiting;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace csharp_p2.src.Modules.Domain;
 
@@ -95,48 +97,56 @@ public class UsersController : ControllerBase {
   }
 
   [AllowAnonymous]
+  [EnableRateLimiting(RateLimitPolicies.TOKEN_OPERATION)]
   [HttpPost("activate")]
   [EndpointSummary("Ativar usuário")]
   [EndpointDescription("Ativa a conta com o token enviado por e-mail.")]
   [ProducesResponseType(typeof(MessageDto), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status429TooManyRequests)]
   public async Task<ActionResult<MessageDto>> ActivateUserAsync([FromBody] TokenDto dto) {
     var result = await _usersService.ActivateUserAsync(dto.Token);
     return Ok(result);
   }
 
   [AllowAnonymous]
+  [EnableRateLimiting(RateLimitPolicies.EMAIL_DELIVERY)]
   [HttpPost("resend-activation-email")]
   [EndpointSummary("Reenviar e-mail de ativação")]
   [EndpointDescription("Reenvia o e-mail de ativação para o usuário, caso ele não tenha recebido ou o token tenha expirado.")]
   [ProducesResponseType(typeof(MessageDto), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status429TooManyRequests)]
   public async Task<ActionResult<MessageDto>> ResendActivationEmailAsync([FromBody] EmailDto dto) {
     var result = await _usersService.ResendActivationEmailAsync(dto.Email);
     return Ok(result);
   }
 
   [AllowAnonymous]
+  [EnableRateLimiting(RateLimitPolicies.EMAIL_DELIVERY)]
   [HttpPost("send-password-reset-email")]
   [EndpointSummary("Enviar e-mail de recuperação de senha")]
   [EndpointDescription("Envia um e-mail com um token para redefinição de senha.")]
   [ProducesResponseType(typeof(MessageDto), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status429TooManyRequests)]
   public async Task<ActionResult<MessageDto>> SendPasswordResetEmailAsync([FromBody] EmailDto dto) {
     var result = await _usersService.SendPasswordResetEmailAsync(dto.Email);
     return Ok(result);
   }
 
   [AllowAnonymous]
+  [EnableRateLimiting(RateLimitPolicies.TOKEN_OPERATION)]
   [HttpPost("recover-password")]
   [EndpointSummary("Redefinir senha")]
   [EndpointDescription("Redefine a senha do usuário utilizando o token enviado por e-mail.")]
   [ProducesResponseType(typeof(MessageDto), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status429TooManyRequests)]
   public async Task<ActionResult<MessageDto>> ResetPasswordAsync([FromBody] RecoverPasswordDto dto) {
     var result = await _usersService.RecoverPasswordAsync(dto.Token, dto);
     return Ok(result);

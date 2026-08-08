@@ -26,6 +26,7 @@ public static class BuilderConfig {
     CacheBuilder.AddCache(builder);
     HangfireBuilder.AddHangfire(builder);
     CorsBuilder.AddCors(builder); //?lembrar depois de colocar useCors no app
+    RateLimitBuilder.AddRateLimiting(builder);
     LogBuilder.AddLogService(builder);
     ZipBuilder.AddZip(builder);
   }

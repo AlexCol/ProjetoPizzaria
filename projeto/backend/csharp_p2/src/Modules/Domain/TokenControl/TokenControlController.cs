@@ -1,5 +1,7 @@
 using csharp_p2.src.Shared.DTOs;
+using csharp_p2.src.Shared.RateLimiting;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace csharp_p2.src.Modules.Domain;
 
@@ -13,10 +15,12 @@ public class TokenControlController : ControllerBase {
   }
 
   [AllowAnonymous]
+  [EnableRateLimiting(RateLimitPolicies.TOKEN_OPERATION)]
   [EndpointSummary("Verificar se token é válido")]
   [EndpointDescription("Verifica se o token enviado é válido para o processo de recuperação de senha.")]
   [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status429TooManyRequests)]
   [HttpPost("is-token-valid")]
   public async Task<IActionResult> IsTokenValidAsync([FromBody] TokenDto dto) {
     try {

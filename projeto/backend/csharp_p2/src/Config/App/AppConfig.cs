@@ -16,10 +16,12 @@ public static class AppConfig {
     // UseRouting resolve o endpoint atual.
     // UseCors precisa vir logo apos UseRouting para que respostas 401/403
     // tambem recebam headers CORS.
+    // UseRateLimiter adiciona o middleware de rate limiting
     // UseAuthentication valida o token e popula HttpContext.User.
     // UseAuthorization aplica as politicas (incluindo fallback de autenticado).
     app.UseRouting();
     CorsApp.AddCors(app);
+    app.UseRateLimiter();
     app.UseAuthentication();
     app.UseAuthorization();
 
