@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+
 namespace csharp_p2.src.Modules.Domain;
 
 [ApiController]
@@ -9,6 +11,7 @@ public class TokenControlController : ControllerBase {
     _tokenControlService = tokenControlService;
   }
 
+  [AllowAnonymous]
   [HttpGet("is-token-valid/{token}")]
   public async Task<IActionResult> IsTokenValidAsync(string token) {
     try {
