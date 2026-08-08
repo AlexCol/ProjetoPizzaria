@@ -1,28 +1,16 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { ButtonComponent } from '../../../../components/shared/button/button';
 import { InputComponent } from '../../../../components/shared/input/input';
+import { equalValues } from '../../../../helpers/formValidators/equalValues';
 import { UsersService } from '../../../../services/users/users.service';
 import { notLoggedStyles } from '../not-logged.styles';
 
 const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/;
-
-function equalValues(controlName1: string, controlName2: string) {
-  return (control: AbstractControl) => {
-    const value1 = control.get(controlName1)?.value;
-    const value2 = control.get(controlName2)?.value;
-
-    if (value1 !== value2) {
-      return { valuesNotEqual: true };
-    }
-    return null;
-  };
-}
-
 @Component({
   selector: 'app-password-change',
   imports: [ButtonComponent, InputComponent, ReactiveFormsModule],
@@ -85,7 +73,9 @@ export class PasswordChangeComponent {
     }
 
     const { password, confirmPassword } = this.form.getRawValue();
+
     this.status.set('loading');
+
     this.usersService
       .changePassword(this.token(), password, confirmPassword)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -120,39 +110,31 @@ export class PasswordChangeComponent {
     }
   };
 
+  // Valida o formulário no submit e exibe apenas o primeiro erro encontrado para evitar múltiplos toasts.
   private validateForm(): boolean {
-    if (!this.form.invalid) {
+    if (this.form.valid) {
       return true;
     }
 
     this.form.markAllAsTouched();
 
-    if (this.form.controls.password.touched && this.form.controls.password.hasError('required')) {
+    const password = this.form.controls.password;
+    const confirmPassword = this.form.controls.confirmPassword;
+
+    if (password.hasError('required')) {
       this.toast.error('Informe sua nova senha.', 'Erro');
     }
-    if (this.form.controls.password.touched && this.form.controls.password.hasError('pattern')) {
+    if (password.hasError('pattern'))
       this.toast.error(
         'A senha deve conter ao menos uma letra maiúscula, uma minúscula, um número e um símbolo.',
         'Erro',
       );
-    }
-    if (this.form.controls.confirmPassword.touched && this.form.controls.confirmPassword.hasError('required')) {
+    if (confirmPassword.hasError('required')) {
       this.toast.error('Informe a confirmação da nova senha.', 'Erro');
     }
     if (this.form.hasError('valuesNotEqual')) {
       this.toast.error('A senha e a confirmação da senha não coincidem.', 'Erro');
     }
-
     return false;
   }
 }
-
-/*
-        @if (form.controls.password.touched && form.controls.password.hasError('required')) {
-          <small id="password-error" [class]="styles.validationError"> Informe sua nova senha. </small>
-        } @else if (form.controls.password.touched && form.controls.password.hasError('pattern')) {
-          <small id="password-error" [class]="styles.validationError">
-            A senha deve conter ao menos uma letra maiúscula, uma minúscula, um número e um símbolo.
-          </small>
-        }
-*/
