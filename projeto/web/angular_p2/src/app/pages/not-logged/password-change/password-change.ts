@@ -7,6 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { ButtonComponent } from '../../../../components/shared/button/button';
 import { InputComponent } from '../../../../components/shared/input/input';
+import { LoaderComponent } from '../../../../components/shared/loader/loader';
 import { equalValues } from '../../../../helpers/formValidators/equalValues';
 import { tokenFromRoute } from '../../../../helpers/router/tokenFromRoute';
 import { TokenControlService } from '../../../../services/token-control/token-control.service';
@@ -16,7 +17,7 @@ import { notLoggedStyles } from '../not-logged.styles';
 const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/;
 @Component({
   selector: 'app-password-change',
-  imports: [ButtonComponent, InputComponent, ReactiveFormsModule],
+  imports: [ButtonComponent, InputComponent, LoaderComponent, ReactiveFormsModule],
   templateUrl: './password-change.html',
 })
 export class PasswordChangeComponent {
@@ -39,7 +40,7 @@ export class PasswordChangeComponent {
   /*****************************************/
   /* Propriedades Publicas                 */
   /*****************************************/
-  readonly status = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
+  readonly status = signal<'idle' | 'loading' | 'success' | 'error'>('loading');
   readonly message = signal<string>('');
   readonly styles = notLoggedStyles; // Estilos utilizados pelo componente.
 
@@ -116,6 +117,8 @@ export class PasswordChangeComponent {
       this.redirectToLoginIn3Seconds();
       return;
     }
+
+    this.status.set('loading');
 
     this.tokenControlService
       .validateToken(this.token())

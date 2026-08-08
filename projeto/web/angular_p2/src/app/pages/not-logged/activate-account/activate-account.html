@@ -1,18 +1,24 @@
-<main [class]="styles.page">
-  <section [class]="styles.card" aria-labelledby="title">
-    <div [class]="styles.brand">
-      <span [class]="styles.brandMark" aria-hidden="true">P</span>
-      <span>Pizzaria</span>
-    </div>
+@if (status() === 'loading') {
+  <app-loader />
+} @else {
+  <main [class]="styles.page">
+    <section [class]="styles.card" aria-labelledby="title">
+      <div [class]="styles.brand">
+        <span [class]="styles.brandMark" aria-hidden="true">P</span>
+        <span>Pizzaria</span>
+      </div>
 
-    @if (status() === 'error') {
-      <div [class]="styles.errorMessage">
-        <p>{{ message() }}</p>
-      </div>
-    } @else if (status() === 'success') {
-      <div [class]="styles.message">
-        <p>{{ message() }}</p>
-      </div>
-    }
-  </section>
-</main>
+      <h1 id="title" [class]="styles.title">Ativação de conta</h1>
+
+      @if (status() === 'error') {
+        <div [class]="styles.errorMessage">
+          <p>{{ message() }}</p>
+        </div>
+      } @else if (status() === 'success') {
+        <div [class]="styles.message">
+          <p>{{ message() }}</p>
+        </div>
+      }
+    </section>
+  </main>
+}

@@ -2,15 +2,15 @@ import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { LoaderComponent } from '../../../../components/shared/loader/loader';
 import { tokenFromRoute } from '../../../../helpers/router/tokenFromRoute';
 import { UsersService } from '../../../../services/users/users.service';
 import { notLoggedStyles } from '../not-logged.styles';
 
 @Component({
   selector: 'app-activate-account',
-  imports: [ReactiveFormsModule],
+  imports: [LoaderComponent],
   templateUrl: './activate-account.html',
 })
 export class ActivateAccountComponent {
@@ -31,7 +31,7 @@ export class ActivateAccountComponent {
   /*****************************************/
   /* Propriedades Publicas                 */
   /*****************************************/
-  readonly status = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
+  readonly status = signal<'idle' | 'loading' | 'success' | 'error'>('loading');
   readonly message = signal<string>('');
   readonly styles = notLoggedStyles; // Estilos utilizados pelo componente.
 
@@ -60,6 +60,8 @@ export class ActivateAccountComponent {
       this.redirectToLoginIn3Seconds();
       return;
     }
+
+    this.status.set('loading');
 
     this.usersService
       .activateAccount(this.token())
