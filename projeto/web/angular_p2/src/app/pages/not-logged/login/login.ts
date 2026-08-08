@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { ButtonComponent } from '../../../../components/shared/button/button';
 import { CheckComponent } from '../../../../components/shared/check/check';
@@ -25,6 +25,7 @@ export class LoginComponent {
   /*****************************************/
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
   private readonly toast = inject(ToastrService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -55,7 +56,7 @@ export class LoginComponent {
       .subscribe({
         next: (response) => {
           this.toast.success(`Bem-vindo(a) ${response.name}`, 'Sucesso');
-          void this.router.navigateByUrl('/home');
+          void this.router.navigateByUrl(this.getSafeReturnUrl());
         },
         error: (error: string) => {
           this.toast.error(error, 'Erro');
@@ -66,6 +67,28 @@ export class LoginComponent {
   /*****************************************/
   /* Metodos Privados                      */
   /*****************************************/
+  //! metodo para validar a url de retorno, caso seja inválida, redireciona para a home
+  //! senão, retorna a url de retorno
+  //! returnUrl - alimentada em auth.guard.ts
+  private getSafeReturnUrl(): string {
+    const returnUrl = this.activatedRoute.snapshot.queryParamMap.get('returnUrl');
+    if (!returnUrl || !returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
+      return '/home';
+    }
+
+    const path = returnUrl.split(/[?#]/)[0].toLowerCase();
+    if (path === '/auth' || path.startsWith('/auth/')) {
+      return '/home';
+    }
+
+    try {
+      this.router.parseUrl(returnUrl);
+      return returnUrl;
+    } catch {
+      return '/home';
+    }
+  }
+
   private validateForm(form: NgForm): boolean {
     if (!form.invalid) {
       return true;

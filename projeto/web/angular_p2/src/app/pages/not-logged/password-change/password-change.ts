@@ -10,6 +10,7 @@ import { InputComponent } from '../../../../components/shared/input/input';
 import { LoaderComponent } from '../../../../components/shared/loader/loader';
 import { equalValues } from '../../../../helpers/formValidators/equalValues';
 import { tokenFromRoute } from '../../../../helpers/router/tokenFromRoute';
+import { getApiErrorMessage } from '../../../../models/ApiError';
 import { TokenControlService } from '../../../../services/token-control/token-control.service';
 import { UsersService } from '../../../../services/users/users.service';
 import { notLoggedStyles } from '../not-logged.styles';
@@ -31,6 +32,7 @@ export class PasswordChangeComponent {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly location = inject(Location);
   private readonly destroyRef = inject(DestroyRef);
+  private redirectTimer?: ReturnType<typeof setTimeout>;
 
   /*****************************************/
   /* Inputs e Outputs                      */
@@ -65,6 +67,7 @@ export class PasswordChangeComponent {
   /* Metodos Construtor                    */
   /*****************************************/
   constructor() {
+    this.destroyRef.onDestroy(this.clearRedirectTimer);
     this.removeTokenFromAddressBar();
     // Valida o token recebido ao carregar a tela antes de permitir a alteração da senha.
     effect(this.handleEffect);
@@ -95,7 +98,7 @@ export class PasswordChangeComponent {
         },
         error: (error: HttpErrorResponse) => {
           this.status.set('error');
-          this.message.set(error.error?.Message ?? 'Não foi possível alterar a senha.');
+          this.message.set(getApiErrorMessage(error, 'Não foi possível alterar a senha.'));
           this.redirectToLoginIn3Seconds();
         },
       });
@@ -105,10 +108,19 @@ export class PasswordChangeComponent {
   /* Metodos Privados                      */
   /*****************************************/
   private redirectToLoginIn3Seconds(): void {
-    setTimeout(() => {
+    this.clearRedirectTimer();
+    this.redirectTimer = setTimeout(() => {
+      this.redirectTimer = undefined;
       void this.router.navigateByUrl('/auth/login');
     }, 3000);
   }
+
+  private readonly clearRedirectTimer = (): void => {
+    if (this.redirectTimer) {
+      clearTimeout(this.redirectTimer);
+      this.redirectTimer = undefined;
+    }
+  };
 
   private readonly handleEffect = (): void => {
     if (!this.token()) {
@@ -130,7 +142,7 @@ export class PasswordChangeComponent {
         },
         error: (error: HttpErrorResponse) => {
           this.status.set('error');
-          this.message.set(error.error?.Message ?? 'Token inválido');
+          this.message.set(getApiErrorMessage(error, 'Token inválido'));
           this.redirectToLoginIn3Seconds();
         },
       });

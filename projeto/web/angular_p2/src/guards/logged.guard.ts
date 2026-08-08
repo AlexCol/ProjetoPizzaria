@@ -21,5 +21,16 @@ export const loggedGuard: CanMatchFn = (route, segments) => {
 
   // Uma rota protegida conhecida leva o visitante ao login. Para caminhos
   // desconhecidos, false permite que o fallback global exiba a página 404.
-  return isKnownProtectedRoute ? router.createUrlTree(['/auth/login']) : false;
+  if (!isKnownProtectedRoute) {
+    return false;
+  }
+
+  const requestedPath = `/${segments
+    .map((segment) => segment.path)
+    .filter(Boolean)
+    .join('/')}`;
+  const returnUrl = requestedPath === '/' ? '/home' : requestedPath;
+
+  // se tentar acessar uma rota protegida, redireciona para o login com a url de retorno como query param
+  return router.createUrlTree(['/auth/login'], { queryParams: { returnUrl } });
 };

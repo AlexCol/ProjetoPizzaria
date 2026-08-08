@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { ButtonComponent } from '../../../../components/shared/button/button';
 import { InputComponent } from '../../../../components/shared/input/input';
 import { LinkComponent } from '../../../../components/shared/link/link';
+import { getApiErrorMessage } from '../../../../models/ApiError';
 import { RecoverPassword } from '../../../../models/RecoverPassword';
 import { UsersService } from '../../../../services/users/users.service';
 import { notLoggedStyles } from '../not-logged.styles';
@@ -57,7 +58,7 @@ export class ResendActivationTokenComponent {
         },
         error: (error: HttpErrorResponse) => {
           this.status.set('error');
-          this.message.set(error.error?.Message);
+          this.message.set(getApiErrorMessage(error, 'Não foi possível reenviar o e-mail de ativação.'));
         },
       });
   }
