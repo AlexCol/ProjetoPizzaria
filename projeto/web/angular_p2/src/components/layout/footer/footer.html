@@ -1,3 +1,45 @@
 <footer [class]="styles.footer">
+  <div [class]="styles.left">
+    @if (user(); as currentUser) {
+      <app-popover position="top-start">
+        <span popover-trigger [class]="styles.userTrigger" [attr.title]="connectionLabel()">
+          <span [class]="connectionDotClasses()" [attr.aria-label]="connectionLabel()" role="status"></span>
+
+          <span [class]="styles.userName">{{ currentUser.name }}</span>
+        </span>
+
+        <div popover-content [class]="styles.userPopover">
+          <div [class]="styles.userPopoverHeader">
+            <span [class]="styles.userPopoverName">{{ currentUser.name }}</span>
+
+            <span [class]="styles.connectionStatus">
+              <span [class]="connectionDotClasses()" aria-hidden="true"></span>
+              {{ connectionLabel() }}
+            </span>
+          </div>
+
+          <dl [class]="styles.userDetails">
+            <div [class]="styles.userDetailRow">
+              <dt [class]="styles.userDetailLabel">Nome</dt>
+              <dd [class]="styles.userDetailValue">{{ currentUser.name }}</dd>
+            </div>
+
+            <div [class]="styles.userDetailRow">
+              <dt [class]="styles.userDetailLabel">E-mail</dt>
+              <dd [class]="styles.userDetailValue">{{ currentUser.email }}</dd>
+            </div>
+
+            <div [class]="styles.userDetailRow">
+              <dt [class]="styles.userDetailLabel">Role</dt>
+              <dd [class]="styles.userDetailValue">{{ currentUser.role.name }}</dd>
+            </div>
+          </dl>
+        </div>
+      </app-popover>
+    }
+  </div>
+
   <p [class]="styles.text">© {{ currentYear }} Pizzaria</p>
+
+  <div aria-hidden="true"></div>
 </footer>

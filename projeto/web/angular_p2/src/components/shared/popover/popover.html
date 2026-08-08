@@ -1,0 +1,9 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<span #trigger [class]="styles.trigger" [attr.aria-disabled]="disabled() ? true : null" (click)="toggle()">
+  <ng-content select="[popover-trigger]" />
+</span>
+
+<div #popover popover="auto" [class]="popoverClasses()" (click)="handleContentClick()" (toggle)="handleToggle($event)">
+  <ng-content select="[popover-content]" />
+</div>
