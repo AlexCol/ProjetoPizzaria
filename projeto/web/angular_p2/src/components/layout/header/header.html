@@ -1,5 +1,5 @@
 <header [class]="styles.header">
-  <app-link routerLink="/home" variant="unstyled" ariaLabel="Página inicial" [className]="styles.brand">
+  <app-link [routerLink]="['home']" variant="unstyled" ariaLabel="Página inicial" [className]="styles.brand">
     <span [class]="styles.brandMark" aria-hidden="true">P</span>
     <span [class]="styles.brandLabel">Pizzaria</span>
   </app-link>
@@ -11,8 +11,8 @@
   </div>
 
   <nav [class]="styles.nav" aria-label="Navegação principal">
-    <app-link label="Home" routerLink="/home" activeClassName="text-secondary!" />
-    <app-link *appAuth="['Admin']" label="Usuários" routerLink="/usuarios" activeClassName="text-secondary!" />
+    <app-link label="Home" [routerLink]="['home']" activeClassName="text-secondary!" />
+    <app-link *appAuth="['Admin']" label="Usuários" [routerLink]="['usuarios']" activeClassName="text-secondary!" />
     <app-button
       variant="default"
       type="button"

@@ -8,7 +8,7 @@ const base = [
 
 export const linkStyles: Record<LinkVariant, string> = {
   default: `${base} text-foreground hover:text-secondary`,
-  subtle: `${base} text-foreground hover:text-secondary`,
+  subtle: `${base} text-muted-foreground hover:text-foreground`,
   unstyled: `${base} text-inherit hover:opacity-80`,
 };
 
