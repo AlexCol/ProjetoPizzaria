@@ -59,7 +59,7 @@ export class InputComponent implements ControlValueAccessor {
   /*****************************************/
   /* Propriedades Publicas                 */
   /*****************************************/
-  protected readonly styles = inputStyles; // Estilos utilizados pelo componente.
+  readonly styles = inputStyles; // Estilos utilizados pelo componente.
 
   /*****************************************/
   /* Inputs e Outputs                      */
@@ -92,44 +92,40 @@ export class InputComponent implements ControlValueAccessor {
   /*****************************************/
   /* Propriedades Computadas               */
   /*****************************************/
-  protected readonly inputId = computed(() => this.id() || this.generatedId); // Usa o id informado ou gera um automaticamente para relacionar label e input.
-  protected readonly isDisabled = computed(() => this.disabled() || this.formDisabled()); // Combina o disabled externo com o estado definido pelo Angular Forms.
-
-  protected readonly inputClasses = computed(() =>
-    [inputStyles.input, this.className().trim()].filter(Boolean).join(' '),
-  );
-
-  protected readonly labelClasses = computed(() =>
-    [inputStyles.label, this.labelClassName().trim()].filter(Boolean).join(' '),
-  );
-
-  protected readonly iconClasses = computed(() =>
-    [inputStyles.icon, this.iconClassName().trim()].filter(Boolean).join(' '),
-  );
+  readonly inputId = computed(() => this.id() || this.generatedId); // Usa o id informado ou gera um automaticamente para relacionar label e input.
+  readonly isDisabled = computed(() => this.disabled() || this.formDisabled()); // Combina o disabled externo com o estado definido pelo Angular Forms.
+  readonly inputClasses = computed(() => [inputStyles.input, this.className().trim()].filter(Boolean).join(' '));
+  readonly labelClasses = computed(() => [inputStyles.label, this.labelClassName().trim()].filter(Boolean).join(' '));
+  readonly iconClasses = computed(() => [inputStyles.icon, this.iconClassName().trim()].filter(Boolean).join(' '));
 
   /*****************************************/
-  /* Metodos Publicos                      */
+  /* ControlValueAccessor                  */
+  /* Métodos utilizados pelo Angular Forms */
+  /* para integrar o componente aos forms. */
   /*****************************************/
-  // Chamado pelo Angular Forms quando o valor do controle precisa ser atualizado externamente.
+  // Atualiza o valor do componente quando o FormControl/ngModel é alterado externamente.
   writeValue(value: InputValue): void {
     this.value.set(value ?? '');
   }
 
-  // Registra o callback que deve ser chamado quando o valor do input for alterado pelo usuário.
+  // Recebe do Angular Forms a função que deve ser chamada quando o usuário altera o valor.
   registerOnChange(onChange: (value: InputValue) => void): void {
     this.onChange = onChange;
   }
 
-  // Registra o callback que deve ser chamado quando o input for marcado como touched.
+  // Recebe do Angular Forms a função que deve ser chamada quando o campo é marcado como touched.
   registerOnTouched(onTouched: () => void): void {
     this.onTouched = onTouched;
   }
 
-  // Chamado pelo Angular Forms para alterar o estado disabled do componente.
+  // Atualiza o estado disabled quando ele é controlado pelo FormControl.
   setDisabledState(disabled: boolean): void {
     this.formDisabled.set(disabled);
   }
 
+  /*****************************************/
+  /* Metodos Publicos                      */
+  /*****************************************/
   // Disparado ao alterar o valor do <input>. Atualiza o model e informa a mudança ao Angular Forms.
   handleInput(event: Event): void {
     const element = event.target as HTMLInputElement;

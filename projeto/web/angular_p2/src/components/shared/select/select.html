@@ -1,0 +1,50 @@
+<div [class]="styles.container">
+  @if (label()) {
+    <label [attr.for]="selectId()" [class]="labelClasses()">
+      {{ label() }}
+      @if (required()) {
+        <span [class]="styles.requiredMark" aria-hidden="true">*</span>
+      }
+    </label>
+  }
+
+  <div [class]="styles.field">
+    <select
+      [attr.aria-describedby]="ariaDescribedBy() || null"
+      [attr.aria-invalid]="ariaInvalid() ? true : null"
+      [attr.aria-label]="ariaLabel() || label() || null"
+      [attr.name]="name() || null"
+      [class]="selectClasses()"
+      [disabled]="isDisabled()"
+      [id]="selectId()"
+      [required]="required()"
+      [value]="selectedKey()"
+      (blur)="handleBlur($event)"
+      (change)="handleChange($event)"
+    >
+      @if (placeholder()) {
+        <option value="" [disabled]="required()">
+          {{ placeholder() }}
+        </option>
+      }
+
+      @for (option of options(); track $index) {
+        <option [value]="getOptionKey($index)" [disabled]="option.disabled ?? false">
+          {{ option.label }}
+        </option>
+      }
+    </select>
+
+    <span [class]="iconClasses()" aria-hidden="true">
+      <svg viewBox="0 0 20 20" fill="none">
+        <path
+          d="m6 8 4 4 4-4"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="1.5"
+        />
+      </svg>
+    </span>
+  </div>
+</div>
