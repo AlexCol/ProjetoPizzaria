@@ -1,8 +1,10 @@
+import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { tokenFromRoute } from '../../../../helpers/router/tokenFromRoute';
 import { UsersService } from '../../../../services/users/users.service';
 import { notLoggedStyles } from '../not-logged.styles';
 
@@ -17,12 +19,14 @@ export class ActivateAccountComponent {
   /*****************************************/
   private readonly usersService = inject(UsersService);
   private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly location = inject(Location);
   private readonly destroyRef = inject(DestroyRef);
 
   /*****************************************/
   /* Inputs e Outputs                      */
   /*****************************************/
-  readonly token = input.required<string>();
+  readonly token = signal(tokenFromRoute(this.activatedRoute));
 
   /*****************************************/
   /* Propriedades Publicas                 */
@@ -35,6 +39,7 @@ export class ActivateAccountComponent {
   /* Metodos Construtor                    */
   /*****************************************/
   constructor() {
+    this.removeTokenFromAddressBar();
     // Valida o token recebido ao carregar a tela antes de permitir a alteração da senha.
     effect(this.handleEffect);
   }
@@ -53,6 +58,7 @@ export class ActivateAccountComponent {
       this.status.set('error');
       this.message.set('Token inválido');
       this.redirectToLoginIn3Seconds();
+      return;
     }
 
     this.usersService
@@ -71,4 +77,8 @@ export class ActivateAccountComponent {
         },
       });
   };
+
+  private removeTokenFromAddressBar(): void {
+    this.location.replaceState(this.router.url.split(/[?#]/)[0]);
+  }
 }

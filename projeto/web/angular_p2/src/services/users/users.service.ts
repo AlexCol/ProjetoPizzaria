@@ -17,7 +17,8 @@ export class UsersService {
 
   changePassword(token: string, password: string, confirmPassword: string) {
     //! sim, o nome da rota no backend é recover-password, mas o nome do metodo aqui é changePassword, pq é isso que ele faz
-    return this._httpClient.post<MessageResponse>(`/users/recover-password/${token}`, {
+    return this._httpClient.post<MessageResponse>('/users/recover-password', {
+      token,
       password,
       confirmPassword,
     });
@@ -28,6 +29,6 @@ export class UsersService {
   }
 
   activateAccount(token: string) {
-    return this._httpClient.post<MessageResponse>(`/users/activate/${token}`, {});
+    return this._httpClient.post<MessageResponse>('/users/activate', { token });
   }
 }

@@ -95,14 +95,14 @@ public class UsersController : ControllerBase {
   }
 
   [AllowAnonymous]
-  [HttpPost("activate/{token}")]
+  [HttpPost("activate")]
   [EndpointSummary("Ativar usuário")]
   [EndpointDescription("Ativa a conta com o token enviado por e-mail.")]
   [ProducesResponseType(typeof(MessageDto), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
-  public async Task<ActionResult<MessageDto>> ActivateUserAsync(string token) {
-    var result = await _usersService.ActivateUserAsync(token);
+  public async Task<ActionResult<MessageDto>> ActivateUserAsync([FromBody] TokenDto dto) {
+    var result = await _usersService.ActivateUserAsync(dto.Token);
     return Ok(result);
   }
 
@@ -131,14 +131,14 @@ public class UsersController : ControllerBase {
   }
 
   [AllowAnonymous]
-  [HttpPost("recover-password/{token}")]
+  [HttpPost("recover-password")]
   [EndpointSummary("Redefinir senha")]
   [EndpointDescription("Redefine a senha do usuário utilizando o token enviado por e-mail.")]
   [ProducesResponseType(typeof(MessageDto), StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
-  public async Task<ActionResult<MessageDto>> ResetPasswordAsync(string token, [FromBody] RecoverPasswordDto dto) {
-    var result = await _usersService.RecoverPasswordAsync(token, dto);
+  public async Task<ActionResult<MessageDto>> ResetPasswordAsync([FromBody] RecoverPasswordDto dto) {
+    var result = await _usersService.RecoverPasswordAsync(dto.Token, dto);
     return Ok(result);
   }
 }

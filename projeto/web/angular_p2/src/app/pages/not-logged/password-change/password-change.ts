@@ -1,12 +1,14 @@
+import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { ButtonComponent } from '../../../../components/shared/button/button';
 import { InputComponent } from '../../../../components/shared/input/input';
 import { equalValues } from '../../../../helpers/formValidators/equalValues';
+import { tokenFromRoute } from '../../../../helpers/router/tokenFromRoute';
 import { TokenControlService } from '../../../../services/token-control/token-control.service';
 import { UsersService } from '../../../../services/users/users.service';
 import { notLoggedStyles } from '../not-logged.styles';
@@ -25,12 +27,14 @@ export class PasswordChangeComponent {
   private readonly tokenControlService = inject(TokenControlService);
   private readonly toast = inject(ToastrService);
   private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly location = inject(Location);
   private readonly destroyRef = inject(DestroyRef);
 
   /*****************************************/
   /* Inputs e Outputs                      */
   /*****************************************/
-  readonly token = input.required<string>();
+  readonly token = signal(tokenFromRoute(this.activatedRoute));
 
   /*****************************************/
   /* Propriedades Publicas                 */
@@ -60,6 +64,7 @@ export class PasswordChangeComponent {
   /* Metodos Construtor                    */
   /*****************************************/
   constructor() {
+    this.removeTokenFromAddressBar();
     // Valida o token recebido ao carregar a tela antes de permitir a alteração da senha.
     effect(this.handleEffect);
   }
@@ -109,6 +114,7 @@ export class PasswordChangeComponent {
       this.status.set('error');
       this.message.set('Token inválido');
       this.redirectToLoginIn3Seconds();
+      return;
     }
 
     this.tokenControlService
@@ -126,6 +132,10 @@ export class PasswordChangeComponent {
         },
       });
   };
+
+  private removeTokenFromAddressBar(): void {
+    this.location.replaceState(this.router.url.split(/[?#]/)[0]);
+  }
 
   // Valida o formulário no submit e exibe apenas o primeiro erro encontrado para evitar múltiplos toasts.
   private validateForm(): boolean {

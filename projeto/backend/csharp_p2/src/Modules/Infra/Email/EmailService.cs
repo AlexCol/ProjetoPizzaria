@@ -20,7 +20,7 @@ public class EmailService : IEmailService {
     var emailTo = user.Email.Value;
     var subject = "Ativação de cadastro site - Projetos Alexandre";
 
-    var linkAtivaConta = _env.FrondEnd.Url + "/auth/activate-account?token=<token>";
+    var linkAtivaConta = _env.FrondEnd.Url + "/auth/activate-account#token=<token>";
     linkAtivaConta = linkAtivaConta.Replace("<token>", token);
     var body = "";
     body += $"<h3>Bem vindo {EscapeString(user.Name)}!</h3>";
@@ -34,7 +34,7 @@ public class EmailService : IEmailService {
     var emailTo = email;
     var subject = "Recuperação de senha - Projetos Alexandre";
 
-    var linkRecuperaConta = _env.FrondEnd.Url + "/auth/password-change?token=<token>";
+    var linkRecuperaConta = _env.FrondEnd.Url + "/auth/password-change#token=<token>";
     linkRecuperaConta = linkRecuperaConta.Replace("<token>", token);
 
     var body = "";

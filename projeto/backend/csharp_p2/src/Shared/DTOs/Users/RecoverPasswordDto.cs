@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 namespace csharp_p2.src.Shared.DTOs;
 
 public class RecoverPasswordDto {
+  [Required(ErrorMessage = "Token is required.")]
+  public string Token { get; set; }
+
   [Required(ErrorMessage = "Password is required.")]
   [MinLength(8, ErrorMessage = "Password must contain at least 8 characters.")]
   [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$",

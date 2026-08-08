@@ -11,6 +11,6 @@ export class TokenControlService {
   /* Metodos Api (Observables)            */
   /****************************************/
   validateToken(token: string) {
-    return this._httpClient.get<void>(`/tokencontrol/is-token-valid/${token}`);
+    return this._httpClient.post<void>('/tokencontrol/is-token-valid', { token });
   }
 }

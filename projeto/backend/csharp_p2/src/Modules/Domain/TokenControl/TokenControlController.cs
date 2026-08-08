@@ -1,3 +1,4 @@
+using csharp_p2.src.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 
 namespace csharp_p2.src.Modules.Domain;
@@ -12,14 +13,14 @@ public class TokenControlController : ControllerBase {
   }
 
   [AllowAnonymous]
-  [HttpGet("is-token-valid/{token}")]
-  public async Task<IActionResult> IsTokenValidAsync(string token) {
+  [EndpointSummary("Verificar se token é válido")]
+  [EndpointDescription("Verifica se o token enviado é válido para o processo de recuperação de senha.")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
+  [HttpPost("is-token-valid")]
+  public async Task<IActionResult> IsTokenValidAsync([FromBody] TokenDto dto) {
     try {
-      if (string.IsNullOrEmpty(token)) {
-        return BadRequest(new { message = "Token is required." });
-      }
-
-      await _tokenControlService.GetTokenControlByTokenAndProcessAsync(token, Processes.PasswordReset);
+      await _tokenControlService.GetTokenControlByTokenAndProcessAsync(dto.Token, Processes.PasswordReset);
       return Ok();
     } catch {
       return BadRequest(new { message = "Invalid token." });
