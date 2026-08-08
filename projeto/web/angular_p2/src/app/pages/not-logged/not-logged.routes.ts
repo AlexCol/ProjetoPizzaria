@@ -1,6 +1,7 @@
 import { Route } from '@angular/router';
 import { notLoggedGuard } from '../../../guards/not-logged.guard';
 import { loginRoute } from './login/login.route';
+import { passwordChangeRoute } from './password-change/password-change.route';
 import { recoverPasswordRoute } from './recover-password/recover-password.route';
 
 export const notLoggedRoutes: Route = {
@@ -12,6 +13,7 @@ export const notLoggedRoutes: Route = {
     { path: '', redirectTo: 'login', pathMatch: 'full' },
     loginRoute,
     recoverPasswordRoute,
+    passwordChangeRoute,
     {
       path: '**', //temporario até ter uma página de erro 404
       redirectTo: 'login',

@@ -55,6 +55,9 @@ export class RecoverPasswordComponent {
       });
   }
 
+  /*****************************************/
+  /* Metodos Privados                      */
+  /*****************************************/
   private validateForm(form: NgForm): boolean {
     if (!form.invalid) {
       return true;

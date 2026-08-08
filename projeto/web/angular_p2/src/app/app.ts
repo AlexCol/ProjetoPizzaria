@@ -1,6 +1,6 @@
 import { Component, effect, EffectCleanupRegisterFn, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterOutlet } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { LoaderComponent } from '../components/shared/loader/loader';
 import { AuthService } from '../services/auth/auth.service';
 import { SSEService } from '../services/sse/sse.service';
@@ -12,7 +12,6 @@ import { ThemeService } from '../services/theme/theme.service';
   templateUrl: './app.html',
 })
 export class App {
-  private readonly _router = inject(Router);
   private readonly _authService = inject(AuthService);
   private readonly _sseService = inject(SSEService);
 
@@ -28,9 +27,6 @@ export class App {
     //! Não é necessário registrá-los novamente a cada reconexão.
     this.registerSSEGlobalCommands();
 
-    //! Responsável pela navegação
-    effect(() => this.setAuthentication());
-
     //! Responsável pela conexão SSE
     effect((onCleanup) => this.configureSSE(onCleanup));
   }
@@ -39,26 +35,6 @@ export class App {
   /* Metodos Privados (usados nos Effect  */
   /* para deixar o componente mais limpo) */
   /****************************************/
-  private setAuthentication() {
-    const isLoading = this._authService.isLoading;
-    if (isLoading) {
-      return;
-    }
-
-    //! com esse bloco, sempre que informado uma url na mão, o usuário será
-    //! redirecionado para a tela de login caso não esteja autenticado.
-    //! ou para a tela de home se estiver autenticado.
-    // const isAuthenticated = this._authService.isAuthenticated;
-    // const destination = isAuthenticated ? '/home' : '/auth/login';
-    // void this._router.navigateByUrl(destination);
-
-    // pra evitar o caso acima, deixado esse aqui pros casos não autenticados
-    // e no login realiza o redirect para home
-    if (!this._authService.isAuthenticated) {
-      void this._router.navigateByUrl('/auth/login');
-    }
-  }
-
   private registerSSEGlobalCommands() {
     this._sseService.registerCommand('session-updated', {
       onMessage: () => this._authService.getMe().subscribe(),

@@ -63,6 +63,9 @@ export class LoginComponent {
       });
   }
 
+  /*****************************************/
+  /* Metodos Privados                      */
+  /*****************************************/
   private validateForm(form: NgForm): boolean {
     if (!form.invalid) {
       return true;

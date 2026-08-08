@@ -1,5 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { catchError, map, of, tap } from 'rxjs';
 import { processaErros } from '../../models/ApiError';
 import { User } from '../../models/User';
@@ -12,6 +13,7 @@ type UserSessionPayload = { user: User };
 })
 export class AuthService {
   private readonly _httpClient = inject(HttpClient);
+  private readonly _router = inject(Router);
   private _userData = signal<User | undefined>(undefined);
   private readonly _status = signal<AuthStatus>('loading');
 
@@ -33,7 +35,7 @@ export class AuthService {
   /* Metodos publicos                     */
   /****************************************/
   expireSession(): void {
-    this.clearUser();
+    this.clearUserAndRedirectToLogin();
   }
 
   hasAnyRole(allowedRoles: readonly string[]): boolean {
@@ -62,11 +64,8 @@ export class AuthService {
 
   logout() {
     return this._httpClient.post('/auth/logout', {}).pipe(
-      tap(() => this.clearUser()),
-      catchError(() => {
-        this.clearUser();
-        return of(null);
-      }),
+      catchError(() => of(null)),
+      tap(() => this.clearUserAndRedirectToLogin()),
     );
   }
 
@@ -98,5 +97,14 @@ export class AuthService {
   private clearUser() {
     this._userData.set(undefined);
     this._status.set('anonymous');
+  }
+
+  private clearUserAndRedirectToLogin() {
+    const wasAuthenticated = this.isAuthenticated;
+    this.clearUser();
+
+    if (wasAuthenticated) {
+      void this._router.navigateByUrl('/auth/login');
+    }
   }
 }
