@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { ButtonComponent } from '../../../../components/shared/button/button';
 import { InputComponent } from '../../../../components/shared/input/input';
 import { equalValues } from '../../../../helpers/formValidators/equalValues';
+import { TokenControlService } from '../../../../services/token-control/token-control.service';
 import { UsersService } from '../../../../services/users/users.service';
 import { notLoggedStyles } from '../not-logged.styles';
 
@@ -21,6 +22,7 @@ export class PasswordChangeComponent {
   /* Propriedades Privadas                 */
   /*****************************************/
   private readonly usersService = inject(UsersService);
+  private readonly tokenControlService = inject(TokenControlService);
   private readonly toast = inject(ToastrService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -108,6 +110,21 @@ export class PasswordChangeComponent {
       this.message.set('Token inválido');
       this.redirectToLoginIn3Seconds();
     }
+
+    this.tokenControlService
+      .validateToken(this.token())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.status.set('idle');
+          this.message.set('');
+        },
+        error: (error: HttpErrorResponse) => {
+          this.status.set('error');
+          this.message.set(error.error?.Message ?? 'Token inválido');
+          this.redirectToLoginIn3Seconds();
+        },
+      });
   };
 
   // Valida o formulário no submit e exibe apenas o primeiro erro encontrado para evitar múltiplos toasts.
