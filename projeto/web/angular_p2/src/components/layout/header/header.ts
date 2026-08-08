@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { AuthDirective } from '../../../directives/auth.directive';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ThemeService } from '../../../services/theme/theme.service';
@@ -17,6 +18,7 @@ import { headerStyles } from './header.styles';
 export class HeaderComponent {
   private readonly authService = inject(AuthService);
   private readonly themeService = inject(ThemeService);
+  private readonly toastService = inject(ToastrService);
 
   protected get styles() {
     return headerStyles;
@@ -35,7 +37,11 @@ export class HeaderComponent {
   }
 
   logout() {
-    this.authService.logout().subscribe();
+    this.authService.logout().subscribe({
+      error: (error: string) => {
+        this.toastService.error(error, 'Não foi possível encerrar a sessão');
+      },
+    });
   }
 
   toggleTheme() {

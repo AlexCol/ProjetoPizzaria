@@ -64,8 +64,8 @@ export class AuthService {
 
   logout() {
     return this._httpClient.post('/auth/logout', {}).pipe(
-      catchError(() => of(null)),
       tap(() => this.clearUserAndRedirectToLogin()),
+      catchError(processaErros),
     );
   }
 
