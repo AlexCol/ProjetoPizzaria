@@ -34,7 +34,7 @@ public class EmailService : IEmailService {
     var emailTo = email;
     var subject = "Recuperação de senha - Projetos Alexandre";
 
-    var linkRecuperaConta = _env.FrondEnd.Url + "/recuperar-senha?token=<token>";
+    var linkRecuperaConta = _env.FrondEnd.Url + "/auth/password-change?token=<token>";
     linkRecuperaConta = linkRecuperaConta.Replace("<token>", token);
 
     var body = "";
