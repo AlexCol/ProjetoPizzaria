@@ -1,4 +1,4 @@
-export const loginStyles = {
+export const notLoggedStyles = {
   host: 'block',
   page: 'grid min-h-dvh place-items-center bg-background px-4 py-8 text-foreground',
   card: 'flex w-full max-w-136 flex-col items-center',
@@ -16,4 +16,5 @@ export const loginStyles = {
   rememberInput: 'accent-secondary',
   rememberLabel: 'text-foreground',
   signupLink: 'mt-6 text-[0.9rem]',
+  message: 'text-center text-[0.9rem] bg-secondary/50 p-4 rounded-md',
 } as const;

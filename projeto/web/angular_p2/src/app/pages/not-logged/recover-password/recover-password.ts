@@ -1,64 +1,56 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { ButtonComponent } from '../../../../components/shared/button/button';
-import { CheckComponent } from '../../../../components/shared/check/check';
 import { InputComponent } from '../../../../components/shared/input/input';
 import { LinkComponent } from '../../../../components/shared/link/link';
-import { Credentials } from '../../../../models/Credentials';
-import { AuthService } from '../../../../services/auth/auth.service';
+import { RecoverPassword } from '../../../../models/RecoverPassword';
+import { UsersService } from '../../../../services/users/users.service';
 import { notLoggedStyles } from '../not-logged.styles';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.html',
-  host: {
-    '[class]': 'styles.host',
-  },
-  imports: [ButtonComponent, CheckComponent, FormsModule, InputComponent, LinkComponent],
+  selector: 'app-recover-password',
+  imports: [ButtonComponent, LinkComponent, InputComponent, FormsModule],
+  templateUrl: './recover-password.html',
 })
-export class LoginComponent {
+export class RecoverPasswordComponent {
   /*****************************************/
   /* Propriedades Privadas                 */
   /*****************************************/
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
+  private readonly usersService = inject(UsersService);
   private readonly toast = inject(ToastrService);
   private readonly destroyRef = inject(DestroyRef);
 
   /*****************************************/
   /* Propriedades Publicas                 */
   /*****************************************/
+  requestSended = signal(false); // Indica se a requisição de login foi enviada.
   readonly styles = notLoggedStyles; // Estilos utilizados pelo componente.
 
-  readonly credentials: Credentials = {
+  readonly credentials: RecoverPassword = {
     email: '',
-    password: '',
-    remember: false,
   };
 
   /*****************************************/
   /* Metodos Publicos                      */
   /*****************************************/
-
   // Disparado no submit do formulário. Valida os campos antes de realizar o login.
-  login(form: NgForm): void {
+  sendRequest(form: NgForm): void {
     if (!this.validateForm(form)) {
       return;
     }
-
-    this.authService
-      .login(this.credentials.email, this.credentials.password, this.credentials.remember)
+    this.usersService
+      .recoverPassword(this.credentials.email)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (response) => {
-          this.toast.success(`Bem-vindo(a) ${response.name}`, 'Sucesso');
-          void this.router.navigateByUrl('/home');
+        next: () => {
+          // this.toast.success(response.message, 'Sucesso');
+          this.requestSended.set(true);
         },
-        error: (error: string) => {
-          this.toast.error(error, 'Erro');
+        error: (error: HttpErrorResponse) => {
+          this.toast.error(error.error.Message, 'Erro');
         },
       });
   }
@@ -71,9 +63,6 @@ export class LoginComponent {
 
     if (form.controls['email']?.invalid) {
       this.toast.error('Informe um e-mail válido.', 'Erro');
-    }
-    if (form.controls['password']?.invalid) {
-      this.toast.error('Informe sua senha.', 'Erro');
     }
 
     return false;

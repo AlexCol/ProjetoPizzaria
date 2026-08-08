@@ -23,10 +23,6 @@
           required
           email
         />
-
-        @if (email.invalid && email.touched) {
-          <small id="email-error" [class]="styles.validationError">Informe um e-mail válido.</small>
-        }
       </div>
 
       <div [class]="styles.field">
@@ -43,10 +39,6 @@
           [ariaInvalid]="password.invalid && password.touched"
           required
         />
-
-        @if (password.invalid && password.touched) {
-          <small id="password-error" [class]="styles.validationError">Informe sua senha.</small>
-        }
       </div>
 
       <app-button label="Acessar" type="submit" />
@@ -61,6 +53,10 @@
       />
     </form>
 
-    <app-link label="Esqueceu a senha? Clique aqui." href="#" [className]="styles.signupLink" />
+    <app-link
+      label="Esqueceu a senha? Clique aqui."
+      [routerLink]="['../', 'recover-password']"
+      [className]="styles.signupLink"
+    />
   </section>
 </main>
