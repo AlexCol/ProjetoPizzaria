@@ -215,6 +215,11 @@ public class UsersService : IUsersService {
       await _userRepository.UpdateAsync(user);
       await tokenControlService.RemoveTokenControlAsync(tokenControl);
 
+      // destroy todas as sessões do usuário e enviar notificação de atualização de sessão
+      var sessionCacheService = _serviceProvider.GetRequiredService<ISessionCacheService>();
+      await sessionCacheService.DestroySessionsByUserIdAsync(user.Id);
+      await SendSessionUpdateNotificationAsync(user.Id);
+
       await trx.CommitAsync();
       return new MessageDto("Password reset successfully. You can now log in with your new password.");
     } catch (Exception ex) {
