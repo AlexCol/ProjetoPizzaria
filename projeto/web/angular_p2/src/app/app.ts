@@ -1,6 +1,7 @@
 import { Component, effect, EffectCleanupRegisterFn, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { LoaderComponent } from '../components/shared/loader/loader';
 import { AuthService } from '../services/auth/auth.service';
 import { SSEService } from '../services/sse/sse.service';
@@ -14,6 +15,7 @@ import { ThemeService } from '../services/theme/theme.service';
 export class App {
   private readonly _authService = inject(AuthService);
   private readonly _sseService = inject(SSEService);
+  private readonly _toastService = inject(ToastrService);
 
   get isLoading() {
     return this._authService.isLoading;
@@ -37,8 +39,12 @@ export class App {
   /****************************************/
   private registerSSEGlobalCommands() {
     this._sseService.registerCommand('session-updated', {
-      onMessage: () => this._authService.getMe().subscribe(),
-      // onError: () => this._authService.expireSession(),
+      onMessage: () =>
+        this._authService.getMe().subscribe((user) => {
+          if (!user) {
+            this._toastService.info('Your session has expired. Please log in again.', 'Session Expired');
+          }
+        }),
     });
   }
 
