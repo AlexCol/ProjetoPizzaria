@@ -137,7 +137,7 @@ public class UsersService : IUsersService {
     using var trx = await _userRepository.BeginTransactionAsync();
     try {
       var tokenControlService = _serviceProvider.GetRequiredService<ITokenControlService>();
-      var tokenControl = await tokenControlService.GetTokenControlByTokenAndProcessAsync(
+      var tokenControl = await tokenControlService.GetValidTokenAsync(
         token,
         Processes.ActivateUser
       );
@@ -201,13 +201,10 @@ public class UsersService : IUsersService {
     using var trx = await _userRepository.BeginTransactionAsync();
     try {
       var tokenControlService = _serviceProvider.GetRequiredService<ITokenControlService>();
-      var tokenControl = await tokenControlService.GetTokenControlByTokenAndProcessAsync(
+      var tokenControl = await tokenControlService.GetValidTokenAsync(
         token,
         Processes.PasswordReset
       );
-      if (tokenControl.ExpiresAt < DateTime.UtcNow) {
-        throw new CustomError("Token has expired.");
-      }
 
       var user = await _userRepository.GetByIdAsync(tokenControl.IdObject);
       if (user == null) {

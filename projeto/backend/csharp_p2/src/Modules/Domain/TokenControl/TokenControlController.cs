@@ -24,7 +24,7 @@ public class TokenControlController : ControllerBase {
   [HttpPost("is-token-valid")]
   public async Task<IActionResult> IsTokenValidAsync([FromBody] TokenDto dto) {
     try {
-      await _tokenControlService.GetTokenControlByTokenAndProcessAsync(dto.Token, Processes.PasswordReset);
+      await _tokenControlService.GetValidTokenAsync(dto.Token, Processes.PasswordReset);
       return Ok();
     } catch {
       return BadRequest(new { message = "Invalid token." });
