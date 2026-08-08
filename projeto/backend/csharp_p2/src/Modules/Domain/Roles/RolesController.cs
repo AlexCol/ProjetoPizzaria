@@ -2,7 +2,7 @@ using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Pagination;
 using Microsoft.AspNetCore.Authorization;
 
-namespace csharp_p2.src.Modules.Domain.Roles;
+namespace csharp_p2.src.Modules.Domain;
 
 [ApiController]
 [Route("api/[controller]")]

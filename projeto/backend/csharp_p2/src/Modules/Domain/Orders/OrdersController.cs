@@ -1,7 +1,7 @@
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Pagination;
 
-namespace csharp_p2.src.Modules.Domain.Orders;
+namespace csharp_p2.src.Modules.Domain;
 
 [ApiController]
 [Route("api/[controller]")]

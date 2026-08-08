@@ -1,7 +1,7 @@
 using csharp_p2.src.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 
-namespace csharp_p2.src.Modules.Domain.Categories;
+namespace csharp_p2.src.Modules.Domain;
 
 [ApiController]
 [Route("api/[controller]")]

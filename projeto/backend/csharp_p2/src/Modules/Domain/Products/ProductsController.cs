@@ -3,7 +3,7 @@ using csharp_p2.src.Shared.Filters;
 using csharp_p2.src.Shared.Pagination;
 using Microsoft.AspNetCore.Authorization;
 
-namespace csharp_p2.src.Modules.Domain.Products;
+namespace csharp_p2.src.Modules.Domain;
 
 [ApiController]
 [Route("api/[controller]")]

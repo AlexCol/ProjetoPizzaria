@@ -1,4 +1,3 @@
-using csharp_p2.src.Modules.Domain.Products;
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Exceptions;
 

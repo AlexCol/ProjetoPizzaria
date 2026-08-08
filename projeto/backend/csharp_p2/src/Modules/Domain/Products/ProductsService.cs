@@ -3,7 +3,7 @@ using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Exceptions;
 using csharp_p2.src.Shared.Pagination;
 
-namespace csharp_p2.src.Modules.Domain.Products;
+namespace csharp_p2.src.Modules.Domain;
 
 public interface IProductsService {
   Task<IEnumerable<Product>> GetAllProductsAsync(EProductStatus? status);
