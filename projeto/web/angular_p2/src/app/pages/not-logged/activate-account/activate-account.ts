@@ -49,7 +49,7 @@ export class ActivateAccountComponent {
   /*****************************************/
   private redirectToLoginIn3Seconds(): void {
     setTimeout(() => {
-      void this.router.navigateByUrl('/login');
+      void this.router.navigateByUrl('/auth/login');
     }, 3000);
   }
 
