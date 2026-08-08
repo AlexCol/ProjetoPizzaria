@@ -7,7 +7,7 @@ namespace csharp_p2.src.Modules.Domain;
 
 public interface ITokenControlService {
   Task<string> RegisterProcessTokenAsync(long idObject, string processName, DateTime? expiresAt = null);
-  Task<TokenControl> GetTokenControlByTokenAsync(string token);
+  Task<TokenControl> GetTokenControlByTokenAndProcessAsync(string token, string processName);
   Task RemoveTokenControlAsync(TokenControl tokenControl);
   Task ClearExpiredTokensAsync();
 }
@@ -45,8 +45,12 @@ public class TokenControlService : ITokenControlService {
     return token;
   }
 
-  public async Task<TokenControl> GetTokenControlByTokenAsync(string token) {
-    var tokenControl = await _context.TokenControls.FirstOrDefaultAsync(tc => tc.Token == token);
+  public async Task<TokenControl> GetTokenControlByTokenAndProcessAsync(string token, string processName) {
+    var idProcess = await _processesService.GetProcessIdByName(processName);
+    var tokenControl = await _context.TokenControls.FirstOrDefaultAsync(tc =>
+      tc.Token == token && tc.IdProcess == idProcess
+    );
+
     if (tokenControl == null) {
       throw new CustomError("Invalid token.");
     }

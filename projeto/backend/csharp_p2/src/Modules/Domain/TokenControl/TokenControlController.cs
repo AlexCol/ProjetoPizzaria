@@ -19,7 +19,7 @@ public class TokenControlController : ControllerBase {
         return BadRequest(new { message = "Token is required." });
       }
 
-      var tokenControl = await _tokenControlService.GetTokenControlByTokenAsync(token);
+      await _tokenControlService.GetTokenControlByTokenAndProcessAsync(token, Processes.PasswordReset);
       return Ok();
     } catch {
       return BadRequest(new { message = "Invalid token." });
