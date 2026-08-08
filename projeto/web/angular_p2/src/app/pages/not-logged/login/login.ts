@@ -4,6 +4,8 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { ButtonComponent } from '../../../../components/shared/button/button';
+import { CheckComponent } from '../../../../components/shared/check/check';
+import { InputComponent } from '../../../../components/shared/input/input';
 import { LinkComponent } from '../../../../components/shared/link/link';
 import { Credentials } from '../../../../models/Credentials';
 import { AuthService } from '../../../../services/auth/auth.service';
@@ -15,40 +17,49 @@ import { loginStyles } from './login.styles';
   host: {
     '[class]': 'styles.host',
   },
-  imports: [ButtonComponent, FormsModule, LinkComponent],
+  imports: [ButtonComponent, CheckComponent, FormsModule, InputComponent, LinkComponent],
 })
 export class LoginComponent {
-  private readonly _authService = inject(AuthService);
-  private readonly _router = inject(Router);
-  private readonly _toast = inject(ToastrService);
-  private readonly _destroyRef = inject(DestroyRef);
+  /*****************************************/
+  /* Propriedades Privadas                 */
+  /*****************************************/
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly toast = inject(ToastrService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly credentials: Credentials = {
+  /*****************************************/
+  /* Propriedades Publicas                 */
+  /*****************************************/
+  readonly styles = loginStyles; // Estilos utilizados pelo componente.
+
+  readonly credentials: Credentials = {
     email: '',
     password: '',
     remember: false,
   };
 
-  protected get styles() {
-    return loginStyles;
-  }
+  /*****************************************/
+  /* Metodos Publicos                      */
+  /*****************************************/
 
-  protected login(form: NgForm): void {
+  // Disparado no submit do formulário. Valida os campos antes de realizar o login.
+  login(form: NgForm): void {
     if (form.invalid) {
       form.control.markAllAsTouched();
       return;
     }
 
-    this._authService
+    this.authService
       .login(this.credentials.email, this.credentials.password, this.credentials.remember)
-      .pipe(takeUntilDestroyed(this._destroyRef))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          this._toast.success(`Bem-vindo(a) ${response.name}`, 'Sucesso');
-          void this._router.navigateByUrl('/home');
+          this.toast.success(`Bem-vindo(a) ${response.name}`, 'Sucesso');
+          void this.router.navigateByUrl('/home');
         },
         error: (error: string) => {
-          this._toast.error(error, 'Erro');
+          this.toast.error(error, 'Erro');
         },
       });
   }

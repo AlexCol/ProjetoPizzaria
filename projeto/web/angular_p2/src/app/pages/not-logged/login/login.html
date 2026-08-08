@@ -1,72 +1,66 @@
 <main [class]="styles.page">
   <section [class]="styles.card" aria-labelledby="login-title">
-    <app-link
-      routerLink="/home"
-      variant="unstyled"
-      ariaLabel="Ir para a página inicial"
-      [className]="styles.brand"
-    >
+    <div [class]="styles.brand">
       <span [class]="styles.brandMark" aria-hidden="true">P</span>
       <span>Pizzaria</span>
-    </app-link>
+    </div>
 
     <h1 id="login-title" [class]="styles.title">Acesse sua conta</h1>
 
     <form #loginForm="ngForm" [class]="styles.form" (ngSubmit)="login(loginForm)" novalidate>
       <div [class]="styles.field">
-        <label for="email" [class]="styles.label">E-mail</label>
-        <input
+        <app-input
           #email="ngModel"
           [(ngModel)]="credentials.email"
           id="email"
           name="email"
           type="email"
+          label="E-mail"
           placeholder="seu@email.com"
-          autocomplete="email"
+          autoComplete="email"
+          ariaDescribedBy="email-error"
+          [ariaInvalid]="email.invalid && email.touched"
           required
           email
-          [class]="styles.input"
         />
+
         @if (email.invalid && email.touched) {
-          <small [class]="styles.validationError">Informe um e-mail válido.</small>
+          <small id="email-error" [class]="styles.validationError">Informe um e-mail válido.</small>
         }
       </div>
 
       <div [class]="styles.field">
-        <label for="password" [class]="styles.label">Senha</label>
-        <input
+        <app-input
           #password="ngModel"
           [(ngModel)]="credentials.password"
           id="password"
           name="password"
           type="password"
+          label="Senha"
           placeholder="Sua senha"
-          autocomplete="current-password"
+          autoComplete="current-password"
+          ariaDescribedBy="password-error"
+          [ariaInvalid]="password.invalid && password.touched"
           required
-          [class]="styles.input"
         />
+
         @if (password.invalid && password.touched) {
-          <small [class]="styles.validationError">Informe sua senha.</small>
+          <small id="password-error" [class]="styles.validationError">Informe sua senha.</small>
         }
       </div>
 
       <app-button label="Acessar" type="submit" />
 
-      <label [class]="styles.rememberOption">
-        <input
-          [(ngModel)]="credentials.remember"
-          name="remember"
-          type="checkbox"
-          [class]="styles.rememberInput"
-        />
-        <span>Lembrar-me</span>
-      </label>
+      <app-check
+        [(ngModel)]="credentials.remember"
+        name="remember"
+        label="Lembrar-me"
+        [className]="styles.rememberInput"
+        [labelClassName]="styles.rememberLabel"
+        [class]="styles.rememberOption"
+      />
     </form>
 
-    <app-link
-      label="Não tem uma conta? Cadastre-se"
-      href="#"
-      [className]="styles.signupLink"
-    />
+    <app-link label="Esqueceu a senha? Clique aqui." href="#" [className]="styles.signupLink" />
   </section>
 </main>
