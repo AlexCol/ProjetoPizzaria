@@ -1,0 +1,23 @@
+<div [class]="styles.container">
+  <input
+    [attr.aria-describedby]="ariaDescribedBy() || null"
+    [attr.aria-invalid]="ariaInvalid() ? true : null"
+    [attr.aria-label]="ariaLabel() || label() || null"
+    [attr.name]="name() || null"
+    [attr.value]="value() || null"
+    [checked]="checked()"
+    [class]="checkClasses()"
+    [disabled]="isDisabled()"
+    [id]="checkId()"
+    [required]="required()"
+    type="checkbox"
+    (blur)="handleBlur($event)"
+    (change)="handleChange($event)"
+  />
+
+  @if (label()) {
+    <label [attr.for]="checkId()" [class]="labelClasses()">
+      {{ label() }}
+    </label>
+  }
+</div>

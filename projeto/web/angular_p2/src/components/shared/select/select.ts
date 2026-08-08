@@ -90,9 +90,7 @@ export class SelectComponent implements ControlValueAccessor {
   });
 
   readonly selectClasses = computed(() => [selectStyles.select, this.className().trim()].filter(Boolean).join(' '));
-
   readonly labelClasses = computed(() => [selectStyles.label, this.labelClassName().trim()].filter(Boolean).join(' '));
-
   readonly iconClasses = computed(() => [selectStyles.icon, this.iconClassName().trim()].filter(Boolean).join(' '));
 
   /*****************************************/
