@@ -6,6 +6,7 @@ using csharp_p2.src.Modules.Session;
 using csharp_p2.src.Shared.Exceptions;
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Atributtes;
+using csharp_p2.src.Shared.Helpers;
 
 namespace csharp_p2.src.Modules.Auth.Authentication;
 
@@ -15,14 +16,17 @@ public static class SessionAuthDefaults {
 
 public class SessionAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions> {
   private readonly ISessionCacheService _sessionCache;
+  private readonly CookiesHandler _cookiesHandler;
 
   public SessionAuthHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
     UrlEncoder encoder,
-    ISessionCacheService sessionCache
+    ISessionCacheService sessionCache,
+    CookiesHandler cookiesHandler
   ) : base(options, logger, encoder) {
     _sessionCache = sessionCache;
+    _cookiesHandler = cookiesHandler;
   }
 
   protected override async Task<AuthenticateResult> HandleAuthenticateAsync() {
@@ -66,8 +70,10 @@ public class SessionAuthHandler : AuthenticationHandler<AuthenticationSchemeOpti
 
   private async Task<UserSession> GetSessionFromRequestOrThrowAsync(string token) {
     var session = await _sessionCache.GetSessionAsync(token);
-    if (session is null)
+    if (session is null) {
+      _cookiesHandler.DeleteSessionCookies(Response); // Remove o cookie de sessão inválido, se existir
       throw new CustomError("Invalid session token, no session found for the provided token.", 401);
+    }
 
     return session;
   }
