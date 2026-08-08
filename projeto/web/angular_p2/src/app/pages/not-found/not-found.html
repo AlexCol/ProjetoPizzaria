@@ -1,0 +1,21 @@
+<section [class]="pageClasses()" aria-labelledby="not-found-title">
+  <div [class]="styles.card">
+    <div [class]="styles.brand" aria-label="Pizzaria">
+      <span [class]="styles.brandMark" aria-hidden="true">P</span>
+      <span>Pizzaria</span>
+    </div>
+
+    <p [class]="styles.code" aria-hidden="true">404</p>
+    <h1 id="not-found-title" [class]="styles.title">Página não encontrada</h1>
+    <p [class]="styles.description">
+      O endereço informado não existe, foi removido ou está temporariamente indisponível.
+    </p>
+
+    <app-link
+      [label]="actionLabel()"
+      [routerLink]="destination()"
+      [className]="styles.action"
+      variant="unstyled"
+    />
+  </div>
+</section>
