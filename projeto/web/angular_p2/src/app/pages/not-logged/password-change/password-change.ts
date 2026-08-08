@@ -48,7 +48,7 @@ export class PasswordChangeComponent {
     {
       password: new FormControl('', {
         nonNullable: true,
-        validators: [Validators.required, Validators.pattern(PASSWORD_PATTERN)],
+        validators: [Validators.required, Validators.minLength(8), Validators.pattern(PASSWORD_PATTERN)],
       }),
       confirmPassword: new FormControl('', {
         nonNullable: true,
@@ -153,6 +153,9 @@ export class PasswordChangeComponent {
 
     if (password.hasError('required')) {
       this.toast.error('Informe sua nova senha.', 'Erro');
+    }
+    if (password.hasError('minlength')) {
+      this.toast.error('A senha deve possuir pelo menos 8 caracteres.', 'Erro');
     }
     if (password.hasError('pattern'))
       this.toast.error(

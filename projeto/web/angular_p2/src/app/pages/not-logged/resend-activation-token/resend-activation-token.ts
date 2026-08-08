@@ -40,9 +40,13 @@ export class ResendActivationTokenComponent {
   /*****************************************/
   // Disparado no submit do formulário. Valida os campos antes de realizar o login.
   sendRequest(form: NgForm): void {
-    if (!this.validateForm(form)) {
+    if (this.status() === 'loading' || !this.validateForm(form)) {
       return;
     }
+
+    this.status.set('loading');
+    this.message.set('');
+
     this.usersService
       .resendActivationEmail(this.credentials.email)
       .pipe(takeUntilDestroyed(this.destroyRef))

@@ -39,9 +39,13 @@ export class RecoverPasswordComponent {
   /*****************************************/
   // Disparado no submit do formulário. Valida os campos antes de realizar o login.
   sendRequest(form: NgForm): void {
-    if (!this.validateForm(form)) {
+    if (this.status() === 'loading' || !this.validateForm(form)) {
       return;
     }
+
+    this.status.set('loading');
+    this.message.set('');
+
     this.usersService
       .recoverPassword(this.credentials.email)
       .pipe(takeUntilDestroyed(this.destroyRef))
