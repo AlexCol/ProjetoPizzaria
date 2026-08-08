@@ -1,7 +1,7 @@
 import { HttpErrorResponse, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
-import { environment } from '../environments/environment.development';
+import { environment } from '../environments/environment';
 import { AuthService } from '../services/auth/auth.service';
 import { LoggerService } from '../services/logger/logger.service';
 
