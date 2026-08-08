@@ -11,14 +11,15 @@ import { UsersService } from '../../../../services/users/users.service';
 import { notLoggedStyles } from '../not-logged.styles';
 
 @Component({
-  selector: 'app-recover-password',
+  selector: 'app-resend-activation-token',
+  templateUrl: './resend-activation-token.html',
   imports: [ButtonComponent, LinkComponent, InputComponent, FormsModule],
-  templateUrl: './recover-password.html',
 })
-export class RecoverPasswordComponent {
+export class ResendActivationTokenComponent {
   /*****************************************/
   /* Propriedades Privadas                 */
   /*****************************************/
+
   private readonly usersService = inject(UsersService);
   private readonly toast = inject(ToastrService);
   private readonly destroyRef = inject(DestroyRef);
@@ -43,7 +44,7 @@ export class RecoverPasswordComponent {
       return;
     }
     this.usersService
-      .recoverPassword(this.credentials.email)
+      .resendActivationEmail(this.credentials.email)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

@@ -22,4 +22,12 @@ export class UsersService {
       confirmPassword,
     });
   }
+
+  resendActivationEmail(email: string) {
+    return this._httpClient.post<MessageResponse>('/users/resend-activation-email', { email });
+  }
+
+  activateAccount(token: string) {
+    return this._httpClient.post<MessageResponse>(`/users/activate/${token}`, {});
+  }
 }

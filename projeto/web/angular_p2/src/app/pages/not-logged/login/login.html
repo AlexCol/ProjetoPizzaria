@@ -53,10 +53,20 @@
       />
     </form>
 
-    <app-link
-      label="Esqueceu a senha? Clique aqui."
-      [routerLink]="['../', 'recover-password']"
-      [className]="styles.signupLink"
-    />
+    <div [class]="styles.links">
+      <app-link
+        label="Esqueceu a senha? Clique aqui."
+        [routerLink]="['../', 'recover-password']"
+        [className]="styles.signupLink"
+      />
+
+      <span [className]="styles.signupLink">|</span>
+
+      <app-link
+        label="Não recebeu token de ativação? Clique aqui."
+        [routerLink]="['../', 'resend-activation-token']"
+        [className]="styles.signupLink"
+      />
+    </div>
   </section>
 </main>

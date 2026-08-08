@@ -17,6 +17,8 @@ export const notLoggedStyles = {
   rememberLabel: 'text-foreground',
   signupLink: 'mt-6 text-[0.9rem]',
 
+  links: 'flex flex-row gap-4 text-[0.9rem] text-primary-text',
+
   message: 'text-center text-[0.9rem] bg-secondary/50 p-4 rounded-md m-4',
   errorMessage: 'text-center text-[0.9rem] bg-danger/50 p-4 rounded-md m-4',
 } as const;
