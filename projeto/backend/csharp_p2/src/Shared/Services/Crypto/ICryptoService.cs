@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-
 namespace csharp_p2.src.Shared.Services.Crypto;
 
 public interface ICryptoService {
