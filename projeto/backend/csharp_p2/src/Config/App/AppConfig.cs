@@ -4,9 +4,15 @@ namespace csharp_p2.src.Config.App;
 
 public static class AppConfig {
   public static void AddConfigs(this WebApplication app) {
-    // 1) Cross-cutting no inicio do pipeline.
-    // ExceptionHandling precisa ser o primeiro para capturar erros de QUALQUER etapa
-    // (auth, middlewares, controllers) e padronizar a resposta de erro.
+    // Processa X-Forwarded-For e X-Forwarded-Proto somente quando enviados
+    // por proxies explicitamente confiáveis. Deve executar antes dos logs,
+    // do rate limiter e de qualquer lógica que consulte IP ou protocolo.
+    app.UseForwardedHeaders();
+
+    // 1) Cross-cutting no inicio do pipeline da aplicacao.
+    // Depois do processamento de infraestrutura do proxy, ExceptionHandling precisa
+    // vir antes dos demais middlewares da aplicacao para capturar seus erros
+    // (auth, middlewares, controllers) e padronizar a resposta.
     // LogMiddleware tambem fica no comeco para registrar a requisicao completa,
     // incluindo falhas que ocorram antes de chegar no controller.
     app.UseMiddleware<ExceptionHandlingMiddleware>();

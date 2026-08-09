@@ -19,6 +19,7 @@ public class EnvConfig {
   public Crypto Crypto { get; private set; }
   public FileManager FileManager { get; private set; }
   public RateLimit RateLimit { get; private set; }
+  public ForwardedHeadersConfig ForwardedHeaders { get; private set; }
 
   public EnvConfig(
     IConfiguration config,
@@ -108,6 +109,11 @@ public class EnvConfig {
         WindowSeconds: int.Parse(config["RateLimiting:Default:WindowSeconds"] ?? "-1")
       )
     );
+
+    ForwardedHeaders = new ForwardedHeadersConfig(
+      TrustedProxies: (config["TRUSTED_PROXIES"] ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+      ForwardLimit: int.TryParse(config["FORWARDED_HEADERS_LIMIT"], out var forwardLimit) ? forwardLimit : 1
+    );
   }
 }
 
@@ -178,6 +184,11 @@ public record RateLimit(
 public record RateLimitConfig(
   int PermitLimit,
   int WindowSeconds
+);
+
+public record ForwardedHeadersConfig(
+  string[] TrustedProxies,
+  int ForwardLimit
 );
 #endregion
 

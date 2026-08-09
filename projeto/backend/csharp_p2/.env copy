@@ -4,6 +4,11 @@ PGTZ=America/Sao_Paulo
 ########## Frontend
 FRONTEND_URL=http://localhost:4200
 
+########## PROXY REVERSO
+## IPs exatos separados por vírgula. Vazio mantém apenas a confiança padrão em loopback.
+TRUSTED_PROXIES=
+FORWARDED_HEADERS_LIMIT=1
+
 ########## Admin User
 ADMIN_EMAIL=admin@admin.com.br
 ADMIN_PASSWORD='$2a$11$Eb3TtCPyBCSBeB3JhnDOp.GqUoLaE0J2cemcBOsPcd3l9issEVLyG'

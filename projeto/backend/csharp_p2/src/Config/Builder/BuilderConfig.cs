@@ -29,6 +29,7 @@ public static class BuilderConfig {
     DataBaseBuilder.AddDatabase(builder, env);
     CacheBuilder.AddCache(builder, env);
     HangfireBuilder.AddHangfire(builder);
+    ForwardedHeadersBuilder.AddForwardedHeaders(builder, env);
     CorsBuilder.AddCors(builder, env); //?lembrar depois de colocar useCors no app
     RateLimitBuilder.AddRateLimiting(builder, env);
     LogBuilder.AddLogService(builder);
