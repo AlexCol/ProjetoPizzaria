@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using csharp_p2.src.Config;
+using csharp_p2.src.Config.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 
 namespace csharp_p2.src.Extensions;
@@ -136,6 +137,7 @@ public static class CorsBuilder {
         "Accept-Encoding",
         "remember-me",
         "app-origin",
+        CsrfBuilder.HEADER_NAME,
         //"Cache-Control", //deixando comentado pra ver se quebra (pra ver se realmente necessário)
       ];
       return allowedHeaders;

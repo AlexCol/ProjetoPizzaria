@@ -42,6 +42,11 @@ public static class AppConfig {
     app.UseAuthentication();
     app.UseAuthorization();
 
+    // Valida o par cookie/header antiforgery somente nas operações mutáveis
+    // autenticadas pelo cookie de sessão. Deve executar depois de auth para que
+    // o token seja validado contra a identidade atual.
+    app.UseMiddleware<CsrfProtectionMiddleware>();
+
     // 3) SessionRefresh apos auth.
     // Esse middleware depende de contexto de rota/usuario ja resolvido e deve rodar
     // depois da autenticacao para nao tentar renovar sessao em uma requisicao ainda

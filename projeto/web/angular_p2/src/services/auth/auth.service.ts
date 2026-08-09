@@ -1,9 +1,10 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, map, of, tap } from 'rxjs';
+import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { processaErros } from '../../models/ApiError';
 import { User } from '../../models/User';
+import { CsrfService } from '../security/csrf.service';
 
 type AuthStatus = 'loading' | 'authenticated' | 'anonymous';
 type UserSessionPayload = { user: User };
@@ -14,6 +15,7 @@ type UserSessionPayload = { user: User };
 export class AuthService {
   private readonly _httpClient = inject(HttpClient);
   private readonly _router = inject(Router);
+  private readonly _csrfService = inject(CsrfService);
   private _userData = signal<User | undefined>(undefined);
   private readonly _status = signal<AuthStatus>('loading');
 
@@ -34,6 +36,17 @@ export class AuthService {
   /****************************************/
   /* Metodos publicos                     */
   /****************************************/
+  initialize() {
+    //faz refresh token antes de chamar o me
+    return this._csrfService.refreshToken().pipe(
+      switchMap(() => this.getMe()),
+      catchError(() => {
+        this.clearUser();
+        return of(null);
+      }),
+    );
+  }
+
   expireSession(): void {
     this.clearUserAndRedirectToLogin();
   }
@@ -47,19 +60,23 @@ export class AuthService {
   /* Metodos Api (Observables)            */
   /****************************************/
   login(email: string, password: string, remember: boolean) {
-    return this._httpClient
-      .post<UserSessionPayload>(
-        '/auth/login',
-        { email, password },
-        { headers: { 'remember-me': remember ? 'true' : 'false' } },
-      )
-      .pipe(
-        map((payload) => {
-          this.setUser(payload.user);
-          return payload.user;
-        }),
-        catchError(processaErros),
-      );
+    // faz refresh token antes de chamar o login
+    return this._csrfService.ensureToken().pipe(
+      switchMap(() =>
+        this._httpClient.post<UserSessionPayload>(
+          '/auth/login',
+          { email, password },
+          { headers: { 'remember-me': remember ? 'true' : 'false' } },
+        ),
+      ),
+      // faz novo refresh para ser usado para requisições subsequentes
+      switchMap((payload) => this._csrfService.refreshToken().pipe(map(() => payload))),
+      map((payload) => {
+        this.setUser(payload.user);
+        return payload.user;
+      }),
+      catchError(processaErros),
+    );
   }
 
   logout() {
@@ -97,6 +114,7 @@ export class AuthService {
   private clearUser() {
     this._userData.set(undefined);
     this._status.set('anonymous');
+    this._csrfService.clearToken();
   }
 
   private clearUserAndRedirectToLogin() {

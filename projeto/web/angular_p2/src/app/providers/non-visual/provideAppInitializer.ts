@@ -3,6 +3,6 @@ import { AuthService } from '../../../services/auth/auth.service';
 
 export const appInitializers = [
   provideAppInitializer(() => {
-    return inject(AuthService).getMe();
+    return inject(AuthService).initialize();
   }),
 ];

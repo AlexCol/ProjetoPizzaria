@@ -1,9 +1,11 @@
 using csharp_p2.src.Modules.Session;
 using csharp_p2.src.Shared.DTOs;
+using csharp_p2.src.Shared.Atributtes;
 using csharp_p2.src.Shared.Exceptions;
 using csharp_p2.src.Shared.Helpers;
 using csharp_p2.src.Shared.RateLimiting;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace csharp_p2.src.Modules.Auth.Authentication;
@@ -14,17 +16,25 @@ public class AuthController : ControllerBase {
   private readonly IAuthService _authService;
   private readonly ISessionCacheService _sessionCacheService;
   private readonly CookiesHandler _cookiesHandler;
+  private readonly IAntiforgery _antiforgery;
 
-  public AuthController(IAuthService authService, ISessionCacheService sessionCacheService, CookiesHandler cookiesHandler) {
+  public AuthController(
+    IAuthService authService,
+    ISessionCacheService sessionCacheService,
+    CookiesHandler cookiesHandler,
+    IAntiforgery antiforgery
+  ) {
     _authService = authService;
     _sessionCacheService = sessionCacheService;
     _cookiesHandler = cookiesHandler;
+    _antiforgery = antiforgery;
   }
 
   /**************************************************************************/
   #region Login-Web
   /**************************************************************************/
   [AllowAnonymous]
+  [RequireCsrfProtection]
   [EnableRateLimiting(RateLimitPolicies.LOGIN)]
   [HttpPost("login")]
   [EndpointSummary("Login do usuário")]
@@ -49,6 +59,24 @@ public class AuthController : ControllerBase {
 
     _cookiesHandler.AddSessionCookies(Response, auth.SessionToken, rememberMe);
     return Ok(auth.UserSessionPayload);
+  }
+  #endregion
+
+  /**************************************************************************/
+  #region CSRF
+  /**************************************************************************/
+  [AllowAnonymous]
+  [HttpGet("csrf-token")]
+  [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+  [EndpointSummary("Obter token de proteção CSRF")]
+  [ProducesResponseType(typeof(CsrfTokenDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
+  public IActionResult GetCsrfToken() {
+    var tokens = _antiforgery.GetAndStoreTokens(HttpContext);
+    var requestToken = tokens.RequestToken
+      ?? throw new InvalidOperationException("Failed to generate the CSRF request token.");
+
+    return Ok(new CsrfTokenDto(requestToken));
   }
   #endregion
 

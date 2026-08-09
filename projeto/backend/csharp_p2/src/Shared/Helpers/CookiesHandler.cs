@@ -1,5 +1,6 @@
 using csharp_p2.src.Config;
 using csharp_p2.src.Config.Builder;
+using csharp_p2.src.Shared.Constants;
 
 namespace csharp_p2.src.Shared.Helpers;
 
@@ -13,7 +14,7 @@ public class CookiesHandler {
 
   public void AddSessionCookies(HttpResponse response, string token, bool rememberMe) {
     var cookieOptions = GetSessionCookieOptions(rememberMe);
-    response.Cookies.Append("session_token", token, cookieOptions);
+    response.Cookies.Append(SessionConstants.SESSION_TOKEN, token, cookieOptions);
   }
 
   public CookieOptions GetSessionCookieOptions(bool rememberMe) {
@@ -30,6 +31,6 @@ public class CookiesHandler {
   public void DeleteSessionCookies(HttpResponse response) {
     var cookieOptions = GetSessionCookieOptions(false);
     cookieOptions.Expires = DateTime.UtcNow.AddDays(-1); // Define uma data de expiração no passado
-    response.Cookies.Append("session_token", "", cookieOptions);
+    response.Cookies.Append(SessionConstants.SESSION_TOKEN, "", cookieOptions);
   }
 }

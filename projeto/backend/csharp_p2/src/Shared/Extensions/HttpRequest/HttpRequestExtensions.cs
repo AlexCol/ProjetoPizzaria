@@ -1,4 +1,5 @@
 using csharp_p2.src.Shared.Exceptions;
+using csharp_p2.src.Shared.Constants;
 
 namespace csharp_p2.src.Shared.Extensions;
 
@@ -31,7 +32,7 @@ public static class HttpRequestExtensions {
       return tokenFromHeader;
     }
 
-    var tokenFromCookie = request.GetCookieValue("session_token");
+    var tokenFromCookie = request.GetCookieValue(SessionConstants.SESSION_TOKEN);
     return tokenFromCookie;
   }
 }

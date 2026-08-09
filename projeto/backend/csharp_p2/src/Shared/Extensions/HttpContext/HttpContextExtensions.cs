@@ -1,5 +1,6 @@
 using csharp_p2.src.Modules.Session;
 using Microsoft.AspNetCore.Authorization;
+using csharp_p2.src.Shared.Constants;
 
 namespace csharp_p2.src.Shared.Extensions;
 
@@ -12,7 +13,7 @@ public static class HttpContextExtensions {
   }
 
   public static string GetSessionToken(this HttpContext context) {
-    if (context.Items.TryGetValue("session_token", out var token) && token is string sessionToken) {
+    if (context.Items.TryGetValue(SessionConstants.SESSION_TOKEN, out var token) && token is string sessionToken) {
       return sessionToken;
     }
     return null;

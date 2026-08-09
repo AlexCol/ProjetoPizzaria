@@ -7,6 +7,7 @@ using csharp_p2.src.Shared.Exceptions;
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Atributtes;
 using csharp_p2.src.Shared.Helpers;
+using csharp_p2.src.Shared.Constants;
 
 namespace csharp_p2.src.Modules.Auth.Authentication;
 
@@ -30,17 +31,30 @@ public class SessionAuthHandler : AuthenticationHandler<AuthenticationSchemeOpti
   }
 
   protected override async Task<AuthenticateResult> HandleAuthenticateAsync() {
-    var allowInference = Context
-    .GetEndpoint()?
-    .Metadata
-    .GetMetadata<IgnoreAppOriginAttribute>() is not null;
+    var isPublicEndpoint = Context.IsPublicEndpoint();
+    var allowInference = Context.GetEndpoint()?.Metadata.GetMetadata<IgnoreAppOriginAttribute>() is not null;
 
-    if (Context.IsPublicEndpoint()) // Se a rota permite acesso anônimo, não tenta autenticar e simplesmente retorna NoResult para que o pipeline continue sem um usuário autenticado.
+    var token = Request.GetTokenFromRequest();
+    if (string.IsNullOrWhiteSpace(token)) {
+      if (isPublicEndpoint)
+        return AuthenticateResult.NoResult();
+
+      // se não tem token e não é endpoint público, retorna erro de sessão inválida imeditameteamente
+      // sem que ele precise ir para GetSessionFromRequestOrThrowAsync
+      throw new CustomError("Sessão inválida ou expirada.", StatusCodes.Status401Unauthorized);
+    }
+
+    UserSession session;
+    try {
+      session = await GetSessionFromRequestOrThrowAsync(token);
+    } catch (CustomError ex) when (isPublicEndpoint && ex.Status == StatusCodes.Status401Unauthorized) {
+      // AllowAnonymous não impede a tentativa de autenticação. Somente uma sessão
+      // inexistente ou expirada permite que o endpoint continue como anônimo.
       return AuthenticateResult.NoResult();
+    }
 
-    var token = GetTokenFromRequestOrThrow(); // Obtém o token da requisição (header para mobile, cookie para web) e lança erro se não encontrar
-    var session = await GetSessionFromRequestOrThrowAsync(token);
-
+    // Erros de app-origin não são convertidos em acesso anônimo. Eles precisam
+    // encerrar a requisição com sua mensagem específica antes da validação CSRF.
     if (!allowInference)
       IsCorrectOriginOrThrow(session.Options); // Verifica se o token é usado na origem correta (web/mobile)
 
@@ -53,21 +67,13 @@ public class SessionAuthHandler : AuthenticationHandler<AuthenticationSchemeOpti
   }
 
   protected override Task HandleChallengeAsync(AuthenticationProperties properties) {
-    Response.Cookies.Delete("session_token");
+    Response.Cookies.Delete(SessionConstants.SESSION_TOKEN);
     return base.HandleChallengeAsync(properties);
   }
 
   /**************************************************************************/
   #region Auxiliary Methods
   /**************************************************************************/
-  private string GetTokenFromRequestOrThrow() {
-    var token = Request.GetTokenFromRequest();
-    if (string.IsNullOrWhiteSpace(token))
-      throw new CustomError("Sessão inválida ou expirada.", StatusCodes.Status401Unauthorized);
-
-    return token;
-  }
-
   private async Task<UserSession> GetSessionFromRequestOrThrowAsync(string token) {
     var session = await _sessionCache.GetSessionAsync(token);
     if (session is null) {
@@ -81,7 +87,7 @@ public class SessionAuthHandler : AuthenticationHandler<AuthenticationSchemeOpti
   private void IsCorrectOriginOrThrow(SessionOptionsDto sessionOptions) {
     var entryPoint = Request.GetEntryPoint();
     if (entryPoint != sessionOptions.AppOrigin) {
-      throw new CustomError("Sessão inválida ou expirada.", StatusCodes.Status401Unauthorized);
+      throw new CustomError("Origem incorreta.", StatusCodes.Status401Unauthorized);
     }
   }
 
@@ -104,7 +110,7 @@ public class SessionAuthHandler : AuthenticationHandler<AuthenticationSchemeOpti
 
   private void SetContextItems(UserSessionPayload payload, string token) {
     Context.Items["session_payload"] = payload;
-    Context.Items["session_token"] = token;
+    Context.Items[SessionConstants.SESSION_TOKEN] = token;
   }
   #endregion
 }
