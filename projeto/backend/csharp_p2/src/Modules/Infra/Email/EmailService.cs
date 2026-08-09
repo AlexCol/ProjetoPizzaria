@@ -25,7 +25,9 @@ public class EmailService : IEmailService {
     var body = "";
     body += $"<h3>Bem vindo {EscapeString(user.Name)}!</h3>";
     body += $"<p>Seu cadastro foi realizado com sucesso. Para ativar sua conta, por favor clique no link abaixo.</p>";
+    body += $"<p>Se não realizou o cadastro, pode ignorar o email.</p>";
     body += $"<a href='{linkAtivaConta}'>Clique aqui para ativar sua conta.</a>";
+    body += $"<p>O link expira em 24 horas.</p>";
 
     await SendEmailAsync(emailTo, subject, body);
   }

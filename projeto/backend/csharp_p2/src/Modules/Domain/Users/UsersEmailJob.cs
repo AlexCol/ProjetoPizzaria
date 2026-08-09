@@ -30,7 +30,9 @@ public class UsersEmailJob : IUsersEmailJob {
       var user = await _userRepository.GetByIdAsync(userId);
       if (user is null) return;
 
-      var token = await _tokenControlService.RegisterProcessTokenAsync(user.Id, Processes.ActivateUser);
+      var process = Processes.ActivateUser;
+      var expiration = DateTime.UtcNow.AddHours(24);
+      var token = await _tokenControlService.RegisterProcessTokenAsync(user.Id, process, expiration);
       await _emailService.SendRegisterEmailAsync(token, user);
     } catch (Exception ex) {
       Log.Error($"Error sending activation email: {ex.Message}");
