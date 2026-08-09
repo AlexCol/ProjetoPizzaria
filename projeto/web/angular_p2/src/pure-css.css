@@ -1,4 +1,5 @@
 @import './app/providers/visual/toast/toastr.css';
+@import './components/shared/loader/loader.css';
 
 /*********************************************************************/
 /** Configuração de tema claro e escuro                             **/
@@ -41,52 +42,6 @@ html.theme-switching *::backdrop {
   .no-spinner[type='number'] {
     appearance: textfield;
     -moz-appearance: textfield;
-  }
-}
-
-/*********************************************************************/
-/** Keyframes que não possuem equivalente direto no Tailwind        **/
-/*********************************************************************/
-@keyframes loader-text {
-  0% {
-    text-shadow:
-      0 0 var(--primary-text),
-      11ch 0 var(--secondary),
-      22ch 0 var(--danger),
-      33ch 0 var(--info),
-      44ch 0 var(--primary-text);
-  }
-  25% {
-    text-shadow:
-      -11ch 0 var(--primary-text),
-      0 0 var(--secondary),
-      11ch 0 var(--danger),
-      22ch 0 var(--info),
-      33ch 0 var(--primary-text);
-  }
-  50% {
-    text-shadow:
-      -22ch 0 var(--primary-text),
-      -11ch 0 var(--secondary),
-      0 0 var(--danger),
-      11ch 0 var(--info),
-      22ch 0 var(--primary-text);
-  }
-  75% {
-    text-shadow:
-      -33ch 0 var(--primary-text),
-      -22ch 0 var(--secondary),
-      -11ch 0 var(--danger),
-      0 0 var(--info),
-      11ch 0 var(--primary-text);
-  }
-  100% {
-    text-shadow:
-      -44ch 0 var(--primary-text),
-      -33ch 0 var(--secondary),
-      -22ch 0 var(--danger),
-      -11ch 0 var(--info),
-      0 0 var(--primary-text);
   }
 }
 

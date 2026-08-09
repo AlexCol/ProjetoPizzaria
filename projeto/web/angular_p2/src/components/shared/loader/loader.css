@@ -1,0 +1,77 @@
+app-loader {
+  display: block;
+}
+
+.loading-screen {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  color: var(--foreground);
+  background-color: var(--background);
+  transition:
+    color 300ms,
+    background-color 300ms;
+}
+
+.loader {
+  width: fit-content;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 30px;
+  color: #0000;
+  overflow: hidden;
+  animation: l9 5s infinite cubic-bezier(0.3, 1, 0, 1);
+}
+.loader:before {
+  content: 'Loading...';
+}
+
+@keyframes l9 {
+  0% {
+    text-shadow:
+      0 0 var(--primary-text),
+      11ch 0 var(--secondary),
+      22ch 0 var(--danger),
+      33ch 0 var(--info),
+      44ch 0 var(--primary-text);
+  }
+  25% {
+    text-shadow:
+      -11ch 0 var(--primary-text),
+      0 0 var(--secondary),
+      11ch 0 var(--danger),
+      22ch 0 var(--info),
+      33ch 0 var(--primary-text);
+  }
+  50% {
+    text-shadow:
+      -22ch 0 var(--primary-text),
+      -11ch 0 var(--secondary),
+      0 0 var(--danger),
+      11ch 0 var(--info),
+      22ch 0 var(--primary-text);
+  }
+  75% {
+    text-shadow:
+      -33ch 0 var(--primary-text),
+      -22ch 0 var(--secondary),
+      -11ch 0 var(--danger),
+      0 0 var(--info),
+      11ch 0 var(--primary-text);
+  }
+  100% {
+    text-shadow:
+      -44ch 0 var(--primary-text),
+      -33ch 0 var(--secondary),
+      -22ch 0 var(--danger),
+      -11ch 0 var(--info),
+      0 0 var(--primary-text);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader {
+    color: var(--foreground);
+    animation: none;
+  }
+}
