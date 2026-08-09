@@ -4,7 +4,9 @@ namespace csharp_p2.src.Config;
 
 //! variaveis carregadas aqui podem ser tanto do .env quanto do appsettings,
 //! se a mesma variavel estiver nos dois, é considerada a do .env
-[Injectable(typeof(EnvConfig), EServiceLifetimeType.Singleton)]
+//[Injectable(typeof(EnvConfig), EServiceLifetimeType.Singleton)] //! ¹Motivo remoção abaixo
+
+[IgnoreInjection]
 public class EnvConfig {
   public AdminUser AdminUser { get; private set; }
   public string Environment { get; private set; }
@@ -178,3 +180,11 @@ public record RateLimitConfig(
   int WindowSeconds
 );
 #endregion
+
+/*
+removido o injectable, pois ou registrar manualmente em BuilderConfig,
+crio a instancia manualmente para usar no builder, e registro a mesma
+instancia manualmente no services, assim a mesma instancia é usada em toda a aplicação,
+e não uma nova cópia singleton...
+mesmo sendo tecnicamente os mesmos dados, a instancia é diferente...
+*/

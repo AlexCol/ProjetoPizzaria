@@ -9,6 +9,7 @@ public static class BuilderConfig {
   public static void AddConfigs(this WebApplicationBuilder builder) {
     //? Configurações de ambiente
     var env = new EnvConfig(builder.Configuration, builder.Environment);
+    builder.Services.AddSingleton(env); //feito manual, pra manter a mesma instancia em toda a aplicação, e não criar uma nova a cada injeção
 
     //? logger temporário para capturar logs durante a inicialização, antes do Serilog ser configurado em AddLogService
     Log.Logger = new LoggerConfiguration()
