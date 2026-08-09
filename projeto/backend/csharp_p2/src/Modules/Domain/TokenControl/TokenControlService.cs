@@ -1,6 +1,7 @@
 using csharp_p2.src.Modules.Infra.Database;
 using csharp_p2.src.Shared.Exceptions;
 using csharp_p2.src.Shared.Helpers;
+using csharp_p2.src.Shared.Services.Crypto;
 using Microsoft.EntityFrameworkCore;
 
 namespace csharp_p2.src.Modules.Domain;
@@ -15,10 +16,15 @@ public interface ITokenControlService {
 public class TokenControlService : ITokenControlService {
   private readonly BaseDBContext _context;
   private readonly IProcessesService _processesService;
+  private readonly ICryptoService _cryptoService;
 
-  public TokenControlService(BaseDBContext context, IProcessesService processesService) {
+  public TokenControlService(
+    BaseDBContext context,
+    IProcessesService processesService,
+    ICryptoService cryptoService) {
     _context = context;
     _processesService = processesService;
+    _cryptoService = cryptoService;
   }
 
   public async Task<string> RegisterProcessTokenAsync(long idObject, string processName, DateTime? expiresAt = null) {
@@ -34,7 +40,7 @@ public class TokenControlService : ITokenControlService {
     var newTokenControl = new TokenControl {
       IdObject = idObject,
       IdProcess = idProcess,
-      Token = token,
+      Token = _cryptoService.ComputeSha256Hash(token),
       CreatedAt = DateTime.UtcNow,
       ExpiresAt = expiresAt
     };
@@ -46,9 +52,11 @@ public class TokenControlService : ITokenControlService {
   }
 
   public async Task<TokenControl> GetValidTokenAsync(string token, string processName) {
+    var hashedToken = _cryptoService.ComputeSha256Hash(token);
+
     var idProcess = await _processesService.GetProcessIdByName(processName);
     var tokenControl = await _context.TokenControls.FirstOrDefaultAsync(tc =>
-      tc.Token == token && tc.IdProcess == idProcess
+      tc.Token == hashedToken && tc.IdProcess == idProcess
     );
 
     if (tokenControl == null) {

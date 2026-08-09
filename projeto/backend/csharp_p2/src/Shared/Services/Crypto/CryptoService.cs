@@ -9,17 +9,12 @@ public class CryptoService : ICryptoService {
     _secretKey = config["Cripto:Secret"];
   }
 
-  public string ComputeHash(string password, HashAlgorithm hashAlgorithm) {
-    byte[] inputBytes = Encoding.UTF8.GetBytes(password);
-    byte[] hashedBytes = hashAlgorithm.ComputeHash(inputBytes);
-
-    var builder = new StringBuilder();
-
-    foreach (var item in hashedBytes) {
-      builder.Append(item.ToString("x2"));
-    }
-
-    return builder.ToString();
+  /******************************************/
+  /* Metodos Publicos                       */
+  /******************************************/
+  public string ComputeSha256Hash(string value) {
+    using SHA256 sha256Hash = SHA256.Create();
+    return ComputeHash(value, sha256Hash);
   }
 
   public string Decrypt(string encryptedValue, string secretKey = null) {
@@ -82,5 +77,21 @@ public class CryptoService : ICryptoService {
         return urlSafingValue;
       }
     }
+  }
+
+  /******************************************/
+  /* Metodos Privados                       */
+  /******************************************/
+  private string ComputeHash(string value, HashAlgorithm hashAlgorithm) {
+    byte[] inputBytes = Encoding.UTF8.GetBytes(value);
+    byte[] hashedBytes = hashAlgorithm.ComputeHash(inputBytes);
+
+    var builder = new StringBuilder();
+
+    foreach (var item in hashedBytes) {
+      builder.Append(item.ToString("x2"));
+    }
+
+    return builder.ToString();
   }
 }
