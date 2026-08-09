@@ -9,6 +9,18 @@ FRONTEND_URL=http://localhost:4200
 TRUSTED_PROXIES=
 FORWARDED_HEADERS_LIMIT=1
 
+########## HOST FILTERING
+## Hosts permitidos para acessar a API, separados por vírgula.
+## Informe apenas o host, sem protocolo, path ou porta.
+## Em Development, esta configuração é ignorada e qualquer Host não vazio é aceito.
+## Fora de Development:
+## - a aplicação não inicia se a lista estiver vazia;
+## - o curinga global "*" não é permitido.
+## Normalmente deve conter o domínio público usado para acessar a API.
+## Exemplo:
+## ALLOWED_HOSTS=api.meusite.com.br,api-interna.meusite.com.br
+ALLOWED_HOSTS=
+
 ########## Admin User
 ADMIN_EMAIL=admin@admin.com.br
 ADMIN_PASSWORD='$2a$11$Eb3TtCPyBCSBeB3JhnDOp.GqUoLaE0J2cemcBOsPcd3l9issEVLyG'

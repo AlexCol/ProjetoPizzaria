@@ -116,21 +116,26 @@ O escopo considera uma implantação com **uma única instância** do backend. P
 
 ## Checklist de configuração e operação
 
-- [ ] Restringir `AllowedHosts` no ambiente de produção.
+- [x] Restringir `AllowedHosts` no ambiente de produção.
 
-  O valor atual é `*`. Configurar apenas os hosts usados pela API, considerando também o comportamento do proxy reverso.
+  Implementado: em desenvolvimento, `AllowedHosts` permanece como `*` para aceitar localhost, IPs da rede local e nomes de máquina. Fora de desenvolvimento, `ALLOWED_HOSTS` deve informar explicitamente os hosts da API separados por vírgula; a inicialização falha se a lista estiver vazia ou contiver o curinga global `*`. O builder converte a lista para a chave convencional `AllowedHosts`, consumida automaticamente pelo `HostFilteringMiddleware` do ASP.NET Core.
 
-  Arquivo relacionado:
+  Arquivos relacionados:
+
+  - `backend/csharp_p2/src/Config/Builder/Configs/HostFilteringBuilder.cs`
+  - `backend/csharp_p2/src/Config/Env/EnvConfig.cs`
+  - `backend/csharp_p2/appsettings.Development.json`
+  - `backend/csharp_p2/.env copy`
+
+- [x] Reduzir o nível de logs em produção.
+
+  Implementado: o nível base do Serilog agora é `Information`, aplicado em produção e nos demais ambientes não explicitamente sobrescritos. `appsettings.Development.json` redefine o nível para `Verbose`, preservando os detalhes durante o desenvolvimento. O log executado para cada requisição pelo `LogMiddleware` passou de `Information` para `Debug` e usa uma propriedade estruturada, ficando disponível em desenvolvimento sem gerar esse volume no ambiente publicado.
+
+  Arquivos relacionados:
 
   - `backend/csharp_p2/appsettings.json`
-
-- [ ] Reduzir o nível de logs em produção.
-
-  O nível padrão do Serilog está como `Verbose`. Em produção, usar normalmente `Information` ou `Warning`, mantendo níveis detalhados apenas para namespaces selecionados e sem registrar credenciais, cookies ou tokens.
-
-  Arquivo relacionado:
-
-  - `backend/csharp_p2/appsettings.json`
+  - `backend/csharp_p2/appsettings.Development.json`
+  - `backend/csharp_p2/src/Shared/Middlewares/LogMiddleware.cs`
 
 - [ ] Revisar a conexão segura com o Redis de produção.
 

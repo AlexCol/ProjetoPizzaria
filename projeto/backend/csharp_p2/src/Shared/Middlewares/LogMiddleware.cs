@@ -8,7 +8,7 @@ public class LogMiddleware { /*para lembrete, middlewares são carregados no app
   }
 
   public async Task InvokeAsync(HttpContext context) {
-    Log.Information($"[LogMiddleware] - Executando {context.Request.Path}");
+    Log.Debug("[LogMiddleware] Executando {RequestPath}", context.Request.Path);
     await _next(context);
   }
 }

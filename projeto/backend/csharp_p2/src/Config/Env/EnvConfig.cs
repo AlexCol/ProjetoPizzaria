@@ -20,6 +20,7 @@ public class EnvConfig {
   public FileManager FileManager { get; private set; }
   public RateLimit RateLimit { get; private set; }
   public ForwardedHeadersConfig ForwardedHeaders { get; private set; }
+  public HostFilteringConfig HostFiltering { get; private set; }
 
   public EnvConfig(
     IConfiguration config,
@@ -114,6 +115,10 @@ public class EnvConfig {
       TrustedProxies: (config["TRUSTED_PROXIES"] ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
       ForwardLimit: int.TryParse(config["FORWARDED_HEADERS_LIMIT"], out var forwardLimit) ? forwardLimit : 1
     );
+
+    HostFiltering = new HostFilteringConfig(
+      AllowedHosts: (config["ALLOWED_HOSTS"] ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    );
   }
 }
 
@@ -189,6 +194,10 @@ public record RateLimitConfig(
 public record ForwardedHeadersConfig(
   string[] TrustedProxies,
   int ForwardLimit
+);
+
+public record HostFilteringConfig(
+  string[] AllowedHosts
 );
 #endregion
 

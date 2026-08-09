@@ -31,6 +31,7 @@ public static class BuilderConfig {
     HangfireBuilder.AddHangfire(builder);
     ForwardedHeadersBuilder.AddForwardedHeaders(builder, env);
     HttpsBuilder.AddHttps(builder);
+    HostFilteringBuilder.AddHostFiltering(builder, env);
     CsrfBuilder.AddCsrf(builder, env);
     CorsBuilder.AddCors(builder, env); //?lembrar depois de colocar useCors no app
     RateLimitBuilder.AddRateLimiting(builder, env);
