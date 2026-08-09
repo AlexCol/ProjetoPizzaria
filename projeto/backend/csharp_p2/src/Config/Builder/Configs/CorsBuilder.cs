@@ -5,9 +5,7 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 namespace csharp_p2.src.Extensions;
 
 public static class CorsBuilder {
-  public static void AddCors(WebApplicationBuilder builder) {
-    var env = new EnvConfig(builder.Configuration, builder.Environment);
-
+  public static void AddCors(WebApplicationBuilder builder, EnvConfig env) {
     BuildValidations(env);
 
     builder.Services.AddCors(opt => {

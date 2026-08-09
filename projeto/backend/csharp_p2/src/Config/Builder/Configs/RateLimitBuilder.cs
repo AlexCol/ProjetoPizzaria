@@ -1,19 +1,30 @@
 using System.Threading.RateLimiting;
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace csharp_p2.src.Config.Builder;
 
 public static class RateLimitBuilder {
-  public static void AddRateLimiting(WebApplicationBuilder builder) {
-    var config = builder.Configuration.GetSection("RateLimiting");
+  public static void AddRateLimiting(WebApplicationBuilder builder, EnvConfig env) {
+    var rateLimits = env.RateLimit;
 
-    var loginLimit = GetLimit(config, "Login", 5, 60);
-    var emailDeliveryLimit = GetLimit(config, "EmailDelivery", 3, 900);
-    var tokenOperationLimit = GetLimit(config, "TokenOperation", 10, 60);
+    //GetValidatedRateLimits metodo local para validar valores
+    var defaultLimit = GetValidatedRateLimits(rateLimits.Default);
+    var loginLimit = GetValidatedRateLimits(rateLimits.Login);
+    var emailDeliveryLimit = GetValidatedRateLimits(rateLimits.EmailDelivery);
+    var tokenOperationLimit = GetValidatedRateLimits(rateLimits.TokenOperation);
 
     builder.Services.AddRateLimiter(options => {
       options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+      options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>((context) => {
+        var hasSpecificPolicy = context.GetEndpoint()?.Metadata
+          .GetMetadata<EnableRateLimitingAttribute>() is not null;
+        if (hasSpecificPolicy)
+          return RateLimitPartition.GetNoLimiter("endpoint-specific-policy");
+        return CreateFixedWindowPartition(context, defaultLimit);
+      });
 
       options.AddPolicy(RateLimitPolicies.LOGIN, context =>
         CreateFixedWindowPartition(context, loginLimit)
@@ -69,58 +80,81 @@ public static class RateLimitBuilder {
     return context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
   }
 
-  private static RateLimitConfig GetLimit(
-    IConfigurationSection config,
-    string policyName,
-    int defaultPermitLimit,
-    int defaultWindowSeconds
-  ) {
-    var permitLimit = config.GetValue($"{policyName}:PermitLimit", defaultPermitLimit);
-    var windowSeconds = config.GetValue($"{policyName}:WindowSeconds", defaultWindowSeconds);
-
-    if (permitLimit <= 0 || windowSeconds <= 0) {
+  private static RateLimitConfig GetValidatedRateLimits(RateLimitConfig config) {
+    if (config.PermitLimit <= 0 || config.WindowSeconds <= 0) {
       throw new InvalidOperationException(
-        $"RateLimiting:{policyName} must have positive PermitLimit and WindowSeconds values."
+        $"RateLimiting:{config} must have positive PermitLimit and WindowSeconds values."
       );
     }
 
-    return new RateLimitConfig(permitLimit, windowSeconds);
+    return config;
   }
-
-  private sealed record RateLimitConfig(int PermitLimit, int WindowSeconds);
 }
 
 /*
  * FLUXO DO RATE LIMITING
  *
- * 1. RateLimitPolicies define constantes que identificam cada política:
- *    Login, EmailDelivery e TokenOperation.
- *    As constantes são apenas nomes; elas não armazenam limites ou tempos.
+ * 1. RateLimitPolicies define constantes que identificam as políticas específicas:
+ *    LOGIN, EMAIL_DELIVERY e TOKEN_OPERATION.
+ *    Essas constantes são apenas identificadores; os limites e janelas vêm da configuração.
  *
- * 2. Este builder lê do appsettings.json a quantidade permitida (PermitLimit)
- *    e a duração da janela (WindowSeconds) de cada política.
+ * 2. Este builder lê do appsettings.json as configurações de cada limitador:
+ *    - PermitLimit: quantidade máxima de requisições permitidas na janela;
+ *    - WindowSeconds: duração da janela em segundos.
  *
- * 3. AddRateLimiter registra as políticas no container do ASP.NET Core e
- *    associa cada nome a um limitador de janela fixa, separado pelo IP remoto.
+ *    Também existe uma configuração Default, usada pelo GlobalLimiter.
  *
- * 4. RateLimitBuilder.AddRateLimiting(builder), chamado no BuilderConfig,
- *    executa esta configuração durante a criação da aplicação.
+ * 3. AddRateLimiter configura o Rate Limiting do ASP.NET Core:
+ *    - GlobalLimiter: aplicado aos endpoints que NÃO possuem uma política específica;
+ *    - LOGIN, EMAIL_DELIVERY e TOKEN_OPERATION: políticas específicas que podem ser
+ *      associadas individualmente aos endpoints.
  *
- * 5. app.UseRateLimiter(), chamado no AppConfig depois de UseRouting,
- *    ativa o middleware que intercepta as requisições.
+ *    Todos os limitadores utilizam FixedWindow e são particionados pelo IP remoto,
+ *    fazendo com que cada IP possua seu próprio contador.
  *
- * 6. Cada endpoint protegido informa qual política deseja utilizar:
+ * 4. Para evitar que o limite global e o limite específico sejam aplicados juntos,
+ *    o GlobalLimiter verifica se o endpoint possui EnableRateLimitingAttribute.
+ *    Caso possua, retorna um NoLimiter e deixa o controle exclusivamente para
+ *    a política específica do endpoint.
  *
- *    [EnableRateLimiting(RateLimitPolicies.Login)]
+ * 5. RateLimitBuilder.AddRateLimiting(builder, env), chamado durante a configuração
+ *    da aplicação, registra essas configurações nos serviços do ASP.NET Core.
  *
- * 7. Ao receber uma requisição, o middleware encontra a política indicada,
- *    consulta o contador do IP e permite que o controller seja executado
- *    enquanto ainda houver permissões disponíveis dentro da janela.
+ * 6. app.UseRateLimiter(), registrado no pipeline da aplicação, ativa o middleware
+ *    responsável por aplicar os limitadores às requisições.
  *
- * 8. Quando o limite é excedido, o controller não é executado. O OnRejected
- *    retorna HTTP 429, informa o tempo de espera no header Retry-After e
- *    registra somente o IP e a rota, sem incluir dados sensíveis da requisição.
+ * 7. Endpoints que precisam de um limite específico indicam a política através
+ *    do atributo:
+ *
+ *    [EnableRateLimiting(RateLimitPolicies.LOGIN)]
+ *
+ *    Endpoints sem uma política específica continuam protegidos pelo GlobalLimiter,
+ *    utilizando a configuração Default.
+ *
+ * 8. Ao receber uma requisição, o middleware identifica o limitador aplicável,
+ *    obtém a partição correspondente ao IP e consome uma permissão da janela atual.
+ *    Enquanto houver permissões disponíveis, a requisição segue para o endpoint.
+ *
+ * 9. Quando o limite é excedido, a requisição é rejeitada antes da execução
+ *    do controller/endpoint. O OnRejected:
+ *    - retorna HTTP 429 (Too Many Requests);
+ *    - adiciona Retry-After quando essa informação estiver disponível no Lease;
+ *    - retorna uma resposta JSON padronizada;
+ *    - registra somente o IP e a rota da requisição.
  *
  * Resumo:
- * constante -> appsettings -> builder -> middleware -> atributo -> endpoint
+ *
+ * appsettings
+ *      ↓
+ * RateLimitBuilder
+ *      ↓
+ * AddRateLimiter
+ *      ↓
+ * GlobalLimiter ou política específica
+ *      ↓
+ * particionamento por IP
+ *      ↓
+ * UseRateLimiter
+ *      ↓
+ * requisição permitida ou HTTP 429
  */

@@ -16,6 +16,7 @@ public class EnvConfig {
   public Email Email { get; private set; }
   public Crypto Crypto { get; private set; }
   public FileManager FileManager { get; private set; }
+  public RateLimit RateLimit { get; private set; }
 
   public EnvConfig(
     IConfiguration config,
@@ -84,6 +85,27 @@ public class EnvConfig {
       MaxBytes: long.TryParse(config["FILEX_MAX_BYTES"], out var maxBytes) ? maxBytes : 0,
       AllowedExtensions: (config["FILEX_ALLOWED_EXTENSIONS"] ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries)
     );
+
+    //pra ter uma variação, Ratelimit vem do appsettings.json, não do .env
+    //defaults com valore negativo, para o o caso de faltar no json, dar erro
+    RateLimit = new RateLimit(
+      Login: new RateLimitConfig(
+        PermitLimit: int.Parse(config["RateLimiting:Login:PermitLimit"] ?? "-1"),
+        WindowSeconds: int.Parse(config["RateLimiting:Login:WindowSeconds"] ?? "-1")
+      ),
+      EmailDelivery: new RateLimitConfig(
+        PermitLimit: int.Parse(config["RateLimiting:EmailDelivery:PermitLimit"] ?? "-1"),
+        WindowSeconds: int.Parse(config["RateLimiting:EmailDelivery:WindowSeconds"] ?? "-1")
+      ),
+      TokenOperation: new RateLimitConfig(
+        PermitLimit: int.Parse(config["RateLimiting:TokenOperation:PermitLimit"] ?? "-1"),
+        WindowSeconds: int.Parse(config["RateLimiting:TokenOperation:WindowSeconds"] ?? "-1")
+      ),
+      Default: new RateLimitConfig(
+        PermitLimit: int.Parse(config["RateLimiting:Default:PermitLimit"] ?? "-1"),
+        WindowSeconds: int.Parse(config["RateLimiting:Default:WindowSeconds"] ?? "-1")
+      )
+    );
   }
 }
 
@@ -143,5 +165,16 @@ public record FileManager(
   string Folder,
   long MaxBytes,
   string[] AllowedExtensions
+);
+
+public record RateLimit(
+  RateLimitConfig Login,
+  RateLimitConfig EmailDelivery,
+  RateLimitConfig TokenOperation,
+  RateLimitConfig Default
+);
+public record RateLimitConfig(
+  int PermitLimit,
+  int WindowSeconds
 );
 #endregion

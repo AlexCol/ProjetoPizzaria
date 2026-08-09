@@ -7,6 +7,9 @@ namespace csharp_p2.src.Config.Builder;
 
 public static class BuilderConfig {
   public static void AddConfigs(this WebApplicationBuilder builder) {
+    //? Configurações de ambiente
+    var env = new EnvConfig(builder.Configuration, builder.Environment);
+
     //? logger temporário para capturar logs durante a inicialização, antes do Serilog ser configurado em AddLogService
     Log.Logger = new LoggerConfiguration()
       .ReadFrom.Configuration(builder.Configuration)
@@ -17,16 +20,16 @@ public static class BuilderConfig {
 
     //!adicionando classes para injeções de dependencia
     DependencyInjectionBuilder.AddAutoInjectables(builder);
-    FileManagerBuilder.AddFileManager(builder);
+    FileManagerBuilder.AddFileManager(builder, env);
 
     // //!adicionando configurações
     SwaggerBuilder.AddSwagger(builder);
     AuthBuilder.AddAuthentication(builder);
-    DataBaseBuilder.AddDatabase(builder);
-    CacheBuilder.AddCache(builder);
+    DataBaseBuilder.AddDatabase(builder, env);
+    CacheBuilder.AddCache(builder, env);
     HangfireBuilder.AddHangfire(builder);
-    CorsBuilder.AddCors(builder); //?lembrar depois de colocar useCors no app
-    RateLimitBuilder.AddRateLimiting(builder);
+    CorsBuilder.AddCors(builder, env); //?lembrar depois de colocar useCors no app
+    RateLimitBuilder.AddRateLimiting(builder, env);
     LogBuilder.AddLogService(builder);
     ZipBuilder.AddZip(builder);
   }

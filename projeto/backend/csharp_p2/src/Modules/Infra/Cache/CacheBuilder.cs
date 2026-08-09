@@ -5,8 +5,7 @@ namespace csharp_p2.src.Modules.Infra.Cache;
 public static partial class CacheBuilder {
   public static string Cache { get; private set; } = "";
 
-  public static void AddCache(WebApplicationBuilder builder) {
-    var env = new EnvConfig(builder.Configuration, builder.Environment);
+  public static void AddCache(WebApplicationBuilder builder, EnvConfig env) {
     var enumValido = Enum.TryParse<ECacheType>(env.Cache.Type, true, out var cache) && Enum.IsDefined(cache);
 
     if (!enumValido)

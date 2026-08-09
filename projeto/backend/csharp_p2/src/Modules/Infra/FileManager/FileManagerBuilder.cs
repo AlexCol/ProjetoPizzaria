@@ -3,8 +3,7 @@ using csharp_p2.src.Config;
 namespace csharp_p2.src.Modules.Infra.FileManager;
 
 public class FileManagerBuilder {
-  public static void AddFileManager(WebApplicationBuilder builder) {
-    var env = new EnvConfig(builder.Configuration, builder.Environment);
+  public static void AddFileManager(WebApplicationBuilder builder, EnvConfig env) {
     var managerType = env.FileManager.Type;
 
     if (managerType.Equals("local", StringComparison.OrdinalIgnoreCase)) {
