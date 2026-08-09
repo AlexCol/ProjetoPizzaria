@@ -1,6 +1,6 @@
 export const notLoggedStyles = {
   host: 'block',
-  page: 'grid min-h-dvh place-items-center bg-background px-4 py-8 text-foreground',
+  page: 'grid min-h-dvh place-items-center px-4 py-8 text-foreground',
   card: 'flex w-full max-w-136 flex-col items-center',
   brand: 'inline-flex items-center gap-3 text-2xl font-bold text-primary-text',
   brandMark: [
