@@ -30,6 +30,7 @@ public static class BuilderConfig {
     CacheBuilder.AddCache(builder, env);
     HangfireBuilder.AddHangfire(builder);
     ForwardedHeadersBuilder.AddForwardedHeaders(builder, env);
+    HttpsBuilder.AddHttps(builder);
     CorsBuilder.AddCors(builder, env); //?lembrar depois de colocar useCors no app
     RateLimitBuilder.AddRateLimiting(builder, env);
     LogBuilder.AddLogService(builder);

@@ -4,6 +4,8 @@ namespace csharp_p2.src.Config.App;
 
 public static class AppConfig {
   public static void AddConfigs(this WebApplication app) {
+    var env = app.Services.GetRequiredService<EnvConfig>();
+
     // Processa X-Forwarded-For e X-Forwarded-Proto somente quando enviados
     // por proxies explicitamente confiáveis. Deve executar antes dos logs,
     // do rate limiter e de qualquer lógica que consulte IP ou protocolo.
@@ -17,6 +19,15 @@ public static class AppConfig {
     // incluindo falhas que ocorram antes de chegar no controller.
     app.UseMiddleware<ExceptionHandlingMiddleware>();
     app.UseMiddleware<LogMiddleware>();
+
+    // Em ambientes publicados, informa ao navegador que o host deve ser acessado
+    // somente por HTTPS e redireciona acessos HTTP para a porta pública 443.
+    // ForwardedHeaders precisa vir antes para reconhecer o HTTPS terminado no proxy
+    // e impedir um loop de redirecionamento.
+    if (!env.IsDevelopment) {
+      app.UseHsts();
+      app.UseHttpsRedirection();
+    }
 
     // 2) Roteamento + seguranca.
     // UseRouting resolve o endpoint atual.
