@@ -20,9 +20,9 @@ export class LoggerService {
   }
 
   error(...data: any[]): void {
-    if (!environment.production) {
-      // eslint-disable-next-line no-console
-      console.error('[ERROR]', ...data);
-    }
+    //if (!environment.production) {
+    // eslint-disable-next-line no-console
+    console.error('[ERROR]', ...data);
+    //}
   }
 }

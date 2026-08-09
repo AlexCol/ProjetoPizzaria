@@ -7,8 +7,14 @@ export function getApiErrorMessage(error: unknown, fallback = DEFAULT_API_ERROR_
   const safeFallback = fallback.trim() || DEFAULT_API_ERROR_MESSAGE;
   const errorBody = error instanceof HttpErrorResponse ? error.error : error;
   const message = extractMessage(errorBody);
+  const traceId = extractTraceId(errorBody);
+  const publicMessage = message || safeFallback;
 
-  return message || safeFallback;
+  if (error instanceof HttpErrorResponse && error.status >= 500 && traceId) {
+    return `${publicMessage} Referência: ${traceId}`;
+  }
+
+  return publicMessage;
 }
 
 export function processaErros(httpError: HttpErrorResponse): Observable<never> {
@@ -30,4 +36,15 @@ function extractMessage(value: unknown): string {
   }
 
   return '';
+}
+
+function extractTraceId(value: unknown): string {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return '';
+  }
+
+  const errorBody = value as Record<string, unknown>;
+  const traceId = errorBody['TraceId'] ?? errorBody['traceId'];
+
+  return typeof traceId === 'string' ? traceId.trim() : '';
 }
