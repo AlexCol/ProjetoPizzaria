@@ -17,10 +17,11 @@ public class CookiesHandler {
   }
 
   public CookieOptions GetSessionCookieOptions(bool rememberMe) {
-    var isProd = _envConfig.Environment == "Production";
+    var isProd = _envConfig.IsProduction;
+    var usesSecureCookies = !_envConfig.IsDevelopment;
     return new CookieOptions {
       HttpOnly = true,
-      Secure = isProd,
+      Secure = usesSecureCookies,
       SameSite = isProd ? SameSiteMode.None : SameSiteMode.Lax,
       Expires = rememberMe ? DateTime.UtcNow.AddSeconds(_envConfig.Cache.SessionTtlInSec) : (DateTime?)null
     };

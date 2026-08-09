@@ -6,24 +6,55 @@ namespace csharp_p2.src.Extensions;
 
 public static class CorsBuilder {
   public static void AddCors(WebApplicationBuilder builder) {
-    var env = new EnvConfig(builder.Configuration);
-    var frontendUrl = (env.FrondEnd.Url ?? string.Empty).Trim().TrimEnd('/');
+    var env = new EnvConfig(builder.Configuration, builder.Environment);
+
+    BuildValidations(env);
 
     builder.Services.AddCors(opt => {
       opt.AddDefaultPolicy(build => {
-        ApplyCorsPolicy(build, frontendUrl, false);
+        ApplyCorsPolicy(build, env, false);
       });
 
       // Politica especifica para SSE (conexoes persistentes com autenticacao)
       opt.AddPolicy("SSEPolicy", build => {
-        ApplyCorsPolicy(build, frontendUrl, true);
+        ApplyCorsPolicy(build, env, true);
       });
     });
   }
 
-  private static void ApplyCorsPolicy(CorsPolicyBuilder build, string frontendUrl, bool exposeSseHeaders) {
+  private static void BuildValidations(EnvConfig env) {
+    var frontendUrl = (env.FrondEnd.Url ?? string.Empty).Trim().TrimEnd('/');
+
+    // validações validas para ambos ambientes (desenvolvimento e produção)
+    var isValidUrl = Uri.TryCreate(frontendUrl, UriKind.Absolute, out var frontendUri);
+    if (!isValidUrl) {
+      throw new InvalidOperationException("FRONTEND_URL must be a valid absolute URL.");
+    }
+
+    var isHttp = frontendUri.Scheme == Uri.UriSchemeHttp;
+    var isHttps = frontendUri.Scheme == Uri.UriSchemeHttps;
+    if (!isHttp && !isHttps) {
+      throw new InvalidOperationException("FRONTEND_URL must use HTTP or HTTPS.");
+    }
+
+    var configuredOrigin = frontendUri.GetLeftPart(UriPartial.Authority).TrimEnd('/');
+    var containsOnlyOrigin = string.Equals(frontendUrl, configuredOrigin, StringComparison.OrdinalIgnoreCase);
+    if (!containsOnlyOrigin) {
+      throw new InvalidOperationException("FRONTEND_URL must contain only scheme, host and optional port.");
+    }
+
+    // validações validas apenas para produção
+    if (env.IsDevelopment)
+      return;
+
+    if (frontendUri.Scheme != Uri.UriSchemeHttps) {
+      throw new InvalidOperationException("FRONTEND_URL must use HTTPS in production.");
+    }
+  }
+
+  private static void ApplyCorsPolicy(CorsPolicyBuilder build, EnvConfig env, bool exposeSseHeaders) {
     build
-      .SetIsOriginAllowed(origin => IsAllowedOrigin(origin, frontendUrl))
+      .SetIsOriginAllowed(origin => IsAllowedOrigin(origin, env))
       .WithHeaders(AllowedHeaders)
       .WithMethods(AllowedMethods)
       .AllowCredentials();
@@ -33,8 +64,28 @@ public static class CorsBuilder {
     }
   }
 
-  private static bool IsAllowedOrigin(string origin, string frontendUrl) {
+  private static bool IsAllowedOrigin(string origin, EnvConfig env) {
+    var frontendUrl = (env.FrondEnd.Url ?? string.Empty).Trim().TrimEnd('/');
+    var normalizedOrigin = origin.Trim().TrimEnd('/');
+
+    if (env.IsDevelopment) {
+      return IsAllowedOriginDevelopment(normalizedOrigin, frontendUrl);
+    }
+
+    return IsAllowedOriginProduction(normalizedOrigin, frontendUrl);
+  }
+
+  private static bool IsAllowedOriginProduction(string origin, string frontendUrl) {
+    if (string.Equals(origin, frontendUrl, StringComparison.OrdinalIgnoreCase)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private static bool IsAllowedOriginDevelopment(string origin, string frontendUrl) {
     //! Permite requests sem Origin e Origin "null" (ex.: file:// e alguns clientes não-browser).
+    //! Decido manter mesmo não sendo recomendado, pois facilita desenvolvimento e testes de integração.
     if (string.IsNullOrWhiteSpace(origin) || origin == "null")
       return true;
 
@@ -99,4 +150,5 @@ public static class CorsBuilder {
       return allowedMethods;
     }
   }
+
 }

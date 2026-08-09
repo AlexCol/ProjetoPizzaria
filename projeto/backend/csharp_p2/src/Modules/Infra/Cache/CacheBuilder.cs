@@ -6,7 +6,7 @@ public static partial class CacheBuilder {
   public static string Cache { get; private set; } = "";
 
   public static void AddCache(WebApplicationBuilder builder) {
-    var env = new EnvConfig(builder.Configuration);
+    var env = new EnvConfig(builder.Configuration, builder.Environment);
     var enumValido = Enum.TryParse<ECacheType>(env.Cache.Type, true, out var cache) && Enum.IsDefined(cache);
 
     if (!enumValido)

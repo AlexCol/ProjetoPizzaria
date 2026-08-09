@@ -7,7 +7,7 @@ public static partial class DataBaseBuilder {
   public static string Database { get; private set; } = "";
 
   public static void AddDatabase(WebApplicationBuilder builder) {
-    var env = new EnvConfig(builder.Configuration);
+    var env = new EnvConfig(builder.Configuration, builder.Environment);
     var enumValido = Enum.TryParse<EDataBaseType>(env.Database.Type, true, out var database) && Enum.IsDefined(database);
 
     if (!enumValido)

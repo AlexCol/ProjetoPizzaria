@@ -8,6 +8,8 @@ namespace csharp_p2.src.Config;
 public class EnvConfig {
   public AdminUser AdminUser { get; private set; }
   public string Environment { get; private set; }
+  public bool IsDevelopment { get; private set; }
+  public bool IsProduction { get; private set; }
   public FrondEnd FrondEnd { get; private set; }
   public Database Database { get; private set; }
   public Cache Cache { get; private set; }
@@ -15,13 +17,17 @@ public class EnvConfig {
   public Crypto Crypto { get; private set; }
   public FileManager FileManager { get; private set; }
 
-  public EnvConfig(IConfiguration config) {
+  public EnvConfig(
+    IConfiguration config,
+    IHostEnvironment hostEnvironment
+  ) {
     LoadVariables(config);
+    Environment = hostEnvironment.EnvironmentName;
+    IsDevelopment = hostEnvironment.IsDevelopment();
+    IsProduction = hostEnvironment.IsProduction();
   }
 
   private void LoadVariables(IConfiguration config) {
-    Environment = config["ASPNETCORE_ENVIRONMENT"] ?? "Development";
-
     FrondEnd = new FrondEnd(
       Url: config["FRONTEND_URL"] ?? ""
     );

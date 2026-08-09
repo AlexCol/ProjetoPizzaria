@@ -4,7 +4,7 @@ namespace csharp_p2.src.Modules.Infra.FileManager;
 
 public class FileManagerBuilder {
   public static void AddFileManager(WebApplicationBuilder builder) {
-    var env = new EnvConfig(builder.Configuration);
+    var env = new EnvConfig(builder.Configuration, builder.Environment);
     var managerType = env.FileManager.Type;
 
     if (managerType.Equals("local", StringComparison.OrdinalIgnoreCase)) {
