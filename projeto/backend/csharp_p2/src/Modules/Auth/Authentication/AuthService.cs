@@ -1,6 +1,7 @@
 using csharp_p2.src.Modules.Domain;
 using csharp_p2.src.Modules.Session;
 using csharp_p2.src.Shared.DTOs;
+using csharp_p2.src.Shared.Exceptions;
 using csharp_p2.src.Shared.VOs;
 
 namespace csharp_p2.src.Modules.Auth.Authentication;
@@ -27,7 +28,7 @@ public class AuthService : IAuthService {
 
   private async Task<User> ObtemUsuarioAsync(LoginDto loginDto) {
     var user = await _usersService.GetEntityByEmailWithPasswordAsync(new EmailVO(loginDto.Email));
-    if (user == null) throw new UnauthorizedAccessException("Usuário ou senha incorretos.");
+    if (user == null) throw new CustomError("Usuário ou senha incorretos.", StatusCodes.Status401Unauthorized);
 
     await LoginValidationAsync(loginDto, user);
 
@@ -36,10 +37,10 @@ public class AuthService : IAuthService {
   }
 
   private async Task LoginValidationAsync(LoginDto loginDto, User user) {
-    if (user.Status == EUserStatus.Inactive) throw new Exception("Usuário inativo");
-    if (user.Status == EUserStatus.Blocked) throw new Exception("Usuário bloqueado");
+    if (user.Status == EUserStatus.Inactive || user.Status == EUserStatus.Blocked)
+      throw new CustomError("Usuário ou senha incorretos.", StatusCodes.Status401Unauthorized);
 
     var passwordMatch = BCrypt.Net.BCrypt.Verify(loginDto.Password, user.Password);
-    if (!passwordMatch) throw new UnauthorizedAccessException("Usuário ou senha incorretos.");
+    if (!passwordMatch) throw new CustomError("Usuário ou senha incorretos.", StatusCodes.Status401Unauthorized);
   }
 }

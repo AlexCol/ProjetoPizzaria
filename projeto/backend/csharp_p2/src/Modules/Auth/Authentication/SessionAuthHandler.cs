@@ -63,7 +63,7 @@ public class SessionAuthHandler : AuthenticationHandler<AuthenticationSchemeOpti
   private string GetTokenFromRequestOrThrow() {
     var token = Request.GetTokenFromRequest();
     if (string.IsNullOrWhiteSpace(token))
-      throw new UnauthorizedAccessException("Session token is missing.");
+      throw new CustomError("Sessão inválida ou expirada.", StatusCodes.Status401Unauthorized);
 
     return token;
   }
@@ -72,7 +72,7 @@ public class SessionAuthHandler : AuthenticationHandler<AuthenticationSchemeOpti
     var session = await _sessionCache.GetSessionAsync(token);
     if (session is null) {
       _cookiesHandler.DeleteSessionCookies(Response); // Remove o cookie de sessão inválido, se existir
-      throw new CustomError("Invalid session token, no session found for the provided token.", 401);
+      throw new CustomError("Sessão inválida ou expirada.", StatusCodes.Status401Unauthorized);
     }
 
     return session;
@@ -81,7 +81,7 @@ public class SessionAuthHandler : AuthenticationHandler<AuthenticationSchemeOpti
   private void IsCorrectOriginOrThrow(SessionOptionsDto sessionOptions) {
     var entryPoint = Request.GetEntryPoint();
     if (entryPoint != sessionOptions.AppOrigin) {
-      throw new CustomError("Token origin mismatch, The token's origin does not match the request's origin.", 401);
+      throw new CustomError("Sessão inválida ou expirada.", StatusCodes.Status401Unauthorized);
     }
   }
 

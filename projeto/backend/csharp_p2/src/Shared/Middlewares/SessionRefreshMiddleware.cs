@@ -1,5 +1,6 @@
 using csharp_p2.src.Modules.Session;
 using csharp_p2.src.Shared.Helpers;
+using csharp_p2.src.Shared.Exceptions;
 
 namespace csharp_p2.src.Shared.Middlewares;
 
@@ -22,7 +23,7 @@ public class SessionRefreshMiddleware {
 
     var sessionToken = context.Request.GetTokenFromRequest(); // Usa a extensão para obter o token de forma unificada (header para mobile, cookie para web)
     if (string.IsNullOrWhiteSpace(sessionToken)) {
-      throw new UnauthorizedAccessException("Session token is missing.");
+      throw new CustomError("Sessão inválida ou expirada.", StatusCodes.Status401Unauthorized);
     }
 
     try {

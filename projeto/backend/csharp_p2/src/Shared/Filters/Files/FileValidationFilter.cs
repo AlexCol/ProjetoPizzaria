@@ -1,5 +1,6 @@
 using System.Reflection;
 using csharp_p2.src.Config.Builder;
+using csharp_p2.src.Shared.Exceptions;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace csharp_p2.src.Shared.Filters;
@@ -13,45 +14,41 @@ public sealed class FileValidationFilter : IAsyncActionFilter {
   }
 
   public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next) {
-    try {
-      //! para manipular os defaults, usar o atributo FileValidation
-      //! exemplo de uso no controller de criação de produto.
-      var endpointAttr = context.ActionDescriptor.EndpointMetadata
-        .OfType<FileValidationAttribute>()
-        .FirstOrDefault();
+    //! para manipular os defaults, usar o atributo FileValidation
+    //! exemplo de uso no controller de criação de produto.
+    var endpointAttr = context.ActionDescriptor.EndpointMetadata
+      .OfType<FileValidationAttribute>()
+      .FirstOrDefault();
 
-      var maxBytes = endpointAttr?.MaxBytes ?? _options.MaxBytes;
-      var allowed = (endpointAttr?.AllowedExtensions ?? _options.AllowedExtensions)
-        .Select(e => e.ToLowerInvariant())
-        .ToHashSet();
+    var maxBytes = endpointAttr?.MaxBytes ?? _options.MaxBytes;
+    var allowed = (endpointAttr?.AllowedExtensions ?? _options.AllowedExtensions)
+      .Select(e => e.ToLowerInvariant())
+      .ToHashSet();
 
-      var optional = endpointAttr?.Optional ?? true;
+    var optional = endpointAttr?.Optional ?? true;
 
-      var files = context.ActionArguments.Values
-        .SelectMany(v => ExtractFiles(v))
-        .ToList();
+    var files = context.ActionArguments.Values
+      .SelectMany(v => ExtractFiles(v))
+      .ToList();
 
-      if (!optional && files.Count == 0) {
-        throw new Exception("Nenhum arquivo enviado, mas pelo menos um é obrigatório.");
-      }
-
-      foreach (var file in files) {
-        if (file is null || file.Length == 0) continue;
-
-        if (file.Length > maxBytes) {
-          throw new Exception($"Arquivo {file.FileName} excede o tamanho máximo de {maxBytes} bytes.");
-        }
-
-        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-        if (!allowed.Contains(ext)) {
-          throw new Exception($"Extensão {ext} não permitida. Permitidas: {string.Join(", ", allowed)}");
-        }
-      }
-
-      await next();
-    } catch (Exception ex) {
-      context.Result = new BadRequestObjectResult(new { errors = new[] { ex.Message } });
+    if (!optional && files.Count == 0) {
+      throw new CustomError("Nenhum arquivo enviado, mas pelo menos um é obrigatório.");
     }
+
+    foreach (var file in files) {
+      if (file is null || file.Length == 0) continue;
+
+      if (file.Length > maxBytes) {
+        throw new CustomError($"Arquivo {file.FileName} excede o tamanho máximo de {maxBytes} bytes.");
+      }
+
+      var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+      if (!allowed.Contains(ext)) {
+        throw new CustomError($"Extensão {ext} não permitida. Permitidas: {string.Join(", ", allowed)}");
+      }
+    }
+
+    await next();
   }
 
   private static IEnumerable<IFormFile> ExtractFiles(object arg) {

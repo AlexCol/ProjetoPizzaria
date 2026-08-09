@@ -48,7 +48,7 @@ public class OrderItemsService(
     } catch (Exception ex) {
       await trx.RollbackAsync();
       ThrowIfProductNotFoundError(ex);
-      throw new CustomError($"Error upserting order items: {ex.Message}", 500);
+      throw;
     }
   }
 

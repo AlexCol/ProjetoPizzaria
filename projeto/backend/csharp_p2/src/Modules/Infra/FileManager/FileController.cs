@@ -27,12 +27,8 @@ public class FileController : ControllerBase {
     if (string.IsNullOrWhiteSpace(modulePath) || string.IsNullOrWhiteSpace(fileName))
       throw new CustomError("Module path and file name are required.", 400);
 
-    try {
-      var fileStream = await _fileManager.ReadAsync(modulePath, fileName);
-      return File(fileStream, "application/octet-stream", fileName);
-    } catch (Exception ex) {
-      throw new CustomError($"Failed to retrieve file: {ex.Message}", 500);
-    }
+    var fileStream = await _fileManager.ReadAsync(modulePath, fileName);
+    return File(fileStream, "application/octet-stream", fileName);
   }
 
   [HttpGet("view")]
@@ -48,15 +44,11 @@ public class FileController : ControllerBase {
     if (string.IsNullOrWhiteSpace(modulePath) || string.IsNullOrWhiteSpace(fileName))
       throw new CustomError("Module path and file name are required.", 400);
 
-    try {
-      var fileStream = await _fileManager.ReadAsync(modulePath, fileName);
-      if (!_contentTypeProvider.TryGetContentType(fileName, out var contentType))
-        contentType = "application/octet-stream";
+    var fileStream = await _fileManager.ReadAsync(modulePath, fileName);
+    if (!_contentTypeProvider.TryGetContentType(fileName, out var contentType))
+      contentType = "application/octet-stream";
 
-      // No fileDownloadName => browser renders inline when supported (ex: images).
-      return File(fileStream, contentType);
-    } catch (Exception ex) {
-      throw new CustomError($"Failed to retrieve file: {ex.Message}", 500);
-    }
+    // No fileDownloadName => browser renders inline when supported (ex: images).
+    return File(fileStream, contentType);
   }
 }

@@ -157,9 +157,9 @@ public class UsersService : IUsersService {
 
       await trx.CommitAsync();
       return new MessageDto("User activated successfully. You can now log in.");
-    } catch (Exception ex) {
+    } catch {
       await trx.RollbackAsync();
-      throw new CustomError("Failed to activate user: " + ex.Message);
+      throw;
     }
   }
 
@@ -222,9 +222,9 @@ public class UsersService : IUsersService {
 
       await trx.CommitAsync();
       return new MessageDto("Password reset successfully. You can now log in with your new password.");
-    } catch (Exception ex) {
+    } catch {
       await trx.RollbackAsync();
-      throw new CustomError("Failed to reset password: " + ex.Message);
+      throw;
     }
   }
   #endregion

@@ -52,7 +52,7 @@ public class OrdersService(
       return createdOrder;
     } catch (Exception ex) {
       ThrowIfProductNotFoundError(ex);
-      throw new CustomError($"Error creating order: {ex.Message}", 500);
+      throw;
     }
   }
 

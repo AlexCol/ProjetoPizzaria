@@ -2,6 +2,7 @@ using csharp_p2.src.Shared.Helpers;
 using csharp_p2.src.Modules.Infra.Cache;
 using csharp_p2.src.Config;
 using csharp_p2.src.Shared.DTOs;
+using csharp_p2.src.Shared.Exceptions;
 
 namespace csharp_p2.src.Modules.Session;
 
@@ -83,7 +84,7 @@ public class SessionCacheService : ISessionCacheService {
   public async Task<(bool, UserSession)> RefreshSessionAsync(string sessionToken) {
     var sessionData = await GetSessionAsync(sessionToken);
     if (sessionData is null)
-      throw new UnauthorizedAccessException("Sessão inválida ou expirada");
+      throw new CustomError("Sessão inválida ou expirada.", StatusCodes.Status401Unauthorized);
 
     var now = DateTime.UtcNow;
     var oneDay = TimeSpan.FromDays(1);

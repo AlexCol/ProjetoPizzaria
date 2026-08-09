@@ -7,7 +7,7 @@ public class CustomError : Exception {
     Status = status;
   }
 
-  public CustomError(string message, Exception innerException)
-    : base(message, innerException) {
+  public CustomError(string message, Exception innerException) : base(message, innerException) {
+    Status = StatusCodes.Status500InternalServerError;
   }
 }

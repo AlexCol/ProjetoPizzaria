@@ -1,7 +1,8 @@
 namespace csharp_p2.src.Shared.DTOs;
 
 public class ErrorResponseDto {
-  public ErrorResponseDto(string errorMessage) {
+  public ErrorResponseDto(string errorMessage, string traceId = null) {
+    TraceId = traceId;
     var errors = errorMessage.Split(";");
     foreach (var error in errors) {
       this.Message.Add(error);
@@ -12,16 +13,8 @@ public class ErrorResponseDto {
     Message.AddRange(errorMessages);
   }
 
-  public ErrorResponseDto(Exception exception) {
-    Message.Add(exception.Message);
-    var inner = exception.InnerException;
-    while (inner != null) {
-      Message.Add(inner.Message);
-      inner = inner.InnerException;
-    }
-  }
-
   public List<string> Message { get; set; } = [];
+  public string TraceId { get; set; }
 
   public override string ToString() {
     string error = "";
