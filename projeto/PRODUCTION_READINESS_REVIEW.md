@@ -137,13 +137,17 @@ O escopo considera uma implantação com **uma única instância** do backend. P
   - `backend/csharp_p2/appsettings.Development.json`
   - `backend/csharp_p2/src/Shared/Middlewares/LogMiddleware.cs`
 
-- [ ] Revisar a conexão segura com o Redis de produção.
+- [x] Revisar a conexão segura com o Redis de produção.
 
-  A configuração atual monta host, porta e senha. Confirmar TLS, autenticação, timeout, política de reconexão e isolamento de rede conforme o serviço Redis utilizado.
+  Implementado no cliente: a conexão agora usa `ConfigurationOptions`, aplica corretamente `CACHE_DB`, aceita usuário ACL, exige TLS e senha fora de desenvolvimento, mantém a validação de certificado e revogação ativa, configura timeouts, tentativas iniciais, keep-alive e reconexão exponencial. O multiplexer continua singleton, recebe o `ILoggerFactory` para eventos de conexão e usa `BacklogPolicy.FailFast` para não acumular operações de sessão durante indisponibilidade. `AllowAdmin` permanece desabilitado.
 
-  Arquivo relacionado:
+  Requisito de infraestrutura documentado: no deploy, o Redis deve permanecer em rede privada/firewall, sem porta exposta à internet. Preferir um usuário ACL exclusivo com acesso apenas aos comandos e padrões de chave necessários pela aplicação e pelo handshake do StackExchange.Redis.
+
+  Arquivos relacionados:
 
   - `backend/csharp_p2/src/Modules/Infra/Cache/Builders/Redis/RedisCacheBuilder.cs`
+  - `backend/csharp_p2/src/Config/Env/EnvConfig.cs`
+  - `backend/csharp_p2/.env copy`
 
 - [ ] Tornar a notificação SSE de sessão uma operação de melhor esforço.
 

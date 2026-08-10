@@ -14,7 +14,7 @@ public class EnvConfig {
   public bool IsProduction { get; private set; }
   public FrondEnd FrondEnd { get; private set; }
   public Database Database { get; private set; }
-  public Cache Cache { get; private set; }
+  public CacheConfig Cache { get; private set; }
   public Email Email { get; private set; }
   public Crypto Crypto { get; private set; }
   public FileManager FileManager { get; private set; }
@@ -55,12 +55,19 @@ public class EnvConfig {
       IdleTimeoutMillis: int.Parse(config["DB_IDLE_TIMEOUT_MILLIS"] ?? "300000")
     );
 
-    Cache = new Cache(
+    Cache = new CacheConfig(
       Type: config["CACHE_TYPE"] ?? "",
       Host: config["CACHE_HOST"] ?? "",
-      Port: config["CACHE_PORT"] ?? "",
+      Port: int.TryParse(config["CACHE_PORT"], out var cachePort) ? cachePort : 6379,
+      User: config["CACHE_USER"] ?? "",
       Password: config["CACHE_PASSWORD"] ?? "",
-      Db: config["CACHE_DB"] ?? "0",
+      Db: int.TryParse(config["CACHE_DB"], out var cacheDb) ? cacheDb : 0,
+      Ssl: bool.TryParse(config["CACHE_SSL"], out var cacheSsl) && cacheSsl,
+      SslHost: config["CACHE_SSL_HOST"] ?? "",
+      ConnectTimeoutMillis: int.TryParse(config["CACHE_CONNECT_TIMEOUT_MILLIS"], out var cacheConnectTimeout) ? cacheConnectTimeout : 5000,
+      AsyncTimeoutMillis: int.TryParse(config["CACHE_ASYNC_TIMEOUT_MILLIS"], out var cacheAsyncTimeout) ? cacheAsyncTimeout : 5000,
+      ConnectRetry: int.TryParse(config["CACHE_CONNECT_RETRY"], out var cacheConnectRetry) ? cacheConnectRetry : 3,
+      KeepAliveSeconds: int.TryParse(config["CACHE_KEEP_ALIVE_SECONDS"], out var cacheKeepAlive) ? cacheKeepAlive : 60,
       BaseTtlInSec: int.Parse(config["CACHE_BASE_TTL_IN_SEC"] ?? "604800"),
       SessionTtlInSec: int.Parse(config["CACHE_SESSION_TTL_IN_SEC"] ?? "604800")
     );
@@ -145,12 +152,19 @@ public record Database(
   int IdleTimeoutMillis
 );
 
-public record Cache(
+public record CacheConfig(
   string Type,
   string Host,
-  string Port,
+  int Port,
+  string User,
   string Password,
-  string Db,
+  int Db,
+  bool Ssl,
+  string SslHost,
+  int ConnectTimeoutMillis,
+  int AsyncTimeoutMillis,
+  int ConnectRetry,
+  int KeepAliveSeconds,
   int BaseTtlInSec,
   int SessionTtlInSec
 );

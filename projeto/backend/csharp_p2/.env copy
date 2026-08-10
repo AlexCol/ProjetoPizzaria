@@ -40,9 +40,25 @@ DB_IDLE_TIMEOUT_MILLIS=300000   ## 5min sem uso = fecha
 ########## CACHE
 CACHE_TYPE=Redis
 CACHE_HOST=localhost
+CACHE_USER=
 CACHE_PASSWORD=redis123
 CACHE_PORT=6479
 CACHE_DB=0
+CACHE_SSL=false
+## Nome esperado no certificado TLS. Vazio usa CACHE_HOST.
+## Em produção:
+## - CACHE_PASSWORD é obrigatório;
+## - CACHE_SSL=false só é aceitável quando API e Redis estão na mesma máquina/rede
+##   interna do Dokploy, usando o host interno e sem configurar External Port;
+## - use CACHE_SSL=true se a conexão atravessar outra máquina ou rede não confiável;
+## - prefira um usuário ACL exclusivo da aplicação em CACHE_USER;
+## - mantenha o Redis em rede privada/firewall, sem porta pública;
+## - conceda ao usuário somente os comandos e padrões de chave necessários.
+CACHE_SSL_HOST=
+CACHE_CONNECT_TIMEOUT_MILLIS=5000
+CACHE_ASYNC_TIMEOUT_MILLIS=5000
+CACHE_CONNECT_RETRY=3
+CACHE_KEEP_ALIVE_SECONDS=60
 
 CACHE_BASE_TTL_IN_SEC=604800 ## 7 DIAS
 CACHE_SESSION_TTL_IN_SEC=604800 ## 7 DIAS
