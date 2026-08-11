@@ -21,6 +21,8 @@ public static class HangfireBuilder {
       config.UseRecommendedSerializerSettings();
     });
 
-    builder.Services.AddHangfireServer();
+    builder.Services.AddHangfireServer(options => {
+      // options.WorkerCount = 5; //limita o numero de workers (threads) que processam jobs em paralelo
+    });
   }
 }

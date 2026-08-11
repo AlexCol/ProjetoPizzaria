@@ -48,7 +48,11 @@ public class SessionService : ISessionService {
   }
 
   public Task UpdateSessionAsync(long userId) {
-    _backgroundJobClient.Enqueue<ISessionUpdateJob>(job => job.ExecuteAsync(userId));
+    try {
+      _backgroundJobClient.Enqueue<ISessionUpdateJob>(job => job.ExecuteAsync(userId));
+    } catch (Exception ex) {
+      Log.Error(ex, "[SessionService] Failed to enqueue session update for userId {UserId}", userId);
+    }
     return Task.CompletedTask;
   }
 

@@ -139,7 +139,7 @@ O escopo considera uma implantação com **uma única instância** do backend. P
 
 - [x] Revisar a conexão segura com o Redis de produção.
 
-  Implementado no cliente: a conexão agora usa `ConfigurationOptions`, aplica corretamente `CACHE_DB`, aceita usuário ACL, exige TLS e senha fora de desenvolvimento, mantém a validação de certificado e revogação ativa, configura timeouts, tentativas iniciais, keep-alive e reconexão exponencial. O multiplexer continua singleton, recebe o `ILoggerFactory` para eventos de conexão e usa `BacklogPolicy.FailFast` para não acumular operações de sessão durante indisponibilidade. `AllowAdmin` permanece desabilitado.
+  Implementado no cliente: a conexão agora usa `ConfigurationOptions`, aplica corretamente `CACHE_DB`, aceita usuário ACL e exige senha fora de desenvolvimento. TLS é suportado e permanece configurável: `CACHE_SSL=false` é aceito para Redis na mesma máquina/rede interna do Dokploy, usando o host interno e sem `External Port`; conexões que atravessem outra máquina ou rede não confiável devem usar `CACHE_SSL=true`. Quando TLS está ativo, a validação de certificado e revogação permanece habilitada. Também foram configurados timeouts, tentativas iniciais, keep-alive e reconexão exponencial. O multiplexer continua singleton, recebe o `ILoggerFactory` para eventos de conexão e usa `BacklogPolicy.FailFast` para não acumular operações de sessão durante indisponibilidade. `AllowAdmin` permanece desabilitado.
 
   Requisito de infraestrutura documentado: no deploy, o Redis deve permanecer em rede privada/firewall, sem porta exposta à internet. Preferir um usuário ACL exclusivo com acesso apenas aos comandos e padrões de chave necessários pela aplicação e pelo handshake do StackExchange.Redis.
 
@@ -149,9 +149,9 @@ O escopo considera uma implantação com **uma única instância** do backend. P
   - `backend/csharp_p2/src/Config/Env/EnvConfig.cs`
   - `backend/csharp_p2/.env copy`
 
-- [ ] Tornar a notificação SSE de sessão uma operação de melhor esforço.
+- [x] Tornar a notificação SSE de sessão uma operação de melhor esforço.
 
-  A redefinição da senha não deve falhar somente porque o job de notificação não pôde ser enfileirado. A revogação das sessões é a proteção efetiva; SSE apenas antecipa a atualização da interface. Revisar também a ordem entre commit, destruição das sessões e agendamento do job para deixar os resultados possíveis explícitos.
+  Implementado: `SessionService.UpdateSessionAsync` segue o mesmo padrão dos métodos de envio de e-mail — tenta enfileirar `SessionUpdateJob`, registra `Error` se o enqueue falhar e retorna uma `Task` concluída sem propagar a exceção aos fluxos principais. Isso vale para todos os chamadores, incluindo atualizações de usuário e role. Na recuperação de senha, alteração da senha, consumo do token e revogação das sessões continuam obrigatórios; o job de atualização/SSE só é solicitado depois do commit, garantindo que nenhuma notificação seja disparada antes da confirmação da nova senha. Depois de enfileirado, falhas na execução são responsabilidade do Hangfire e não alteram a resposta já concluída. Como trade-off de melhor esforço, uma falha definitiva no enqueue pode deixar temporariamente payloads antigos em sessões existentes; o erro fica registrado para diagnóstico.
 
   Arquivos relacionados:
 

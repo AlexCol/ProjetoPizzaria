@@ -8,6 +8,7 @@ public static class HangfireApp {
   public static void UseHangfire(WebApplication app) {
     app.UseHangfireDashboard("/hangfire");
 
+    //SchedulerService é meu serviço (não é do pacote), onde adiciono os jobs
     SchedulerService.AddJobs();
 
     Log.Information("📊 [Hangfire] Configurado e dashboard disponível em /hangfire");

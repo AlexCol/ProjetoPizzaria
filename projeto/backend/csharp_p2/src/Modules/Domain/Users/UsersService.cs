@@ -218,9 +218,9 @@ public class UsersService : IUsersService {
       // destroy todas as sessões do usuário e enviar notificação de atualização de sessão
       var sessionCacheService = _serviceProvider.GetRequiredService<ISessionCacheService>();
       await sessionCacheService.DestroySessionsByUserIdAsync(user.Id);
-      await SendSessionUpdateNotificationAsync(user.Id);
-
       await trx.CommitAsync();
+
+      await SendSessionUpdateNotificationAsync(user.Id);
       return new MessageDto("Password reset successfully. You can now log in with your new password.");
     } catch {
       await trx.RollbackAsync();
@@ -252,8 +252,12 @@ public class UsersService : IUsersService {
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Private Methods
   #region Private Methods
   private async Task SendSessionUpdateNotificationAsync(long userId) {
-    var sessionService = _serviceProvider.GetRequiredService<ISessionService>();
-    await sessionService.UpdateSessionAsync(userId);
+    try {
+      var sessionService = _serviceProvider.GetRequiredService<ISessionService>();
+      await sessionService.UpdateSessionAsync(userId);
+    } catch (Exception ex) {
+      Log.Error(ex, "[UsersService] User {userId} updated, but failed to send session update notification.", userId);
+    }
   }
 
   #endregion
