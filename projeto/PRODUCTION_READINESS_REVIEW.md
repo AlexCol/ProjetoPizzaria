@@ -129,13 +129,70 @@ O escopo considera uma implantação com **uma única instância** do backend. P
 
 - [x] Reduzir o nível de logs em produção.
 
-  Implementado: o nível base do Serilog agora é `Information`, aplicado em produção e nos demais ambientes não explicitamente sobrescritos. `appsettings.Development.json` redefine o nível para `Verbose`, preservando os detalhes durante o desenvolvimento. O log executado para cada requisição pelo `LogMiddleware` passou de `Information` para `Debug` e usa uma propriedade estruturada, ficando disponível em desenvolvimento sem gerar esse volume no ambiente publicado.
+  Implementado: o nível base do Serilog permanece em `Information`, e cada ambiente pode sobrescrevê-lo. `appsettings.Development.json` mantém os detalhes necessários ao desenvolvimento. O novo `appsettings.Production.json` reduz os logs do framework para `Warning`, mantém Entity Framework em `Error`, grava no arquivo a partir de `Information` e envia ao console somente eventos a partir de `Warning`. O log executado para cada requisição pelo `LogMiddleware` permanece em `Debug`, portanto não gera esse volume no ambiente publicado.
 
   Arquivos relacionados:
 
   - `backend/csharp_p2/appsettings.json`
   - `backend/csharp_p2/appsettings.Development.json`
+  - `backend/csharp_p2/appsettings.Production.json`
   - `backend/csharp_p2/src/Shared/Middlewares/LogMiddleware.cs`
+
+- [x] Remover endpoints auxiliares da superfície pública de produção.
+
+  Implementado: as rotas auxiliares `run-seeds`, `test-search`, `test-db` e `test-cache` não são mais compiladas como endpoints HTTP. O endpoint público restante em `AppController` é o health check. O código dos seeds continua disponível no serviço para execução controlada pelo processo de inicialização/deploy, sem uma rota anônima capaz de dispará-lo pela internet.
+
+  Arquivos relacionados:
+
+  - `backend/csharp_p2/src/Modules/AppController.cs`
+  - `backend/csharp_p2/src/Modules/AppService.cs`
+
+- [x] Transformar o health check em uma verificação das dependências essenciais.
+
+  Implementado: `GET /api/health` informa separadamente o estado da API, do banco e do cache. A consulta ao banco executa uma operação compatível com o provider configurado, enquanto a verificação do cache realiza leitura e escrita com TTL curto. Caso banco ou cache lancem uma exceção, o middleware global produz uma resposta 5xx, permitindo que a infraestrutura considere a instância indisponível. Esse endpoint pode ser utilizado como readiness; a parte `Api` representa apenas que o processo e o pipeline HTTP estão respondendo.
+
+  Arquivos relacionados:
+
+  - `backend/csharp_p2/src/Modules/AppController.cs`
+  - `backend/csharp_p2/src/Modules/AppService.cs`
+  - `backend/csharp_p2/src/Shared/DTOs/HealthCheck/HealthCheck.cs`
+
+- [x] Não publicar o dashboard do Hangfire.
+
+  Implementado: o servidor de jobs e os agendamentos continuam ativos em todos os ambientes, mas o dashboard `/hangfire` é registrado somente em `Development`. Assim, a interface administrativa não integra a superfície HTTP publicada em produção.
+
+  Arquivo relacionado:
+
+  - `backend/csharp_p2/src/Config/App/Configs/HangfireApp.cs`
+
+- [ ] Persistir os jobs do Hangfire em produção.
+
+  Atualmente o Hangfire utiliza `MemoryStorage`. Jobs aguardando execução, tentativas e estado dos agendamentos são perdidos quando o processo reinicia. Isso pode afetar principalmente envio de e-mails e notificações de sessão. Antes de tratar este item, escolher um storage persistente compatível com a infraestrutura de produção, como PostgreSQL, e manter armazenamento em memória somente para desenvolvimento quando for conveniente.
+
+  Arquivos relacionados:
+
+  - `backend/csharp_p2/src/Config/Builder/Configs/HangfireBuilder.cs`
+  - `backend/csharp_p2/src/Shared/Scheduler/SchedulerService.cs`
+
+- [ ] Persistir as chaves do ASP.NET Core Data Protection.
+
+  O antiforgery utiliza o sistema de Data Protection do ASP.NET Core. Sem configurar um diretório ou storage persistente no ambiente publicado, a recriação do container pode gerar outro key ring e invalidar tokens antiforgery emitidos anteriormente. Para uma única instância isso não exige compartilhamento entre réplicas, mas o volume das chaves ainda deve sobreviver às reinicializações e ficar acessível somente à aplicação. Se houver mais de uma instância no futuro, todas deverão compartilhar o mesmo key ring e `ApplicationName`.
+
+  Arquivos relacionados:
+
+  - `backend/csharp_p2/src/Config/Builder/Configs/CsrfBuilder.cs`
+  - configuração de volume/storage do deploy
+
+- [ ] Definir a política de TLS para a conexão com o banco de produção.
+
+  Os builders de PostgreSQL e Oracle constroem a conexão sem declarar uma política de TLS. Se o banco permanecer na mesma máquina e em rede Docker privada, sem porta externa, aceitar a conexão interna sem TLS pode ser registrado como risco de infraestrutura, seguindo a mesma decisão adotada para o Redis. Se a conexão atravessar outra máquina ou uma rede não confiável, TLS e validação de certificado devem ser configurados explicitamente e as variáveis correspondentes devem entrar no `EnvConfig` e em seu validador.
+
+  Arquivos relacionados:
+
+  - `backend/csharp_p2/src/Modules/Infra/Database/Builders/Postgres/PostgresDBBuilder.cs`
+  - `backend/csharp_p2/src/Modules/Infra/Database/Builders/Oracle/OracleDBBuilder.cs`
+  - `backend/csharp_p2/src/Config/Env/EnvConfig.cs`
+  - `backend/csharp_p2/src/Config/Env/ValidadorEnvConfig.cs`
 
 - [x] Revisar a conexão segura com o Redis de produção.
 
@@ -207,15 +264,13 @@ O escopo considera uma implantação com **uma única instância** do backend. P
 - [x] Redefinição de senha encerra as sessões existentes.
 - [x] Sessões inválidas fazem o backend expirar o cookie antigo.
 - [x] O frontend não coloca novos tokens de ativação ou recuperação nos caminhos e query strings enviados ao servidor.
+- [x] Aceitar que `ADMIN_PASSWORD` seja validada apenas como obrigatória.
 
-## Ordem sugerida de execução
+  Decisão consciente do projeto: `ADMIN_PASSWORD` é utilizada somente para criar o administrador caso ele ainda não exista, deve ser fornecida já como hash BCrypt e não atualiza a senha de um administrador existente. Como a execução dos seeds não está exposta por endpoint público, validar estruturalmente o hash foi considerado desnecessário para este projeto. Uma configuração incorreta continua sendo responsabilidade de quem executar o processo de seed.
 
-1. Separar e restringir o CORS de produção.
-2. Definir a estratégia de `SameSite` e antiforgery.
-3. Expirar explicitamente tokens de ativação.
-4. Armazenar hashes dos tokens de processo.
-5. Configurar proxy confiável, HTTPS/HSTS e `AllowedHosts`.
-6. Reduzir logs e impedir exposição de detalhes internos.
-7. Validar configurações obrigatórias e segurança da conexão Redis.
-8. Desacoplar a notificação SSE do sucesso da redefinição de senha.
-9. Otimizar o índice de sessões quando o volume justificar.
+## Próximos itens
+
+1. Persistir os jobs do Hangfire.
+2. Persistir as chaves do ASP.NET Core Data Protection.
+3. Definir TLS para o banco ou documentar formalmente a aceitação da rede Docker privada como limite de confiança.
+4. Executar um teste de fumaça no ambiente publicado, incluindo health, proxy, HTTPS, CORS, CSRF, login, logout, recuperação de senha e reinicialização do container.

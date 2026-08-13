@@ -2,6 +2,7 @@ using csharp_p2.src.Config;
 using csharp_p2.src.Modules.Domain;
 using csharp_p2.src.Modules.Infra.Cache;
 using csharp_p2.src.Modules.Infra.Database;
+using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.VOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,8 +10,8 @@ namespace csharp_p2.src.Modules;
 
 public interface IAppService {
   public dynamic HealthCheck();
-  public dynamic TestDb();
-  public Task<dynamic> TestCache();
+  public DatabaseHealthCheck TestDb();
+  public Task<CacheHealthCheck> TestCacheAsync();
   public Task RunSeedsAsync();
 }
 
@@ -29,50 +30,75 @@ public class AppService : IAppService {
     return new { message = "Healthy", };
   }
 
-  public dynamic TestDb() {
-    var dbType = _env.Database.Type;
-    if (dbType == "None")
-      return new { message = "Healthy: No database configured - " + dbType }; // se o tipo de banco for None, retorna mensagem indicando que não tem banco configurado
+  public DatabaseHealthCheck TestDb() {
+    try {
+      var dbType = _env.Database.Type;
+      if (dbType == "None")
+        return new DatabaseHealthCheck { // se o tipo de banco for None, retorna mensagem indicando que não tem banco configurado
+          Message = "Healthy: No database configured - " + dbType,
+          Type = dbType,
+          Response = "No database configured"
+        };
 
-    string sql;
-    if (dbType == "Postgres") {
-      sql = "SELECT 'Im fine, Postgres'"; // consulta simples para testar a conexão com o banco, se falhar, lança exceção
-    } else if (dbType == "Oracle") {
-      sql = "SELECT 'Im fine, Oracle' FROM DUAL";
-    } else {
-      return new { message = "Healthy: Database type not supported for health check - " + dbType }; // se o tipo de banco não for suportado para health check, retorna mensagem indicando isso
+      string sql;
+      if (dbType == "Postgres") {
+        sql = "SELECT 'Im fine, Postgres'"; // consulta simples para testar a conexão com o banco, se falhar, lança exceção
+      } else if (dbType == "Oracle") {
+        sql = "SELECT 'Im fine, Oracle' FROM DUAL";
+      } else {
+        return new DatabaseHealthCheck { // se o tipo de banco não for suportado para health check, retorna mensagem indicando isso
+          Message = "Healthy: Database type not supported for health check - " + dbType,
+          Type = dbType,
+          Response = "Database type not supported"
+        };
+      }
+
+      var response = _dbContext.Database.SqlQueryRaw<string>(sql).ToList(); // tenta fazer uma consulta simples no banco, se falhar, lança exceção
+      return new DatabaseHealthCheck {
+        Message = "Healthy: Database is working",
+        Type = dbType,
+        Response = response.FirstOrDefault()
+      };
+    } catch (Exception ex) {
+      return new DatabaseHealthCheck {
+        Message = "Unhealthy: Database is not working",
+        Type = _env.Database.Type,
+        Response = ex.Message
+      };
     }
-
-    var response = _dbContext.Database.SqlQueryRaw<string>(sql).ToList(); // tenta fazer uma consulta simples no banco, se falhar, lança exceção
-    return new {
-      message = "Healthy: Database is working",
-      database = dbType,
-      response = response.FirstOrDefault()
-    };
   }
 
-  public async Task<dynamic> TestCache() {
-    var cacheKey = "test_cache_key";
-    var ttl = TimeSpan.FromSeconds(20);
+  public async Task<CacheHealthCheck> TestCacheAsync() {
+    try {
+      var cacheKey = "test_cache_key";
+      var ttl = TimeSpan.FromSeconds(20);
 
-    string cacheValue;
-    var cacheHit = false;
-    var cachedResponse = await _cache.GetAsync<string>(cacheKey);
+      string cacheValue;
+      var cacheHit = false;
+      var cachedResponse = await _cache.GetAsync<string>(cacheKey);
 
-    if (cachedResponse.IsNullOrEmpty()) {
-      cacheValue = "This is a test cache value.";
-      await _cache.SetAsync(cacheKey, cacheValue, ttl);
-    } else {
-      cacheValue = cachedResponse;
-      cacheHit = true;
+      if (cachedResponse.IsNullOrEmpty()) {
+        cacheValue = "This is a test cache value.";
+        await _cache.SetAsync(cacheKey, cacheValue, ttl);
+      } else {
+        cacheValue = cachedResponse;
+        cacheHit = true;
+      }
+
+      return new CacheHealthCheck {
+        Message = "Cache is working",
+        CacheValue = cacheValue,
+        CacheHit = cacheHit,
+        Type = _env.Cache.Type
+      };
+    } catch (Exception ex) {
+      return new CacheHealthCheck {
+        Message = $"Cache is not working: {ex.Message}",
+        CacheValue = null,
+        CacheHit = false,
+        Type = _env.Cache.Type,
+      };
     }
-
-    return new {
-      message = "Cache is working",
-      cacheValue,
-      cacheHit,
-      cacheType = _env.Cache.Type
-    };
   }
 
   public async Task RunSeedsAsync() {
