@@ -7,14 +7,22 @@ public static class ValidadorEnvConfig {
 
     AddIfMissing(missing, "FRONTEND_URL", value.Url);
 
-    if (!string.IsNullOrWhiteSpace(value.Url)) {
-      if (!Uri.TryCreate(value.Url, UriKind.Absolute, out var uri)
-          || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
-          || uri.PathAndQuery != "/"
-          || !string.IsNullOrEmpty(uri.Fragment)) {
+    var temUrl = !string.IsNullOrWhiteSpace(value.Url);
+    if (temUrl) {
+      var urlEhAbsoluta = Uri.TryCreate(value.Url, UriKind.Absolute, out var uri);
+      var urlNaoEhAbsoluta = !urlEhAbsoluta;
+      var protocoloEhHttp = urlEhAbsoluta && uri!.Scheme == Uri.UriSchemeHttp;
+      var protocoloEhHttps = urlEhAbsoluta && uri!.Scheme == Uri.UriSchemeHttps;
+      var protocoloNaoEhValido = !protocoloEhHttp && !protocoloEhHttps;
+      var temPathOuQuery = urlEhAbsoluta && uri!.PathAndQuery != "/";
+      var temFragmento = urlEhAbsoluta && !string.IsNullOrEmpty(uri!.Fragment);
+
+      if (urlNaoEhAbsoluta || protocoloNaoEhValido || temPathOuQuery || temFragmento) {
         invalid.Add("FRONTEND_URL");
-      } else if (isProduction && uri.Scheme != Uri.UriSchemeHttps) {
-        invalid.Add("FRONTEND_URL");
+      } else {
+        var producaoSemHttps = isProduction && !protocoloEhHttps;
+        if (producaoSemHttps)
+          invalid.Add("FRONTEND_URL");
       }
     }
 
@@ -43,17 +51,28 @@ public static class ValidadorEnvConfig {
       AddIfMissing(missing, "DB_NAME", value.Name);
     }
 
-    if (!string.IsNullOrWhiteSpace(value.Type) && !IsOneOf(value.Type, "Postgres", "Oracle"))
+    var temTipoDatabase = !string.IsNullOrWhiteSpace(value.Type);
+    var tipoDatabaseEhSuportado = IsOneOf(value.Type, "Postgres", "Oracle");
+    if (temTipoDatabase && !tipoDatabaseEhSuportado)
       invalid.Add("DB_TYPE");
 
-    if (!string.IsNullOrWhiteSpace(value.Port)
-        && (!int.TryParse(value.Port, out var port) || port is <= 0 or > 65535))
+    var temPorta = !string.IsNullOrWhiteSpace(value.Port);
+    var portaEhNumero = int.TryParse(value.Port, out var port);
+    var portaNaoEhNumero = !portaEhNumero;
+    var portaNaoEhPositiva = portaEhNumero && port <= 0;
+    var portaAcimaDoLimite = portaEhNumero && port > 65535;
+    if (temPorta && (portaNaoEhNumero || portaNaoEhPositiva || portaAcimaDoLimite))
       invalid.Add("DB_PORT");
 
-    if (value.MinPool < 0 || value.MaxPool <= 0 || value.MinPool > value.MaxPool)
+    var poolMinimoEhNegativo = value.MinPool < 0;
+    var poolMaximoNaoEhPositivo = value.MaxPool <= 0;
+    var poolMinimoMaiorQueMaximo = value.MinPool > value.MaxPool;
+    if (poolMinimoEhNegativo || poolMaximoNaoEhPositivo || poolMinimoMaiorQueMaximo)
       invalid.Add("DB_MIN_POOL/DB_MAX_POOL");
 
-    if (value.AcquireTimeoutMillis <= 0 || value.IdleTimeoutMillis <= 0)
+    var acquireTimeoutNaoEhPositivo = value.AcquireTimeoutMillis <= 0;
+    var idleTimeoutNaoEhPositivo = value.IdleTimeoutMillis <= 0;
+    if (acquireTimeoutNaoEhPositivo || idleTimeoutNaoEhPositivo)
       invalid.Add("DB_ACQUIRE_TIMEOUT_MILLIS/DB_IDLE_TIMEOUT_MILLIS");
 
     ThrowIfInvalid(nameof(Database), missing, invalid);
@@ -66,7 +85,9 @@ public static class ValidadorEnvConfig {
     if (isProduction)
       AddIfMissing(missing, "CACHE_TYPE", value.Type);
 
-    if (!string.IsNullOrWhiteSpace(value.Type) && !IsOneOf(value.Type, "Memory", "Redis"))
+    var temTipoCache = !string.IsNullOrWhiteSpace(value.Type);
+    var tipoCacheEhSuportado = IsOneOf(value.Type, "Memory", "Redis");
+    if (temTipoCache && !tipoCacheEhSuportado)
       invalid.Add("CACHE_TYPE");
 
     if (value.Type.Equals("Redis", StringComparison.OrdinalIgnoreCase)) {
@@ -74,17 +95,27 @@ public static class ValidadorEnvConfig {
       if (isProduction)
         AddIfMissing(missing, "CACHE_PASSWORD", value.Password);
 
-      if (value.Port is <= 0 or > 65535)
+      var portaNaoEhPositiva = value.Port <= 0;
+      var portaAcimaDoLimite = value.Port > 65535;
+      if (portaNaoEhPositiva || portaAcimaDoLimite)
         invalid.Add("CACHE_PORT");
       if (value.Db < 0)
         invalid.Add("CACHE_DB");
-      if (value.ConnectTimeoutMillis <= 0 || value.AsyncTimeoutMillis <= 0)
+
+      var connectTimeoutNaoEhPositivo = value.ConnectTimeoutMillis <= 0;
+      var asyncTimeoutNaoEhPositivo = value.AsyncTimeoutMillis <= 0;
+      if (connectTimeoutNaoEhPositivo || asyncTimeoutNaoEhPositivo)
         invalid.Add("CACHE_CONNECT_TIMEOUT_MILLIS/CACHE_ASYNC_TIMEOUT_MILLIS");
-      if (value.ConnectRetry < 0 || value.KeepAliveSeconds <= 0)
+
+      var connectRetryEhNegativo = value.ConnectRetry < 0;
+      var keepAliveNaoEhPositivo = value.KeepAliveSeconds <= 0;
+      if (connectRetryEhNegativo || keepAliveNaoEhPositivo)
         invalid.Add("CACHE_CONNECT_RETRY/CACHE_KEEP_ALIVE_SECONDS");
     }
 
-    if (value.BaseTtlInSec <= 0 || value.SessionTtlInSec <= 0)
+    var ttlBaseNaoEhPositivo = value.BaseTtlInSec <= 0;
+    var ttlSessaoNaoEhPositivo = value.SessionTtlInSec <= 0;
+    if (ttlBaseNaoEhPositivo || ttlSessaoNaoEhPositivo)
       invalid.Add("CACHE_BASE_TTL_IN_SEC/CACHE_SESSION_TTL_IN_SEC");
 
     ThrowIfInvalid(nameof(CacheConfig), missing, invalid);
@@ -102,7 +133,9 @@ public static class ValidadorEnvConfig {
         invalid.Add("EMAIL_SECURE");
     }
 
-    if (value.Port is <= 0 or > 65535)
+    var portaNaoEhPositiva = value.Port <= 0;
+    var portaAcimaDoLimite = value.Port > 65535;
+    if (portaNaoEhPositiva || portaAcimaDoLimite)
       invalid.Add("EMAIL_PORT");
 
     ThrowIfInvalid(nameof(Email), missing, invalid);
@@ -115,7 +148,12 @@ public static class ValidadorEnvConfig {
     var invalid = new List<string>();
     AddIfMissing(missing, "CRYPTO_SECRET", value.Secret);
 
-    if (Encoding.UTF8.GetByteCount(value.Secret) is not (16 or 24 or 32))
+    var tamanhoEmBytes = Encoding.UTF8.GetByteCount(value.Secret);
+    var tamanhoEh16Bytes = tamanhoEmBytes == 16;
+    var tamanhoEh24Bytes = tamanhoEmBytes == 24;
+    var tamanhoEh32Bytes = tamanhoEmBytes == 32;
+    var tamanhoEhValido = tamanhoEh16Bytes || tamanhoEh24Bytes || tamanhoEh32Bytes;
+    if (!tamanhoEhValido)
       invalid.Add("CRYPTO_SECRET");
 
     ThrowIfInvalid(nameof(Crypto), missing, invalid);
@@ -128,7 +166,9 @@ public static class ValidadorEnvConfig {
     if (isProduction)
       AddIfMissing(missing, "FILE_MANAGER_TYPE", value.Type);
 
-    if (!string.IsNullOrWhiteSpace(value.Type) && !IsOneOf(value.Type, "Local", "Cloudinary")) {
+    var temTipoFileManager = !string.IsNullOrWhiteSpace(value.Type);
+    var tipoFileManagerEhSuportado = IsOneOf(value.Type, "Local", "Cloudinary");
+    if (temTipoFileManager && !tipoFileManagerEhSuportado) {
       invalid.Add("FILE_MANAGER_TYPE");
     } else if (value.Type.Equals("Cloudinary", StringComparison.OrdinalIgnoreCase)) {
       AddIfMissing(missing, "FILE_MANAGER_BUCKET", value.Bucket);
@@ -195,7 +235,9 @@ public static class ValidadorEnvConfig {
   }
 
   private static void ThrowIfInvalid(string section, List<string> missing, List<string> invalid) {
-    if (missing.Count == 0 && invalid.Count == 0) return;
+    var naoTemConfiguracaoFaltando = missing.Count == 0;
+    var naoTemConfiguracaoInvalida = invalid.Count == 0;
+    if (naoTemConfiguracaoFaltando && naoTemConfiguracaoInvalida) return;
 
     var problems = new List<string>();
     if (missing.Count > 0)
