@@ -1,12 +1,13 @@
 using System.Security.Cryptography;
+using csharp_p2.src.Config;
 
 namespace csharp_p2.src.Shared.Services.Crypto;
 
 public class CryptoService : ICryptoService {
 
   private readonly string _secretKey;
-  public CryptoService(IConfiguration config) {
-    _secretKey = config["Cripto:Secret"];
+  public CryptoService(EnvConfig env) {
+    _secretKey = env.Crypto.Secret;
   }
 
   /******************************************/

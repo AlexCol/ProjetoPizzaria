@@ -9,11 +9,10 @@ public static class RateLimitBuilder {
   public static void AddRateLimiting(WebApplicationBuilder builder, EnvConfig env) {
     var rateLimits = env.RateLimit;
 
-    //GetValidatedRateLimits metodo local para validar valores
-    var defaultLimit = GetValidatedRateLimits(rateLimits.Default);
-    var loginLimit = GetValidatedRateLimits(rateLimits.Login);
-    var emailDeliveryLimit = GetValidatedRateLimits(rateLimits.EmailDelivery);
-    var tokenOperationLimit = GetValidatedRateLimits(rateLimits.TokenOperation);
+    var defaultLimit = rateLimits.Default;
+    var loginLimit = rateLimits.Login;
+    var emailDeliveryLimit = rateLimits.EmailDelivery;
+    var tokenOperationLimit = rateLimits.TokenOperation;
 
     builder.Services.AddRateLimiter(options => {
       options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -80,15 +79,6 @@ public static class RateLimitBuilder {
     return context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
   }
 
-  private static RateLimitConfig GetValidatedRateLimits(RateLimitConfig config) {
-    if (config.PermitLimit <= 0 || config.WindowSeconds <= 0) {
-      throw new InvalidOperationException(
-        $"RateLimiting:{config} must have positive PermitLimit and WindowSeconds values."
-      );
-    }
-
-    return config;
-  }
 }
 
 /*

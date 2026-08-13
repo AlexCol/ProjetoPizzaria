@@ -71,6 +71,8 @@ EMAIL_PASS=
 EMAIL_SECURE=true
 
 ########## CRYPTO
+## Em produção, use um segredo aleatório com exatamente 16, 24 ou 32 bytes,
+## correspondentes aos tamanhos de chave aceitos pelo AES.
 CRYPTO_SECRET=sua-chave-secreta-aqui
 
 ########## File Manager

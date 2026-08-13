@@ -22,8 +22,6 @@ public static class RedisCacheBuilder {
 
   private static ConfigurationOptions BuildConfiguration(EnvConfig env) {
     var cache = env.Cache;
-    ValidateConfiguration(cache, env.IsDevelopment);
-
     var configuration = new ConfigurationOptions {
       User = string.IsNullOrWhiteSpace(cache.User) ? null : cache.User,
       Password = string.IsNullOrWhiteSpace(cache.Password) ? null : cache.Password,
@@ -48,27 +46,6 @@ public static class RedisCacheBuilder {
     return configuration;
   }
 
-  private static void ValidateConfiguration(CacheConfig cache, bool isDevelopment) {
-    if (string.IsNullOrWhiteSpace(cache.Host))
-      throw new InvalidOperationException("CACHE_HOST is required when CACHE_TYPE is Redis.");
-
-    if (cache.Port is <= 0 or > 65535)
-      throw new InvalidOperationException("CACHE_PORT must be between 1 and 65535.");
-
-    if (cache.Db < 0)
-      throw new InvalidOperationException("CACHE_DB cannot be negative.");
-
-    if (cache.ConnectTimeoutMillis <= 0 || cache.AsyncTimeoutMillis <= 0)
-      throw new InvalidOperationException("Redis connection and operation timeouts must be positive.");
-
-    if (cache.ConnectRetry < 0 || cache.KeepAliveSeconds <= 0)
-      throw new InvalidOperationException("Redis retry and keep-alive settings are invalid.");
-
-    if (isDevelopment) return;
-
-    if (string.IsNullOrWhiteSpace(cache.Password))
-      throw new InvalidOperationException("CACHE_PASSWORD is required outside development.");
-  }
 }
 
 /*

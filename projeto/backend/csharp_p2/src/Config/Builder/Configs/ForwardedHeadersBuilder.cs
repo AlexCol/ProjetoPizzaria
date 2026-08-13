@@ -7,10 +7,6 @@ namespace csharp_p2.src.Config.Builder;
 public static class ForwardedHeadersBuilder {
   public static void AddForwardedHeaders(WebApplicationBuilder builder, EnvConfig env) {
     var config = env.ForwardedHeaders;
-    if (config.ForwardLimit <= 0) {
-      throw new InvalidOperationException("FORWARDED_HEADERS_LIMIT must be greater than zero.");
-    }
-
     var trustedProxies = config.TrustedProxies.Select(ParseProxyIp).ToArray();
 
     builder.Services.Configure<ForwardedHeadersOptions>(options => {

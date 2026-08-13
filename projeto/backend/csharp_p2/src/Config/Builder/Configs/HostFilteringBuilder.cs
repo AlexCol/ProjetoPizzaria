@@ -9,18 +9,9 @@ public static class HostFilteringBuilder {
       return;
     }
 
-    var allowedHosts = env.HostFiltering.AllowedHosts;
-    if (allowedHosts.Length == 0) {
-      throw new InvalidOperationException("ALLOWED_HOSTS must contain at least one API host outside development.");
-    }
-
-    if (allowedHosts.Contains("*")) {
-      throw new InvalidOperationException("ALLOWED_HOSTS cannot contain the global wildcard '*' outside development.");
-    }
-
     // AllowedHosts é uma configuração convencional consumida automaticamente
     // pelo HostFilteringMiddleware do ASP.NET Core. Sua lista usa ';' internamente.
-    builder.Configuration["AllowedHosts"] = string.Join(';', allowedHosts);
+    builder.Configuration["AllowedHosts"] = string.Join(';', env.HostFiltering.AllowedHosts);
   }
 }
 

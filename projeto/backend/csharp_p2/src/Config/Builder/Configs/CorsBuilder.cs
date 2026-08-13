@@ -7,8 +7,6 @@ namespace csharp_p2.src.Extensions;
 
 public static class CorsBuilder {
   public static void AddCors(WebApplicationBuilder builder, EnvConfig env) {
-    BuildValidations(env);
-
     builder.Services.AddCors(opt => {
       opt.AddDefaultPolicy(build => {
         ApplyCorsPolicy(build, env, false);
@@ -19,36 +17,6 @@ public static class CorsBuilder {
         ApplyCorsPolicy(build, env, true);
       });
     });
-  }
-
-  private static void BuildValidations(EnvConfig env) {
-    var frontendUrl = (env.FrondEnd.Url ?? string.Empty).Trim().TrimEnd('/');
-
-    // validações validas para ambos ambientes (desenvolvimento e produção)
-    var isValidUrl = Uri.TryCreate(frontendUrl, UriKind.Absolute, out var frontendUri);
-    if (!isValidUrl) {
-      throw new InvalidOperationException("FRONTEND_URL must be a valid absolute URL.");
-    }
-
-    var isHttp = frontendUri.Scheme == Uri.UriSchemeHttp;
-    var isHttps = frontendUri.Scheme == Uri.UriSchemeHttps;
-    if (!isHttp && !isHttps) {
-      throw new InvalidOperationException("FRONTEND_URL must use HTTP or HTTPS.");
-    }
-
-    var configuredOrigin = frontendUri.GetLeftPart(UriPartial.Authority).TrimEnd('/');
-    var containsOnlyOrigin = string.Equals(frontendUrl, configuredOrigin, StringComparison.OrdinalIgnoreCase);
-    if (!containsOnlyOrigin) {
-      throw new InvalidOperationException("FRONTEND_URL must contain only scheme, host and optional port.");
-    }
-
-    // validações validas apenas para produção
-    if (env.IsDevelopment)
-      return;
-
-    if (frontendUri.Scheme != Uri.UriSchemeHttps) {
-      throw new InvalidOperationException("FRONTEND_URL must use HTTPS in production.");
-    }
   }
 
   private static void ApplyCorsPolicy(CorsPolicyBuilder build, EnvConfig env, bool exposeSseHeaders) {

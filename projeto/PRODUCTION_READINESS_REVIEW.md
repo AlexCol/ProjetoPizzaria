@@ -170,13 +170,18 @@ O escopo considera uma implantação com **uma única instância** do backend. P
   - `backend/csharp_p2/src/Modules/Infra/Cache/Builders/Redis/RedisCacheClient.cs`
   - `backend/csharp_p2/src/Modules/Infra/Cache/Builders/Memory/MemoryClient.cs`
 
-- [ ] Validar configurações obrigatórias ao iniciar em produção.
+- [x] Validar configurações obrigatórias ao iniciar em produção.
 
-  A aplicação não deve iniciar com origem do frontend, credenciais de banco/cache/e-mail ou segredos criptográficos vazios. A validação deve informar apenas o nome da configuração ausente, nunca seu conteúdo.
+  Implementado com responsabilidades separadas: `EnvConfig` monta cada grupo e chama imediatamente seu método no `ValidadorEnvConfig`; o validador possui uma regra específica por grupo e considera explicitamente se ela vale em todos os ambientes ou somente em produção. Os records foram movidos para `EnvConfigModels` e as conversões tipadas para `LeitorEnvConfig`. São validados frontend e hosts permitidos, usuário administrativo, banco, cache, SMTP, segredo criptográfico, file manager, rate limit e forwarded headers. As regras condicionais consideram o tipo selecionado — credenciais Redis somente quando `CACHE_TYPE=Redis` e credenciais Cloudinary somente quando `FILE_MANAGER_TYPE=Cloudinary`. Uma falha interrompe a inicialização indicando apenas a seção e os nomes das configurações ausentes ou inválidas, sem expor valores. `CryptoService` continua lendo `CRYPTO_SECRET` pela instância central de `EnvConfig`, eliminando a chave antiga e divergente `Cripto:Secret`.
 
-  Arquivo relacionado:
+  Arquivos relacionados:
 
   - `backend/csharp_p2/src/Config/Env/EnvConfig.cs`
+  - `backend/csharp_p2/src/Config/Env/EnvConfigModels.cs`
+  - `backend/csharp_p2/src/Config/Env/LeitorEnvConfig.cs`
+  - `backend/csharp_p2/src/Config/Env/ValidadorEnvConfig.cs`
+  - `backend/csharp_p2/src/Shared/Services/Crypto/CryptoService.cs`
+  - `backend/csharp_p2/.env copy`
 
 ## Decisões e pontos já verificados
 
