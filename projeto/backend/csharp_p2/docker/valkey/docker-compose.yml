@@ -1,0 +1,33 @@
+services:
+  # O identificador do serviço e do volume foi mantido como "redis" para que
+  # instalações existentes reutilizem o volume criado pelo compose anterior.
+  # Valkey é compatível com os arquivos RDB/AOF produzidos pelo Redis OSS 7 usado aqui.
+  redis:
+    image: valkey/valkey:8.1-alpine
+    container_name: valkey
+    ports:
+      - "${CACHE_PORT:-6379}:6379"
+    command:
+      - valkey-server
+      - --appendonly
+      - "yes"
+      - --appendfsync
+      - everysec
+      - --maxmemory-policy
+      - noeviction
+      - --requirepass
+      - ${CACHE_PASSWORD}
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "valkey-cli -a $$CACHE_PASSWORD --no-auth-warning --raw PING | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      CACHE_PASSWORD: ${CACHE_PASSWORD}
+
+volumes:
+  redis_data:
+    driver: local

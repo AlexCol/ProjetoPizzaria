@@ -45,7 +45,6 @@ public static class RedisCacheBuilder {
     configuration.EndPoints.Add(cache.Host, cache.Port);
     return configuration;
   }
-
 }
 
 /*

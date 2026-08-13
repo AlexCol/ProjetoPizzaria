@@ -86,11 +86,14 @@ public static class ValidadorEnvConfig {
       AddIfMissing(missing, "CACHE_TYPE", value.Type);
 
     var temTipoCache = !string.IsNullOrWhiteSpace(value.Type);
-    var tipoCacheEhSuportado = IsOneOf(value.Type, "Memory", "Redis");
+    var tipoCacheEhSuportado = IsOneOf(value.Type, "Memory", "Redis", "Valkey");
     if (temTipoCache && !tipoCacheEhSuportado)
       invalid.Add("CACHE_TYPE");
 
-    if (value.Type.Equals("Redis", StringComparison.OrdinalIgnoreCase)) {
+    var cacheEhRedis = value.Type.Equals("Redis", StringComparison.OrdinalIgnoreCase);
+    var cacheEhValkey = value.Type.Equals("Valkey", StringComparison.OrdinalIgnoreCase);
+    var cacheEhDistribuido = cacheEhRedis || cacheEhValkey;
+    if (cacheEhDistribuido) {
       AddIfMissing(missing, "CACHE_HOST", value.Host);
       if (isProduction)
         AddIfMissing(missing, "CACHE_PASSWORD", value.Password);

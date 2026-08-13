@@ -16,7 +16,7 @@ public static partial class CacheBuilder {
     //se adicionar mais, lembrar de olhar o context, tem coisa especifica de banco lá tbm
     if (cache == ECacheType.Memory) {
       builder.Services.AddMemoryCache();
-    } else if (cache == ECacheType.Redis) {
+    } else if (cache == ECacheType.Redis || cache == ECacheType.Valkey) {
       builder.AddRedisCache(env);
     } else
       throw new Exception($"[CacheBuilder] - Process for {cache} not created!");

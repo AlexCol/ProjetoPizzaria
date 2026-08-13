@@ -167,7 +167,7 @@ O escopo considera uma implantação com **uma única instância** do backend. P
 
 - [ ] Persistir os jobs do Hangfire em produção.
 
-  Atualmente o Hangfire utiliza `MemoryStorage`. Jobs aguardando execução, tentativas e estado dos agendamentos são perdidos quando o processo reinicia. Isso pode afetar principalmente envio de e-mails e notificações de sessão. Antes de tratar este item, escolher um storage persistente compatível com a infraestrutura de produção, como PostgreSQL, e manter armazenamento em memória somente para desenvolvimento quando for conveniente.
+  Atualmente o Hangfire utiliza `MemoryStorage`. Jobs aguardando execução, tentativas e estado dos agendamentos são perdidos quando o processo reinicia. Isso pode afetar principalmente envio de e-mails e notificações de sessão. Foi escolhido Valkey como storage persistente e independente do banco relacional; sua integração com Hangfire será o próximo ajuste. O armazenamento em memória poderá permanecer somente para desenvolvimento.
 
   Arquivos relacionados:
 
@@ -194,11 +194,11 @@ O escopo considera uma implantação com **uma única instância** do backend. P
   - `backend/csharp_p2/src/Config/Env/EnvConfig.cs`
   - `backend/csharp_p2/src/Config/Env/ValidadorEnvConfig.cs`
 
-- [x] Revisar a conexão segura com o Redis de produção.
+- [x] Revisar a conexão segura com Valkey/Redis em produção.
 
-  Implementado no cliente: a conexão agora usa `ConfigurationOptions`, aplica corretamente `CACHE_DB`, aceita usuário ACL e exige senha fora de desenvolvimento. TLS é suportado e permanece configurável: `CACHE_SSL=false` é aceito para Redis na mesma máquina/rede interna do Dokploy, usando o host interno e sem `External Port`; conexões que atravessem outra máquina ou rede não confiável devem usar `CACHE_SSL=true`. Quando TLS está ativo, a validação de certificado e revogação permanece habilitada. Também foram configurados timeouts, tentativas iniciais, keep-alive e reconexão exponencial. O multiplexer continua singleton, recebe o `ILoggerFactory` para eventos de conexão e usa `BacklogPolicy.FailFast` para não acumular operações de sessão durante indisponibilidade. `AllowAdmin` permanece desabilitado.
+  Implementado no cliente: a conexão usa `StackExchange.Redis`, que se comunica pelo protocolo RESP tanto com Redis quanto com Valkey. `ConfigurationOptions` aplica corretamente `CACHE_DB`, aceita usuário ACL e exige senha fora de desenvolvimento. TLS permanece configurável: `CACHE_SSL=false` é aceito para Valkey/Redis na mesma máquina/rede interna do Dokploy, usando o host interno e sem `External Port`; conexões que atravessem outra máquina ou rede não confiável devem usar `CACHE_SSL=true`. Quando TLS está ativo, a validação de certificado e revogação permanece habilitada. Também foram configurados timeouts, tentativas iniciais, keep-alive e reconexão exponencial. O multiplexer continua singleton, recebe o `ILoggerFactory` para eventos de conexão e usa `BacklogPolicy.FailFast` para não acumular operações de sessão durante indisponibilidade. `AllowAdmin` permanece desabilitado.
 
-  Requisito de infraestrutura documentado: no deploy, o Redis deve permanecer em rede privada/firewall, sem porta exposta à internet. Preferir um usuário ACL exclusivo com acesso apenas aos comandos e padrões de chave necessários pela aplicação e pelo handshake do StackExchange.Redis.
+  O compose local foi migrado para a imagem oficial `valkey/valkey`, com AOF, `appendfsync everysec`, volume persistente e política `noeviction`. No deploy, o Valkey deve permanecer em rede privada/firewall, sem porta exposta à internet. Preferir um usuário ACL exclusivo com acesso apenas aos comandos e padrões de chave necessários pela aplicação e pelo handshake do StackExchange.Redis.
 
   Arquivos relacionados:
 

@@ -78,7 +78,6 @@ public static class RateLimitBuilder {
   private static string GetClientIp(HttpContext context) {
     return context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
   }
-
 }
 
 /*

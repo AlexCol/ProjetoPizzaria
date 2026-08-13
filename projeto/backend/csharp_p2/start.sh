@@ -59,24 +59,24 @@ fi
 docker compose --env-file "$ENV_FILE" -p "$PROJ_NAME" -f "$DB_COMPOSE_FILE" up -d
 
 #######################################################################################
-#! Start Redis container if needed (for caching, etc.)
+#! Start Valkey/Redis-compatible container if needed (for caching, sessions, etc.)
 #######################################################################################
 CACHE_TYPE_LOWER="$(echo "${CACHE_TYPE:-}" | tr '[:upper:]' '[:lower:]')"
 
 case "$CACHE_TYPE_LOWER" in
-  redis)
-    REDIS_COMPOSE_FILE="$SCRIPT_DIR/docker/redis/docker-compose.yml"
-    if [ ! -f "$REDIS_COMPOSE_FILE" ]; then
-      echo "docker-compose nao encontrado em: $REDIS_COMPOSE_FILE"
+  redis|valkey)
+    CACHE_COMPOSE_FILE="$SCRIPT_DIR/docker/valkey/docker-compose.yml"
+    if [ ! -f "$CACHE_COMPOSE_FILE" ]; then
+      echo "docker-compose nao encontrado em: $CACHE_COMPOSE_FILE"
       exit 1
     fi
-    docker compose --env-file "$ENV_FILE" -p "$PROJ_NAME" -f "$REDIS_COMPOSE_FILE" up -d
+    docker compose --env-file "$ENV_FILE" -p "$PROJ_NAME" -f "$CACHE_COMPOSE_FILE" up -d
     ;;
   memory)
-    echo "CACHE_TYPE=memory, ignorando inicializacao do Redis."
+    echo "CACHE_TYPE=memory, ignorando inicializacao do Valkey."
     ;;
   *)
-    echo "CACHE_TYPE invalido: '${CACHE_TYPE:-}'. Use Redis ou Memory."
+    echo "CACHE_TYPE invalido: '${CACHE_TYPE:-}'. Use Valkey, Redis ou Memory."
     exit 1
     ;;
 esac
