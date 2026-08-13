@@ -13,6 +13,7 @@ public sealed class RedisCacheClient : ICacheClient {
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!GETS
+  #region Gets
   public async Task<T> GetAsync<T>(string key, CancellationToken ct = default) {
     ct.ThrowIfCancellationRequested();
 
@@ -61,7 +62,17 @@ public sealed class RedisCacheClient : ICacheClient {
 
     return [.. keys];
   }
+
+  public async Task<string[]> GetSetMembersAsync(string key, CancellationToken ct = default) {
+    ct.ThrowIfCancellationRequested();
+
+    var members = await _db.SetMembersAsync(key);
+    return members.Select(member => member.ToString()).ToArray();
+  }
+  #endregion
+
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CREATE/UPDATE
+  #region Create/Update
   public async Task SetAsync<T>(string key, T value, TimeSpan? ttl = null, CancellationToken ct = default) {
     ct.ThrowIfCancellationRequested();
 
@@ -69,10 +80,25 @@ public sealed class RedisCacheClient : ICacheClient {
     await _db.StringSetAsync(key, json, ttl);
   }
 
+  public async Task AddToSetAsync(string key, string value, TimeSpan? ttl = null, CancellationToken ct = default) {
+    ct.ThrowIfCancellationRequested();
+
+    await _db.SetAddAsync(key, value);
+    if (ttl.HasValue)
+      await _db.KeyExpireAsync(key, ttl); // Define/Atualiza o TTL do conjunto, se fornecido.
+  }
+  #endregion
+
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!REMOVE
+  #region Remove
   public Task<bool> RemoveAsync(string key, CancellationToken ct = default) {
     ct.ThrowIfCancellationRequested();
     return _db.KeyDeleteAsync(key);
+  }
+
+  public Task<bool> RemoveFromSetAsync(string key, string value, CancellationToken ct = default) {
+    ct.ThrowIfCancellationRequested();
+    return _db.SetRemoveAsync(key, value);
   }
 
   public async Task<bool> RemoveByPrefixAsync(string key, CancellationToken ct = default) {
@@ -91,8 +117,10 @@ public sealed class RedisCacheClient : ICacheClient {
 
     return deleted;
   }
+  #endregion
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CLEAR
+  #region Clear
   public async Task<bool> Clear() {
     var deleted = false;
     foreach (var endpoint in _mux.GetEndPoints()) {
@@ -106,4 +134,5 @@ public sealed class RedisCacheClient : ICacheClient {
 
     return deleted;
   }
+  #endregion
 }

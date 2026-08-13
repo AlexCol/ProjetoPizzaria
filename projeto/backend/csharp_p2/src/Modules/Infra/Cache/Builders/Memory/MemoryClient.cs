@@ -12,6 +12,7 @@ public sealed class MemoryCacheClient : ICacheClient {
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!GETS
+  #region Gets
   public Task<T> GetAsync<T>(string key, CancellationToken ct = default) {
     ct.ThrowIfCancellationRequested();
 
@@ -52,7 +53,21 @@ public sealed class MemoryCacheClient : ICacheClient {
 
     return Task.FromResult(keysSnapshot.ToArray());
   }
+
+  public Task<string[]> GetSetMembersAsync(string key, CancellationToken ct = default) {
+    ct.ThrowIfCancellationRequested();
+
+    lock (_lock) {
+      if (!_cache.TryGetValue(key, out HashSet<string> members))
+        return Task.FromResult(Array.Empty<string>());
+
+      return Task.FromResult(members.ToArray());
+    }
+  }
+  #endregion
+
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CREATE/UPDATE
+  #region Create/Update
   public Task SetAsync<T>(string key, T value, TimeSpan? ttl = null, CancellationToken ct = default) {
     ct.ThrowIfCancellationRequested();
 
@@ -69,7 +84,30 @@ public sealed class MemoryCacheClient : ICacheClient {
     return Task.CompletedTask;
   }
 
+  public Task AddToSetAsync(string key, string value, TimeSpan? ttl = null, CancellationToken ct = default) {
+    ct.ThrowIfCancellationRequested();
+
+    lock (_lock) {
+      if (!_cache.TryGetValue(key, out HashSet<string> members)) {
+        members = [];
+      } else {
+        members = new HashSet<string>(members, StringComparer.Ordinal);
+      }
+
+      members.Add(value);
+
+      var options = new MemoryCacheEntryOptions();
+      if (ttl.HasValue) options.AbsoluteExpirationRelativeToNow = ttl;
+      _cache.Set(key, members, options);
+      _keys.Add(key);
+    }
+
+    return Task.CompletedTask;
+  }
+  #endregion
+
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!REMOVE
+  #region Remove
   public Task<bool> RemoveAsync(string key, CancellationToken ct = default) {
     ct.ThrowIfCancellationRequested();
 
@@ -79,6 +117,24 @@ public sealed class MemoryCacheClient : ICacheClient {
     }
 
     return Task.FromResult(true);
+  }
+
+  public Task<bool> RemoveFromSetAsync(string key, string value, CancellationToken ct = default) {
+    ct.ThrowIfCancellationRequested();
+
+    lock (_lock) {
+      if (!_cache.TryGetValue(key, out HashSet<string> members))
+        return Task.FromResult(false);
+
+      var removed = members.Remove(value);
+
+      if (members.Count == 0) {
+        _cache.Remove(key);
+        _keys.Remove(key);
+      }
+
+      return Task.FromResult(removed);
+    }
   }
 
   public Task<bool> RemoveByPrefixAsync(string key, CancellationToken ct = default) {
@@ -99,8 +155,10 @@ public sealed class MemoryCacheClient : ICacheClient {
 
     return Task.FromResult(keysToRemove.Count > 0);
   }
+  #endregion
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CLEAR
+  #region Clear
   public Task<bool> Clear() {
     List<string> keysSnapshot;
     lock (_lock) {
@@ -117,4 +175,5 @@ public sealed class MemoryCacheClient : ICacheClient {
 
     return Task.FromResult(true);
   }
+  #endregion
 }

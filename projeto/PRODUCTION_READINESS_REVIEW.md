@@ -159,13 +159,16 @@ O escopo considera uma implantação com **uma única instância** do backend. P
   - `backend/csharp_p2/src/Modules/Session/SessionService.cs`
   - `backend/csharp_p2/src/Modules/Session/SessionUpdateJob.cs`
 
-- [ ] Revisar operações que percorrem todas as chaves de sessão no Redis.
+- [x] Revisar operações que percorrem todas as chaves de sessão no Redis.
 
-  Atualização e destruição de sessões por usuário procuram chaves pelo prefixo global. Isso é aceitável com poucos usuários, mas o custo cresce com o total de sessões. Considerar manter um índice de tokens por usuário antes que o volume aumente.
+  Implementado: cada sessão permanece em `session:{token}`, e seu token também é registrado no conjunto `session-index:user:{userId}`. Criação e renovação mantêm o índice e seu TTL; logout individual, revogação por usuário e limpeza de referências expiradas removem seus membros. `UpdateSessionsByUserIdAsync` e `DestroySessionsByUserIdAsync` agora consultam somente os tokens do usuário, eliminando o `SCAN session:*` dessas operações frequentes. O índice usa operações de conjunto nativas e atômicas do Redis, também implementadas no cache em memória. Operações cuja finalidade é global — relatório administrativo de sessões e destruição de todas as sessões — continuam percorrendo todas as chaves, pois precisam considerar todos os usuários. Durante a revisão, também foi corrigida a desserialização do relatório de sessões ativas, que tentava interpretar `UserSession` diretamente como `UserSessionPayload`.
 
-  Arquivo relacionado:
+  Arquivos relacionados:
 
   - `backend/csharp_p2/src/Modules/Session/SessionCacheService.cs`
+  - `backend/csharp_p2/src/Modules/Infra/Cache/ICacheClient.cs`
+  - `backend/csharp_p2/src/Modules/Infra/Cache/Builders/Redis/RedisCacheClient.cs`
+  - `backend/csharp_p2/src/Modules/Infra/Cache/Builders/Memory/MemoryClient.cs`
 
 - [ ] Validar configurações obrigatórias ao iniciar em produção.
 

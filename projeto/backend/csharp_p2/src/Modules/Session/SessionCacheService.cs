@@ -7,7 +7,7 @@ using csharp_p2.src.Shared.Exceptions;
 namespace csharp_p2.src.Modules.Session;
 
 public interface ISessionCacheService {
-  Task<UserSession> GetSessionAsync(string sessionId);
+  Task<UserSession> GetSessionAsync(string sessionToken);
   Task<SessionsPerUserRecordDto> GetActiveSessionsCountPerUserAsync();
   Task<string> CreateSessionAsync(UserSessionPayload payload, SessionOptionsDto options);
   Task<(bool, UserSession)> RefreshSessionAsync(string sessionToken);
@@ -20,6 +20,7 @@ public interface ISessionCacheService {
 public class SessionCacheService : ISessionCacheService {
   private readonly ICacheClient _cache;
   private const string CACHE_KEY_PREFIX = "session:";
+  private const string USER_SESSION_INDEX_PREFIX = "session-index:user:";
   private readonly EnvConfig _env;
 
   public SessionCacheService(ICacheClient cache, EnvConfig env) {
@@ -28,8 +29,8 @@ public class SessionCacheService : ISessionCacheService {
   }
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!GETS
   #region Gets
-  public async Task<UserSession> GetSessionAsync(string sessionId) {
-    var cacheKey = CACHE_KEY_PREFIX + sessionId;
+  public async Task<UserSession> GetSessionAsync(string sessionToken) {
+    var cacheKey = CACHE_KEY_PREFIX + sessionToken;
     var sessionData = await _cache.GetAsync<string>(cacheKey);
     if (sessionData == null) {
       return null;
@@ -45,13 +46,13 @@ public class SessionCacheService : ISessionCacheService {
       var data = await _cache.GetAsync<string>(key);
       if (data == null) continue;
 
-      var payload = JsonSerializer.Deserialize<UserSessionPayload>(data);
-      if (payload == null) continue;
+      var session = JsonSerializer.Deserialize<UserSession>(data);
+      if (session == null) continue;
 
-      if (sessions.ContainsKey(payload.User.Email)) {
-        sessions[payload.User.Email]++;
+      if (sessions.ContainsKey(session.Payload.User.Email)) {
+        sessions[session.Payload.User.Email]++;
       } else {
-        sessions[payload.User.Email] = 1;
+        sessions[session.Payload.User.Email] = 1;
       }
     }
 
@@ -72,8 +73,18 @@ public class SessionCacheService : ISessionCacheService {
       ExpiresAt = now.AddSeconds(_env.Cache.SessionTtlInSec)
     };
 
+    var ttl = TimeSpan.FromSeconds(_env.Cache.SessionTtlInSec);
     var sessionData = JsonSerializer.Serialize(session);
-    await _cache.SetAsync($"{CACHE_KEY_PREFIX}{sessionToken}", sessionData, TimeSpan.FromSeconds(_env.Cache.SessionTtlInSec));
+    await _cache.SetAsync(GetSessionKey(sessionToken), sessionData, ttl);
+
+    try {
+      //dentro de try catch, para o caso de SetAsync funcionar, mas AddToSetAsync falhar, remover a sessão criada, para não deixar sessão sem índice
+      await _cache.AddToSetAsync(GetUserSessionIndexKey(payload.User.Id), sessionToken, ttl);
+    } catch {
+      // Uma sessão sem índice não seria encontrada nas operações por usuário.
+      await _cache.RemoveAsync(GetSessionKey(sessionToken));
+      throw;
+    }
 
     return sessionToken;
   }
@@ -97,28 +108,45 @@ public class SessionCacheService : ISessionCacheService {
     sessionData.ExpiresAt = now.Add(oneDay);
 
     var newSessionData = JsonSerializer.Serialize(sessionData);
-    await _cache.SetAsync($"{CACHE_KEY_PREFIX}{sessionToken}", newSessionData, oneDay);
+    await _cache.SetAsync(GetSessionKey(sessionToken), newSessionData, oneDay);
+
+    // Recria ou renova o índice caso a sessão tenha sobrevivido por renovações.
+    // O TTL completo evita que o índice expire antes de outra sessão do usuário.
+    var setKey = GetUserSessionIndexKey(sessionData.Payload.User.Id);
+    var ttlCompletoInSec = TimeSpan.FromSeconds(_env.Cache.SessionTtlInSec);
+    await _cache.AddToSetAsync(setKey, sessionToken, ttlCompletoInSec);
 
     return (true, sessionData);
   }
 
   public async Task<int> UpdateSessionsByUserIdAsync(long userId, UserSessionPayload newPayload) {
-    var keys = await _cache.GetKeysByPrefixAsync(CACHE_KEY_PREFIX);
+    var sessionTokens = await GetUserSessionTokensAsync(userId);
     int updatedCount = 0;
 
-    foreach (var key in keys) {
+    foreach (var sessionToken in sessionTokens) {
+      var key = GetSessionKey(sessionToken);
       var data = await _cache.GetAsync<string>(key);
-      if (data == null) continue;
+      if (data == null) {
+        await RemoveTokenFromUserIndexAsync(userId, sessionToken);
+        continue;
+      }
 
       var sessionData = JsonSerializer.Deserialize<UserSession>(data);
-      if (sessionData == null) continue;
-
-      if (sessionData.Payload.User.Id == userId) {
-        sessionData.Payload = newPayload;
-        var ttl = sessionData.ExpiresAt - DateTime.UtcNow; //! mantem o tempo restante
-        await _cache.SetAsync(key, JsonSerializer.Serialize(sessionData), ttl);
-        updatedCount++;
+      if (sessionData == null) {
+        await RemoveTokenFromUserIndexAsync(userId, sessionToken);
+        continue;
       }
+
+      var ttl = sessionData.ExpiresAt - DateTime.UtcNow; //! mantem o tempo restante
+      if (ttl <= TimeSpan.Zero) {
+        await _cache.RemoveAsync(key);
+        await RemoveTokenFromUserIndexAsync(userId, sessionToken);
+        continue;
+      }
+
+      sessionData.Payload = newPayload;
+      await _cache.SetAsync(key, JsonSerializer.Serialize(sessionData), ttl);
+      updatedCount++;
     }
 
     return updatedCount;
@@ -128,26 +156,24 @@ public class SessionCacheService : ISessionCacheService {
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!DELETE
   #region Delete
   public async Task DestroySessionAsync(string sessionToken) {
-    await _cache.RemoveAsync($"{CACHE_KEY_PREFIX}{sessionToken}");
+    var session = await GetSessionAsync(sessionToken);
+    await _cache.RemoveAsync(GetSessionKey(sessionToken));
+
+    if (session is not null)
+      await RemoveTokenFromUserIndexAsync(session.Payload.User.Id, sessionToken);
   }
 
   public async Task<int> DestroySessionsByUserIdAsync(long userId) {
-    var keys = await _cache.GetKeysByPrefixAsync(CACHE_KEY_PREFIX);
+    var sessionTokens = await GetUserSessionTokensAsync(userId);
     int removedCount = 0;
 
-    foreach (var key in keys) {
-      var data = await _cache.GetAsync<string>(key);
-      if (data == null) continue;
-
-      var sessionData = JsonSerializer.Deserialize<UserSession>(data);
-      if (sessionData == null) continue;
-
-      if (sessionData.Payload.User.Id == userId) {
-        await _cache.RemoveAsync(key);
+    foreach (var sessionToken in sessionTokens) {
+      if (await _cache.RemoveAsync(GetSessionKey(sessionToken)))
         removedCount++;
-      }
     }
 
+    //eliminados todos os tokens, remove o índice do usuário
+    await _cache.RemoveAsync(GetUserSessionIndexKey(userId));
     return removedCount;
   }
 
@@ -156,6 +182,26 @@ public class SessionCacheService : ISessionCacheService {
     foreach (var key in keys) {
       await _cache.RemoveAsync(key);
     }
+
+    await _cache.RemoveByPrefixAsync(USER_SESSION_INDEX_PREFIX);
+  }
+  #endregion
+
+  #region Private Helpers
+  private Task<string[]> GetUserSessionTokensAsync(long userId) {
+    return _cache.GetSetMembersAsync(GetUserSessionIndexKey(userId));
+  }
+
+  private Task<bool> RemoveTokenFromUserIndexAsync(long userId, string sessionToken) {
+    return _cache.RemoveFromSetAsync(GetUserSessionIndexKey(userId), sessionToken);
+  }
+
+  private static string GetSessionKey(string sessionToken) {
+    return CACHE_KEY_PREFIX + sessionToken;
+  }
+
+  private static string GetUserSessionIndexKey(long userId) {
+    return USER_SESSION_INDEX_PREFIX + userId;
   }
   #endregion
 }
@@ -167,4 +213,13 @@ Ao acessar uma sessão, se ela tiver menos de 1 dia (86400 segundos) para expira
 ela é renovada para expirar em mais 1 dia a partir do momento do acesso.
 Isso garante que sessões ativas permaneçam válidas, enquanto sessões inativas
 expiram naturalmente após 7 dias.
+
+Índice de sessões por usuário:
+Cada sessão continua armazenada em session:{token}, mas seu token também é
+adicionado ao SET session-index:user:{userId}. Assim, atualizar ou destruir as
+sessões de um usuário consulta somente os tokens dele, sem executar SCAN em todas
+as sessões. O índice recebe o TTL completo da sessão e é renovado quando uma
+sessão é renovada. Tokens cujo conteúdo já expirou são removidos do índice quando
+encontrados. Operações realmente globais, como relatório administrativo e logout
+de todos os usuários, continuam percorrendo todas as chaves session:*.
 */

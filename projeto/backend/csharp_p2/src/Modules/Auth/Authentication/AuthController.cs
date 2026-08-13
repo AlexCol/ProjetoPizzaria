@@ -186,5 +186,17 @@ public class AuthController : ControllerBase {
     await _sessionCacheService.DestroyAllSessionsAsync();
     return NoContent();
   }
+
+  [Authorize(Roles = "Admin")]
+  [HttpGet("session/list-active")]
+  [EndpointSummary("Listar todas as sessões ativas")]
+  [EndpointDescription("Permite que um administrador liste todas as sessões ativas.")]
+  [ProducesResponseType(typeof(SessionsPerUserRecordDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
+  [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
+  public async Task<IActionResult> ListActiveSessionsAsync() {
+    var sessions = await _sessionCacheService.GetActiveSessionsCountPerUserAsync();
+    return Ok(sessions);
+  }
   #endregion
 }
