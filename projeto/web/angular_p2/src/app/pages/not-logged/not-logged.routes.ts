@@ -1,6 +1,5 @@
 import { Route } from '@angular/router';
 import { notLoggedGuard } from '../../../guards/not-logged.guard';
-import { notFoundRoute, notFoundWildcardRoute } from '../not-found/not-found.route';
 import { activateAccountRoute } from './activate-account/activate-account.route';
 import { loginRoute } from './login/login.route';
 import { passwordChangeRoute } from './password-change/password-change.route';
@@ -19,7 +18,5 @@ export const notLoggedRoutes: Route = {
     passwordChangeRoute,
     resendActivationTokenRoute,
     activateAccountRoute,
-    notFoundRoute,
-    { ...notFoundWildcardRoute },
   ],
 };
