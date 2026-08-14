@@ -165,14 +165,28 @@ O escopo considera uma implantação com **uma única instância** do backend. P
 
   - `backend/csharp_p2/src/Config/App/Configs/HangfireApp.cs`
 
-- [ ] Persistir os jobs do Hangfire em produção.
+- [x] Persistir os jobs do Hangfire em produção.
 
-  Atualmente o Hangfire utiliza `MemoryStorage`. Jobs aguardando execução, tentativas e estado dos agendamentos são perdidos quando o processo reinicia. Isso pode afetar principalmente envio de e-mails e notificações de sessão. Foi escolhido Valkey como storage persistente e independente do banco relacional; sua integração com Hangfire será o próximo ajuste. O armazenamento em memória poderá permanecer somente para desenvolvimento.
+  Implementado: o Hangfire aceita `Memory`, `Redis` ou `Valkey` por meio de `HANGFIRE_STORAGE_TYPE`. `Memory` continua disponível para desenvolvimento, mas é rejeitado pelo `ValidadorEnvConfig` em produção. Redis e Valkey usam o provider `Hangfire.Redis.StackExchange` e reutilizam o mesmo `IConnectionMultiplexer` singleton registrado pelo cache, mantendo o storage independente do banco relacional escolhido pela aplicação. `HANGFIRE_REDIS_DB` separa logicamente os jobs, enquanto `HANGFIRE_REDIS_PREFIX` cria um namespace exclusivo para suas chaves. O ambiente local foi configurado com DB `1` e prefixo `{pizzaria-hangfire}:`; após encerrar uma instância da API, recurring jobs, jobs agendados, estados e históricos permaneceram no Valkey. A persistência em disco é complementada pelo AOF, volume persistente e política `noeviction` do container.
 
   Arquivos relacionados:
 
   - `backend/csharp_p2/src/Config/Builder/Configs/HangfireBuilder.cs`
+  - `backend/csharp_p2/src/Config/Env/EnvConfig.cs`
+  - `backend/csharp_p2/src/Config/Env/EnvConfigModels.cs`
+  - `backend/csharp_p2/src/Config/Env/ValidadorEnvConfig.cs`
   - `backend/csharp_p2/src/Shared/Scheduler/SchedulerService.cs`
+  - `backend/csharp_p2/docker/valkey/docker-compose.yml`
+  - `backend/csharp_p2/.env copy`
+
+- [x] Atualizar a dependência vulnerável `Microsoft.OpenApi`.
+
+  Durante o restore do provider de Hangfire, o NuGet reportou `Microsoft.OpenApi 2.0.0` com vulnerabilidade conhecida de gravidade alta (`GHSA-v5pm-xwqc-g5wc`). Após a atualização dos pacotes da infraestrutura de OpenAPI/Swagger, o restore passou a resolver `Microsoft.OpenApi 2.7.5`. A validação foi concluída com restore completo e build Release sem avisos ou erros.
+
+  Arquivos relacionados:
+
+  - `backend/csharp_p2/csharp_p2.csproj`
+  - `backend/csharp_p2/obj/project.assets.json`
 
 - [ ] Persistir as chaves do ASP.NET Core Data Protection.
 
@@ -270,7 +284,6 @@ O escopo considera uma implantação com **uma única instância** do backend. P
 
 ## Próximos itens
 
-1. Persistir os jobs do Hangfire.
-2. Persistir as chaves do ASP.NET Core Data Protection.
-3. Definir TLS para o banco ou documentar formalmente a aceitação da rede Docker privada como limite de confiança.
-4. Executar um teste de fumaça no ambiente publicado, incluindo health, proxy, HTTPS, CORS, CSRF, login, logout, recuperação de senha e reinicialização do container.
+1. Persistir as chaves do ASP.NET Core Data Protection.
+2. Definir TLS para o banco ou documentar formalmente a aceitação da rede Docker privada como limite de confiança.
+3. Executar um teste de fumaça no ambiente publicado, incluindo health, proxy, HTTPS, CORS, CSRF, login, logout, recuperação de senha e reinicialização do container.

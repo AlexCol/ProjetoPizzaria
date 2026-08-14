@@ -15,6 +15,7 @@ public class EnvConfig {
   public FrondEnd FrondEnd { get; private set; }
   public Database Database { get; private set; }
   public CacheConfig Cache { get; private set; }
+  public HangfireConfig Hangfire { get; private set; }
   public Email Email { get; private set; }
   public Crypto Crypto { get; private set; }
   public FileManager FileManager { get; private set; }
@@ -76,6 +77,13 @@ public class EnvConfig {
       SessionTtlInSec: LeitorEnvConfig.LeInt(config, "CACHE_SESSION_TTL_IN_SEC", 604800)
     );
     ValidadorEnvConfig.ValidaCache(Cache, IsProduction);
+
+    Hangfire = new HangfireConfig(
+      StorageType: config["HANGFIRE_STORAGE_TYPE"] ?? (IsDevelopment ? "Memory" : ""),
+      RedisDb: LeitorEnvConfig.LeInt(config, "HANGFIRE_REDIS_DB", 1),
+      RedisPrefix: config["HANGFIRE_REDIS_PREFIX"] ?? "{pizzaria-hangfire}:"
+    );
+    ValidadorEnvConfig.ValidaHangfire(Hangfire, Cache, IsProduction);
 
     Email = new Email(
       Host: config["EMAIL_HOST"] ?? "",

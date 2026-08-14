@@ -37,6 +37,12 @@ public record CacheConfig(
   int SessionTtlInSec
 );
 
+public record HangfireConfig(
+  string StorageType,
+  int RedisDb,
+  string RedisPrefix
+);
+
 public record Email(
   string Host,
   int Port,

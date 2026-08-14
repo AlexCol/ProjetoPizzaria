@@ -28,7 +28,7 @@ public static class BuilderConfig {
     AuthBuilder.AddAuthentication(builder);
     DataBaseBuilder.AddDatabase(builder, env);
     CacheBuilder.AddCache(builder, env);
-    HangfireBuilder.AddHangfire(builder);
+    HangfireBuilder.AddHangfire(builder, env);
     ForwardedHeadersBuilder.AddForwardedHeaders(builder, env);
     HttpsBuilder.AddHttps(builder);
     HostFilteringBuilder.AddHostFiltering(builder, env);

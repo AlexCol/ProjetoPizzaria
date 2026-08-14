@@ -63,6 +63,13 @@ CACHE_KEEP_ALIVE_SECONDS=60
 CACHE_BASE_TTL_IN_SEC=604800 ## 7 DIAS
 CACHE_SESSION_TTL_IN_SEC=604800 ## 7 DIAS
 
+########## HANGFIRE
+## Memory é permitido somente fora de produção.
+## Redis e Valkey reutilizam a conexão configurada em CACHE_*.
+HANGFIRE_STORAGE_TYPE=Valkey ## Memory, Redis ou Valkey
+HANGFIRE_REDIS_DB=1
+HANGFIRE_REDIS_PREFIX={pizzaria-hangfire}:
+
 ########## EMAIL
 EMAIL_HOST=
 EMAIL_PORT=

@@ -124,6 +124,41 @@ public static class ValidadorEnvConfig {
     ThrowIfInvalid(nameof(CacheConfig), missing, invalid);
   }
 
+  public static void ValidaHangfire(HangfireConfig value, CacheConfig cache, bool isProduction) {
+    var missing = new List<string>();
+    var invalid = new List<string>();
+
+    AddIfMissing(missing, "HANGFIRE_STORAGE_TYPE", value.StorageType);
+
+    var storageEhMemory = value.StorageType.Equals("Memory", StringComparison.OrdinalIgnoreCase);
+    var storageEhRedis = value.StorageType.Equals("Redis", StringComparison.OrdinalIgnoreCase);
+    var storageEhValkey = value.StorageType.Equals("Valkey", StringComparison.OrdinalIgnoreCase);
+    var storageEhDistribuido = storageEhRedis || storageEhValkey;
+    var storageEhSuportado = storageEhMemory || storageEhDistribuido;
+
+    if (!string.IsNullOrWhiteSpace(value.StorageType) && !storageEhSuportado)
+      invalid.Add("HANGFIRE_STORAGE_TYPE");
+
+    if (isProduction && storageEhMemory)
+      invalid.Add("HANGFIRE_STORAGE_TYPE");
+
+    if (storageEhDistribuido) {
+      var cacheEhRedis = cache.Type.Equals("Redis", StringComparison.OrdinalIgnoreCase);
+      var cacheEhValkey = cache.Type.Equals("Valkey", StringComparison.OrdinalIgnoreCase);
+      var cacheForneceMultiplexer = cacheEhRedis || cacheEhValkey;
+
+      if (!cacheForneceMultiplexer)
+        invalid.Add("CACHE_TYPE/HANGFIRE_STORAGE_TYPE");
+
+      if (value.RedisDb < 0)
+        invalid.Add("HANGFIRE_REDIS_DB");
+
+      AddIfMissing(missing, "HANGFIRE_REDIS_PREFIX", value.RedisPrefix);
+    }
+
+    ThrowIfInvalid(nameof(HangfireConfig), missing, invalid);
+  }
+
   public static void ValidaEmail(Email value, bool isProduction) {
     var missing = new List<string>();
     var invalid = new List<string>();
