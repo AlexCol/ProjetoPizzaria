@@ -13,6 +13,6 @@ export const loggedRoutes: Route = {
     { path: '', redirectTo: 'home', pathMatch: 'full' },
     homeRoute,
     usuariosRoute,
-    { ...notFoundWildcardRoute },
+    notFoundWildcardRoute, //com ela aqui dentro o notfound quando logado continua com rodapé e cabeçalho
   ],
 };

@@ -1,9 +1,8 @@
 export const notFoundStyles = {
-  host: 'block',
-  page: [
-    'grid place-items-center bg-background px-4 py-12 text-foreground',
-    'transition-colors duration-300',
-  ].join(' '),
+  host: 'block *:h-full',
+  page: ['grid place-items-center bg-background px-4 py-12 text-foreground', 'transition-colors duration-300'].join(
+    ' ',
+  ),
   anonymousPage: 'min-h-dvh',
   authenticatedPage: 'min-h-[70dvh]',
   card: [
