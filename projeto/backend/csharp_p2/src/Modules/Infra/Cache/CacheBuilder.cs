@@ -15,7 +15,7 @@ public static partial class CacheBuilder {
 
     //se adicionar mais, lembrar de olhar o context, tem coisa especifica de banco lá tbm
     if (cache == ECacheType.Memory) {
-      builder.Services.AddMemoryCache();
+      builder.AddMemoryCacheInfra();
     } else if (cache == ECacheType.Redis || cache == ECacheType.Valkey) {
       builder.AddRedisCache(env);
     } else
@@ -23,4 +23,4 @@ public static partial class CacheBuilder {
   }
 }
 
-//para usar, injetar: IDistributedCache, e usar os métodos de lá, tem que ser async
+// Para usar, injete ICacheClient; o builder registra a implementação correspondente ao CACHE_TYPE.

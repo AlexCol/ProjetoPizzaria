@@ -159,6 +159,29 @@ public static class ValidadorEnvConfig {
     ThrowIfInvalid(nameof(HangfireConfig), missing, invalid);
   }
 
+  public static void ValidaDataProtection(
+    DataProtectionConfig value,
+    CacheConfig cache,
+    bool isProduction
+  ) {
+    var missing = new List<string>();
+    var invalid = new List<string>();
+
+    AddIfMissing(missing, "DATA_PROTECTION_APPLICATION_NAME", value.ApplicationName);
+
+    var cacheEhRedis = cache.Type.Equals("Redis", StringComparison.OrdinalIgnoreCase);
+    var cacheEhValkey = cache.Type.Equals("Valkey", StringComparison.OrdinalIgnoreCase);
+    var cacheEhDistribuido = cacheEhRedis || cacheEhValkey;
+
+    if (isProduction && !cacheEhDistribuido)
+      invalid.Add("CACHE_TYPE/DATA_PROTECTION");
+
+    if (cacheEhDistribuido)
+      AddIfMissing(missing, "DATA_PROTECTION_REDIS_KEY", value.RedisKey);
+
+    ThrowIfInvalid(nameof(DataProtectionConfig), missing, invalid);
+  }
+
   public static void ValidaEmail(Email value, bool isProduction) {
     var missing = new List<string>();
     var invalid = new List<string>();

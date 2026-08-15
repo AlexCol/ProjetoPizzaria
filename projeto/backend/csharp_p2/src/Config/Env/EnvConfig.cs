@@ -16,6 +16,7 @@ public class EnvConfig {
   public Database Database { get; private set; }
   public CacheConfig Cache { get; private set; }
   public HangfireConfig Hangfire { get; private set; }
+  public DataProtectionConfig DataProtection { get; private set; }
   public Email Email { get; private set; }
   public Crypto Crypto { get; private set; }
   public FileManager FileManager { get; private set; }
@@ -84,6 +85,12 @@ public class EnvConfig {
       RedisPrefix: config["HANGFIRE_REDIS_PREFIX"] ?? "{pizzaria-hangfire}:"
     );
     ValidadorEnvConfig.ValidaHangfire(Hangfire, Cache, IsProduction);
+
+    DataProtection = new DataProtectionConfig(
+      ApplicationName: config["DATA_PROTECTION_APPLICATION_NAME"] ?? (IsDevelopment ? "ProjetoPizzaria" : ""),
+      RedisKey: config["DATA_PROTECTION_REDIS_KEY"] ?? (IsDevelopment ? "{pizzaria-data-protection}:keys" : "")
+    );
+    ValidadorEnvConfig.ValidaDataProtection(DataProtection, Cache, IsProduction);
 
     Email = new Email(
       Host: config["EMAIL_HOST"] ?? "",

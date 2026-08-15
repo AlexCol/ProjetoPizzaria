@@ -188,14 +188,33 @@ O escopo considera uma implantação com **uma única instância** do backend. P
   - `backend/csharp_p2/csharp_p2.csproj`
   - `backend/csharp_p2/obj/project.assets.json`
 
-- [ ] Persistir as chaves do ASP.NET Core Data Protection.
+- [x] Persistir as chaves do ASP.NET Core Data Protection.
 
-  O antiforgery utiliza o sistema de Data Protection do ASP.NET Core. Sem configurar um diretório ou storage persistente no ambiente publicado, a recriação do container pode gerar outro key ring e invalidar tokens antiforgery emitidos anteriormente. Para uma única instância isso não exige compartilhamento entre réplicas, mas o volume das chaves ainda deve sobreviver às reinicializações e ficar acessível somente à aplicação. Se houver mais de uma instância no futuro, todas deverão compartilhar o mesmo key ring e `ApplicationName`.
+  O key ring agora é persistido no Redis/Valkey com o provider oficial `Microsoft.AspNetCore.DataProtection.StackExchangeRedis`. A configuração reutiliza o mesmo `IConnectionMultiplexer` singleton do cache, grava em `CACHE_DB` sob uma chave exclusiva e sem TTL, e define um `ApplicationName` estável. Em produção, a validação impede o uso de cache em memória para essa finalidade. Como o compose utiliza AOF, volume persistente e `noeviction`, o key ring sobrevive à recriação da API e pode ser compartilhado por outras instâncias no futuro.
+
+  A validação prática chamou o endpoint de emissão do token CSRF com sucesso, confirmou a criação de `{pizzaria-data-protection}:keys` no Valkey e obteve TTL `-1`, indicando que a chave não expira. O build Release também foi concluído sem avisos ou erros.
 
   Arquivos relacionados:
 
-  - `backend/csharp_p2/src/Config/Builder/Configs/CsrfBuilder.cs`
-  - configuração de volume/storage do deploy
+  - `backend/csharp_p2/src/Config/Builder/Configs/DataProtectionBuilder.cs`
+  - `backend/csharp_p2/src/Config/Builder/BuilderConfig.cs`
+  - `backend/csharp_p2/src/Config/Env/EnvConfig.cs`
+  - `backend/csharp_p2/src/Config/Env/EnvConfigModels.cs`
+  - `backend/csharp_p2/src/Config/Env/ValidadorEnvConfig.cs`
+  - `backend/csharp_p2/csharp_p2.csproj`
+  - `backend/csharp_p2/.env copy`
+  - `backend/csharp_p2/docker/valkey/docker-compose.yml`
+
+- [x] Definir a proteção em repouso do key ring do Data Protection.
+
+  Decisão consciente do projeto: o key ring não receberá uma camada adicional de criptografia por certificado X.509 neste momento. A infraestrutura privada foi aceita como limite de confiança: o Redis/Valkey deve permanecer em rede Docker privada, sem porta externa, protegido por autenticação e acessível somente pela API. O host, o volume AOF e seus backups também devem ter acesso restrito, pois podem conter o material criptográfico do Data Protection em texto legível.
+
+  Essa decisão é adequada ao escopo atual de estudo e instância única, mas deve ser revista se o modelo de ameaças passar a incluir leitura indevida do disco, snapshots ou backups. Nesse caso, adicionar proteção explícita com certificado X.509 mantido como secret e preservar certificados antigos enquanto ainda existirem payloads protegidos por eles.
+
+  Arquivos relacionados:
+
+  - `backend/csharp_p2/src/Config/Builder/Configs/DataProtectionBuilder.cs`
+  - `backend/csharp_p2/docker/valkey/docker-compose.yml`
 
 - [ ] Definir a política de TLS para a conexão com o banco de produção.
 
@@ -284,6 +303,5 @@ O escopo considera uma implantação com **uma única instância** do backend. P
 
 ## Próximos itens
 
-1. Persistir as chaves do ASP.NET Core Data Protection.
-2. Definir TLS para o banco ou documentar formalmente a aceitação da rede Docker privada como limite de confiança.
-3. Executar um teste de fumaça no ambiente publicado, incluindo health, proxy, HTTPS, CORS, CSRF, login, logout, recuperação de senha e reinicialização do container.
+1. Definir TLS para o banco ou documentar formalmente a aceitação da rede Docker privada como limite de confiança.
+2. Executar um teste de fumaça no ambiente publicado, incluindo health, proxy, HTTPS, CORS, CSRF, login, logout, recuperação de senha e reinicialização do container.

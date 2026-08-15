@@ -70,6 +70,12 @@ HANGFIRE_STORAGE_TYPE=Valkey ## Memory, Redis ou Valkey
 HANGFIRE_REDIS_DB=1
 HANGFIRE_REDIS_PREFIX={pizzaria-hangfire}:
 
+########## DATA PROTECTION
+## Nome estável que isola os payloads criptográficos desta aplicação.
+## Redis/Valkey reutiliza CACHE_* e persiste o key ring no banco CACHE_DB, sem TTL.
+DATA_PROTECTION_APPLICATION_NAME=ProjetoPizzaria
+DATA_PROTECTION_REDIS_KEY={pizzaria-data-protection}:keys
+
 ########## EMAIL
 EMAIL_HOST=
 EMAIL_PORT=
@@ -96,4 +102,3 @@ FILE_MANAGER_BUCKET=
 FILE_MANAGER_ACCESS_KEY=
 FILE_MANAGER_SECRET_KEY=
 FILE_MANAGER_FOLDER=pizzaria
-

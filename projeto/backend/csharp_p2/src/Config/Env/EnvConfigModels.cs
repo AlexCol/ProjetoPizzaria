@@ -43,6 +43,11 @@ public record HangfireConfig(
   string RedisPrefix
 );
 
+public record DataProtectionConfig(
+  string ApplicationName,
+  string RedisKey
+);
+
 public record Email(
   string Host,
   int Port,

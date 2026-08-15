@@ -11,10 +11,10 @@ public static class SchedulerService {
       service => service.ClearExpiredTokensAsync(),
       Cron.Daily(1));
 
-    // Job único - executa 1 vez, 5 min após a aplicação iniciar
+    // Job único - executa 1 vez, 1 min após a aplicação iniciar
     BackgroundJob.Schedule<ITokenControlService>(
       service => service.ClearExpiredTokensAsync(),
-      TimeSpan.FromMinutes(5));
+      TimeSpan.FromMinutes(1));
   }
 }
 
