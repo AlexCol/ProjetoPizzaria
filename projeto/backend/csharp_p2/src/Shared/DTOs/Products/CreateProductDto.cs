@@ -5,7 +5,7 @@ namespace csharp_p2.src.Shared.DTOs;
 public class CreateProductDto {
   [Required]
   [StringLength(100, MinimumLength = 1, ErrorMessage = "Name must be between 1 and 100 characters.")]
-  public string Name { get; set; }
+  public string Name { get; set; } = string.Empty;
 
   [Required]
   [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than 0.")]
@@ -13,7 +13,7 @@ public class CreateProductDto {
 
   [Required]
   [StringLength(500, MinimumLength = 1, ErrorMessage = "Description must be between 1 and 500 characters.")]
-  public string Description { get; set; }
+  public string Description { get; set; } = string.Empty;
 
   [Required]
   [Range(1, long.MaxValue, ErrorMessage = "CategoryId must be a positive number.")]

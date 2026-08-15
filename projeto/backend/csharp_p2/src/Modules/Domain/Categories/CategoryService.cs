@@ -26,7 +26,8 @@ public class CategoriesService : ICategoriesService {
   }
 
   public async Task<Category> GetCategoryByIdAsync(long id) {
-    return await _repository.GetByIdWithReferencesAsync(id);
+    return await _repository.GetByIdWithReferencesAsync(id)
+      ?? throw new CustomError("Category not found.", 404);
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CREATE
@@ -69,7 +70,7 @@ public class CategoriesService : ICategoriesService {
       throw new CustomError("Category not found.", 404);
     }
 
-    var productRepository = _serviceProvider.GetService<IGenericEntityRepository<Product>>();
+    var productRepository = _serviceProvider.GetRequiredService<IGenericEntityRepository<Product>>();
     var existingProducts = await productRepository.FindOneWithPredicateAsync(p => p.CategoryId == id);
     if (existingProducts != null) {
       throw new CustomError("Cannot delete category with associated products.");

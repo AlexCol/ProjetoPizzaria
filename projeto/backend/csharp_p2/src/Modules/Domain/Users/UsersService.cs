@@ -9,7 +9,7 @@ namespace csharp_p2.src.Modules.Domain;
 
 public interface IUsersService {
   Task<ResponseUserDto> GetUserByIdAsync(long id);
-  Task<User> GetEntityByEmailWithPasswordAsync(EmailVO email);
+  Task<User?> GetEntityByEmailWithPasswordAsync(EmailVO email);
   Task<IEnumerable<ResponseUserDto>> GetAllUsersAsync();
   Task<PaginatedResult<ResponseUserDto>> GetUsersWithSearchCriteriaAsync(SearchCriteriaRequest<User> searchCriteria);
   Task<ResponseUserDto> CreateUserAsync(CreateUserDto dto);
@@ -45,7 +45,7 @@ public class UsersService : IUsersService {
     return new ResponseUserDto(user);
   }
 
-  public Task<User> GetEntityByEmailWithPasswordAsync(EmailVO email) {
+  public Task<User?> GetEntityByEmailWithPasswordAsync(EmailVO email) {
     return _userRepository.FindOneWithPredicateAsync(u => u.Email.Equals(email));
   }
 
@@ -74,22 +74,26 @@ public class UsersService : IUsersService {
       throw new CustomError("Password and Confirm Password do not match.");
     }
 
-    var roleService = _serviceProvider.GetRequiredService<IRolesService>();
-    var role = await roleService.GetRoleByIdAsync(dto.RoleId.Value);
-    if (role == null) {
-      throw new CustomError("Role not found.", 404);
+    if (dto.RoleId is not long roleId) {
+      throw new CustomError("Role is required.");
     }
+
+    var roleService = _serviceProvider.GetRequiredService<IRolesService>();
+    await roleService.GetRoleByIdAsync(roleId);
 
     var newUser = new User {
       Email = dtoEmailVO,
       Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
       Name = dto.Name,
-      RoleId = dto.RoleId.Value,
+      RoleId = roleId,
       Status = EUserStatus.Inactive //? usuário criado como inativo, precisa ativar por email
     };
 
     var createdUser = await _userRepository.InsertAsync(newUser);
     var userWithRole = await _userRepository.GetByIdWithReferencesAsync(createdUser.Id); //? para retornar o role junto no dto
+    if (userWithRole is null) {
+      throw new InvalidOperationException("The created user could not be reloaded.");
+    }
 
     await SendEmailForActivationAsync(newUser.Id);
 
@@ -125,6 +129,9 @@ public class UsersService : IUsersService {
             .ContinueWith(task => task.Result ? userToUpdate : throw new Exception("Failed to update user: " + task.Exception?.Message));
 
     var userWithRole = await _userRepository.GetByIdWithReferencesAsync(updatedUser.Id); //? para retornar o role junto no dto
+    if (userWithRole is null) {
+      throw new InvalidOperationException("The updated user could not be reloaded.");
+    }
 
     await SendSessionUpdateNotificationAsync(updatedUser.Id);
 

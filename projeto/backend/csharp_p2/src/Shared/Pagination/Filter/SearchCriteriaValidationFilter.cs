@@ -37,7 +37,7 @@ public sealed class SearchCriteriaValidationFilter : IAsyncActionFilter {
     return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(SearchCriteriaRequest<>);
   }
 
-  private static IValidator CreateValidator(Type requestType) {
+  private static IValidator? CreateValidator(Type requestType) {
     var entityType = requestType.GetGenericArguments()[0];
     var validatorType = typeof(SearchCriteriaRequestValidator<>).MakeGenericType(entityType);
     return Activator.CreateInstance(validatorType) as IValidator;

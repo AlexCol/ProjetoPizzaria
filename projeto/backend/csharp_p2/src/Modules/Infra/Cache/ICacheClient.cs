@@ -1,7 +1,7 @@
 namespace csharp_p2.src.Modules.Infra.Cache;
 
 public interface ICacheClient {
-  Task<T> GetAsync<T>(string key, CancellationToken ct = default);
+  Task<T?> GetAsync<T>(string key, CancellationToken ct = default);
   Task<T[]> GetByPrefixAsync<T>(string key, CancellationToken ct = default);
   Task<string[]> GetKeysByPrefixAsync(string prefix, CancellationToken ct = default);
   Task<string[]> GetSetMembersAsync(string key, CancellationToken ct = default);

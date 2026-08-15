@@ -5,7 +5,7 @@ namespace csharp_p2.src.Shared.Pagination;
 
 public static partial class DynamicQuerying {
   private static IQueryable<T> ApplySort<T>(this IQueryable<T> query, SearchCriteriaRequest<T> criteria) {
-    IOrderedQueryable<T> ordered = null;
+    IOrderedQueryable<T>? ordered = null;
 
     foreach (var sort in criteria.Sort) {
       if (string.IsNullOrWhiteSpace(sort.Field)) continue;

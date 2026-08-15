@@ -120,8 +120,7 @@ public class AuthController : ControllerBase {
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status401Unauthorized)]
   public async Task<IActionResult> LogoutAsync() {
     var token = HttpContext.GetSessionToken();
-    var haveToken = !string.IsNullOrWhiteSpace(token);
-    if (haveToken) {
+    if (!string.IsNullOrWhiteSpace(token)) {
       await _sessionCacheService.DestroySessionAsync(token);
     }
 
@@ -158,8 +157,7 @@ public class AuthController : ControllerBase {
   [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
   public async Task<IActionResult> GetSessionAsync() {
     var token = HttpContext.GetSessionToken();
-    var haveToken = !string.IsNullOrWhiteSpace(token);
-    if (!haveToken) {
+    if (string.IsNullOrWhiteSpace(token)) {
       return Unauthorized();
     }
 

@@ -71,7 +71,7 @@ public class UsersController : ControllerBase {
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
   public async Task<ActionResult<MessageDto>> UpdateUserAsync(long id, [FromBody] UpdateUserDto dto) {
     var session = HttpContext.GetSessionPayload();
-    var isAdmin = session.User.Role.Name == "Admin";
+    var isAdmin = session.User.Role?.Name == "Admin";
     var isOwnAccount = session.User.Id == id;
 
     if (!isAdmin && !isOwnAccount) {

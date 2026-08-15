@@ -14,7 +14,7 @@ public sealed class RedisCacheClient : ICacheClient {
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!GETS
   #region Gets
-  public async Task<T> GetAsync<T>(string key, CancellationToken ct = default) {
+  public async Task<T?> GetAsync<T>(string key, CancellationToken ct = default) {
     ct.ThrowIfCancellationRequested();
 
     var value = await _db.StringGetAsync(key);

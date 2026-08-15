@@ -14,7 +14,7 @@ public class OrderItem : BaseEntityWithId {
   [Column("PRODUCT_ID")]
   public long ProductId { get; set; }
   [ForeignKey("ProductId")]
-  public Product Product { get; set; }
+  public Product Product { get; set; } = null!;
 }
 
 [EntityConfiguration]

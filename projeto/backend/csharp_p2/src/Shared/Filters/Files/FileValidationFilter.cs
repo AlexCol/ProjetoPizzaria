@@ -51,7 +51,7 @@ public sealed class FileValidationFilter : IAsyncActionFilter {
     await next();
   }
 
-  private static IEnumerable<IFormFile> ExtractFiles(object arg) {
+  private static IEnumerable<IFormFile> ExtractFiles(object? arg) {
     if (arg is null) yield break;
 
     if (arg is IFormFile f) {

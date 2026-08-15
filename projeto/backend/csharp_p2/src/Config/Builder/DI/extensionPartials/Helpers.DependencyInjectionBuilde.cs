@@ -5,14 +5,14 @@ namespace csharp_p2.src.Config.Builder;
 
 public static partial class DependencyInjectionBuilder {
   // 🔍 Verifica se o tipo já foi registrado
-  private static bool IsAlreadyRegistered(IServiceCollection services, Type serviceType, Type implementationType = null) {
+  private static bool IsAlreadyRegistered(IServiceCollection services, Type serviceType, Type? implementationType = null) {
     return services.Any(sd =>
         sd.ServiceType == serviceType &&
         (implementationType == null || sd.ImplementationType == implementationType));
   }
 
   // 🔍 Busca interface genérica aberta correspondente
-  private static Type FindMatchingGenericInterface(Type type) {
+  private static Type? FindMatchingGenericInterface(Type type) {
     var targetInterfaceName = $"I{type.Name.Split('`')[0]}";
 
     var match = type.GetInterfaces()
@@ -61,15 +61,17 @@ public static partial class DependencyInjectionBuilder {
   }
 
   private static void LoadGlobals(WebApplicationBuilder builder) {
-    BaseNamespace = builder.Configuration.GetValue<string>("BaseNamespace");
-    if (string.IsNullOrEmpty(BaseNamespace)) {
+    var baseNamespace = builder.Configuration.GetValue<string>("BaseNamespace");
+    if (string.IsNullOrEmpty(baseNamespace)) {
       throw new InvalidOperationException("BaseNamespace configuration is required for DependencyInjectionBuilder.");
     }
+    BaseNamespace = baseNamespace;
 
-    ConventionSuffixes = builder.Configuration.GetSection("AutoInjectableSuffixes").Get<string[]>();
-    if (ConventionSuffixes == null || ConventionSuffixes.Length == 0) {
+    var conventionSuffixes = builder.Configuration.GetSection("AutoInjectableSuffixes").Get<string[]>();
+    if (conventionSuffixes == null || conventionSuffixes.Length == 0) {
       throw new InvalidOperationException("AutoInjectableSuffixes configuration is required for DependencyInjectionBuilder.");
     }
+    ConventionSuffixes = conventionSuffixes;
 
     var configDefaultLifetime = builder.Configuration.GetValue<string>("AutoInjectableDefaultLifetime");
     if (!Enum.TryParse<EServiceLifetimeType>(configDefaultLifetime, true, out var parsedLifetime)) {

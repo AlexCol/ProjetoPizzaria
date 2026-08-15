@@ -68,11 +68,11 @@ public class GenericEntityRepository<T> : IGenericEntityRepository<T> where T : 
     }
   }
 
-  public async Task<T> GetByIdAsync(long id) {
+  public async Task<T?> GetByIdAsync(long id) {
     return await FindByIdAsync(id, false);
   }
 
-  public async Task<T> GetByIdWithReferencesAsync(long id) {
+  public async Task<T?> GetByIdWithReferencesAsync(long id) {
     return await FindByIdAsync(id, true);
   }
 
@@ -89,13 +89,13 @@ public class GenericEntityRepository<T> : IGenericEntityRepository<T> where T : 
       .ToListAsync();
   }
 
-  public async Task<T> FindOneWithPredicateAsync(Expression<Func<T, bool>> predicate) {
+  public async Task<T?> FindOneWithPredicateAsync(Expression<Func<T, bool>> predicate) {
     return await _context.Set<T>()
       .AsNoTracking()
       .FirstOrDefaultAsync(predicate);
   }
 
-  public async Task<T> FindOneWithPredicateWithReferencesAsync(Expression<Func<T, bool>> predicate) {
+  public async Task<T?> FindOneWithPredicateWithReferencesAsync(Expression<Func<T, bool>> predicate) {
     return await _context.Set<T>()
       .IncludeAll()
       .AsNoTracking()
@@ -117,17 +117,25 @@ public class GenericEntityRepository<T> : IGenericEntityRepository<T> where T : 
       .ToListAsync();
   }
 
-  public async Task<T> FindByEntityAsync(T entity) {
-    var entityType = _context.Model.FindEntityType(typeof(T));
-    var keyProperties = entityType.FindPrimaryKey().Properties;
-    var keyValues = keyProperties.Select(p => GetKeyValue(entity.GetType().GetProperty(p.Name).GetValue(entity), p.ClrType)).ToArray();
+  public async Task<T?> FindByEntityAsync(T entity) {
+    var entityType = _context.Model.FindEntityType(typeof(T))
+      ?? throw new InvalidOperationException($"Entity type {typeof(T).Name} not found in the EF model.");
+    var primaryKey = entityType.FindPrimaryKey()
+      ?? throw new InvalidOperationException($"Primary key for {typeof(T).Name} was not found.");
+    var keyValues = primaryKey.Properties.Select(property => {
+      var propertyInfo = entity.GetType().GetProperty(property.Name)
+        ?? throw new InvalidOperationException($"Key property {property.Name} was not found in {typeof(T).Name}.");
+      var value = propertyInfo.GetValue(entity)
+        ?? throw new InvalidOperationException($"Key property {property.Name} cannot be null.");
+      return GetKeyValue(value, property.ClrType);
+    }).ToArray();
     return await _context.Set<T>().FindAsync(keyValues);
   }
 
   public async Task<T> InsertAsync(T obj) {
     var objToInsert = new List<T> { obj };
     var inserted = await InsertsAsync(objToInsert);
-    return inserted.FirstOrDefault();
+    return inserted.Single();
   }
 
   public async Task<List<T>> InsertsAsync(IEnumerable<T> objs) {
@@ -181,14 +189,17 @@ public class GenericEntityRepository<T> : IGenericEntityRepository<T> where T : 
   *
   */
 
-  private async Task<T> FindByIdAsync(object id, bool includeReferences) {
+  private async Task<T?> FindByIdAsync(object id, bool includeReferences) {
     var query = _context.Set<T>().AsNoTracking().AsQueryable();
 
     if (includeReferences)
       query = query.IncludeAll();
 
-    var keyName = _context.Model.FindEntityType(typeof(T))
-                                .FindPrimaryKey()
+    var entityType = _context.Model.FindEntityType(typeof(T))
+      ?? throw new InvalidOperationException($"Entity type {typeof(T).Name} not found in the EF model.");
+    var primaryKey = entityType.FindPrimaryKey()
+      ?? throw new InvalidOperationException("Primary key not found.");
+    var keyName = primaryKey
                                 .Properties
                                 .Select(p => p.Name)
                                 .FirstOrDefault();
@@ -258,15 +269,18 @@ public class GenericEntityRepository<T> : IGenericEntityRepository<T> where T : 
     }
   }
 
-  private async Task<object> GetCurrentValueOfPropertyAsync(BaseEntityWithId newProperty) {
+  private async Task<object?> GetCurrentValueOfPropertyAsync(BaseEntityWithId newProperty) {
     var repositoryType = typeof(IGenericEntityRepository<>).MakeGenericType(newProperty.GetType()); // Obtém o tipo do repositório genérico para o tipo da nova propriedade
     var repository = _service.GetRequiredService(repositoryType); // Obtém o repositório genérico do serviço de injeção de dependência
-    var method = repositoryType.GetMethod("FindByEntity"); // Obtém o método FindById do repositório
+    var method = repositoryType.GetMethod(nameof(FindByEntityAsync))
+      ?? throw new InvalidOperationException($"Method {nameof(FindByEntityAsync)} was not found in {repositoryType.Name}.");
 
     var parameters = new object[] { newProperty }; // Prepara os parâmetros para o método FindById (neste caso, o ID da nova entidade)
-    var task = (Task)method.Invoke(repository, parameters);
+    var task = method.Invoke(repository, parameters) as Task
+      ?? throw new InvalidOperationException($"Method {nameof(FindByEntityAsync)} did not return a Task.");
     await task.ConfigureAwait(false); // Invoca o método FindById de forma assíncrona
-    var resultProperty = task.GetType().GetProperty("Result"); // Obtém a propriedade Result da task, que contém a entidade encontrada
+    var resultProperty = task.GetType().GetProperty("Result")
+      ?? throw new InvalidOperationException("The repository Task has no Result property.");
     return resultProperty.GetValue(task); // Retorna o valor da entidade encontrada
   }
 

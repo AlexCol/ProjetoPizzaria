@@ -77,7 +77,7 @@ public class AppService : IAppService {
       var cacheHit = false;
       var cachedResponse = await _cache.GetAsync<string>(cacheKey);
 
-      if (cachedResponse.IsNullOrEmpty()) {
+      if (string.IsNullOrEmpty(cachedResponse)) {
         cacheValue = "This is a test cache value.";
         await _cache.SetAsync(cacheKey, cacheValue, ttl);
       } else {
@@ -140,6 +140,10 @@ public class AppService : IAppService {
 
   private async Task InsertAdminUsersAsync() {
     var adminRole = await _dbContext.Set<Role>().FirstOrDefaultAsync(r => r.Name == "Admin");
+    if (adminRole is null) {
+      throw new InvalidOperationException("The Admin role must exist before creating the admin user.");
+    }
+
     var users = await _dbContext.Set<User>().ToListAsync();
     var existsAdmin = users.Any(u => u.Email.Value == _env.AdminUser.Email);
     if (!existsAdmin) {

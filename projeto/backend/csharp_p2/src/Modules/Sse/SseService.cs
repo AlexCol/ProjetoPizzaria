@@ -5,8 +5,8 @@ namespace csharp_p2.src.Modules.Sse;
 
 public interface ISseService {
   Task ConnectAsync(string userId, HttpContext context, CancellationToken ct);
-  Task SendToUserAsync(string userId, ESseEvents sseEvent, object message, CancellationToken ct = default);
-  Task SendToAllAsync(ESseEvents sseEvent, object message, CancellationToken ct = default);
+  Task SendToUserAsync(string userId, ESseEvents sseEvent, object? message, CancellationToken ct = default);
+  Task SendToAllAsync(ESseEvents sseEvent, object? message, CancellationToken ct = default);
   ActiveConnectionsDto GetActiveConnections();
   void DisconnectUser(string userId);
   ESseEvents TransformEventOrThrow(string eventName);
@@ -52,7 +52,7 @@ public class SseService : ISseService {
   /*****************************************************************************/
   /* Envia mensagem para um usuário específico                                 */
   /*****************************************************************************/
-  public async Task SendToUserAsync(string userId, ESseEvents sseEvent, object message, CancellationToken ct = default) {
+  public async Task SendToUserAsync(string userId, ESseEvents sseEvent, object? message, CancellationToken ct = default) {
     if (!_connections.TryGetValue(userId, out var userConnections) || userConnections.Count == 0) return;
 
     var formatedEvend = sseEvent.ToString().ToKebabCase();
@@ -79,7 +79,7 @@ public class SseService : ISseService {
   /*****************************************************************************/
   /* Envia mensagem para todos os usuários conectados                          */
   /*****************************************************************************/
-  public async Task SendToAllAsync(ESseEvents sseEvent, object message, CancellationToken ct = default) {
+  public async Task SendToAllAsync(ESseEvents sseEvent, object? message, CancellationToken ct = default) {
     foreach (var userId in _connections.Keys) {
       await SendToUserAsync(userId, sseEvent, message, ct);
     }
@@ -105,7 +105,7 @@ public class SseService : ISseService {
   /*****************************************************************************/
   public void DisconnectUser(string userId) {
     var haveConn = _connections.TryGetValue(userId, out var userConnections);
-    if (haveConn)
+    if (haveConn && userConnections is not null)
       foreach (var connection in userConnections.Values)
         RemoveConnection(userId, connection.ConnectionId);
   }

@@ -1,8 +1,8 @@
 namespace csharp_p2.src.Config.Builder;
 
 public static partial class DependencyInjectionBuilder {
-  private static string BaseNamespace;
-  private static string[] ConventionSuffixes;
+  private static string BaseNamespace = string.Empty;
+  private static string[] ConventionSuffixes = [];
   private static EServiceLifetimeType DefaultLifetime;
 
   public static IServiceCollection AddAutoInjectables(WebApplicationBuilder builder) {

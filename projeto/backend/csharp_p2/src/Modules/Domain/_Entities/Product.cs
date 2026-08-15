@@ -6,16 +6,16 @@ namespace csharp_p2.src.Modules.Domain;
 [Table("PRODUCTS")]
 public class Product : BaseEntityWithId {
   [Column("NAME")]
-  public string Name { get; set; }
+  public string Name { get; set; } = string.Empty;
 
   [Column("PRICE")]
   public decimal Price { get; set; }
 
   [Column("DESCRIPTION")]
-  public string Description { get; set; }
+  public string Description { get; set; } = string.Empty;
 
   [Column("BANNER")]
-  public string Banner { get; set; }
+  public string? Banner { get; set; }
 
   [Column("STATUS")]
   public EProductStatus Status { get; set; }
@@ -23,7 +23,7 @@ public class Product : BaseEntityWithId {
   [Column("CATEGORY_ID")]
   public long CategoryId { get; set; }
   [ForeignKey("CategoryId")]
-  public Category Category { get; set; }
+  public Category Category { get; set; } = null!;
 }
 
 [EntityConfiguration]

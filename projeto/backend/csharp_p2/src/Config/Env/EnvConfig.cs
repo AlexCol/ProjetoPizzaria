@@ -8,21 +8,21 @@ namespace csharp_p2.src.Config;
 
 [IgnoreInjection]
 public class EnvConfig {
-  public AdminUser AdminUser { get; private set; }
+  public AdminUser AdminUser { get; private set; } = null!;
   public string Environment { get; private set; }
   public bool IsDevelopment { get; private set; }
   public bool IsProduction { get; private set; }
-  public FrondEnd FrondEnd { get; private set; }
-  public Database Database { get; private set; }
-  public CacheConfig Cache { get; private set; }
-  public HangfireConfig Hangfire { get; private set; }
-  public DataProtectionConfig DataProtection { get; private set; }
-  public Email Email { get; private set; }
-  public Crypto Crypto { get; private set; }
-  public FileManager FileManager { get; private set; }
-  public RateLimit RateLimit { get; private set; }
-  public ForwardedHeadersConfig ForwardedHeaders { get; private set; }
-  public HostFilteringConfig HostFiltering { get; private set; }
+  public FrondEnd FrondEnd { get; private set; } = null!;
+  public Database Database { get; private set; } = null!;
+  public CacheConfig Cache { get; private set; } = null!;
+  public HangfireConfig Hangfire { get; private set; } = null!;
+  public DataProtectionConfig DataProtection { get; private set; } = null!;
+  public Email Email { get; private set; } = null!;
+  public Crypto Crypto { get; private set; } = null!;
+  public FileManager FileManager { get; private set; } = null!;
+  public RateLimit RateLimit { get; private set; } = null!;
+  public ForwardedHeadersConfig ForwardedHeaders { get; private set; } = null!;
+  public HostFilteringConfig HostFiltering { get; private set; } = null!;
 
   public EnvConfig(
     IConfiguration config,

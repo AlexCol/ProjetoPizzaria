@@ -12,7 +12,7 @@ public static partial class DependencyInjectionBuilder {
     if (injectableAttr is null)
       return false;
 
-    Type resolvedInterfaceType = injectableAttr.InterfaceType
+    Type? resolvedInterfaceType = injectableAttr.InterfaceType
         ?? concreteType.GetInterface($"I{concreteType.Name}");
 
     if (resolvedInterfaceType == null) {

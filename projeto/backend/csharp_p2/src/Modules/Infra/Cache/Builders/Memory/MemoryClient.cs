@@ -13,14 +13,14 @@ public sealed class MemoryCacheClient : ICacheClient {
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!GETS
   #region Gets
-  public Task<T> GetAsync<T>(string key, CancellationToken ct = default) {
+  public Task<T?> GetAsync<T>(string key, CancellationToken ct = default) {
     ct.ThrowIfCancellationRequested();
 
-    if (!_cache.TryGetValue(key, out string json) || string.IsNullOrWhiteSpace(json))
-      return Task.FromResult(default(T)!);
+    if (!_cache.TryGetValue(key, out string? json) || string.IsNullOrWhiteSpace(json))
+      return Task.FromResult(default(T));
 
     var value = JsonSerializer.Deserialize<T>(json);
-    return Task.FromResult(value!);
+    return Task.FromResult(value);
   }
 
   public Task<T[]> GetByPrefixAsync<T>(string key, CancellationToken ct = default) {
@@ -34,7 +34,7 @@ public sealed class MemoryCacheClient : ICacheClient {
     var result = new List<T>();
     foreach (var k in keysSnapshot) {
       ct.ThrowIfCancellationRequested();
-      if (!_cache.TryGetValue(k, out string json) || string.IsNullOrWhiteSpace(json)) continue;
+      if (!_cache.TryGetValue(k, out string? json) || string.IsNullOrWhiteSpace(json)) continue;
 
       var item = JsonSerializer.Deserialize<T>(json);
       if (item is not null) result.Add(item);
@@ -58,7 +58,7 @@ public sealed class MemoryCacheClient : ICacheClient {
     ct.ThrowIfCancellationRequested();
 
     lock (_lock) {
-      if (!_cache.TryGetValue(key, out HashSet<string> members))
+      if (!_cache.TryGetValue(key, out HashSet<string>? members) || members is null)
         return Task.FromResult(Array.Empty<string>());
 
       return Task.FromResult(members.ToArray());
@@ -88,7 +88,7 @@ public sealed class MemoryCacheClient : ICacheClient {
     ct.ThrowIfCancellationRequested();
 
     lock (_lock) {
-      if (!_cache.TryGetValue(key, out HashSet<string> members)) {
+      if (!_cache.TryGetValue(key, out HashSet<string>? members) || members is null) {
         members = [];
       } else {
         members = new HashSet<string>(members, StringComparer.Ordinal);
@@ -123,7 +123,7 @@ public sealed class MemoryCacheClient : ICacheClient {
     ct.ThrowIfCancellationRequested();
 
     lock (_lock) {
-      if (!_cache.TryGetValue(key, out HashSet<string> members))
+      if (!_cache.TryGetValue(key, out HashSet<string>? members) || members is null)
         return Task.FromResult(false);
 
       var removed = members.Remove(value);

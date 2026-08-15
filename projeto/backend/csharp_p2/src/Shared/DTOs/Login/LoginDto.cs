@@ -5,8 +5,8 @@ namespace csharp_p2.src.Shared.DTOs;
 public class LoginDto {
   [Required(ErrorMessage = "Required field.")]
   [EmailAddress(ErrorMessage = "Email is not valid.")]
-  public string Email { get; set; }
+  public string Email { get; set; } = string.Empty;
 
   [Required(ErrorMessage = "Required field.")]
-  public string Password { get; set; }
+  public string Password { get; set; } = string.Empty;
 }

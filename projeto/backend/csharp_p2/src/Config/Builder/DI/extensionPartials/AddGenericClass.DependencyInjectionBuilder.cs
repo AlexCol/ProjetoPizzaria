@@ -10,7 +10,7 @@ public static partial class DependencyInjectionBuilder {
 
     var injectableAttr = genericType.GetCustomAttribute<InjectableAttribute>();
     if (injectableAttr != null) {
-      Type resolvedInterfaceType = injectableAttr.InterfaceType
+      Type? resolvedInterfaceType = injectableAttr.InterfaceType
           ?? genericType.GetInterface($"I{genericType.Name}");
 
       if (resolvedInterfaceType == null) {

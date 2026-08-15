@@ -12,12 +12,12 @@ public class Order : BaseEntityWithId {
   public EOrderStatus Status { get; set; }
 
   [Column("NAME")]
-  public string Name { get; set; }
+  public string? Name { get; set; }
 
   [Column("USER_ID")]
   public long UserId { get; set; }
 
-  public List<OrderItem> OrderItems { get; set; }
+  public List<OrderItem> OrderItems { get; set; } = [];
 }
 
 [EntityConfiguration]

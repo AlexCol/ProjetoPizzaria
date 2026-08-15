@@ -32,7 +32,8 @@ public class RolesService : IRolesService {
   }
 
   public async Task<Role> GetRoleByIdAsync(long id) {
-    return await _roleRepository.GetByIdAsync(id);
+    return await _roleRepository.GetByIdAsync(id)
+      ?? throw new CustomError("Role not found", 404);
   }
 
   public async Task<PaginatedResult<Role>> GetRolesWithSearchCriteriaAsync(SearchCriteriaRequest<Role> searchCriteria) {

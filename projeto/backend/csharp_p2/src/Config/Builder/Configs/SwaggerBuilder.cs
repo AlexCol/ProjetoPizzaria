@@ -90,7 +90,7 @@ public static class SwaggerBuilder {
   }
 
   //! metodos auxiliares para AddOperationTransformer
-  private static bool IsSearchCriteriaAutoParam(string name) {
+  private static bool IsSearchCriteriaAutoParam(string? name) {
     if (string.IsNullOrWhiteSpace(name)) return false;
     var lower = name.ToLowerInvariant();
     return lower.StartsWith("where")
@@ -100,7 +100,7 @@ public static class SwaggerBuilder {
       || lower.StartsWith("sort[");
   }
 
-  private static string AppendSearchCriteriaNote(string current) {
+  private static string AppendSearchCriteriaNote(string? current) {
     const string NOTE =
       "Query params customizados: use 'sort-field', 'sort-order', 'page', 'limit'. " +
       "Qualquer outro query param vira filtro com operator=like.";

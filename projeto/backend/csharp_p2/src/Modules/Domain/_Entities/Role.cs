@@ -7,7 +7,7 @@ namespace csharp_p2.src.Modules.Domain;
 public class Role : BaseEntityWithId {
 
   [Column("NAME")]
-  public string Name { get; set; }
+  public string Name { get; set; } = string.Empty;
 }
 
 [EntityConfiguration]

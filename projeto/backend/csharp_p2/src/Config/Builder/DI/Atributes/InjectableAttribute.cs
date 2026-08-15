@@ -2,7 +2,7 @@ namespace csharp_p2.src.Config.Builder;
 
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public class InjectableAttribute : Attribute {
-  public Type InterfaceType { get; }
+  public Type? InterfaceType { get; }
   public EServiceLifetimeType Lifetime { get; }
 
   public InjectableAttribute(EServiceLifetimeType lifetime = EServiceLifetimeType.Scoped) {

@@ -4,14 +4,14 @@ using csharp_p2.src.Shared.Constants;
 namespace csharp_p2.src.Shared.Extensions;
 
 public static class HttpRequestExtensions {
-  public static string GetHeaderValue(this HttpRequest request, string headerName) {
+  public static string? GetHeaderValue(this HttpRequest request, string headerName) {
     if (request.Headers.TryGetValue(headerName, out var value)) {
       return value.ToString();
     }
     return null;
   }
 
-  public static string GetCookieValue(this HttpRequest request, string cookieName) {
+  public static string? GetCookieValue(this HttpRequest request, string cookieName) {
     if (request.Cookies.TryGetValue(cookieName, out var value)) {
       return value;
     }
@@ -20,13 +20,13 @@ public static class HttpRequestExtensions {
 
   public static string GetEntryPoint(this HttpRequest request) {
     var appOrigin = request.GetHeaderValue("app-origin");
-    if (!appOrigin.In("mobile", "web")) {
+    if (appOrigin is not "mobile" and not "web") {
       throw new CustomError("Invalid or missing app-origin.");
     }
     return appOrigin;
   }
 
-  public static string GetTokenFromRequest(this HttpRequest request) {
+  public static string? GetTokenFromRequest(this HttpRequest request) {
     var tokenFromHeader = request.GetHeaderValue("Authorization");
     if (!tokenFromHeader.IsNullOrEmpty()) {
       return tokenFromHeader;

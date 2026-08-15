@@ -7,7 +7,7 @@ using csharp_p2.src.Shared.Exceptions;
 namespace csharp_p2.src.Modules.Session;
 
 public interface ISessionCacheService {
-  Task<UserSession> GetSessionAsync(string sessionToken);
+  Task<UserSession?> GetSessionAsync(string sessionToken);
   Task<SessionsPerUserRecordDto> GetActiveSessionsCountPerUserAsync();
   Task<string> CreateSessionAsync(UserSessionPayload payload, SessionOptionsDto options);
   Task<(bool, UserSession)> RefreshSessionAsync(string sessionToken);
@@ -29,7 +29,7 @@ public class SessionCacheService : ISessionCacheService {
   }
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!GETS
   #region Gets
-  public async Task<UserSession> GetSessionAsync(string sessionToken) {
+  public async Task<UserSession?> GetSessionAsync(string sessionToken) {
     var cacheKey = CACHE_KEY_PREFIX + sessionToken;
     var sessionData = await _cache.GetAsync<string>(cacheKey);
     if (sessionData == null) {

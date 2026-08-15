@@ -12,7 +12,7 @@ public class TokenControl {
   public long IdObject { get; set; }
 
   [Column("TOKEN")]
-  public string Token { get; set; }
+  public string Token { get; set; } = string.Empty;
 
   [Column("CREATED_AT")]
   public DateTime CreatedAt { get; set; }

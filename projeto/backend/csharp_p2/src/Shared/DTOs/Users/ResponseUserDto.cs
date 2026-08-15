@@ -5,11 +5,11 @@ namespace csharp_p2.src.Shared.DTOs;
 
 public class ResponseUserDto {
   public long Id { get; set; }
-  public string Email { get; set; }
-  public string Name { get; set; }
+  public string Email { get; set; } = string.Empty;
+  public string Name { get; set; } = string.Empty;
   public EUserStatus Status { get; set; }
   public long? RoleId { get; set; }
-  public ResponseRoleDto Role { get; set; }
+  public ResponseRoleDto? Role { get; set; }
 
   public ResponseUserDto() { }
 

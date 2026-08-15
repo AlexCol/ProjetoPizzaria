@@ -9,13 +9,13 @@ namespace csharp_p2.src.Modules.Domain;
 public class User : BaseEntityWithId {
 
   [Column("EMAIL")]
-  public EmailVO Email { get; set; }
+  public EmailVO Email { get; set; } = null!;
 
   [Column("PASSWORD")]
-  public string Password { get; set; }
+  public string Password { get; set; } = string.Empty;
 
   [Column("NAME")]
-  public string Name { get; set; }
+  public string Name { get; set; } = string.Empty;
 
   [NotNull]
   [Column("STATUS")]
@@ -26,7 +26,7 @@ public class User : BaseEntityWithId {
   public long RoleId { get; set; }
 
   [ForeignKey("RoleId")]
-  public Role Role { get; set; }
+  public Role Role { get; set; } = null!;
 }
 
 [EntityConfiguration]

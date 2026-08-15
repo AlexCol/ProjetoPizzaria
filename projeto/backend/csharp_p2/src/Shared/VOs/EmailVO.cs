@@ -4,7 +4,7 @@ using csharp_p2.src.Shared.Exceptions;
 namespace csharp_p2.src.Shared.VOs;
 
 public class EmailVO : BaseVO {
-  public string Value { get; private set; }
+  public string Value { get; private set; } = string.Empty;
 
   protected EmailVO() { }
 
@@ -36,12 +36,11 @@ public class EmailVO : BaseVO {
   /************************************************************/
   /* Comparação                                               */
   /************************************************************/
-  public override bool Equals(object obj) {
+  public override bool Equals(object? obj) {
     if (ReferenceEquals(this, obj))
       return true;
-    if (obj == null || GetType() != obj.GetType())
-      throw new CustomError("Cannot compare EmailVO with a different type.");
-    var other = (EmailVO)obj;
+    if (obj is not EmailVO other)
+      return false;
     return Value == other.Value;
   }
 

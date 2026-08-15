@@ -44,7 +44,7 @@ public sealed class SearchCriteriaFromQueryBinder : IModelBinder {
       if (_reservedKeys.Contains(key)) continue;
 
       var value = kvp.Value.Count > 1
-        ? string.Join(",", kvp.Value)
+        ? string.Join(",", kvp.Value.ToArray())
         : kvp.Value.ToString();
 
       if (string.IsNullOrWhiteSpace(value)) continue;

@@ -63,10 +63,10 @@ public class SessionService : ISessionService {
   /*****************************************************************************/
   #region Metodos Privados
   private record DadosAdicionaisUsuario {
-    public Role Role { get; init; }
+    public Role Role { get; init; } = null!;
   }
   private async Task<DadosAdicionaisUsuario> BucarDadosAdicionaisUsuarioAsync(User user) {
-    var roleService = _serviceProvider.GetService<IRolesService>();
+    var roleService = _serviceProvider.GetRequiredService<IRolesService>();
     var role = await roleService.GetRoleByIdAsync(user.RoleId);
 
     return new DadosAdicionaisUsuario { Role = role };

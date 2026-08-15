@@ -34,7 +34,8 @@ public class ProductsService : IProductsService {
   }
 
   public async Task<Product> GetProductByIdAsync(long id) {
-    return await _repository.GetByIdWithReferencesAsync(id);
+    return await _repository.GetByIdWithReferencesAsync(id)
+      ?? throw new CustomError("Product not found", 404);
   }
 
   public async Task<PaginatedResult<Product>> GetProductsWithSearchCriteriaAsync(SearchCriteriaRequest<Product> searchCriteria) {
@@ -131,13 +132,15 @@ public class ProductsService : IProductsService {
       if (product == null)
         throw new CustomError("Product not found", 404);
 
-      var orderItemRepo = _serviceProvider.GetService<IGenericEntityRepository<OrderItem>>();
+      var orderItemRepo = _serviceProvider.GetRequiredService<IGenericEntityRepository<OrderItem>>();
       var ordersWithItem = await orderItemRepo.FindOneWithPredicateAsync(oi => oi.ProductId == product.Id);
       if (ordersWithItem != null)
         throw new CustomError("Cannot delete product that is part of an order", 400);
 
       await _repository.DeleteAsync(product.Id);
-      await _fileManager.DeleteAsync("products", product.Banner);
+      if (product.Banner is not null) {
+        await _fileManager.DeleteAsync("products", product.Banner);
+      }
       await trx.CommitAsync();
     } catch {
       await trx.RollbackAsync();
@@ -147,11 +150,8 @@ public class ProductsService : IProductsService {
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!PRIVATES
   private async Task ValidateCategoryExistsAsync(long categoryId) {
-    var categoriesService = _serviceProvider.GetService<ICategoriesService>();
-    var category = await categoriesService.GetCategoryByIdAsync(categoryId);
-    if (category == null) {
-      throw new CustomError("Category not found", 404);
-    }
+    var categoriesService = _serviceProvider.GetRequiredService<ICategoriesService>();
+    await categoriesService.GetCategoryByIdAsync(categoryId);
   }
 
   private async Task SaveImageAsync(IFormFile image, Product product) {

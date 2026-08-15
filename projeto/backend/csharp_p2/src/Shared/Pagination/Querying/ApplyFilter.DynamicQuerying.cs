@@ -21,7 +21,7 @@ public static partial class DynamicQuerying {
       var member = Expression.Property(parameter, property);
       var op = BuildeOperator(member, filter);
 
-      Expression predicate = op switch {
+      Expression? predicate = op switch {
         "like" => BuildLike(member, filter.Value),
         "in" => BuildIn(member, filter.Value),
         "!=" or "<>" or ">" or "<" or ">=" or "<=" or "=" or "==" => BuildComparison(member, op, filter.Value),
@@ -43,7 +43,7 @@ public static partial class DynamicQuerying {
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!metodo para comparação de operadores diretos (=, !=, >, <, etc)
   #region operadores diretos
-  private static Expression BuildComparison(Expression member, string op, object value) {
+  private static Expression? BuildComparison(Expression member, string op, object? value) {
     if (value is null) {
       if (op is "=" or "==") return Expression.Equal(member, Expression.Constant(null, member.Type));
       if (op is "!=" or "<>") return Expression.NotEqual(member, Expression.Constant(null, member.Type));
@@ -69,7 +69,7 @@ public static partial class DynamicQuerying {
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!metodo para operador like, que faz uma comparação de substring ignorando maiúsculas/minúsculas
   #region operador like
-  private static Expression BuildLike(Expression member, object value) {
+  private static Expression BuildLike(Expression member, object? value) {
     if (value is JsonElement json) {
       if (json.ValueKind != JsonValueKind.String) {
         throw new ArgumentException("LIKE exige valor do tipo string.");
@@ -96,13 +96,13 @@ public static partial class DynamicQuerying {
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!metodo para operador in, que verifica se o valor do campo está contido em uma coleção de valores
   #region operador in
-  private static Expression BuildIn(Expression member, object value) {
+  private static Expression BuildIn(Expression member, object? value) {
     if (value is JsonElement json) {
       if (json.ValueKind != JsonValueKind.Array) {
         throw new ArgumentException("IN exige um array de valores.");
       }
 
-      var items = new List<object>();
+      var items = new List<object?>();
       foreach (var el in json.EnumerateArray()) {
         items.Add(UnwrapJsonElement(el));
       }
@@ -146,7 +146,8 @@ public static partial class DynamicQuerying {
   }
 
   private static object ChangeType(object value, Type targetType) {
-    value = UnwrapJsonElement(value);
+    value = UnwrapJsonElement(value)
+      ?? throw new ArgumentException("O valor nulo não pode ser convertido para comparação.");
 
     if (targetType == typeof(DateTime)) {
       var isOracle = string.Equals(DataBaseBuilder.Database, "Oracle", StringComparison.OrdinalIgnoreCase);
@@ -183,10 +184,11 @@ public static partial class DynamicQuerying {
       return Guid.Parse(value.ToString() ?? string.Empty);
     }
 
-    return Convert.ChangeType(value, targetType);
+    return Convert.ChangeType(value, targetType)
+      ?? throw new ArgumentException($"Não foi possível converter o valor para {targetType.Name}.");
   }
 
-  private static object UnwrapJsonElement(object value) {
+  private static object? UnwrapJsonElement(object value) {
     if (value is not JsonElement json) {
       return value;
     }

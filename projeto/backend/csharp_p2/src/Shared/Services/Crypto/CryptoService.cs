@@ -18,7 +18,7 @@ public class CryptoService : ICryptoService {
     return ComputeHash(value, sha256Hash);
   }
 
-  public string Decrypt(string encryptedValue, string secretKey = null) {
+  public string? Decrypt(string encryptedValue, string? secretKey = null) {
     var key = secretKey ?? _secretKey;
     try {
       using (Aes aesAlg = Aes.Create()) {
@@ -45,11 +45,13 @@ public class CryptoService : ICryptoService {
     }
   }
 
-  public T Decrypt<T>(string encryptedValue, string secretKey = null) {
-    return JsonSerializer.Deserialize<T>(Decrypt(encryptedValue, secretKey));
+  public T? Decrypt<T>(string encryptedValue, string? secretKey = null) {
+    var decryptedValue = Decrypt(encryptedValue, secretKey);
+    if (decryptedValue is null) return default;
+    return JsonSerializer.Deserialize<T>(decryptedValue);
   }
 
-  public string Encrypt<T>(T data, string secretKey = null) {
+  public string Encrypt<T>(T data, string? secretKey = null) {
     var key = secretKey ?? _secretKey;
     using (Aes aesAlg = Aes.Create()) {
       aesAlg.Key = Encoding.UTF8.GetBytes(key);
