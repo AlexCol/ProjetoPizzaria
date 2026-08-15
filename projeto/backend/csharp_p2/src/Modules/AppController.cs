@@ -1,3 +1,4 @@
+using csharp_p2.src.Config;
 using csharp_p2.src.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 
@@ -7,9 +8,11 @@ namespace csharp_p2.src.Modules;
 [Route("api")]
 public class AppController : ControllerBase {
   private readonly IAppService _appService;
+  private readonly EnvConfig _envConfig;
 
-  public AppController(IAppService appService) {
+  public AppController(IAppService appService, EnvConfig envConfig) {
     _appService = appService;
+    _envConfig = envConfig;
   }
 
   [AllowAnonymous]
@@ -38,13 +41,16 @@ public class AppController : ControllerBase {
   //   return Ok(response);
   // }
 
-  // [AllowAnonymous]
-  // [HttpPost("run-seeds")]
-  // [ApiExplorerSettings(IgnoreApi = true)]
-  // public async Task<IActionResult> RunSeedsAsync() {
-  //   await _appService.RunSeedsAsync();
-  //   return Ok(new { message = "Seeds executed successfully" });
-  // }
+  [AllowAnonymous]
+  [HttpPost("run-seeds")]
+  [ApiExplorerSettings(IgnoreApi = true)]
+  public async Task<IActionResult> RunSeedsAsync() {
+    if (!_envConfig.IsDevelopment) {
+      return BadRequest(new { message = "Seeds can only be executed in development environment" });
+    }
+    await _appService.RunSeedsAsync();
+    return Ok(new { message = "Seeds executed successfully" });
+  }
 
   // [AllowAnonymous]
   // [HttpPost("test-search")]
