@@ -216,9 +216,15 @@ O escopo considera uma implantação com **uma única instância** do backend. P
   - `backend/csharp_p2/src/Config/Builder/Configs/DataProtectionBuilder.cs`
   - `backend/csharp_p2/docker/valkey/docker-compose.yml`
 
-- [ ] Definir a política de TLS para a conexão com o banco de produção.
+- [x] Definir a política de TLS para a conexão com o banco de produção.
 
-  Os builders de PostgreSQL e Oracle constroem a conexão sem declarar uma política de TLS. Se o banco permanecer na mesma máquina e em rede Docker privada, sem porta externa, aceitar a conexão interna sem TLS pode ser registrado como risco de infraestrutura, seguindo a mesma decisão adotada para o Redis. Se a conexão atravessar outra máquina ou uma rede não confiável, TLS e validação de certificado devem ser configurados explicitamente e as variáveis correspondentes devem entrar no `EnvConfig` e em seu validador.
+  Decisão consciente do projeto: a conexão entre a API e o banco permanecerá sem TLS enquanto ambos estiverem na mesma máquina e rede Docker privada do Dokploy. O banco não deve publicar sua porta na internet, e o acesso ao host, à rede Docker, aos volumes e aos backups deve permanecer restrito. Nesse cenário, a rede privada foi aceita como limite de confiança, seguindo a mesma decisão adotada para o Valkey/Redis.
+
+  Um futuro acesso administrativo pelo DBeaver será tratado como um canal separado da conexão da API. A opção preferencial é usar um túnel SSH, mantendo a porta do banco fechada externamente; se necessário, ela pode ser vinculada somente ao loopback do servidor. Essa configuração pertence ao DBeaver, ao SSH e à infraestrutura do servidor e não altera a connection string nem os builders usados pela API.
+
+  Somente se a própria API passar a alcançar o banco por outra máquina ou rede não confiável será necessário reabrir este item e configurar TLS no client da API — `SSL Mode` no PostgreSQL ou `TCPS`/validação do servidor no Oracle. Se futuramente o DBeaver for conectado diretamente ao banco, sem túnel, TLS deve ser configurado no servidor e no próprio DBeaver, mantendo essa política independente da conexão interna usada pela API.
+
+  Não foi adicionada uma variável `DB_SSL`, pois ela sugeriria uma equivalência que não existe entre os providers e não teria efeito enquanto o servidor do banco também não estivesse configurado para TLS.
 
   Arquivos relacionados:
 
@@ -303,5 +309,4 @@ O escopo considera uma implantação com **uma única instância** do backend. P
 
 ## Próximos itens
 
-1. Definir TLS para o banco ou documentar formalmente a aceitação da rede Docker privada como limite de confiança.
-2. Executar um teste de fumaça no ambiente publicado, incluindo health, proxy, HTTPS, CORS, CSRF, login, logout, recuperação de senha e reinicialização do container.
+1. Executar um teste de fumaça no ambiente publicado, incluindo health, proxy, HTTPS, CORS, CSRF, login, logout, recuperação de senha e reinicialização do container.

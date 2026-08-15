@@ -26,6 +26,12 @@ ADMIN_EMAIL=admin@admin.com.br
 ADMIN_PASSWORD='$2a$11$Eb3TtCPyBCSBeB3JhnDOp.GqUoLaE0J2cemcBOsPcd3l9issEVLyG'
 
 ########## BANCO DE DADOS
+## A conexão API -> banco permanece sem TLS somente enquanto ambos estiverem na
+## mesma máquina/rede Docker privada do Dokploy e o banco não publicar porta externa.
+## Para acesso administrativo pelo DBeaver, prefira um túnel SSH. Essa configuração
+## é externa à API e não exige alterar sua connection string.
+## Configure TLS no client da API somente se a própria conexão API -> banco passar
+## por outra máquina ou rede não confiável: SSL Mode no PostgreSQL ou TCPS no Oracle.
 DB_TYPE=Postgres
 DB_HOST=localhost
 DB_PORT=5444
