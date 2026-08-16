@@ -67,6 +67,7 @@ public class EmailService : IEmailService {
 
     try {
       await smtpClient.SendMailAsync(mailMessage);
+      Log.Information($"Email sent to {emailTo} with subject '{subject}'");
     } catch (Exception e) {
       Log.Error("Failed to send email: " + e.Message);
     }
