@@ -12,7 +12,7 @@
 
   <nav [class]="styles.nav" aria-label="Navegação principal">
     <app-link label="Home" [routerLink]="['home']" activeClassName="text-secondary!" />
-    <app-link *appAuth="['Admin']" label="Usuários" [routerLink]="['usuarios']" activeClassName="text-secondary!" />
+    <app-link label="Usuários" [routerLink]="['usuarios']" activeClassName="text-secondary!" />
     <app-button
       variant="default"
       type="button"

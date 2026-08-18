@@ -11,8 +11,8 @@ import { LoaderComponent } from '../../../../components/shared/loader/loader';
 import { equalValues } from '../../../../helpers/formValidators/equalValues';
 import { tokenFromRoute } from '../../../../helpers/router/tokenFromRoute';
 import { getApiErrorMessage } from '../../../../models/ApiError';
+import { UsersService } from '../../../../services/domain/users/users.service';
 import { TokenControlService } from '../../../../services/token-control/token-control.service';
-import { UsersService } from '../../../../services/users/users.service';
 import { notLoggedStyles } from '../not-logged.styles';
 
 const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/;

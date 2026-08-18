@@ -1,12 +1,63 @@
-<section [class]="styles.form">
-  @if (!user()) {
-    <h2 [class]="styles.title">Novo usuário</h2>
-  } @else {
-    <h2 [class]="styles.title">Editar usuário</h2>
-  }
+<form [formGroup]="form" [class]="styles.form" (ngSubmit)="save()" novalidate>
+  <h2 [class]="styles.title">{{ user() ? 'Editar usuário' : 'Novo usuário' }}</h2>
+  <div [class]="styles.fields">
+    <app-input
+      formControlName="name"
+      label="Nome"
+      placeholder="Nome do usuário"
+      autoComplete="name"
+      [required]="true"
+      [ariaInvalid]="form.controls.name.invalid && form.controls.name.touched"
+    />
+    <app-input
+      formControlName="email"
+      type="email"
+      label="E-mail"
+      placeholder="usuario@exemplo.com"
+      autoComplete="email"
+      [required]="true"
+      [ariaInvalid]="form.controls.email.invalid && form.controls.email.touched"
+    />
+    <app-select
+      formControlName="roleId"
+      label="Perfil"
+      placeholder="Selecione um perfil"
+      [options]="roleOptions()"
+      [required]="true"
+      [ariaInvalid]="form.controls.roleId.invalid && form.controls.roleId.touched"
+    />
 
-  <!-- Conteúdo do modal -->
-
-  <app-button type="button" label="Fechar" variant="danger" (click)="close()" />
-  <app-button type="submit" label="Salvar" variant="success" (click)="save()" />
-</section>
+    @if (!user()) {
+      <app-input
+        formControlName="password"
+        type="password"
+        label="Senha"
+        placeholder="Mínimo de 8 caracteres"
+        autoComplete="new-password"
+        [required]="true"
+        [minLength]="8"
+        [ariaInvalid]="form.controls.password.invalid && form.controls.password.touched"
+      />
+      <app-input
+        formControlName="confirmPassword"
+        type="password"
+        label="Confirmar senha"
+        placeholder="Repita a senha"
+        autoComplete="new-password"
+        [required]="true"
+        [ariaInvalid]="form.controls.confirmPassword.invalid && form.controls.confirmPassword.touched"
+      />
+    }
+  </div>
+  <div [class]="styles.actions">
+    <app-button
+      type="button"
+      label="Cancelar"
+      variant="danger"
+      [fullWidth]="false"
+      (clicked)="close()"
+      [allowSpam]="true"
+    />
+    <app-button type="submit" label="Salvar" variant="success" [fullWidth]="false" [disabled]="saving()" />
+  </div>
+</form>

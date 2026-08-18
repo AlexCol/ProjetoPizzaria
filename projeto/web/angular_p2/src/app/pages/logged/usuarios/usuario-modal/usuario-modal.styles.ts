@@ -1,10 +1,7 @@
 export const usuarioModalStyles = {
   host: 'block',
-  form: 'flex flex-col gap-6 p-6',
+  form: 'flex flex-col gap-6 p-5 sm:p-6',
   title: 'text-xl font-bold text-primary-text',
-  closeButton: [
-    'min-h-11 self-end rounded-md border border-border bg-background px-4 py-2',
-    'font-semibold text-foreground transition-colors',
-    'hover:bg-background-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
-  ].join(' '),
+  fields: 'grid gap-4 sm:grid-cols-2 [&>app-select]:sm:col-span-2',
+  actions: 'flex justify-end gap-3 border-t border-border/40 pt-4',
 } as const;

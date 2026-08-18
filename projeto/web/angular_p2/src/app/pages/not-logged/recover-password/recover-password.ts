@@ -8,7 +8,7 @@ import { InputComponent } from '../../../../components/shared/input/input';
 import { LinkComponent } from '../../../../components/shared/link/link';
 import { getApiErrorMessage } from '../../../../models/ApiError';
 import { RecoverPassword } from '../../../../models/RecoverPassword';
-import { UsersService } from '../../../../services/users/users.service';
+import { UsersService } from '../../../../services/domain/users/users.service';
 import { notLoggedStyles } from '../not-logged.styles';
 
 @Component({

@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { AuthDirective } from '../../../directives/auth.directive';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ThemeService } from '../../../services/theme/theme.service';
 import { ButtonComponent } from '../../shared/button/button';
@@ -13,7 +12,7 @@ import { headerStyles } from './header.styles';
   host: {
     '[class]': 'styles.host',
   },
-  imports: [AuthDirective, ButtonComponent, LinkComponent],
+  imports: [ButtonComponent, LinkComponent],
 })
 export class HeaderComponent {
   private readonly authService = inject(AuthService);

@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { LoaderComponent } from '../../../../components/shared/loader/loader';
 import { tokenFromRoute } from '../../../../helpers/router/tokenFromRoute';
 import { getApiErrorMessage } from '../../../../models/ApiError';
-import { UsersService } from '../../../../services/users/users.service';
+import { UsersService } from '../../../../services/domain/users/users.service';
 import { notLoggedStyles } from '../not-logged.styles';
 
 @Component({
