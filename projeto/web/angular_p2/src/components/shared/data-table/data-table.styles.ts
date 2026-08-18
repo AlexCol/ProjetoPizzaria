@@ -12,6 +12,7 @@ export const dataTableStyles = {
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
   ].join(' '),
   sortIcon: 'inline-flex w-3 shrink-0 justify-center text-xs text-primary',
+  searchIcon: 'w-4',
   filterButton: [
     'inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-xs',
     'text-foreground/55 hover:bg-background hover:text-primary',
@@ -35,7 +36,8 @@ export const dataTableStyles = {
   ].join(' '),
   resultCount: 'text-sm text-foreground/75 sm:justify-self-start',
   pageControls: 'flex items-center justify-center gap-1 whitespace-nowrap',
-  pageButton: 'min-h-8 min-w-8 cursor-pointer px-2 text-sm text-foreground hover:text-primary disabled:cursor-default disabled:opacity-35',
+  pageButton:
+    'min-h-8 min-w-8 cursor-pointer px-2 text-sm text-foreground hover:text-primary disabled:cursor-default disabled:opacity-35',
   currentPageButton: 'min-h-8 min-w-8 px-2 text-sm font-bold text-primary underline underline-offset-4',
   pageSize: 'flex items-center gap-2 sm:justify-self-end',
   pageSizeLabel: 'hidden text-sm text-foreground/75 lg:inline',

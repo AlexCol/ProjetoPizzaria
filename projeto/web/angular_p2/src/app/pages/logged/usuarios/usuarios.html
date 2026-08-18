@@ -1,14 +1,17 @@
 <main [class]="styles.page">
   <header [class]="styles.header">
+    <!-- Cabeçalho da tela -->
     <div>
       <h1 [class]="styles.title">Usuários</h1>
       <p [class]="styles.subtitle">Gerencie as pessoas com acesso ao sistema.</p>
     </div>
+    <!-- Botao para criação de novo usuário -->
     <ng-container *appAuth="['Admin']">
       <app-button label="Novo usuário" variant="primary" [fullWidth]="false" (clicked)="openModal()" />
     </ng-container>
   </header>
 
+  <!-- Criação do datatable -->
   <section [class]="styles.gridSection" aria-label="Lista de usuários">
     <app-data-table
       [data]="users()"
@@ -19,12 +22,24 @@
   </section>
 </main>
 
+<!-- --------------------------------------------- -->
+<!-- Blocos não renderizados autimaticamente.      -->
+<!-- eles são injetados via pelo componente via    -->
+<!-- createUsuariosTableColumns()                  -->
+<!-- --------------------------------------------- -->
+
+<!-- --------------------------------------------- -->
+<!-- statusTemplate - apresentado sempre           -->
+<!-- --------------------------------------------- -->
 <ng-template #statusTemplate let-user>
   <span [class]="user.status === 'Active' ? styles.activeBadge : styles.inactiveBadge">
     {{ statusLabel(user.status) }}
   </span>
 </ng-template>
 
+<!-- --------------------------------------------- -->
+<!-- actionsTemplate - apresentado se user = Admin -->
+<!-- --------------------------------------------- -->
 <ng-template #actionsTemplate let-user>
   <div [class]="styles.actionsCell">
     <app-button
@@ -35,7 +50,7 @@
       [className]="styles.iconButton"
       (clicked)="openModal(user)"
     >
-      <span aria-hidden="true">&#9998;</span>
+      <lucide-icon [img]="Edit" strokeWidth="2" />
     </app-button>
     <app-button
       variant="unstyled"
@@ -45,11 +60,14 @@
       [className]="styles.deleteIconButton"
       (clicked)="requestDelete(user)"
     >
-      <span aria-hidden="true">&#128465;</span>
+      <lucide-icon [img]="Trash2" strokeWidth="2" />
     </app-button>
   </div>
 </ng-template>
 
+<!-- --------------------------------------------- -->
+<!-- Modal para criação/edição de usuário          -->
+<!-- --------------------------------------------- -->
 <app-modal
   [(isOpen)]="modalOpen"
   [ariaLabel]="selectedUser() ? 'Editar usuário' : 'Novo usuário'"
@@ -64,11 +82,15 @@
   />
 </app-modal>
 
+<!-- --------------------------------------------- -->
+<!-- Modal para confirmação de exclusão de usuário -->
+<!-- --------------------------------------------- -->
 <app-modal [(isOpen)]="deleteModalOpen" ariaLabel="Confirmar exclusão" [blockBackdropClose]="true">
   <section [class]="styles.confirmation">
     <h2 [class]="styles.confirmationTitle">Excluir usuário</h2>
     <p>
-      Tem certeza que deseja excluir <strong>{{ userToDelete()?.name }}</strong>? Esta ação não pode ser desfeita.
+      Tem certeza que deseja excluir <strong>{{ userToDelete()?.name }}</strong
+      >? Esta ação não pode ser desfeita.
     </p>
     <div [class]="styles.confirmationActions">
       <app-button

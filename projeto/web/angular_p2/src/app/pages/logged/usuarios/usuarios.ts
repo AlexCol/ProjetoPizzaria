@@ -1,8 +1,5 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ToastrService } from 'ngx-toastr';
-import { finalize } from 'rxjs';
+import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
+import { LucideAngularModule, Pen, Trash2 } from 'lucide-angular';
 import { ButtonComponent } from '../../../../components/shared/button/button';
 import { DataTableComponent } from '../../../../components/shared/data-table/data-table';
 import {
@@ -11,14 +8,10 @@ import {
 } from '../../../../components/shared/data-table/data-table.interfaces';
 import { ModalComponent } from '../../../../components/shared/modal/modal';
 import { AuthDirective } from '../../../../directives/auth.directive';
-import { getApiErrorMessage } from '../../../../models/ApiError';
-import { Role } from '../../../../models/Role';
 import { User } from '../../../../models/User';
 import { AuthService } from '../../../../services/auth/auth.service';
-import { RolesService } from '../../../../services/domain/roles/roles.service';
-import { CreateUserRequest, UpdateUserRequest } from '../../../../services/domain/users/user.interfaces';
-import { UsersService } from '../../../../services/domain/users/users.service';
 import { UsuarioModalComponent, UserFormSubmission } from './usuario-modal/usuario-modal';
+import { UsuariosDataService } from './usuarios-data.service';
 import { createUsuariosTableColumns } from './usuarios-table.columns';
 import { usuariosStyles } from './usuarios.styles';
 
@@ -26,26 +19,32 @@ import { usuariosStyles } from './usuarios.styles';
   selector: 'app-usuarios',
   templateUrl: './usuarios.html',
   host: { '[class]': 'styles.host' },
-  imports: [AuthDirective, ButtonComponent, DataTableComponent, ModalComponent, UsuarioModalComponent],
+  imports: [
+    AuthDirective,
+    ButtonComponent,
+    DataTableComponent,
+    ModalComponent,
+    UsuarioModalComponent,
+    LucideAngularModule,
+  ],
+  providers: [UsuariosDataService],
 })
 export class UsuariosComponent {
   /*****************************************/
   /* Propriedades Privadas                 */
   /*****************************************/
-  private readonly usersService = inject(UsersService);
-  private readonly rolesService = inject(RolesService);
+  private readonly data = inject(UsuariosDataService);
   private readonly authService = inject(AuthService);
-  private readonly toast = inject(ToastrService);
-  private readonly destroyRef = inject(DestroyRef);
 
   /*****************************************/
   /* Propriedades Publicas                 */
   /*****************************************/
-  readonly users = signal<User[]>([]);
-  readonly roles = signal<Role[]>([]);
-  readonly loading = signal(false);
-  readonly saving = signal(false);
-  readonly deleting = signal(false);
+  readonly Edit = Pen;
+  readonly Trash2 = Trash2;
+  readonly users = this.data.users;
+  readonly loading = this.data.loading;
+  readonly saving = this.data.saving;
+  readonly deleting = this.data.deleting;
   readonly modalOpen = signal(false);
   readonly deleteModalOpen = signal(false);
   readonly selectedUser = signal<User | undefined>(undefined);
@@ -59,10 +58,10 @@ export class UsuariosComponent {
   readonly actionsTemplate = viewChild<TemplateRef<DataTableCellTemplateContext<User>>>('actionsTemplate');
   readonly isAdmin = computed(() => this.authService.hasAnyRole(['Admin']));
   readonly roleOptions = computed<DataTableFilterOption[]>(() =>
-    this.roles().map((role) => ({ label: role.name, value: role.id })),
+    this.data.roles().map((role) => ({ label: role.name, value: role.id })),
   );
   readonly roleFilterOptions = computed<DataTableFilterOption[]>(() =>
-    this.roles().map((role) => ({ label: role.name, value: role.name })),
+    this.data.roles().map((role) => ({ label: role.name, value: role.name })),
   );
   readonly tableColumns = computed(() =>
     createUsuariosTableColumns({
@@ -77,8 +76,7 @@ export class UsuariosComponent {
   /* Metodo Construtor                     */
   /*****************************************/
   constructor() {
-    this.loadRoles();
-    this.loadUsers();
+    this.data.load();
   }
 
   /*****************************************/
@@ -94,30 +92,6 @@ export class UsuariosComponent {
     this.selectedUser.set(undefined);
   }
 
-  saveUser(payload: UserFormSubmission): void {
-    const selected = this.selectedUser();
-    const request = selected
-      ? this.usersService.updateUser(selected.id, payload as UpdateUserRequest)
-      : this.usersService.createUser(payload as CreateUserRequest);
-
-    this.saving.set(true);
-    request
-      .pipe(
-        finalize(() => this.saving.set(false)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: () => {
-          this.toast.success(selected ? 'Usuário atualizado com sucesso.' : 'Usuário criado com sucesso.');
-          this.closeModal();
-          this.loadUsers();
-        },
-        error: (error: HttpErrorResponse) => {
-          this.toast.error(getApiErrorMessage(error, 'Não foi possível salvar o usuário.'), 'Erro');
-        },
-      });
-  }
-
   requestDelete(user: User): void {
     this.userToDelete.set(user);
     this.deleteModalOpen.set(true);
@@ -128,65 +102,18 @@ export class UsuariosComponent {
     this.userToDelete.set(undefined);
   }
 
-  confirmDelete(): void {
-    const user = this.userToDelete();
-    if (!user) return;
-
-    this.deleting.set(true);
-    this.usersService
-      .deleteUser(user.id)
-      .pipe(
-        finalize(() => this.deleting.set(false)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: () => {
-          this.toast.success('Usuário excluído com sucesso.');
-          this.cancelDelete();
-          this.loadUsers();
-        },
-        error: (error: HttpErrorResponse) => {
-          this.toast.error(getApiErrorMessage(error, 'Não foi possível excluir o usuário.'), 'Erro');
-        },
-      });
-  }
-
   statusLabel(status: User['status']): string {
     return { Active: 'Ativo', Inactive: 'Inativo', Blocked: 'Bloqueado' }[status];
   }
 
-  /*****************************************/
-  /* Metodos Privados                      */
-  /*****************************************/
-  private loadRoles(): void {
-    this.rolesService
-      .getRoles()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (roles) => this.roles.set(roles),
-        error: (error: HttpErrorResponse) => {
-          this.toast.error(getApiErrorMessage(error, 'Não foi possível carregar os perfis.'), 'Erro');
-        },
-      });
+  saveUser(payload: UserFormSubmission): void {
+    this.data.saveUser(this.selectedUser(), payload, () => this.closeModal());
   }
 
-  private loadUsers(): void {
-    this.loading.set(true);
+  confirmDelete(): void {
+    const user = this.userToDelete();
+    if (!user) return;
 
-    this.usersService
-      .getAllUsers()
-      .pipe(
-        finalize(() => this.loading.set(false)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (result) => {
-          this.users.set(result);
-        },
-        error: (error: HttpErrorResponse) => {
-          this.users.set([]);
-          this.toast.error(getApiErrorMessage(error, 'Não foi possível carregar os usuários.'), 'Erro');
-        },
-      });
+    this.data.deleteUser(user, () => this.cancelDelete());
   }
 }

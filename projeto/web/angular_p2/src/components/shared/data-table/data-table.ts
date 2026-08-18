@@ -18,13 +18,9 @@ import {
   sortFn_alphanumeric,
   tableFeatures,
 } from '@tanstack/angular-table';
+import { LucideAngularModule, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Search } from 'lucide-angular';
 import { PopoverComponent } from '../popover/popover';
-import {
-  DataTableColumn,
-  DataTableFilterValue,
-  DataTableMode,
-  DataTableQuery,
-} from './data-table.interfaces';
+import { DataTableColumn, DataTableFilterValue, DataTableMode, DataTableQuery } from './data-table.interfaces';
 import { dataTableStyles } from './data-table.styles';
 
 const dataTableFeatures = tableFeatures({
@@ -47,7 +43,7 @@ type DataTableFeatures = typeof dataTableFeatures;
   selector: 'app-data-table',
   templateUrl: './data-table.html',
   host: { '[class]': 'styles.host' },
-  imports: [NgTemplateOutlet, PopoverComponent],
+  imports: [NgTemplateOutlet, PopoverComponent, LucideAngularModule],
 })
 export class DataTableComponent<TData extends Record<string, any>> {
   /*****************************************/
@@ -76,6 +72,11 @@ export class DataTableComponent<TData extends Record<string, any>> {
   /* Propriedades Publicas                 */
   /*****************************************/
   readonly styles = dataTableStyles;
+  readonly ChevronUp = ChevronUp;
+  readonly ChevronDown = ChevronDown;
+  readonly ChevronLeft = ChevronLeft;
+  readonly ChevronRight = ChevronRight;
+  readonly Search = Search;
 
   readonly columnDefinitions = computed<ColumnDef<DataTableFeatures, TData, unknown>[]>(() =>
     this.columns().map((column) => {
@@ -85,11 +86,7 @@ export class DataTableComponent<TData extends Record<string, any>> {
         enableSorting: column.sortable !== false,
         enableColumnFilter: !!column.filter,
         filterFn: column.filter?.type === 'select' ? 'equalsString' : 'includesString',
-        ...(column.accessor
-          ? { accessorFn: column.accessor }
-          : column.field
-            ? { accessorKey: column.field }
-            : {}),
+        ...(column.accessor ? { accessorFn: column.accessor } : column.field ? { accessorKey: column.field } : {}),
       };
 
       return definition as ColumnDef<DataTableFeatures, TData, unknown>;
@@ -137,9 +134,7 @@ export class DataTableComponent<TData extends Record<string, any>> {
   readonly rangeStart = computed(() =>
     this.displayedTotal() === 0 ? 0 : this.pagination().pageIndex * this.pagination().pageSize + 1,
   );
-  readonly rangeEnd = computed(() =>
-    Math.min(this.currentPage() * this.pagination().pageSize, this.displayedTotal()),
-  );
+  readonly rangeEnd = computed(() => Math.min(this.currentPage() * this.pagination().pageSize, this.displayedTotal()));
   readonly visiblePages = computed(() => {
     const start = Math.max(1, Math.min(this.currentPage() - 2, this.totalPages() - 4));
     const end = Math.min(this.totalPages(), start + 4);
@@ -198,9 +193,12 @@ export class DataTableComponent<TData extends Record<string, any>> {
     column.toggleSorting(column.getIsSorted() === 'asc');
   }
 
-  sortIndicator(columnId: string): string {
-    const sorted = this.table.getColumn(columnId)?.getIsSorted();
-    return sorted === 'asc' ? '↑' : sorted === 'desc' ? '↓' : '';
+  isSortedAsc(columnId: string): boolean {
+    return this.table.getColumn(columnId)?.getIsSorted() === 'asc';
+  }
+
+  isSortedDesc(columnId: string): boolean {
+    return this.table.getColumn(columnId)?.getIsSorted() === 'desc';
   }
 
   ariaSort(columnId: string): 'ascending' | 'descending' | 'none' {
@@ -284,7 +282,7 @@ export class DataTableComponent<TData extends Record<string, any>> {
     this.queryChange.emit({
       page: this.pagination().pageIndex + 1,
       limit: this.pagination().pageSize,
-      sortField: sortColumn ? sortColumn.sortField ?? sortColumn.id : undefined,
+      sortField: sortColumn ? (sortColumn.sortField ?? sortColumn.id) : undefined,
       sortOrder: sorting?.desc ? 'desc' : sorting ? 'asc' : undefined,
       filters,
     });

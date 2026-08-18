@@ -1,17 +1,25 @@
 <section [class]="styles.container">
   <div [class]="styles.tableContainer">
+    <!-- TABLE -->
     <table [class]="styles.table">
+      <!-- -------------------------------------------------------------- -->
+      <!-- HEADERS                                                        -->
+      <!-- ------------------------------------------------------------- -->
       <thead [class]="styles.header">
         @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
           <tr>
             @for (header of headerGroup.headers; track header.id) {
               @let column = getColumnConfig(header.column.id);
+              <!-- -------------------------------------------------------------- -->
+              <!-- Configuração da Coluna - Header                                -->
+              <!-- -------------------------------------------------------------- -->
               <th
                 [class]="styles.headerCell"
                 [style.width]="column.width ?? null"
                 [attr.aria-sort]="ariaSort(column.id)"
               >
                 <div [class]="styles.headerContent">
+                  <!-- Coluna envolta em um botão para ativar ou não Ordenação -->
                   <button
                     type="button"
                     [class]="styles.sortButton"
@@ -19,28 +27,48 @@
                     [attr.aria-label]="header.column.getCanSort() ? 'Ordenar por ' + column.header : null"
                     (click)="toggleSorting(column.id)"
                   >
+                    <!-- Label da coluna - nome na coluna -->
                     <span>{{ column.header }}</span>
+
+                    <!-- Se a coluna for ordenável e estiver ordenada, adiciona setas de ordenação -->
                     @if (header.column.getCanSort()) {
-                      <span [class]="styles.sortIcon" aria-hidden="true">{{ sortIndicator(column.id) }}</span>
+                      @if (isSortedAsc(column.id)) {
+                        <lucide-icon [img]="ChevronUp" [class]="styles.sortIcon" aria-hidden="true" strokeWidth="2" />
+                      } @else if (isSortedDesc(column.id)) {
+                        <lucide-icon [img]="ChevronDown" [class]="styles.sortIcon" aria-hidden="true" strokeWidth="2" />
+                      } @else {
+                        <!-- place holder com mesmo tamanho do ícone pra não bagunçar quando se ordena um campo -->
+                        <span [class]="styles.sortIcon" aria-hidden="true"></span>
+                      }
                     }
                   </button>
 
+                  <!-- -------------------------------------------------------------- -->
+                  <!-- Icone de Filtro                                                -->
+                  <!-- -------------------------------------------------------------- -->
                   @if (column.filter) {
                     <app-popover position="bottom-start" [closeOnContentClick]="false">
+                      <!-- botao usado como trigger para o popover -->
                       <button
                         popover-trigger
                         type="button"
-                        [class]="hasFilter(column.id) ? styles.filterButton + ' ' + styles.activeFilterButton : styles.filterButton"
+                        [class]="
+                          hasFilter(column.id)
+                            ? styles.filterButton + ' ' + styles.activeFilterButton
+                            : styles.filterButton
+                        "
                         [attr.aria-label]="'Filtrar por ' + column.header"
                         [attr.title]="hasFilter(column.id) ? 'Filtro ativo' : 'Filtrar'"
                       >
-                        <span aria-hidden="true">{{ hasFilter(column.id) ? '●' : '⌕' }}</span>
+                        <lucide-icon [img]="Search" aria-hidden="true" strokeWidth="2" [class]="styles.searchIcon" />
                       </button>
 
+                      <!-- popover content -->
                       <div popover-content [class]="styles.filterPanel">
                         <span [class]="styles.filterLabel">Filtrar por {{ column.header }}</span>
 
                         @if (column.filter.type === 'select') {
+                          <!-- filtro por select -->
                           <select
                             [class]="styles.filterInput"
                             [value]="filterValue(column.id)"
@@ -52,6 +80,7 @@
                             }
                           </select>
                         } @else {
+                          <!-- filtro por texto -->
                           <input
                             type="search"
                             [class]="styles.filterInput"
@@ -78,11 +107,18 @@
         }
       </thead>
 
+      <!-- -------------------------------------------------------------- -->
+      <!-- BODY                                                           -->
+      <!-- -------------------------------------------------------------- -->
       <tbody>
         @if (loading()) {
-          <tr><td [attr.colspan]="columns().length" [class]="styles.stateCell">Carregando...</td></tr>
+          <tr>
+            <td [attr.colspan]="columns().length" [class]="styles.stateCell">Carregando...</td>
+          </tr>
         } @else if (table.getRowModel().rows.length === 0) {
-          <tr><td [attr.colspan]="columns().length" [class]="styles.stateCell">{{ emptyMessage() }}</td></tr>
+          <tr>
+            <td [attr.colspan]="columns().length" [class]="styles.stateCell">{{ emptyMessage() }}</td>
+          </tr>
         } @else {
           @for (row of table.getRowModel().rows; track row.id) {
             <tr [class]="styles.row">
@@ -106,19 +142,44 @@
     </table>
   </div>
 
+  <!-- -------------------------------------------------------------- -->
+  <!-- FOOTER - paginação e o controle de tamanho de página           -->
+  <!-- -------------------------------------------------------------- -->
   <footer [class]="styles.footer">
     <p [class]="styles.resultCount">{{ rangeStart() }}–{{ rangeEnd() }} de {{ displayedTotal() }}</p>
 
     <nav [class]="styles.pageControls" aria-label="Paginação">
-      <button type="button" [class]="styles.pageButton" [disabled]="currentPage() === 1"
-        aria-label="Página anterior" title="Página anterior" (click)="goToPage(currentPage() - 1)">‹</button>
+      <button
+        type="button"
+        [class]="styles.pageButton"
+        [disabled]="currentPage() === 1"
+        aria-label="Página anterior"
+        title="Página anterior"
+        (click)="goToPage(currentPage() - 1)"
+      >
+        <lucide-icon [img]="ChevronLeft" aria-hidden="true" strokeWidth="2"></lucide-icon>
+      </button>
       @for (page of visiblePages(); track page) {
-        <button type="button" [class]="page === currentPage() ? styles.currentPageButton : styles.pageButton"
-          [attr.aria-label]="'Ir para a página ' + page" [attr.aria-current]="page === currentPage() ? 'page' : null"
-          (click)="goToPage(page)">{{ page }}</button>
+        <button
+          type="button"
+          [class]="page === currentPage() ? styles.currentPageButton : styles.pageButton"
+          [attr.aria-label]="'Ir para a página ' + page"
+          [attr.aria-current]="page === currentPage() ? 'page' : null"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </button>
       }
-      <button type="button" [class]="styles.pageButton" [disabled]="currentPage() === totalPages()"
-        aria-label="Próxima página" title="Próxima página" (click)="goToPage(currentPage() + 1)">›</button>
+      <button
+        type="button"
+        [class]="styles.pageButton"
+        [disabled]="currentPage() === totalPages()"
+        aria-label="Próxima página"
+        title="Próxima página"
+        (click)="goToPage(currentPage() + 1)"
+      >
+        <lucide-icon [img]="ChevronRight" aria-hidden="true" strokeWidth="2"></lucide-icon>
+      </button>
     </nav>
 
     <label [class]="styles.pageSize">
