@@ -39,6 +39,7 @@ export function createUsuariosTableColumns({
       id: 'role',
       header: 'Perfil',
       accessor: (user) => user.role.name,
+      sortable: true,
       sortField: 'RoleId',
       filter: {
         type: 'select',

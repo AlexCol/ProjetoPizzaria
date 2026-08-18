@@ -13,11 +13,8 @@
     <app-data-table
       [data]="users()"
       [columns]="tableColumns()"
-      mode="server"
-      [total]="total()"
       [loading]="loading()"
       emptyMessage="Nenhum usuário encontrado."
-      (queryChange)="handleTableQuery($event)"
     />
   </section>
 </main>

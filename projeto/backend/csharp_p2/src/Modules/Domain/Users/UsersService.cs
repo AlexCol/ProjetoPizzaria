@@ -33,7 +33,7 @@ public class UsersService : IUsersService {
   #region GETS
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!GETS
   public async Task<IEnumerable<ResponseUserDto>> GetAllUsersAsync() {
-    var users = await _userRepository.GetAllAsync();
+    var users = await _userRepository.GetAllWithReferencesAsync();
     return users.Select(user => new ResponseUserDto(user));
   }
 

@@ -17,6 +17,10 @@ export class UsersService {
   /*****************************************/
   /* Metodos Api (Observables)            */
   /*****************************************/
+  getAllUsers() {
+    return this._httpClient.get<User[]>('/users');
+  }
+
   getUsers(
     page: number,
     limit: number,

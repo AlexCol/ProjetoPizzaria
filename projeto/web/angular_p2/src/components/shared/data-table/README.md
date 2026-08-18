@@ -140,7 +140,8 @@ createDataTableColumn<Product>({
 
 Para filtros locais do tipo `select`, o valor de cada opção deve corresponder ao
 valor retornado por `field` ou `accessor`. No exemplo, o accessor retorna o nome
-da categoria, por isso as opções também usam o nome.
+da categoria, por isso as opções também usam o nome. A comparação de opções é
+exata; filtros de texto usam busca parcial.
 
 ## Uso com API
 

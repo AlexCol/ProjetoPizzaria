@@ -8,20 +8,15 @@ import { DataTableComponent } from '../../../../components/shared/data-table/dat
 import {
   DataTableCellTemplateContext,
   DataTableFilterOption,
-  DataTableQuery,
 } from '../../../../components/shared/data-table/data-table.interfaces';
 import { ModalComponent } from '../../../../components/shared/modal/modal';
 import { AuthDirective } from '../../../../directives/auth.directive';
 import { getApiErrorMessage } from '../../../../models/ApiError';
+import { Role } from '../../../../models/Role';
 import { User } from '../../../../models/User';
 import { AuthService } from '../../../../services/auth/auth.service';
 import { RolesService } from '../../../../services/domain/roles/roles.service';
-import {
-  CreateUserRequest,
-  SortOrder,
-  UpdateUserRequest,
-  UserSortField,
-} from '../../../../services/domain/users/user.interfaces';
+import { CreateUserRequest, UpdateUserRequest } from '../../../../services/domain/users/user.interfaces';
 import { UsersService } from '../../../../services/domain/users/users.service';
 import { UsuarioModalComponent, UserFormSubmission } from './usuario-modal/usuario-modal';
 import { createUsuariosTableColumns } from './usuarios-table.columns';
@@ -42,19 +37,12 @@ export class UsuariosComponent {
   private readonly authService = inject(AuthService);
   private readonly toast = inject(ToastrService);
   private readonly destroyRef = inject(DestroyRef);
-  private lastQuery: DataTableQuery = {
-    page: 1,
-    limit: 10,
-    sortField: 'Name',
-    sortOrder: 'asc',
-    filters: [],
-  };
 
   /*****************************************/
   /* Propriedades Publicas                 */
   /*****************************************/
   readonly users = signal<User[]>([]);
-  readonly roleOptions = signal<DataTableFilterOption[]>([]);
+  readonly roles = signal<Role[]>([]);
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly deleting = signal(false);
@@ -62,7 +50,6 @@ export class UsuariosComponent {
   readonly deleteModalOpen = signal(false);
   readonly selectedUser = signal<User | undefined>(undefined);
   readonly userToDelete = signal<User | undefined>(undefined);
-  readonly total = signal(0);
   readonly styles = usuariosStyles;
 
   /*****************************************/
@@ -71,9 +58,15 @@ export class UsuariosComponent {
   readonly statusTemplate = viewChild<TemplateRef<DataTableCellTemplateContext<User>>>('statusTemplate');
   readonly actionsTemplate = viewChild<TemplateRef<DataTableCellTemplateContext<User>>>('actionsTemplate');
   readonly isAdmin = computed(() => this.authService.hasAnyRole(['Admin']));
+  readonly roleOptions = computed<DataTableFilterOption[]>(() =>
+    this.roles().map((role) => ({ label: role.name, value: role.id })),
+  );
+  readonly roleFilterOptions = computed<DataTableFilterOption[]>(() =>
+    this.roles().map((role) => ({ label: role.name, value: role.name })),
+  );
   readonly tableColumns = computed(() =>
     createUsuariosTableColumns({
-      roleOptions: this.roleOptions(),
+      roleOptions: this.roleFilterOptions(),
       statusTemplate: this.statusTemplate(),
       actionsTemplate: this.actionsTemplate(),
       showControls: this.isAdmin(),
@@ -91,11 +84,6 @@ export class UsuariosComponent {
   /*****************************************/
   /* Metodos Publicos                      */
   /*****************************************/
-  handleTableQuery(query: DataTableQuery): void {
-    this.lastQuery = query;
-    this.loadUsers(query);
-  }
-
   openModal(user?: User): void {
     this.selectedUser.set(user);
     this.modalOpen.set(true);
@@ -155,9 +143,6 @@ export class UsuariosComponent {
         next: () => {
           this.toast.success('Usuário excluído com sucesso.');
           this.cancelDelete();
-          if (this.users().length === 1 && this.lastQuery.page > 1) {
-            this.lastQuery = { ...this.lastQuery, page: this.lastQuery.page - 1 };
-          }
           this.loadUsers();
         },
         error: (error: HttpErrorResponse) => {
@@ -178,36 +163,28 @@ export class UsuariosComponent {
       .getRoles()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (roles) => this.roleOptions.set(roles.map((role) => ({ label: role.name, value: role.id }))),
+        next: (roles) => this.roles.set(roles),
         error: (error: HttpErrorResponse) => {
           this.toast.error(getApiErrorMessage(error, 'Não foi possível carregar os perfis.'), 'Erro');
         },
       });
   }
 
-  private loadUsers(query = this.lastQuery): void {
+  private loadUsers(): void {
     this.loading.set(true);
 
-    const name = String(query.filters.find((filter) => filter.field === 'Name')?.value ?? '');
-    const roleFilter = query.filters.find((filter) => filter.field === 'RoleId')?.value;
-    const roleId = roleFilter === undefined || roleFilter === '' ? undefined : String(roleFilter);
-    const sortField = (query.sortField ?? 'Name') as UserSortField;
-    const sortOrder = (query.sortOrder ?? 'asc') as SortOrder;
-
     this.usersService
-      .getUsers(query.page, query.limit, name, roleId, sortField, sortOrder)
+      .getAllUsers()
       .pipe(
         finalize(() => this.loading.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (result) => {
-          this.users.set(result.data);
-          this.total.set(result.total);
+          this.users.set(result);
         },
         error: (error: HttpErrorResponse) => {
           this.users.set([]);
-          this.total.set(0);
           this.toast.error(getApiErrorMessage(error, 'Não foi possível carregar os usuários.'), 'Erro');
         },
       });

@@ -9,6 +9,7 @@ import {
   createFilteredRowModel,
   createPaginatedRowModel,
   createSortedRowModel,
+  filterFn_equalsString,
   filterFn_includesString,
   functionalUpdate,
   injectTable,
@@ -29,7 +30,10 @@ import { dataTableStyles } from './data-table.styles';
 const dataTableFeatures = tableFeatures({
   columnFilteringFeature,
   filteredRowModel: createFilteredRowModel(),
-  filterFns: { includesString: filterFn_includesString },
+  filterFns: {
+    equalsString: filterFn_equalsString,
+    includesString: filterFn_includesString,
+  },
   rowSortingFeature,
   sortedRowModel: createSortedRowModel(),
   sortFns: { alphanumeric: sortFn_alphanumeric },
@@ -80,7 +84,7 @@ export class DataTableComponent<TData extends Record<string, any>> {
         header: column.header,
         enableSorting: column.sortable !== false,
         enableColumnFilter: !!column.filter,
-        filterFn: 'includesString',
+        filterFn: column.filter?.type === 'select' ? 'equalsString' : 'includesString',
         ...(column.accessor
           ? { accessorFn: column.accessor }
           : column.field
