@@ -12,7 +12,7 @@ export interface CreateUserRequest {
   name: string;
   password: string;
   confirmPassword: string;
-  roleId: number;
+  roleId: string;
 }
 
 /*****************************************/
@@ -20,5 +20,5 @@ export interface CreateUserRequest {
 /*****************************************/
 export interface UpdateUserRequest {
   name: string;
-  roleId: number;
+  roleId: string;
 }

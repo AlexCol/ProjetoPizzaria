@@ -43,7 +43,7 @@ export class UsuarioModalComponent {
   readonly form = new FormGroup({
     name: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3)] }),
     email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
-    roleId: new FormControl<number | null>(null, { validators: [Validators.required] }),
+    roleId: new FormControl<string | null>(null, { validators: [Validators.required] }),
     password: new FormControl('', { nonNullable: true }),
     confirmPassword: new FormControl('', { nonNullable: true }),
   });

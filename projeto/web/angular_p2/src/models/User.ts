@@ -4,10 +4,10 @@ import { Role } from "./Role";
 /* Modelo de Usuario                     */
 /*****************************************/
 export type User = {
-  id: number;
+  id: string;
   email: string;
   name: string;
   status: 'Active' | 'Inactive' | 'Blocked';
-  roleId?: number;
+  roleId?: string;
   role: Role;
 }

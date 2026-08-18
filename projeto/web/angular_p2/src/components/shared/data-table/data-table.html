@@ -1,0 +1,133 @@
+<section [class]="styles.container">
+  <div [class]="styles.tableContainer">
+    <table [class]="styles.table">
+      <thead [class]="styles.header">
+        @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
+          <tr>
+            @for (header of headerGroup.headers; track header.id) {
+              @let column = getColumnConfig(header.column.id);
+              <th
+                [class]="styles.headerCell"
+                [style.width]="column.width ?? null"
+                [attr.aria-sort]="ariaSort(column.id)"
+              >
+                <div [class]="styles.headerContent">
+                  <button
+                    type="button"
+                    [class]="styles.sortButton"
+                    [disabled]="!header.column.getCanSort()"
+                    [attr.aria-label]="header.column.getCanSort() ? 'Ordenar por ' + column.header : null"
+                    (click)="toggleSorting(column.id)"
+                  >
+                    <span>{{ column.header }}</span>
+                    @if (header.column.getCanSort()) {
+                      <span [class]="styles.sortIcon" aria-hidden="true">{{ sortIndicator(column.id) }}</span>
+                    }
+                  </button>
+
+                  @if (column.filter) {
+                    <app-popover position="bottom-start" [closeOnContentClick]="false">
+                      <button
+                        popover-trigger
+                        type="button"
+                        [class]="hasFilter(column.id) ? styles.filterButton + ' ' + styles.activeFilterButton : styles.filterButton"
+                        [attr.aria-label]="'Filtrar por ' + column.header"
+                        [attr.title]="hasFilter(column.id) ? 'Filtro ativo' : 'Filtrar'"
+                      >
+                        <span aria-hidden="true">{{ hasFilter(column.id) ? '●' : '⌕' }}</span>
+                      </button>
+
+                      <div popover-content [class]="styles.filterPanel">
+                        <span [class]="styles.filterLabel">Filtrar por {{ column.header }}</span>
+
+                        @if (column.filter.type === 'select') {
+                          <select
+                            [class]="styles.filterInput"
+                            [value]="filterValue(column.id)"
+                            (change)="handleSelectFilter(column.id, $event)"
+                          >
+                            <option value="">{{ column.filter.placeholder ?? 'Todos' }}</option>
+                            @for (option of column.filter.options ?? []; track option.value) {
+                              <option [value]="option.value">{{ option.label }}</option>
+                            }
+                          </select>
+                        } @else {
+                          <input
+                            type="search"
+                            [class]="styles.filterInput"
+                            [value]="filterValue(column.id)"
+                            [placeholder]="column.filter.placeholder ?? 'Filtrar...'"
+                            (input)="handleTextFilter(column.id, $event)"
+                          />
+                        }
+
+                        @if (hasFilter(column.id)) {
+                          <div [class]="styles.filterActions">
+                            <button type="button" [class]="styles.clearFilter" (click)="clearFilter(column.id)">
+                              Limpar filtro
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    </app-popover>
+                  }
+                </div>
+              </th>
+            }
+          </tr>
+        }
+      </thead>
+
+      <tbody>
+        @if (loading()) {
+          <tr><td [attr.colspan]="columns().length" [class]="styles.stateCell">Carregando...</td></tr>
+        } @else if (table.getRowModel().rows.length === 0) {
+          <tr><td [attr.colspan]="columns().length" [class]="styles.stateCell">{{ emptyMessage() }}</td></tr>
+        } @else {
+          @for (row of table.getRowModel().rows; track row.id) {
+            <tr [class]="styles.row">
+              @for (cell of row.getAllCells(); track cell.id) {
+                @let column = getColumnConfig(cell.column.id);
+                <td [class]="getCellClass(column, row.original)">
+                  @if (column.cellTemplate) {
+                    <ng-container
+                      [ngTemplateOutlet]="column.cellTemplate"
+                      [ngTemplateOutletContext]="{ $implicit: row.original, row: row.original, value: cell.getValue() }"
+                    />
+                  } @else {
+                    {{ formatCell(column, cell.getValue(), row.original) }}
+                  }
+                </td>
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <footer [class]="styles.footer">
+    <p [class]="styles.resultCount">{{ rangeStart() }}–{{ rangeEnd() }} de {{ displayedTotal() }}</p>
+
+    <nav [class]="styles.pageControls" aria-label="Paginação">
+      <button type="button" [class]="styles.pageButton" [disabled]="currentPage() === 1"
+        aria-label="Página anterior" title="Página anterior" (click)="goToPage(currentPage() - 1)">‹</button>
+      @for (page of visiblePages(); track page) {
+        <button type="button" [class]="page === currentPage() ? styles.currentPageButton : styles.pageButton"
+          [attr.aria-label]="'Ir para a página ' + page" [attr.aria-current]="page === currentPage() ? 'page' : null"
+          (click)="goToPage(page)">{{ page }}</button>
+      }
+      <button type="button" [class]="styles.pageButton" [disabled]="currentPage() === totalPages()"
+        aria-label="Próxima página" title="Próxima página" (click)="goToPage(currentPage() + 1)">›</button>
+    </nav>
+
+    <label [class]="styles.pageSize">
+      <span [class]="styles.pageSizeLabel">Linhas por página</span>
+      <select [class]="styles.pageSizeSelect" [value]="pagination().pageSize" (change)="changePageSize($event)">
+        @for (size of pageSizeOptions(); track size) {
+          <option [value]="size">{{ size }}</option>
+        }
+      </select>
+    </label>
+  </footer>
+</section>

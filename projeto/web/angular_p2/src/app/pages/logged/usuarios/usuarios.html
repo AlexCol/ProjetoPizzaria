@@ -9,176 +9,49 @@
     </ng-container>
   </header>
 
-  <section [class]="styles.filters" aria-label="Filtros de usuários">
-    <app-input [formControl]="nameFilter" type="search" label="Nome" placeholder="Buscar por nome" />
-    <app-select [formControl]="roleFilter" label="Perfil" placeholder="Todos os perfis" [options]="roleOptions()" />
-  </section>
-
   <section [class]="styles.gridSection" aria-label="Lista de usuários">
-    <div [class]="styles.tableWrapper">
-      <table [class]="styles.table">
-        <thead>
-          <tr>
-            <th [class]="styles.th" [attr.aria-sort]="sortField() === 'Name' ? sortOrder() + 'ending' : 'none'">
-              <app-button
-                variant="unstyled"
-                ariaLabel="Ordenar por nome"
-                title="Ordenar por nome"
-                [fullWidth]="false"
-                [className]="styles.sortButton"
-                [iconClassName]="styles.sortContent"
-                (clicked)="toggleSort('Name')"
-                [allowSpam]="true"
-              >
-                <span>Nome</span
-                ><span [class]="styles.sortIndicator" aria-hidden="true">{{ sortIndicator('Name') }}</span>
-              </app-button>
-            </th>
-            <th [class]="styles.th" [attr.aria-sort]="sortField() === 'Email' ? sortOrder() + 'ending' : 'none'">
-              <app-button
-                variant="unstyled"
-                ariaLabel="Ordenar por e-mail"
-                title="Ordenar por e-mail"
-                [fullWidth]="false"
-                [className]="styles.sortButton"
-                [iconClassName]="styles.sortContent"
-                (clicked)="toggleSort('Email')"
-                [allowSpam]="true"
-              >
-                <span>E-mail</span
-                ><span [class]="styles.sortIndicator" aria-hidden="true">{{ sortIndicator('Email') }}</span>
-              </app-button>
-            </th>
-            <th [class]="styles.th" [attr.aria-sort]="sortField() === 'RoleId' ? sortOrder() + 'ending' : 'none'">
-              <app-button
-                variant="unstyled"
-                ariaLabel="Ordenar por perfil"
-                title="Ordenar por perfil"
-                [fullWidth]="false"
-                [className]="styles.sortButton"
-                [iconClassName]="styles.sortContent"
-                (clicked)="toggleSort('RoleId')"
-                [allowSpam]="true"
-              >
-                <span>Perfil</span
-                ><span [class]="styles.sortIndicator" aria-hidden="true">{{ sortIndicator('RoleId') }}</span>
-              </app-button>
-            </th>
-            <th [class]="styles.th" [attr.aria-sort]="sortField() === 'Status' ? sortOrder() + 'ending' : 'none'">
-              <app-button
-                variant="unstyled"
-                ariaLabel="Ordenar por status"
-                title="Ordenar por status"
-                [fullWidth]="false"
-                [className]="styles.sortButton"
-                [iconClassName]="styles.sortContent"
-                (clicked)="toggleSort('Status')"
-                [allowSpam]="true"
-              >
-                <span>Status</span
-                ><span [class]="styles.sortIndicator" aria-hidden="true">{{ sortIndicator('Status') }}</span>
-              </app-button>
-            </th>
-            <ng-container *appAuth="['Admin']"><th [class]="styles.actionsTh">Controles</th></ng-container>
-          </tr>
-        </thead>
-        <tbody>
-          @if (loading()) {
-            <tr>
-              <td colspan="5" [class]="styles.stateCell">Carregando usuários...</td>
-            </tr>
-          } @else if (users().length === 0) {
-            <tr>
-              <td colspan="5" [class]="styles.stateCell">Nenhum usuário encontrado.</td>
-            </tr>
-          } @else {
-            @for (user of users(); track user.id) {
-              <tr [class]="styles.row">
-                <td [class]="styles.nameCell">{{ user.name }}</td>
-                <td [class]="styles.td">{{ user.email }}</td>
-                <td [class]="styles.td">{{ user.role.name }}</td>
-                <td [class]="styles.td">
-                  <span [class]="user.status === 'Active' ? styles.activeBadge : styles.inactiveBadge">
-                    {{ statusLabel(user.status) }}
-                  </span>
-                </td>
-                <ng-container *appAuth="['Admin']">
-                  <td [class]="styles.actionsCell">
-                    <app-button
-                      variant="unstyled"
-                      ariaLabel="Editar usuário"
-                      title="Editar"
-                      [fullWidth]="false"
-                      [className]="styles.iconButton"
-                      (clicked)="openModal(user)"
-                    >
-                      <span aria-hidden="true">&#9998;</span>
-                    </app-button>
-                    <app-button
-                      variant="unstyled"
-                      ariaLabel="Excluir usuário"
-                      title="Excluir"
-                      [fullWidth]="false"
-                      [className]="styles.deleteIconButton"
-                      (clicked)="requestDelete(user)"
-                    >
-                      <span aria-hidden="true">&#128465;</span>
-                    </app-button>
-                  </td>
-                </ng-container>
-              </tr>
-            }
-          }
-        </tbody>
-      </table>
-    </div>
-
-    <footer [class]="styles.pagination">
-      <p [class]="styles.resultCount">{{ rangeStart() }}–{{ rangeEnd() }} de {{ total() }}</p>
-      <nav [class]="styles.pageControls" aria-label="Paginação">
-        <app-button
-          label="‹"
-          variant="unstyled"
-          ariaLabel="Página anterior"
-          title="Página anterior"
-          [fullWidth]="false"
-          [disabled]="page() === 1"
-          [className]="styles.pageButton"
-          (clicked)="goToPage(page() - 1)"
-        />
-        @for (pageNumber of visiblePages(); track pageNumber) {
-          <app-button
-            [label]="pageNumber.toString()"
-            variant="unstyled"
-            [fullWidth]="false"
-            [ariaLabel]="'Ir para a página ' + pageNumber"
-            [className]="pageNumber === page() ? styles.currentPageButton : styles.pageButton"
-            (clicked)="goToPage(pageNumber)"
-          />
-        }
-        <app-button
-          label="›"
-          variant="unstyled"
-          ariaLabel="Próxima página"
-          title="Próxima página"
-          [fullWidth]="false"
-          [disabled]="page() === totalPages()"
-          [className]="styles.pageButton"
-          (clicked)="goToPage(page() + 1)"
-        />
-      </nav>
-      <div [class]="styles.pageSize">
-        <app-select
-          ariaLabel="Itens por página"
-          [value]="limit()"
-          [options]="pageSizeOptions"
-          [placeholder]="''"
-          (changed)="changePageSize($event)"
-        />
-      </div>
-    </footer>
+    <app-data-table
+      [data]="users()"
+      [columns]="tableColumns()"
+      mode="server"
+      [total]="total()"
+      [loading]="loading()"
+      emptyMessage="Nenhum usuário encontrado."
+      (queryChange)="handleTableQuery($event)"
+    />
   </section>
 </main>
+
+<ng-template #statusTemplate let-user>
+  <span [class]="user.status === 'Active' ? styles.activeBadge : styles.inactiveBadge">
+    {{ statusLabel(user.status) }}
+  </span>
+</ng-template>
+
+<ng-template #actionsTemplate let-user>
+  <div [class]="styles.actionsCell">
+    <app-button
+      variant="unstyled"
+      ariaLabel="Editar usuário"
+      title="Editar"
+      [fullWidth]="false"
+      [className]="styles.iconButton"
+      (clicked)="openModal(user)"
+    >
+      <span aria-hidden="true">&#9998;</span>
+    </app-button>
+    <app-button
+      variant="unstyled"
+      ariaLabel="Excluir usuário"
+      title="Excluir"
+      [fullWidth]="false"
+      [className]="styles.deleteIconButton"
+      (clicked)="requestDelete(user)"
+    >
+      <span aria-hidden="true">&#128465;</span>
+    </app-button>
+  </div>
+</ng-template>
 
 <app-modal
   [(isOpen)]="modalOpen"
@@ -198,8 +71,7 @@
   <section [class]="styles.confirmation">
     <h2 [class]="styles.confirmationTitle">Excluir usuário</h2>
     <p>
-      Tem certeza que deseja excluir <strong>{{ userToDelete()?.name }}</strong
-      >? Esta ação não pode ser desfeita.
+      Tem certeza que deseja excluir <strong>{{ userToDelete()?.name }}</strong>? Esta ação não pode ser desfeita.
     </p>
     <div [class]="styles.confirmationActions">
       <app-button

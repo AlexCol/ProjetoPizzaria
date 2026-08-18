@@ -21,7 +21,7 @@ export class UsersService {
     page: number,
     limit: number,
     name = '',
-    roleId?: number,
+    roleId?: string,
     sortField: UserSortField = 'Name',
     sortOrder: SortOrder = 'asc',
   ) {
@@ -32,7 +32,7 @@ export class UsersService {
       .set('sort-order', sortOrder);
 
     if (name.trim()) params = params.set('name', name.trim());
-    if (roleId) params = params.set('roleId', roleId);
+    if (roleId !== undefined) params = params.set('roleId', roleId);
 
     return this._httpClient.get<PaginatedData<User>>('/users/search', { params });
   }
@@ -41,11 +41,11 @@ export class UsersService {
     return this._httpClient.post<MessageResponse>('/users', user);
   }
 
-  updateUser(id: number, user: UpdateUserRequest) {
+  updateUser(id: string, user: UpdateUserRequest) {
     return this._httpClient.patch<MessageResponse>(`/users/${id}`, user);
   }
 
-  deleteUser(id: number) {
+  deleteUser(id: string) {
     return this._httpClient.delete<void>(`/users/${id}`);
   }
 
