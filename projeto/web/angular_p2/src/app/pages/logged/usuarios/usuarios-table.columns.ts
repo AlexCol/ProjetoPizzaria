@@ -31,7 +31,7 @@ export function createUsuariosTableColumns({
       field: 'name',
       header: 'Nome',
       sortField: 'Name',
-      initialSort: 'asc',
+      // initialSort: 'asc',
       filter: { field: 'Name', placeholder: 'Buscar por nome...' },
     }),
     createDataTableColumn<User>({ field: 'email', header: 'E-mail', sortField: 'Email' }),

@@ -49,6 +49,7 @@
       [fullWidth]="false"
       [className]="styles.iconButton"
       (clicked)="openModal(user)"
+      [allowSpam]="true"
     >
       <lucide-icon [img]="Edit" strokeWidth="2" />
     </app-button>
@@ -59,6 +60,7 @@
       [fullWidth]="false"
       [className]="styles.deleteIconButton"
       (clicked)="requestDelete(user)"
+      [allowSpam]="true"
     >
       <lucide-icon [img]="Trash2" strokeWidth="2" />
     </app-button>

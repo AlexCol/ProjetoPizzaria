@@ -66,12 +66,13 @@ export class DataTableComponent<TData extends Record<string, any>> {
   readonly loading = input(false);
   readonly emptyMessage = input('Nenhum registro encontrado.');
   readonly pageSizeOptions = input<readonly number[]>([10, 25, 50]);
+  readonly overridingStyles = input<Partial<typeof dataTableStyles>>({});
   readonly queryChange = output<DataTableQuery>();
 
   /*****************************************/
   /* Propriedades Publicas                 */
   /*****************************************/
-  readonly styles = dataTableStyles;
+  readonly styles = { ...dataTableStyles, ...this.overridingStyles() };
   readonly ChevronUp = ChevronUp;
   readonly ChevronDown = ChevronDown;
   readonly ChevronLeft = ChevronLeft;
