@@ -31,7 +31,7 @@
 <!-- --------------------------------------------- -->
 <!-- statusTemplate - apresentado sempre           -->
 <!-- --------------------------------------------- -->
-<ng-template #statusTemplate let-user>
+<ng-template appUserTemplate #statusTemplate let-user>
   <span [class]="user.status === 'Active' ? styles.activeBadge : styles.inactiveBadge">
     {{ statusLabel(user.status) }}
   </span>
@@ -40,7 +40,7 @@
 <!-- --------------------------------------------- -->
 <!-- actionsTemplate - apresentado se user = Admin -->
 <!-- --------------------------------------------- -->
-<ng-template #actionsTemplate let-user>
+<ng-template appUserTemplate #actionsTemplate let-user>
   <div [class]="styles.actionsCell">
     <app-button
       variant="unstyled"
@@ -75,13 +75,17 @@
   [ariaLabel]="selectedUser() ? 'Editar usuário' : 'Novo usuário'"
   [blockBackdropClose]="true"
 >
-  <app-usuario-modal
-    [user]="selectedUser()"
-    [roleOptions]="roleOptions()"
-    [saving]="saving()"
-    (closeModal)="closeModal()"
-    (saveUser)="saveUser($event)"
-  />
+  <!-- com if, o modal só é criado quando manda ser aberto -->
+  <!-- e ele é destruido quando fecha, assim não fica resquicio de campo com erro -->
+  @if (modalOpen()) {
+    <app-usuario-modal
+      [user]="selectedUser()"
+      [roleOptions]="roleOptions()"
+      [saving]="saving()"
+      (closeModal)="closeModal()"
+      (saveUser)="saveUser($event)"
+    />
+  }
 </app-modal>
 
 <!-- --------------------------------------------- -->

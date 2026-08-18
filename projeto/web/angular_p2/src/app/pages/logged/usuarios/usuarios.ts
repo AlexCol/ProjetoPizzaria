@@ -8,6 +8,7 @@ import {
 } from '../../../../components/shared/data-table/data-table.interfaces';
 import { ModalComponent } from '../../../../components/shared/modal/modal';
 import { AuthDirective } from '../../../../directives/auth.directive';
+import { UserTemplateDirective } from '../../../../directives/domain/user-template.directive';
 import { User } from '../../../../models/User';
 import { AuthService } from '../../../../services/auth/auth.service';
 import { UsuarioModalComponent, UserFormSubmission } from './usuario-modal/usuario-modal';
@@ -26,6 +27,7 @@ import { usuariosStyles } from './usuarios.styles';
     ModalComponent,
     UsuarioModalComponent,
     LucideAngularModule,
+    UserTemplateDirective,
   ],
   providers: [UsuariosDataService],
 })
