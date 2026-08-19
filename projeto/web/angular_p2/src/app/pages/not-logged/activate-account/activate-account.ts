@@ -3,10 +3,10 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
+import { UsersService } from '../../../../api/generated/users/users.service';
 import { LoaderComponent } from '../../../../components/shared/loader/loader';
 import { tokenFromRoute } from '../../../../helpers/router/tokenFromRoute';
 import { getApiErrorMessage } from '../../../../models/ApiError';
-import { UsersService } from '../../../../services/domain/users/users.service';
 import { notLoggedStyles } from '../not-logged.styles';
 
 @Component({
@@ -76,7 +76,7 @@ export class ActivateAccountComponent {
     this.status.set('loading');
 
     this.usersService
-      .activateAccount(this.token())
+      .postApiUsersActivate({ token: this.token() }, 'application/json')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

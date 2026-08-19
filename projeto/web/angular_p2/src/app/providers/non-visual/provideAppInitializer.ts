@@ -1,8 +1,8 @@
 import { inject, provideAppInitializer } from '@angular/core';
-import { AuthService } from '../../../services/auth/auth.service';
+import { AuthStore } from '../../../stores/auth/auth.store';
 
 export const appInitializers = [
   provideAppInitializer(() => {
-    return inject(AuthService).initialize();
+    return inject(AuthStore).initialize();
   }),
 ];

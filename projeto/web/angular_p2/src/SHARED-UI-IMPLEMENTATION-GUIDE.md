@@ -56,29 +56,23 @@ export class ExampleComponent {
   /*****************************************/
   /* Propriedades Privadas                 */
   /*****************************************/
-
   /*****************************************/
   /* Propriedades Publicas                 */
   /*****************************************/
-
   /*****************************************/
   /* Inputs e Outputs                      */
   /*****************************************/
-
   /*****************************************/
   /* Propriedades Computadas               */
   /*****************************************/
-
   /*****************************************/
   /* ControlValueAccessor                  */
   /* Métodos utilizados pelo Angular Forms */
   /* para integrar o componente aos forms. */
   /*****************************************/
-
   /*****************************************/
   /* Metodos Publicos                      */
   /*****************************************/
-
   /*****************************************/
   /* Metodos Privados                      */
   /*****************************************/
@@ -161,8 +155,8 @@ readonly maxLength = input<number | null>(null);
 Use transforms when the HTML attribute form should be supported:
 
 ```ts
-booleanAttribute
-numberAttribute
+booleanAttribute;
+numberAttribute;
 ```
 
 Example:
@@ -264,10 +258,7 @@ Example:
 ```ts
 export const inputStyles = {
   host: 'block w-full',
-  input: [
-    'w-full rounded-md bg-background px-4 py-2',
-    'ring-2 ring-border outline-none',
-  ].join(' '),
+  input: ['w-full rounded-md bg-background px-4 py-2', 'ring-2 ring-border outline-none'].join(' '),
 } as const;
 ```
 
@@ -333,13 +324,9 @@ Template:
 Use `aria-describedby` to associate controls with helper/error text.
 
 ```html
-<app-input
-  ariaDescribedBy="email-error"
-/>
+<app-input ariaDescribedBy="email-error" />
 
-<small id="email-error">
-  Informe um e-mail válido.
-</small>
+<small id="email-error"> Informe um e-mail válido. </small>
 ```
 
 ### Invalid state
@@ -502,14 +489,14 @@ Benefits:
 A shared button should normally support:
 
 ```ts
-label
-variant
-type
-disabled
-fullWidth
-ariaLabel
-title
-className
+label;
+variant;
+type;
+disabled;
+fullWidth;
+ariaLabel;
+title;
+className;
 ```
 
 Optional behaviors may include click throttling.
@@ -517,9 +504,7 @@ Optional behaviors may include click throttling.
 For this project, disabled buttons intentionally use a neutral/gray style:
 
 ```ts
-this.isDisabled()
-  ? disabledButtonStyles
-  : buttonStyles[this.variant()]
+this.isDisabled() ? disabledButtonStyles : buttonStyles[this.variant()];
 ```
 
 This is preferred over keeping the original semantic color with opacity.
@@ -546,9 +531,7 @@ Keep Angular routing and native navigation conceptually separate.
 For `_blank`, provide a safe default:
 
 ```ts
-return this.target() === '_blank'
-  ? 'noopener noreferrer'
-  : null;
+return this.target() === '_blank' ? 'noopener noreferrer' : null;
 ```
 
 A native `<a>` has no `disabled` attribute.
@@ -575,10 +558,7 @@ export type InputValue = string | number | null;
 For `type="number"`:
 
 ```ts
-const value =
-  element.value !== ''
-    ? element.valueAsNumber
-    : '';
+const value = element.value !== '' ? element.valueAsNumber : '';
 ```
 
 Do not unnecessarily convert numeric values back to strings.
@@ -775,10 +755,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import {
-  ControlValueAccessor,
-  NG_VALUE_ACCESSOR,
-} from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 type ComponentValue = string | null;
 
@@ -813,9 +790,7 @@ export class ExampleComponent implements ControlValueAccessor {
   /*****************************************/
   /* Propriedades Computadas               */
   /*****************************************/
-  readonly isDisabled = computed(
-    () => this.disabled() || this.formDisabled(),
-  );
+  readonly isDisabled = computed(() => this.disabled() || this.formDisabled());
 
   /*****************************************/
   /* ControlValueAccessor                  */
@@ -826,9 +801,7 @@ export class ExampleComponent implements ControlValueAccessor {
     this.value.set(value);
   }
 
-  registerOnChange(
-    onChange: (value: ComponentValue) => void,
-  ): void {
+  registerOnChange(onChange: (value: ComponentValue) => void): void {
     this.onChange = onChange;
   }
 

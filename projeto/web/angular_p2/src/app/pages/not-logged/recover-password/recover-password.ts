@@ -3,12 +3,12 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { UsersService } from '../../../../api/generated/users/users.service';
 import { ButtonComponent } from '../../../../components/shared/button/button';
 import { InputComponent } from '../../../../components/shared/input/input';
 import { LinkComponent } from '../../../../components/shared/link/link';
 import { getApiErrorMessage } from '../../../../models/ApiError';
 import { RecoverPassword } from '../../../../models/RecoverPassword';
-import { UsersService } from '../../../../services/domain/users/users.service';
 import { notLoggedStyles } from '../not-logged.styles';
 
 @Component({
@@ -48,7 +48,7 @@ export class RecoverPasswordComponent {
     this.message.set('');
 
     this.usersService
-      .recoverPassword(this.credentials.email)
+      .postApiUsersSendPasswordResetEmail({ email: this.credentials.email }, 'application/json')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

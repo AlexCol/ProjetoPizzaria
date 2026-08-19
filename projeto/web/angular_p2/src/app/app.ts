@@ -3,9 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { LoaderComponent } from '../components/shared/loader/loader';
-import { AuthService } from '../services/auth/auth.service';
 import { SSEService } from '../services/sse/sse.service';
 import { ThemeService } from '../services/theme/theme.service';
+import { AuthStore } from '../stores/auth/auth.store';
 
 @Component({
   selector: 'app-root',
@@ -13,12 +13,12 @@ import { ThemeService } from '../services/theme/theme.service';
   templateUrl: './app.html',
 })
 export class App {
-  private readonly _authService = inject(AuthService);
+  private readonly _authStore = inject(AuthStore);
   private readonly _sseService = inject(SSEService);
   private readonly _toastService = inject(ToastrService);
 
   get isLoading() {
-    return this._authService.isLoading;
+    return this._authStore.isLoading;
   }
 
   constructor() {
@@ -40,7 +40,7 @@ export class App {
   private registerSSEGlobalCommands() {
     this._sseService.registerCommand('session-updated', {
       onMessage: () =>
-        this._authService.getMe().subscribe((user) => {
+        this._authStore.getMe().subscribe((user) => {
           if (!user) {
             this._toastService.info('Your session has expired. Please log in again.', 'Session Expired');
           }
@@ -49,7 +49,7 @@ export class App {
   }
 
   private configureSSE(onCleanup: EffectCleanupRegisterFn) {
-    const isAuthenticated = this._authService.isAuthenticated;
+    const isAuthenticated = this._authStore.isAuthenticated;
     this._sseService.setEnableSSE = isAuthenticated;
 
     // só registra o onCleanup se o usuário estiver autenticado,

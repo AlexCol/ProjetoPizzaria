@@ -1,4 +1,4 @@
-import { Role } from "./Role";
+import { Role } from './Role';
 
 /*****************************************/
 /* Modelo de Usuario                     */
@@ -10,4 +10,4 @@ export type User = {
   status: 'Active' | 'Inactive' | 'Blocked';
   roleId?: string;
   role: Role;
-}
+};

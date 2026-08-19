@@ -21,6 +21,9 @@ export function processaErros(httpError: HttpErrorResponse): Observable<never> {
   return throwError(() => getApiErrorMessage(httpError));
 }
 
+/************************************************/
+/* Metodos 'Privados'                           */
+/************************************************/
 function extractMessage(value: unknown): string {
   if (typeof value === 'string') {
     return value.trim();

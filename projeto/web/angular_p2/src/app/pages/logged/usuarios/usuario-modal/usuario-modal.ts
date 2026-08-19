@@ -1,14 +1,14 @@
 import { Component, effect, inject, input, output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { CreateUserDto, UpdateUserDto } from '../../../../../api/generated/models';
 import { ButtonComponent } from '../../../../../components/shared/button/button';
 import { InputComponent } from '../../../../../components/shared/input/input';
 import { SelectComponent, SelectOption } from '../../../../../components/shared/select/select';
 import { User } from '../../../../../models/User';
-import { CreateUserRequest, UpdateUserRequest } from '../../../../../services/domain/users/user.interfaces';
 import { usuarioModalStyles } from './usuario-modal.styles';
 
-export type UserFormSubmission = CreateUserRequest | UpdateUserRequest;
+export type UserFormSubmission = CreateUserDto | UpdateUserDto;
 const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/;
 
 @Component({

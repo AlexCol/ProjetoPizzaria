@@ -5,14 +5,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { TokenControlService } from '../../../../api/generated/token-control/token-control.service';
+import { UsersService } from '../../../../api/generated/users/users.service';
 import { ButtonComponent } from '../../../../components/shared/button/button';
 import { InputComponent } from '../../../../components/shared/input/input';
 import { LoaderComponent } from '../../../../components/shared/loader/loader';
 import { equalValues } from '../../../../helpers/formValidators/equalValues';
 import { tokenFromRoute } from '../../../../helpers/router/tokenFromRoute';
 import { getApiErrorMessage } from '../../../../models/ApiError';
-import { UsersService } from '../../../../services/domain/users/users.service';
-import { TokenControlService } from '../../../../services/token-control/token-control.service';
 import { notLoggedStyles } from '../not-logged.styles';
 
 const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/;
@@ -88,7 +88,7 @@ export class PasswordChangeComponent {
     this.status.set('loading');
 
     this.usersService
-      .changePassword(this.token(), password, confirmPassword)
+      .postApiUsersRecoverPassword({ token: this.token(), password, confirmPassword }, 'application/json')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -133,7 +133,7 @@ export class PasswordChangeComponent {
     this.status.set('loading');
 
     this.tokenControlService
-      .validateToken(this.token())
+      .postApiTokenControlIsTokenValid({ token: this.token() })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

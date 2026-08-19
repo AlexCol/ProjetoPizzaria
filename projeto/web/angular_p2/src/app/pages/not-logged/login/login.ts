@@ -8,7 +8,7 @@ import { CheckComponent } from '../../../../components/shared/check/check';
 import { InputComponent } from '../../../../components/shared/input/input';
 import { LinkComponent } from '../../../../components/shared/link/link';
 import { Credentials } from '../../../../models/Credentials';
-import { AuthService } from '../../../../services/auth/auth.service';
+import { AuthStore } from '../../../../stores/auth/auth.store';
 import { notLoggedStyles } from '../not-logged.styles';
 
 @Component({
@@ -23,7 +23,7 @@ export class LoginComponent {
   /*****************************************/
   /* Propriedades Privadas                 */
   /*****************************************/
-  private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly toast = inject(ToastrService);
@@ -50,7 +50,7 @@ export class LoginComponent {
       return;
     }
 
-    this.authService
+    this.authStore
       .login(this.credentials.email, this.credentials.password, this.credentials.remember)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

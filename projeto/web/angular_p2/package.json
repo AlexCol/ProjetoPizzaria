@@ -9,8 +9,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "eslint .",
-    "api:generate": "orval --config orval.config.ts",
-    "api:watch": "orval --config orval.config.ts --watch"
+    "format": "prettier --write .",
+    "orval": "orval --config orval.config.ts && npm run format"
   },
   "private": true,
   "packageManager": "npm@12.0.1",

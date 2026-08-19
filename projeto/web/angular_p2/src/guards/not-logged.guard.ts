@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanMatchFn, Router } from '@angular/router';
-import { AuthService } from '../services/auth/auth.service';
 import { LoggerService } from '../services/logger/logger.service';
+import { AuthStore } from '../stores/auth/auth.store';
 
 export const notLoggedGuard: CanMatchFn = (
   // route: Route,
@@ -9,9 +9,9 @@ export const notLoggedGuard: CanMatchFn = (
   // currentSnapshot?: PartialMatchRouteSnapshot,
 ) => {
   const router = inject(Router);
-  const authService = inject(AuthService);
+  const authStore = inject(AuthStore);
   const logger = inject(LoggerService);
-  const isAuth = authService.isAuthenticated; // Getter que retorna o estado atual como boolean.
+  const isAuth = authStore.isAuthenticated; // Getter que retorna o estado atual como boolean.
 
   logger.log(`[notLoggedGuard] isAuth: ${isAuth}`);
 

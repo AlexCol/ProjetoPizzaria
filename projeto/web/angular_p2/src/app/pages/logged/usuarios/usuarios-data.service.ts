@@ -2,13 +2,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastrService } from 'ngx-toastr';
-import { finalize } from 'rxjs';
+import { finalize, map } from 'rxjs';
+import { CreateUserDto, ResponseUserDto, RoleDto, UpdateUserDto } from '../../../../api/generated/models';
+import { RolesService } from '../../../../api/generated/roles/roles.service';
+import { UsersService } from '../../../../api/generated/users/users.service';
 import { getApiErrorMessage } from '../../../../models/ApiError';
 import { Role } from '../../../../models/Role';
 import { User } from '../../../../models/User';
-import { RolesService } from '../../../../services/domain/roles/roles.service';
-import { CreateUserRequest, UpdateUserRequest } from '../../../../services/domain/users/user.interfaces';
-import { UsersService } from '../../../../services/domain/users/users.service';
 import { UserFormSubmission } from './usuario-modal/usuario-modal';
 
 @Injectable()
@@ -31,8 +31,8 @@ export class UsuariosDataService {
 
   saveUser(user: User | undefined, payload: UserFormSubmission, onSuccess: () => void): void {
     const request = user
-      ? this.usersService.updateUser(user.id, payload as UpdateUserRequest)
-      : this.usersService.createUser(payload as CreateUserRequest);
+      ? this.usersService.patchApiUsersId(user.id, payload as UpdateUserDto, 'application/json')
+      : this.usersService.postApiUsers(payload as CreateUserDto, 'application/json');
 
     this.saving.set(true);
     request
@@ -55,7 +55,7 @@ export class UsuariosDataService {
   deleteUser(user: User, onSuccess: () => void): void {
     this.deleting.set(true);
     this.usersService
-      .deleteUser(user.id)
+      .deleteApiUsersId(user.id)
       .pipe(
         finalize(() => this.deleting.set(false)),
         takeUntilDestroyed(this.destroyRef),
@@ -74,8 +74,8 @@ export class UsuariosDataService {
 
   private loadRoles(): void {
     this.rolesService
-      .getRoles()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .getApiRoles('application/json')
+      .pipe(map((roles) => roles.map(this.toRole)), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (roles) => this.roles.set(roles),
         error: (error: HttpErrorResponse) => {
@@ -87,8 +87,9 @@ export class UsuariosDataService {
   private loadUsers(): void {
     this.loading.set(true);
     this.usersService
-      .getAllUsers()
+      .getApiUsers('application/json')
       .pipe(
+        map((users) => users.map(this.toUser)),
         finalize(() => this.loading.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -100,4 +101,21 @@ export class UsuariosDataService {
         },
       });
   }
+
+  private readonly toRole = (role: RoleDto): Role => {
+    const responseRole = role as RoleDto & { id?: number | string };
+    return { id: String(responseRole.id ?? ''), name: role.name };
+  };
+
+  private readonly toUser = (user: ResponseUserDto): User => ({
+    id: String(user.id ?? ''),
+    email: user.email ?? '',
+    name: user.name ?? '',
+    status: user.status ?? 'Inactive',
+    roleId: user.roleId === null || user.roleId === undefined ? undefined : String(user.roleId),
+    role: {
+      id: String(user.role?.id ?? user.roleId ?? ''),
+      name: user.role?.name ?? '',
+    },
+  });
 }

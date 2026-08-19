@@ -134,22 +134,28 @@ O projeto tem uma boa base para estudo, principalmente pelo uso de sessão com c
 - [x] Exibir estado de carregamento enquanto tokens de recuperação e ativação são validados ou consumidos, mantendo o formulário oculto até a validação terminar.
 
   Implementado: as telas de ativação e redefinição iniciam com status `loading` e exibem o loader compartilhado. A redefinição só apresenta o formulário depois de a validação preliminar retornar sucesso; validação, ativação e envio da nova senha mantêm o conteúdo oculto enquanto a chamada está em andamento.
+
 - [x] Ativar o estado `loading` e desabilitar o submit durante recuperação e reenvio.
 
   Implementado: as duas telas entram em `loading` antes de chamar a API, limpam mensagens anteriores, desabilitam o botão e exibem `Enviando...` durante a requisição. Os métodos também ignoram novos submits enquanto o envio está em andamento, cobrindo submissões pelo teclado além de cliques duplicados.
+
 - [x] Trocar o texto do botão de reenvio de `Recuperar` para `Reenviar`.
 - [x] Adicionar `Validators.minLength(8)` no formulário Angular de nova senha para refletir o backend.
 
   Implementado: o controle reativo da nova senha exige no mínimo oito caracteres, o input recebe o mesmo limite e o submit apresenta uma mensagem específica quando a regra não é atendida.
+
 - [x] Cancelar os timers de redirecionamento quando os componentes forem destruídos.
 
   Implementado: ativação de conta e redefinição de senha guardam a referência do timer, cancelam um agendamento anterior antes de criar outro e o removem via `DestroyRef.onDestroy` quando o componente sai da tela.
+
 - [x] Padronizar o tratamento de erro para nunca apresentar uma mensagem vazia.
 
   Implementado: `getApiErrorMessage` centraliza a leitura de mensagens simples ou em lista, aceita `Message` e `message`, remove espaços vazios e sempre usa um fallback seguro. As telas revisadas e `processaErros` reutilizam o helper.
+
 - [x] Preservar a rota originalmente solicitada após o login, usando um `returnUrl` validado.
 
   Implementado: o `loggedGuard` adiciona ao login o caminho protegido solicitado. Após autenticar, o login aceita somente caminhos internos iniciados por `/`, rejeita `//`, rotas do próprio grupo `/auth` e URLs inválidas; na ausência de um destino seguro, usa `/home`.
+
 - [ ] Adicionar testes para guards, serviço de autenticação e fluxos de token.
 
 ## Pontos positivos identificados

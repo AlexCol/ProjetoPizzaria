@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { AuthService } from '../../../services/auth/auth.service';
 import { ThemeService } from '../../../services/theme/theme.service';
+import { AuthStore } from '../../../stores/auth/auth.store';
 import { ButtonComponent } from '../../shared/button/button';
 import { LinkComponent } from '../../shared/link/link';
 import { headerStyles } from './header.styles';
@@ -15,7 +15,7 @@ import { headerStyles } from './header.styles';
   imports: [ButtonComponent, LinkComponent],
 })
 export class HeaderComponent {
-  private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStore);
   private readonly themeService = inject(ThemeService);
   private readonly toastService = inject(ToastrService);
 
@@ -28,15 +28,15 @@ export class HeaderComponent {
   }
 
   get userName() {
-    return this.authService.user?.name ?? '';
+    return this.authStore.user?.name ?? '';
   }
 
   get roleName() {
-    return this.authService.user?.role?.name ?? '';
+    return this.authStore.user?.role?.name ?? '';
   }
 
   logout() {
-    this.authService.logout().subscribe({
+    this.authStore.logout().subscribe({
       error: (error: string) => {
         this.toastService.error(error, 'Não foi possível encerrar a sessão');
       },

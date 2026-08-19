@@ -24,27 +24,23 @@ Dentro do template, `let-` cria uma variável local a partir desse contexto:
 
 ```html
 <ng-template #userTemplate let-user let-row="row" let-status="value">
-  {{ user.name }}
-  {{ row.email }}
-  {{ status }}
+  {{ user.name }} {{ row.email }} {{ status }}
 </ng-template>
 ```
 
 As correspondências são:
 
 | Declaração no template | Propriedade do contexto |
-| --- | --- |
-| `let-user` | `$implicit` |
-| `let-row="row"` | `row` |
-| `let-status="value"` | `value` |
+| ---------------------- | ----------------------- |
+| `let-user`             | `$implicit`             |
+| `let-row="row"`        | `row`                   |
+| `let-status="value"`   | `value`                 |
 
 O nome depois de `let-` é local e pode ser escolhido livremente. Portanto,
 `let-user` e `let-item` acessariam o mesmo `$implicit`:
 
 ```html
-<ng-template let-item>
-  {{ item.name }}
-</ng-template>
+<ng-template let-item> {{ item.name }} </ng-template>
 ```
 
 O equivalente explícito de `let-user` é `let-user="$implicit"`.
@@ -90,10 +86,7 @@ interface UserTemplateContext {
 export class UserTemplateDirective {
   readonly templateRef = inject(TemplateRef<UserTemplateContext>);
 
-  static ngTemplateContextGuard(
-    directive: UserTemplateDirective,
-    context: unknown,
-  ): context is UserTemplateContext {
+  static ngTemplateContextGuard(directive: UserTemplateDirective, context: unknown): context is UserTemplateContext {
     return true;
   }
 }
@@ -147,8 +140,10 @@ A diretiva deve ser aplicada em cada template que precise do contexto tipado:
 Com `strictTemplates` habilitado, o resultado esperado é:
 
 ```html
-{{ user.status }} <!-- válido -->
-{{ user.stats }}  <!-- erro: a propriedade não existe em User -->
+{{ user.status }}
+<!-- válido -->
+{{ user.stats }}
+<!-- erro: a propriedade não existe em User -->
 ```
 
 ## Contexto completo da DataTable
@@ -166,11 +161,7 @@ export interface DataTableCellTemplateContext<TData> {
 O contexto enviado em `data-table.html` segue esse formato:
 
 ```html
-[ngTemplateOutletContext]="{
-  $implicit: row.original,
-  row: row.original,
-  value: cell.getValue()
-}"
+[ngTemplateOutletContext]="{ $implicit: row.original, row: row.original, value: cell.getValue() }"
 ```
 
 A versão atual de `UserTemplateDirective` declara apenas `$implicit`, que é o
@@ -188,16 +179,8 @@ interface UserTemplateContext {
 O uso passa a ser:
 
 ```html
-<ng-template
-  appUserTemplate
-  #statusTemplate
-  let-user
-  let-row="row"
-  let-value="value"
->
-  {{ user.name }}
-  {{ row.email }}
-  {{ value }}
+<ng-template appUserTemplate #statusTemplate let-user let-row="row" let-value="value">
+  {{ user.name }} {{ row.email }} {{ value }}
 </ng-template>
 ```
 

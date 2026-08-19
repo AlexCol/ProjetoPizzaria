@@ -1,14 +1,12 @@
-import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable, of } from 'rxjs';
-
-type CsrfTokenResponse = { token: string };
+import { AuthService } from '../../api/generated/auth/auth.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CsrfService {
-  private readonly _httpClient = inject(HttpClient);
+  private readonly _api = inject(AuthService);
   private _token: string | undefined;
 
   get token(): string | undefined {
@@ -16,7 +14,7 @@ export class CsrfService {
   }
 
   refreshToken(): Observable<string> {
-    return this._httpClient.get<CsrfTokenResponse>('/auth/csrf-token').pipe(
+    return this._api.getApiAuthCsrfToken('application/json').pipe(
       map((response) => {
         const token = response.token?.trim();
         if (!token) {

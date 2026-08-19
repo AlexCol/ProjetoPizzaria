@@ -1,20 +1,20 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
+import { AuthService } from '../../api/generated/auth/auth.service';
+import { ResponseUserDto } from '../../api/generated/models';
 import { processaErros } from '../../models/ApiError';
 import { User } from '../../models/User';
-import { CsrfService } from '../security/csrf.service';
+import { CsrfService } from '../../services/security/csrf.service';
 
 type AuthStatus = 'loading' | 'authenticated' | 'anonymous';
-type UserSessionPayload = { user: User };
-
 @Injectable({
   providedIn: 'root',
 })
-export class AuthService {
-  private readonly _httpClient = inject(HttpClient);
+export class AuthStore {
   private readonly _router = inject(Router);
+  private readonly _api = inject(AuthService);
   private readonly _csrfService = inject(CsrfService);
   private _userData = signal<User | undefined>(undefined);
   private readonly _status = signal<AuthStatus>('loading');
@@ -63,34 +63,33 @@ export class AuthService {
     // faz refresh token antes de chamar o login
     return this._csrfService.ensureToken().pipe(
       switchMap(() =>
-        this._httpClient.post<UserSessionPayload>(
-          '/auth/login',
-          { email, password },
-          { headers: { 'remember-me': remember ? 'true' : 'false' } },
-        ),
+        this._api.postApiAuthLogin({ email, password }, 'application/json', {
+          headers: { 'remember-me': remember ? 'true' : 'false' },
+        }),
       ),
-      // faz novo refresh para ser usado para requisições subsequentes
-      switchMap((payload) => this._csrfService.refreshToken().pipe(map(() => payload))),
+      switchMap((payload) => this._csrfService.refreshToken().pipe(map(() => payload))), //? faz novo refresh para ser usado para requisições subsequentes
       map((payload) => {
-        this.setUser(payload.user);
-        return payload.user;
+        const user = this.toUser(payload.user);
+        this.setUser(user);
+        return user;
       }),
       catchError(processaErros),
     );
   }
 
   logout() {
-    return this._httpClient.post('/auth/logout', {}).pipe(
+    return this._api.postApiAuthLogout().pipe(
       tap(() => this.clearUserAndRedirectToLogin()),
       catchError(processaErros),
     );
   }
 
   getMe() {
-    return this._httpClient.get<UserSessionPayload>('/auth/session').pipe(
+    return this._api.getApiAuthSession('application/json').pipe(
       map((payload) => {
-        this.setUser(payload.user);
-        return payload.user;
+        const user = this.toUser(payload.user);
+        this.setUser(user);
+        return user;
       }),
       catchError((error: HttpErrorResponse) => {
         const hadUser = this._userData() !== undefined;
@@ -109,6 +108,24 @@ export class AuthService {
   private setUser(user: User) {
     this._userData.set(user);
     this._status.set('authenticated');
+  }
+
+  private toUser(user: ResponseUserDto | undefined): User {
+    if (user?.id === null || user?.id === undefined || !user.email || !user.name || !user.status || !user.role?.name) {
+      throw new Error('A API retornou uma sessao de usuario invalida.');
+    }
+
+    return {
+      id: String(user.id),
+      email: user.email,
+      name: user.name,
+      status: user.status,
+      roleId: user.roleId === null || user.roleId === undefined ? undefined : String(user.roleId),
+      role: {
+        id: String(user.role.id ?? user.roleId ?? ''),
+        name: user.role.name,
+      },
+    };
   }
 
   private clearUser() {

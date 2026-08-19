@@ -73,21 +73,21 @@ readonly columns: DataTableColumn<Product>[] = [
 
 ### Propriedades de uma coluna
 
-| Propriedade | Descrição |
-| --- | --- |
-| `id` | Identificador interno. Obrigatório quando não houver `field`. |
-| `header` | Texto exibido no cabeçalho. |
-| `field` | Propriedade direta do registro usada como valor da célula. |
-| `accessor` | Função para propriedades calculadas ou aninhadas. |
-| `formatter` | Formata o valor sem precisar criar um template. |
-| `cellTemplate` | Template Angular para conteúdo complexo. |
-| `cellClassName` | Classe fixa ou função que retorna uma classe por registro. |
-| `sortable` | Habilita ou desabilita a ordenação. Colunas com `field` são ordenáveis por padrão. |
-| `sortField` | Nome enviado à API ao ordenar. Pode ser diferente do `id`. |
-| `initialSort` | Ordenação inicial da coluna: `asc` ou `desc`. Use em apenas uma coluna. |
-| `filter` | Configuração do filtro de texto ou seleção. |
-| `width` | Largura CSS, por exemplo `12rem` ou `160px`. |
-| `align` | Alinhamento da célula: `left`, `center` ou `right`. |
+| Propriedade     | Descrição                                                                          |
+| --------------- | ---------------------------------------------------------------------------------- |
+| `id`            | Identificador interno. Obrigatório quando não houver `field`.                      |
+| `header`        | Texto exibido no cabeçalho.                                                        |
+| `field`         | Propriedade direta do registro usada como valor da célula.                         |
+| `accessor`      | Função para propriedades calculadas ou aninhadas.                                  |
+| `formatter`     | Formata o valor sem precisar criar um template.                                    |
+| `cellTemplate`  | Template Angular para conteúdo complexo.                                           |
+| `cellClassName` | Classe fixa ou função que retorna uma classe por registro.                         |
+| `sortable`      | Habilita ou desabilita a ordenação. Colunas com `field` são ordenáveis por padrão. |
+| `sortField`     | Nome enviado à API ao ordenar. Pode ser diferente do `id`.                         |
+| `initialSort`   | Ordenação inicial da coluna: `asc` ou `desc`. Use em apenas uma coluna.            |
+| `filter`        | Configuração do filtro de texto ou seleção.                                        |
+| `width`         | Largura CSS, por exemplo `12rem` ou `160px`.                                       |
+| `align`         | Alinhamento da célula: `left`, `center` ou `right`.                                |
 
 Colunas criadas apenas com `id` ou `accessor` não são ordenáveis por padrão. Use
 `sortable: true` quando quiser habilitar a ordenação.
@@ -126,7 +126,7 @@ createDataTableColumn<Product>({
     placeholder: 'Todas as categorias',
     options: this.categoryOptions,
   },
-})
+});
 ```
 
 ```html
@@ -320,9 +320,7 @@ readonly columns = computed<DataTableColumn<User>[]>(() => [
 
 ```html
 <ng-template #statusTemplate let-user let-value="value">
-  <span [class.active]="value === 'Active'">
-    {{ user.name }}: {{ value }}
-  </span>
+  <span [class.active]="value === 'Active'"> {{ user.name }}: {{ value }} </span>
 </ng-template>
 ```
 
@@ -334,16 +332,16 @@ O contexto do template oferece:
 
 ## Inputs e output
 
-| Nome | Tipo | Padrão | Descrição |
-| --- | --- | --- | --- |
-| `data` | `TData[]` | obrigatório | Registros da página ou coleção local. |
-| `columns` | `DataTableColumn<TData>[]` | obrigatório | Definição das colunas. |
-| `mode` | `local \| server` | `local` | Define onde os dados são processados. |
-| `total` | `number` | `0` | Total retornado pela API no modo servidor. |
-| `loading` | `boolean` | `false` | Exibe o estado de carregamento. |
-| `emptyMessage` | `string` | mensagem padrão | Texto exibido quando não existem linhas. |
-| `pageSizeOptions` | `number[]` | `[10, 25, 50]` | Quantidades disponíveis por página. |
-| `queryChange` | `DataTableQuery` | - | Evento emitido no modo servidor. |
+| Nome              | Tipo                       | Padrão          | Descrição                                  |
+| ----------------- | -------------------------- | --------------- | ------------------------------------------ |
+| `data`            | `TData[]`                  | obrigatório     | Registros da página ou coleção local.      |
+| `columns`         | `DataTableColumn<TData>[]` | obrigatório     | Definição das colunas.                     |
+| `mode`            | `local \| server`          | `local`         | Define onde os dados são processados.      |
+| `total`           | `number`                   | `0`             | Total retornado pela API no modo servidor. |
+| `loading`         | `boolean`                  | `false`         | Exibe o estado de carregamento.            |
+| `emptyMessage`    | `string`                   | mensagem padrão | Texto exibido quando não existem linhas.   |
+| `pageSizeOptions` | `number[]`                 | `[10, 25, 50]`  | Quantidades disponíveis por página.        |
+| `queryChange`     | `DataTableQuery`           | -               | Evento emitido no modo servidor.           |
 
 ## IDs long do C#
 

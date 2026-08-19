@@ -2,12 +2,12 @@ import { HttpErrorResponse, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { environment } from '../environments/environment';
-import { AuthService } from '../services/auth/auth.service';
 import { LoggerService } from '../services/logger/logger.service';
 import { CsrfService } from '../services/security/csrf.service';
+import { AuthStore } from '../stores/auth/auth.store';
 
 export const apiBaseInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
-  const authService = inject(AuthService);
+  const authStore = inject(AuthStore);
   const csrfService = inject(CsrfService);
   const logger = inject(LoggerService);
 
@@ -37,7 +37,7 @@ export const apiBaseInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>,
     catchError((error: unknown) => {
       logger.log(`[apiBaseInterceptor] error: ${error}`);
       if (error instanceof HttpErrorResponse && error.status === 401) {
-        authService.expireSession();
+        authStore.expireSession();
       }
       return throwError(() => error);
     }),

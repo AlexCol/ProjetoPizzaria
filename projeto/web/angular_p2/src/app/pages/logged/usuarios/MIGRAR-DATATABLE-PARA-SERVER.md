@@ -15,11 +15,7 @@ this.usersService.getAllUsers();
 E entrega a lista completa para a DataTable, que opera no modo local:
 
 ```html
-<app-data-table
-  [data]="users()"
-  [columns]="tableColumns()"
-  [loading]="loading()"
-/>
+<app-data-table [data]="users()" [columns]="tableColumns()" [loading]="loading()" />
 ```
 
 O projeto já possui a infraestrutura necessária para o modo servidor:
@@ -54,10 +50,7 @@ serviço de usuários:
 
 ```ts
 import { DataTableQuery } from '../../../../components/shared/data-table/data-table.interfaces';
-import {
-  SortOrder,
-  UserSortField,
-} from '../../../../services/domain/users/user.interfaces';
+import { SortOrder, UserSortField } from '../../../../services/domain/users/user.interfaces';
 ```
 
 ## 2. Armazenar o total e a consulta atual
@@ -225,9 +218,7 @@ Em `usuarios.html`, alterar a DataTable:
 As três ligações essenciais para o modo servidor são:
 
 ```html
-mode="server"
-[total]="total()"
-(queryChange)="handleTableQuery($event)"
+mode="server" [total]="total()" (queryChange)="handleTableQuery($event)"
 ```
 
 ## 7. Sincronizar a ordenação inicial
@@ -261,13 +252,13 @@ Essa configuração mantém a interface sincronizada com a consulta inicial:
 Os identificadores enviados ao backend são definidos por `sortField` e
 `filter.field` nas configurações das colunas:
 
-| Coluna | Ordenação enviada | Filtro enviado |
-| --- | --- | --- |
-| Nome | `Name` | `Name` |
-| E-mail | `Email` | — |
-| Perfil | `RoleId` | `RoleId` |
-| Status | `Status` | — |
-| Controles | desabilitada | — |
+| Coluna    | Ordenação enviada | Filtro enviado |
+| --------- | ----------------- | -------------- |
+| Nome      | `Name`            | `Name`         |
+| E-mail    | `Email`           | —              |
+| Perfil    | `RoleId`          | `RoleId`       |
+| Status    | `Status`          | —              |
+| Controles | desabilitada      | —              |
 
 O método `UsersService.getUsers()` transforma a consulta em parâmetros HTTP. Um
 exemplo de requisição é:

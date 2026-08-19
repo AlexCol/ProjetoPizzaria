@@ -10,7 +10,7 @@ import { ModalComponent } from '../../../../components/shared/modal/modal';
 import { AuthDirective } from '../../../../directives/auth.directive';
 import { UserTemplateDirective } from '../../../../directives/domain/user-template.directive';
 import { User } from '../../../../models/User';
-import { AuthService } from '../../../../services/auth/auth.service';
+import { AuthStore } from '../../../../stores/auth/auth.store';
 import { UsuarioModalComponent, UserFormSubmission } from './usuario-modal/usuario-modal';
 import { UsuariosDataService } from './usuarios-data.service';
 import { createUsuariosTableColumns } from './usuarios-table.columns';
@@ -36,7 +36,7 @@ export class UsuariosComponent {
   /* Propriedades Privadas                 */
   /*****************************************/
   private readonly data = inject(UsuariosDataService);
-  private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStore);
 
   /*****************************************/
   /* Propriedades Publicas                 */
@@ -58,7 +58,7 @@ export class UsuariosComponent {
   /*****************************************/
   readonly statusTemplate = viewChild<TemplateRef<DataTableCellTemplateContext<User>>>('statusTemplate');
   readonly actionsTemplate = viewChild<TemplateRef<DataTableCellTemplateContext<User>>>('actionsTemplate');
-  readonly isAdmin = computed(() => this.authService.hasAnyRole(['Admin']));
+  readonly isAdmin = computed(() => this.authStore.hasAnyRole(['Admin']));
   readonly roleOptions = computed<DataTableFilterOption[]>(() =>
     this.data.roles().map((role) => ({ label: role.name, value: role.id })),
   );

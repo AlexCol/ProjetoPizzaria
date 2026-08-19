@@ -1,13 +1,13 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthService } from '../services/auth/auth.service';
+import { AuthStore } from '../stores/auth/auth.store';
 
 export const roleGuard: CanActivateFn = (route) => {
-  const authService = inject(AuthService);
+  const authStore = inject(AuthStore);
   const router = inject(Router);
 
   const allowedRoles = route.data['roles'] as readonly string[] | undefined;
-  if (allowedRoles && authService.hasAnyRole(allowedRoles)) {
+  if (allowedRoles && authStore.hasAnyRole(allowedRoles)) {
     return true;
   }
 

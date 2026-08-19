@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { PopoverComponent } from '../../../components/shared/popover/popover';
-import { AuthService } from '../../../services/auth/auth.service';
 import { SSEService } from '../../../services/sse/sse.service';
+import { AuthStore } from '../../../stores/auth/auth.store';
 import { footerStyles } from './footer.styles';
 
 @Component({
@@ -16,7 +16,7 @@ export class FooterComponent {
   /*****************************************/
   /* Propriedades Privadas                 */
   /*****************************************/
-  private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStore);
   private readonly sseService = inject(SSEService);
 
   /*****************************************/
@@ -28,7 +28,7 @@ export class FooterComponent {
   /*****************************************/
   /* Propriedades Computadas               */
   /*****************************************/
-  readonly user = computed(() => this.authService.user); // Usuário autenticado disponível na sessão atual.
+  readonly user = computed(() => this.authStore.user); // Usuário autenticado disponível na sessão atual.
   readonly isSseConnected = computed(() => this.sseService.isConnected); // Estado atual da conexão SSE.
 
   readonly connectionDotClasses = computed(() =>
