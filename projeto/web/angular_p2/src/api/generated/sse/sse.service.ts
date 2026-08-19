@@ -54,10 +54,10 @@ export class SseService {
    * Este endpoint é usado para estabelecer uma conexão SSE (Server-Sent Events) para o usuário autenticado. O cliente deve manter a conexão aberta para receber eventos em tempo real do servidor.
    * @summary Estabelece uma conexão SSE para o usuário autenticado.
    */
-  getApiSseConnect<TData = void>(options?: HttpClientBodyOptions): Observable<TData>;
-  getApiSseConnect<TData = void>(options?: HttpClientEventOptions): Observable<HttpEvent<TData>>;
-  getApiSseConnect<TData = void>(options?: HttpClientResponseOptions): Observable<AngularHttpResponse<TData>>;
-  getApiSseConnect<TData = void>(
+  getApiSseConnect<TData = unknown>(options?: HttpClientBodyOptions): Observable<TData>;
+  getApiSseConnect<TData = unknown>(options?: HttpClientEventOptions): Observable<HttpEvent<TData>>;
+  getApiSseConnect<TData = unknown>(options?: HttpClientResponseOptions): Observable<AngularHttpResponse<TData>>;
+  getApiSseConnect<TData = unknown>(
     options?: HttpClientObserveOptions,
   ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
     if (options?.observe === 'events') {
@@ -81,4 +81,4 @@ export class SseService {
   }
 }
 
-export type GetApiSseConnectClientResult = NonNullable<void>;
+export type GetApiSseConnectClientResult = NonNullable<unknown>;

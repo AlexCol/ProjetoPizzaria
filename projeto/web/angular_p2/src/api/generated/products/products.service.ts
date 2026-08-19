@@ -5,8 +5,8 @@
  * API para gerenciamento de pedidos e clientes.
  * OpenAPI spec version: 1.0
  */
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import type { HttpContext, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse as AngularHttpResponse } from '@angular/common/http';
+import type { HttpContext, HttpEvent, HttpParams } from '@angular/common/http';
 
 import { Injectable, inject } from '@angular/core';
 
@@ -114,54 +114,6 @@ function filterParams(
   return filteredParams;
 }
 
-export type GetApiProductsAccept = (typeof GetApiProductsAccept)[keyof typeof GetApiProductsAccept];
-
-export const GetApiProductsAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type PostApiProductsAccept = (typeof PostApiProductsAccept)[keyof typeof PostApiProductsAccept];
-
-export const PostApiProductsAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type GetApiProductsIdAccept = (typeof GetApiProductsIdAccept)[keyof typeof GetApiProductsIdAccept];
-
-export const GetApiProductsIdAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type PatchApiProductsIdAccept = (typeof PatchApiProductsIdAccept)[keyof typeof PatchApiProductsIdAccept];
-
-export const PatchApiProductsIdAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type DeleteApiProductsIdAccept = (typeof DeleteApiProductsIdAccept)[keyof typeof DeleteApiProductsIdAccept];
-
-export const DeleteApiProductsIdAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type GetApiProductsSearchAccept = (typeof GetApiProductsSearchAccept)[keyof typeof GetApiProductsSearchAccept];
-
-export const GetApiProductsSearchAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
 @Injectable({ providedIn: 'root' })
 export class ProductsService {
   private readonly http = inject(HttpClient);
@@ -169,54 +121,40 @@ export class ProductsService {
    * Returns a list of all products in the system
    * @summary Get all products
    */
-  getApiProducts(accept: 'text/plain', params?: GetApiProductsParams, options?: HttpClientOptions): Observable<string>;
-  getApiProducts(
-    accept: 'application/json',
+  getApiProducts<TData = Product[]>(params?: GetApiProductsParams, options?: HttpClientBodyOptions): Observable<TData>;
+  getApiProducts<TData = Product[]>(
     params?: GetApiProductsParams,
-    options?: HttpClientOptions,
-  ): Observable<Product[]>;
-  getApiProducts(
-    accept: 'text/json',
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  getApiProducts<TData = Product[]>(
     params?: GetApiProductsParams,
-    options?: HttpClientOptions,
-  ): Observable<Product[]>;
-  getApiProducts(
-    accept?: GetApiProductsAccept,
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  getApiProducts<TData = Product[]>(
     params?: GetApiProductsParams,
-    options?: HttpClientOptions,
-  ): Observable<Product[] | string>;
-  getApiProducts(
-    accept: GetApiProductsAccept = 'application/json',
-    params?: GetApiProductsParams,
-    options?: HttpClientOptions,
-  ): Observable<Product[] | string> {
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
     const filteredParams = filterParams({ ...params, ...options?.params }, new Set<string>([]));
 
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<Product[]>(`/api/Products`, {
-        ...options,
-        responseType: 'json',
-        headers,
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(`/api/Products`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
         params: filteredParams,
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.get(`/api/Products`, {
-        ...options,
-        responseType: 'text',
-        headers,
-        params: filteredParams,
-      }) as Observable<any>;
     }
 
-    return this.http.get<Product[]>(`/api/Products`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(`/api/Products`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+        params: filteredParams,
+      });
+    }
+
+    return this.http.get<TData>(`/api/Products`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
       params: filteredParams,
     });
   }
@@ -224,31 +162,22 @@ export class ProductsService {
    * Creates a new product with the provided data
    * @summary Create a new product
    */
-  postApiProducts(
+  postApiProducts<TData = Product>(
     postApiProductsBody: PostApiProductsBody,
-    accept: 'text/plain',
-    options?: HttpClientOptions,
-  ): Observable<string>;
-  postApiProducts(
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  postApiProducts<TData = Product>(
     postApiProductsBody: PostApiProductsBody,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<Product>;
-  postApiProducts(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  postApiProducts<TData = Product>(
     postApiProductsBody: PostApiProductsBody,
-    accept: 'text/json',
-    options?: HttpClientOptions,
-  ): Observable<Product>;
-  postApiProducts(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  postApiProducts<TData = Product>(
     postApiProductsBody: PostApiProductsBody,
-    accept?: PostApiProductsAccept,
-    options?: HttpClientOptions,
-  ): Observable<Product | string>;
-  postApiProducts(
-    postApiProductsBody: PostApiProductsBody,
-    accept: PostApiProductsAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<Product | string> {
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
     const formData = new FormData();
     if (postApiProductsBody.Name !== undefined) {
       formData.append(`Name`, postApiProductsBody.Name);
@@ -267,71 +196,59 @@ export class ProductsService {
       formData.append(`image`, postApiProductsBody.image);
     }
 
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.post<Product>(`/api/Products`, formData, {
-        ...options,
-        responseType: 'json',
-        headers,
+    if (options?.observe === 'events') {
+      return this.http.post<TData>(`/api/Products`, formData, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.post(`/api/Products`, formData, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.post<Product>(`/api/Products`, formData, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.post<TData>(`/api/Products`, formData, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.post<TData>(`/api/Products`, formData, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Returns a single product by its id
    * @summary Get product by id
    */
-  getApiProductsId(id: number | string, accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  getApiProductsId(id: number | string, accept: 'application/json', options?: HttpClientOptions): Observable<Product>;
-  getApiProductsId(id: number | string, accept: 'text/json', options?: HttpClientOptions): Observable<Product>;
-  getApiProductsId(
+  getApiProductsId<TData = Product>(id: number | string, options?: HttpClientBodyOptions): Observable<TData>;
+  getApiProductsId<TData = Product>(
     id: number | string,
-    accept?: GetApiProductsIdAccept,
-    options?: HttpClientOptions,
-  ): Observable<Product | string>;
-  getApiProductsId(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  getApiProductsId<TData = Product>(
     id: number | string,
-    accept: GetApiProductsIdAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<Product | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<Product>(`/api/Products/${id}`, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  getApiProductsId<TData = Product>(
+    id: number | string,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(`/api/Products/${id}`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.get(`/api/Products/${id}`, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.get<Product>(`/api/Products/${id}`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(`/api/Products/${id}`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.get<TData>(`/api/Products/${id}`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
@@ -341,33 +258,23 @@ export class ProductsService {
   patchApiProductsId(
     id: number | string,
     patchApiProductsIdBody: PatchApiProductsIdBody,
-    accept: 'text/plain',
-    options?: HttpClientOptions,
+    options?: HttpClientBodyOptions,
   ): Observable<string>;
   patchApiProductsId(
     id: number | string,
     patchApiProductsIdBody: PatchApiProductsIdBody,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<string>;
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<string>>;
   patchApiProductsId(
     id: number | string,
     patchApiProductsIdBody: PatchApiProductsIdBody,
-    accept: 'text/json',
-    options?: HttpClientOptions,
-  ): Observable<string>;
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<string>>;
   patchApiProductsId(
     id: number | string,
     patchApiProductsIdBody: PatchApiProductsIdBody,
-    accept?: PatchApiProductsIdAccept,
-    options?: HttpClientOptions,
-  ): Observable<string>;
-  patchApiProductsId(
-    id: number | string,
-    patchApiProductsIdBody: PatchApiProductsIdBody,
-    accept: PatchApiProductsIdAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<string> {
+    options?: HttpClientObserveOptions,
+  ): Observable<string | HttpEvent<string> | AngularHttpResponse<string>> {
     const formData = new FormData();
     if (patchApiProductsIdBody.Name !== undefined) {
       formData.append(`Name`, patchApiProductsIdBody.Name);
@@ -389,129 +296,99 @@ export class ProductsService {
       formData.append(`image`, patchApiProductsIdBody.image);
     }
 
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
+    if (options?.observe === 'events') {
       return this.http.patch<string>(`/api/Products/${id}`, formData, {
-        ...options,
-        responseType: 'json',
-        headers,
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.patch(`/api/Products/${id}`, formData, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
+    }
+
+    if (options?.observe === 'response') {
+      return this.http.patch<string>(`/api/Products/${id}`, formData, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
     }
 
     return this.http.patch<string>(`/api/Products/${id}`, formData, {
-      ...options,
-      responseType: 'json',
-      headers,
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Deletes a product by its id
    * @summary Delete a product
    */
-  deleteApiProductsId(id: number | string, accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  deleteApiProductsId(id: number | string, accept: 'application/json', options?: HttpClientOptions): Observable<string>;
-  deleteApiProductsId(id: number | string, accept: 'text/json', options?: HttpClientOptions): Observable<string>;
+  deleteApiProductsId(id: number | string, options?: HttpClientBodyOptions): Observable<string>;
+  deleteApiProductsId(id: number | string, options?: HttpClientEventOptions): Observable<HttpEvent<string>>;
   deleteApiProductsId(
     id: number | string,
-    accept?: DeleteApiProductsIdAccept,
-    options?: HttpClientOptions,
-  ): Observable<string>;
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<string>>;
   deleteApiProductsId(
     id: number | string,
-    accept: DeleteApiProductsIdAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
+    options?: HttpClientObserveOptions,
+  ): Observable<string | HttpEvent<string> | AngularHttpResponse<string>> {
+    if (options?.observe === 'events') {
       return this.http.delete<string>(`/api/Products/${id}`, {
-        ...options,
-        responseType: 'json',
-        headers,
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.delete(`/api/Products/${id}`, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
+    }
+
+    if (options?.observe === 'response') {
+      return this.http.delete<string>(`/api/Products/${id}`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
     }
 
     return this.http.delete<string>(`/api/Products/${id}`, {
-      ...options,
-      responseType: 'json',
-      headers,
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Returns a paginated list of products based on search criteria. Query params customizados: use 'sort-field', 'sort-order', 'page', 'limit'. Qualquer outro query param vira filtro com operator=like.
    * @summary Get products with search criteria
    */
-  getApiProductsSearch(
-    accept: 'text/plain',
+  getApiProductsSearch<TData = PaginatedResultOfProduct>(
     params?: GetApiProductsSearchParams,
-    options?: HttpClientOptions,
-  ): Observable<string>;
-  getApiProductsSearch(
-    accept: 'application/json',
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  getApiProductsSearch<TData = PaginatedResultOfProduct>(
     params?: GetApiProductsSearchParams,
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfProduct>;
-  getApiProductsSearch(
-    accept: 'text/json',
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  getApiProductsSearch<TData = PaginatedResultOfProduct>(
     params?: GetApiProductsSearchParams,
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfProduct>;
-  getApiProductsSearch(
-    accept?: GetApiProductsSearchAccept,
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  getApiProductsSearch<TData = PaginatedResultOfProduct>(
     params?: GetApiProductsSearchParams,
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfProduct | string>;
-  getApiProductsSearch(
-    accept: GetApiProductsSearchAccept = 'application/json',
-    params?: GetApiProductsSearchParams,
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfProduct | string> {
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
     const filteredParams = filterParams({ ...params, ...options?.params }, new Set<string>([]));
 
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<PaginatedResultOfProduct>(`/api/Products/search`, {
-        ...options,
-        responseType: 'json',
-        headers,
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(`/api/Products/search`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
         params: filteredParams,
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.get(`/api/Products/search`, {
-        ...options,
-        responseType: 'text',
-        headers,
-        params: filteredParams,
-      }) as Observable<any>;
     }
 
-    return this.http.get<PaginatedResultOfProduct>(`/api/Products/search`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(`/api/Products/search`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+        params: filteredParams,
+      });
+    }
+
+    return this.http.get<TData>(`/api/Products/search`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
       params: filteredParams,
     });
   }

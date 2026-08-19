@@ -55,47 +55,6 @@ type HttpClientObserveOptions = HttpClientOptions & {
   readonly observe?: 'body' | 'events' | 'response';
 };
 
-export type PostApiAuthLoginAccept = (typeof PostApiAuthLoginAccept)[keyof typeof PostApiAuthLoginAccept];
-
-export const PostApiAuthLoginAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type GetApiAuthCsrfTokenAccept = (typeof GetApiAuthCsrfTokenAccept)[keyof typeof GetApiAuthCsrfTokenAccept];
-
-export const GetApiAuthCsrfTokenAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type PostApiAuthLoginAppAccept = (typeof PostApiAuthLoginAppAccept)[keyof typeof PostApiAuthLoginAppAccept];
-
-export const PostApiAuthLoginAppAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type GetApiAuthSessionAccept = (typeof GetApiAuthSessionAccept)[keyof typeof GetApiAuthSessionAccept];
-
-export const GetApiAuthSessionAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type GetApiAuthSessionListActiveAccept =
-  (typeof GetApiAuthSessionListActiveAccept)[keyof typeof GetApiAuthSessionListActiveAccept];
-
-export const GetApiAuthSessionListActiveAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -103,139 +62,105 @@ export class AuthService {
    * Permite que um usuário faça login, retornando os detalhes da sessão. Cookies Http adicionado com Token da sessão.
    * @summary Login do usuário
    */
-  postApiAuthLogin(loginDto: LoginDto, accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  postApiAuthLogin(
+  postApiAuthLogin<TData = UserSessionPayload>(loginDto: LoginDto, options?: HttpClientBodyOptions): Observable<TData>;
+  postApiAuthLogin<TData = UserSessionPayload>(
     loginDto: LoginDto,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<UserSessionPayload>;
-  postApiAuthLogin(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  postApiAuthLogin<TData = UserSessionPayload>(
     loginDto: LoginDto,
-    accept: 'text/json',
-    options?: HttpClientOptions,
-  ): Observable<UserSessionPayload>;
-  postApiAuthLogin(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  postApiAuthLogin<TData = UserSessionPayload>(
     loginDto: LoginDto,
-    accept?: PostApiAuthLoginAccept,
-    options?: HttpClientOptions,
-  ): Observable<UserSessionPayload | string>;
-  postApiAuthLogin(
-    loginDto: LoginDto,
-    accept: PostApiAuthLoginAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<UserSessionPayload | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.post<UserSessionPayload>(`/api/Auth/login`, loginDto, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.post<TData>(`/api/Auth/login`, loginDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.post(`/api/Auth/login`, loginDto, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.post<UserSessionPayload>(`/api/Auth/login`, loginDto, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.post<TData>(`/api/Auth/login`, loginDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.post<TData>(`/api/Auth/login`, loginDto, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * @summary Obter token de proteção CSRF
    */
-  getApiAuthCsrfToken(accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  getApiAuthCsrfToken(accept: 'application/json', options?: HttpClientOptions): Observable<CsrfTokenDto>;
-  getApiAuthCsrfToken(accept: 'text/json', options?: HttpClientOptions): Observable<CsrfTokenDto>;
-  getApiAuthCsrfToken(
-    accept?: GetApiAuthCsrfTokenAccept,
-    options?: HttpClientOptions,
-  ): Observable<CsrfTokenDto | string>;
-  getApiAuthCsrfToken(
-    accept: GetApiAuthCsrfTokenAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<CsrfTokenDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<CsrfTokenDto>(`/api/Auth/csrf-token`, {
-        ...options,
-        responseType: 'json',
-        headers,
+  getApiAuthCsrfToken<TData = CsrfTokenDto>(options?: HttpClientBodyOptions): Observable<TData>;
+  getApiAuthCsrfToken<TData = CsrfTokenDto>(options?: HttpClientEventOptions): Observable<HttpEvent<TData>>;
+  getApiAuthCsrfToken<TData = CsrfTokenDto>(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  getApiAuthCsrfToken<TData = CsrfTokenDto>(
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(`/api/Auth/csrf-token`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.get(`/api/Auth/csrf-token`, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.get<CsrfTokenDto>(`/api/Auth/csrf-token`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(`/api/Auth/csrf-token`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.get<TData>(`/api/Auth/csrf-token`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Permite que usuários façam login a partir de aplicativos móveis, retornando um token de sessão no corpo da resposta.
    * @summary Login para aplicativos móveis
    */
-  postApiAuthLoginApp(loginDto: LoginDto, accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  postApiAuthLoginApp(
+  postApiAuthLoginApp<TData = MobileLoginResponseDto>(
     loginDto: LoginDto,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MobileLoginResponseDto>;
-  postApiAuthLoginApp(
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  postApiAuthLoginApp<TData = MobileLoginResponseDto>(
     loginDto: LoginDto,
-    accept: 'text/json',
-    options?: HttpClientOptions,
-  ): Observable<MobileLoginResponseDto>;
-  postApiAuthLoginApp(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  postApiAuthLoginApp<TData = MobileLoginResponseDto>(
     loginDto: LoginDto,
-    accept?: PostApiAuthLoginAppAccept,
-    options?: HttpClientOptions,
-  ): Observable<MobileLoginResponseDto | string>;
-  postApiAuthLoginApp(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  postApiAuthLoginApp<TData = MobileLoginResponseDto>(
     loginDto: LoginDto,
-    accept: PostApiAuthLoginAppAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MobileLoginResponseDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.post<MobileLoginResponseDto>(`/api/Auth/login-app`, loginDto, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.post<TData>(`/api/Auth/login-app`, loginDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.post(`/api/Auth/login-app`, loginDto, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.post<MobileLoginResponseDto>(`/api/Auth/login-app`, loginDto, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.post<TData>(`/api/Auth/login-app`, loginDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.post<TData>(`/api/Auth/login-app`, loginDto, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
@@ -299,40 +224,31 @@ export class AuthService {
   /**
    * @summary Obter os detalhes da sessão atual.
    */
-  getApiAuthSession(accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  getApiAuthSession(accept: 'application/json', options?: HttpClientOptions): Observable<UserSessionPayload>;
-  getApiAuthSession(accept: 'text/json', options?: HttpClientOptions): Observable<UserSessionPayload>;
-  getApiAuthSession(
-    accept?: GetApiAuthSessionAccept,
-    options?: HttpClientOptions,
-  ): Observable<UserSessionPayload | string>;
-  getApiAuthSession(
-    accept: GetApiAuthSessionAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<UserSessionPayload | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<UserSessionPayload>(`/api/Auth/session`, {
-        ...options,
-        responseType: 'json',
-        headers,
+  getApiAuthSession<TData = UserSessionPayload>(options?: HttpClientBodyOptions): Observable<TData>;
+  getApiAuthSession<TData = UserSessionPayload>(options?: HttpClientEventOptions): Observable<HttpEvent<TData>>;
+  getApiAuthSession<TData = UserSessionPayload>(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  getApiAuthSession<TData = UserSessionPayload>(
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(`/api/Auth/session`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.get(`/api/Auth/session`, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.get<UserSessionPayload>(`/api/Auth/session`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(`/api/Auth/session`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.get<TData>(`/api/Auth/session`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
@@ -368,43 +284,33 @@ export class AuthService {
    * Permite que um administrador liste todas as sessões ativas.
    * @summary Listar todas as sessões ativas
    */
-  getApiAuthSessionListActive(accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  getApiAuthSessionListActive(
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<SessionsPerUserRecordDto>;
-  getApiAuthSessionListActive(accept: 'text/json', options?: HttpClientOptions): Observable<SessionsPerUserRecordDto>;
-  getApiAuthSessionListActive(
-    accept?: GetApiAuthSessionListActiveAccept,
-    options?: HttpClientOptions,
-  ): Observable<SessionsPerUserRecordDto | string>;
-  getApiAuthSessionListActive(
-    accept: GetApiAuthSessionListActiveAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<SessionsPerUserRecordDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<SessionsPerUserRecordDto>(`/api/Auth/session/list-active`, {
-        ...options,
-        responseType: 'json',
-        headers,
+  getApiAuthSessionListActive<TData = SessionsPerUserRecordDto>(options?: HttpClientBodyOptions): Observable<TData>;
+  getApiAuthSessionListActive<TData = SessionsPerUserRecordDto>(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  getApiAuthSessionListActive<TData = SessionsPerUserRecordDto>(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  getApiAuthSessionListActive<TData = SessionsPerUserRecordDto>(
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(`/api/Auth/session/list-active`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.get(`/api/Auth/session/list-active`, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.get<SessionsPerUserRecordDto>(`/api/Auth/session/list-active`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(`/api/Auth/session/list-active`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.get<TData>(`/api/Auth/session/list-active`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
 }

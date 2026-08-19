@@ -113,54 +113,6 @@ function filterParams(
   return filteredParams;
 }
 
-export type GetRoleByIdAccept = (typeof GetRoleByIdAccept)[keyof typeof GetRoleByIdAccept];
-
-export const GetRoleByIdAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type PatchApiRolesIdAccept = (typeof PatchApiRolesIdAccept)[keyof typeof PatchApiRolesIdAccept];
-
-export const PatchApiRolesIdAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type GetApiRolesAccept = (typeof GetApiRolesAccept)[keyof typeof GetApiRolesAccept];
-
-export const GetApiRolesAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type PostApiRolesAccept = (typeof PostApiRolesAccept)[keyof typeof PostApiRolesAccept];
-
-export const PostApiRolesAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type GetApiRolesSearchAccept = (typeof GetApiRolesSearchAccept)[keyof typeof GetApiRolesSearchAccept];
-
-export const GetApiRolesSearchAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type PostApiRolesSearchAccept = (typeof PostApiRolesSearchAccept)[keyof typeof PostApiRolesSearchAccept];
-
-export const PostApiRolesSearchAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
 @Injectable({ providedIn: 'root' })
 export class RolesService {
   private readonly http = inject(HttpClient);
@@ -168,105 +120,79 @@ export class RolesService {
    * Retorna uma role pelo seu ID.
    * @summary Obter Role por ID
    */
-  getRoleById(id: number | string, accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  getRoleById(
+  getRoleById<TData = ResponseRoleDto>(id: number | string, options?: HttpClientBodyOptions): Observable<TData>;
+  getRoleById<TData = ResponseRoleDto>(
     id: number | string,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<ResponseRoleDto>;
-  getRoleById(id: number | string, accept: 'text/json', options?: HttpClientOptions): Observable<ResponseRoleDto>;
-  getRoleById(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  getRoleById<TData = ResponseRoleDto>(
     id: number | string,
-    accept?: GetRoleByIdAccept,
-    options?: HttpClientOptions,
-  ): Observable<ResponseRoleDto | string>;
-  getRoleById(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  getRoleById<TData = ResponseRoleDto>(
     id: number | string,
-    accept: GetRoleByIdAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<ResponseRoleDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<ResponseRoleDto>(`/api/Roles/${id}`, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(`/api/Roles/${id}`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.get(`/api/Roles/${id}`, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.get<ResponseRoleDto>(`/api/Roles/${id}`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(`/api/Roles/${id}`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.get<TData>(`/api/Roles/${id}`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Atualiza uma role existente.
    * @summary Atualizar Role
    */
-  patchApiRolesId(
+  patchApiRolesId<TData = ResponseRoleDto>(
     id: number | string,
     roleDto: RoleDto,
-    accept: 'text/plain',
-    options?: HttpClientOptions,
-  ): Observable<string>;
-  patchApiRolesId(
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  patchApiRolesId<TData = ResponseRoleDto>(
     id: number | string,
     roleDto: RoleDto,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<ResponseRoleDto>;
-  patchApiRolesId(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  patchApiRolesId<TData = ResponseRoleDto>(
     id: number | string,
     roleDto: RoleDto,
-    accept: 'text/json',
-    options?: HttpClientOptions,
-  ): Observable<ResponseRoleDto>;
-  patchApiRolesId(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  patchApiRolesId<TData = ResponseRoleDto>(
     id: number | string,
     roleDto: RoleDto,
-    accept?: PatchApiRolesIdAccept,
-    options?: HttpClientOptions,
-  ): Observable<ResponseRoleDto | string>;
-  patchApiRolesId(
-    id: number | string,
-    roleDto: RoleDto,
-    accept: PatchApiRolesIdAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<ResponseRoleDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.patch<ResponseRoleDto>(`/api/Roles/${id}`, roleDto, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.patch<TData>(`/api/Roles/${id}`, roleDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.patch(`/api/Roles/${id}`, roleDto, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.patch<ResponseRoleDto>(`/api/Roles/${id}`, roleDto, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.patch<TData>(`/api/Roles/${id}`, roleDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.patch<TData>(`/api/Roles/${id}`, roleDto, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
@@ -306,137 +232,108 @@ export class RolesService {
    * Retorna uma lista de todas as roles.
    * @summary Obter Todas as Roles.
    */
-  getApiRoles(accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  getApiRoles(accept: 'application/json', options?: HttpClientOptions): Observable<ResponseRoleDto[]>;
-  getApiRoles(accept: 'text/json', options?: HttpClientOptions): Observable<ResponseRoleDto[]>;
-  getApiRoles(accept?: GetApiRolesAccept, options?: HttpClientOptions): Observable<ResponseRoleDto[] | string>;
-  getApiRoles(
-    accept: GetApiRolesAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<ResponseRoleDto[] | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<ResponseRoleDto[]>(`/api/Roles`, {
-        ...options,
-        responseType: 'json',
-        headers,
+  getApiRoles<TData = ResponseRoleDto[]>(options?: HttpClientBodyOptions): Observable<TData>;
+  getApiRoles<TData = ResponseRoleDto[]>(options?: HttpClientEventOptions): Observable<HttpEvent<TData>>;
+  getApiRoles<TData = ResponseRoleDto[]>(options?: HttpClientResponseOptions): Observable<AngularHttpResponse<TData>>;
+  getApiRoles<TData = ResponseRoleDto[]>(
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(`/api/Roles`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.get(`/api/Roles`, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.get<ResponseRoleDto[]>(`/api/Roles`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(`/api/Roles`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.get<TData>(`/api/Roles`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Cria uma nova role.
    * @summary Criar Role
    */
-  postApiRoles(roleDto: RoleDto, accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  postApiRoles(roleDto: RoleDto, accept: 'application/json', options?: HttpClientOptions): Observable<ResponseRoleDto>;
-  postApiRoles(roleDto: RoleDto, accept: 'text/json', options?: HttpClientOptions): Observable<ResponseRoleDto>;
-  postApiRoles(
+  postApiRoles<TData = ResponseRoleDto>(roleDto: RoleDto, options?: HttpClientBodyOptions): Observable<TData>;
+  postApiRoles<TData = ResponseRoleDto>(
     roleDto: RoleDto,
-    accept?: PostApiRolesAccept,
-    options?: HttpClientOptions,
-  ): Observable<ResponseRoleDto | string>;
-  postApiRoles(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  postApiRoles<TData = ResponseRoleDto>(
     roleDto: RoleDto,
-    accept: PostApiRolesAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<ResponseRoleDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.post<ResponseRoleDto>(`/api/Roles`, roleDto, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  postApiRoles<TData = ResponseRoleDto>(
+    roleDto: RoleDto,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.post<TData>(`/api/Roles`, roleDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.post(`/api/Roles`, roleDto, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.post<ResponseRoleDto>(`/api/Roles`, roleDto, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.post<TData>(`/api/Roles`, roleDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.post<TData>(`/api/Roles`, roleDto, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Retorna uma lista de todas as roles, aplicando filtros enviados na query. Query params customizados: use 'sort-field', 'sort-order', 'page', 'limit'. Qualquer outro query param vira filtro com operator=like.
    * @summary Obter Todas as Roles com Filtros na Query.
    */
-  getApiRolesSearch(
-    accept: 'text/plain',
+  getApiRolesSearch<TData = PaginatedResultOfResponseRoleDto>(
     params?: GetApiRolesSearchParams,
-    options?: HttpClientOptions,
-  ): Observable<string>;
-  getApiRolesSearch(
-    accept: 'application/json',
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  getApiRolesSearch<TData = PaginatedResultOfResponseRoleDto>(
     params?: GetApiRolesSearchParams,
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfResponseRoleDto>;
-  getApiRolesSearch(
-    accept: 'text/json',
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  getApiRolesSearch<TData = PaginatedResultOfResponseRoleDto>(
     params?: GetApiRolesSearchParams,
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfResponseRoleDto>;
-  getApiRolesSearch(
-    accept?: GetApiRolesSearchAccept,
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  getApiRolesSearch<TData = PaginatedResultOfResponseRoleDto>(
     params?: GetApiRolesSearchParams,
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfResponseRoleDto | string>;
-  getApiRolesSearch(
-    accept: GetApiRolesSearchAccept = 'application/json',
-    params?: GetApiRolesSearchParams,
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfResponseRoleDto | string> {
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
     const filteredParams = filterParams({ ...params, ...options?.params }, new Set<string>([]));
 
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<PaginatedResultOfResponseRoleDto>(`/api/Roles/search`, {
-        ...options,
-        responseType: 'json',
-        headers,
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(`/api/Roles/search`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
         params: filteredParams,
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.get(`/api/Roles/search`, {
-        ...options,
-        responseType: 'text',
-        headers,
-        params: filteredParams,
-      }) as Observable<any>;
     }
 
-    return this.http.get<PaginatedResultOfResponseRoleDto>(`/api/Roles/search`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(`/api/Roles/search`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+        params: filteredParams,
+      });
+    }
+
+    return this.http.get<TData>(`/api/Roles/search`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
       params: filteredParams,
     });
   }
@@ -444,54 +341,39 @@ export class RolesService {
    * Retorna uma lista de todas as roles, aplicando filtros enviados no corpo da requisição.
    * @summary Obter Todas as Roles com Filtros no Corpo.
    */
-  postApiRolesSearch(
+  postApiRolesSearch<TData = PaginatedResultOfResponseRoleDto>(
     searchCriteriaRequestOfRole: SearchCriteriaRequestOfRole,
-    accept: 'text/plain',
-    options?: HttpClientOptions,
-  ): Observable<string>;
-  postApiRolesSearch(
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  postApiRolesSearch<TData = PaginatedResultOfResponseRoleDto>(
     searchCriteriaRequestOfRole: SearchCriteriaRequestOfRole,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfResponseRoleDto>;
-  postApiRolesSearch(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  postApiRolesSearch<TData = PaginatedResultOfResponseRoleDto>(
     searchCriteriaRequestOfRole: SearchCriteriaRequestOfRole,
-    accept: 'text/json',
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfResponseRoleDto>;
-  postApiRolesSearch(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  postApiRolesSearch<TData = PaginatedResultOfResponseRoleDto>(
     searchCriteriaRequestOfRole: SearchCriteriaRequestOfRole,
-    accept?: PostApiRolesSearchAccept,
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfResponseRoleDto | string>;
-  postApiRolesSearch(
-    searchCriteriaRequestOfRole: SearchCriteriaRequestOfRole,
-    accept: PostApiRolesSearchAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfResponseRoleDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.post<PaginatedResultOfResponseRoleDto>(`/api/Roles/search`, searchCriteriaRequestOfRole, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.post<TData>(`/api/Roles/search`, searchCriteriaRequestOfRole, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.post(`/api/Roles/search`, searchCriteriaRequestOfRole, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.post<PaginatedResultOfResponseRoleDto>(`/api/Roles/search`, searchCriteriaRequestOfRole, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.post<TData>(`/api/Roles/search`, searchCriteriaRequestOfRole, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.post<TData>(`/api/Roles/search`, searchCriteriaRequestOfRole, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
 }

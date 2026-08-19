@@ -5,8 +5,8 @@
  * API para gerenciamento de pedidos e clientes.
  * OpenAPI spec version: 1.0
  */
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import type { HttpContext, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse as AngularHttpResponse } from '@angular/common/http';
+import type { HttpContext, HttpEvent, HttpParams } from '@angular/common/http';
 
 import { Injectable, inject } from '@angular/core';
 
@@ -49,33 +49,6 @@ type HttpClientObserveOptions = HttpClientOptions & {
   readonly observe?: 'body' | 'events' | 'response';
 };
 
-export type GetApiOrderItemsOrderIdAccept =
-  (typeof GetApiOrderItemsOrderIdAccept)[keyof typeof GetApiOrderItemsOrderIdAccept];
-
-export const GetApiOrderItemsOrderIdAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type PostApiOrderItemsOrderIdAccept =
-  (typeof PostApiOrderItemsOrderIdAccept)[keyof typeof PostApiOrderItemsOrderIdAccept];
-
-export const PostApiOrderItemsOrderIdAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type DeleteApiOrderItemsOrderItemIdAccept =
-  (typeof DeleteApiOrderItemsOrderItemIdAccept)[keyof typeof DeleteApiOrderItemsOrderItemIdAccept];
-
-export const DeleteApiOrderItemsOrderItemIdAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
 @Injectable({ providedIn: 'root' })
 export class OrderItemsService {
   private readonly http = inject(HttpClient);
@@ -83,167 +56,121 @@ export class OrderItemsService {
    * Returns a list of order items associated with a specific order ID.
    * @summary Get order items by order ID
    */
-  getApiOrderItemsOrderId(
+  getApiOrderItemsOrderId<TData = OrderItem[]>(
     orderId: number | string,
-    accept: 'text/plain',
-    options?: HttpClientOptions,
-  ): Observable<string>;
-  getApiOrderItemsOrderId(
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  getApiOrderItemsOrderId<TData = OrderItem[]>(
     orderId: number | string,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<OrderItem[]>;
-  getApiOrderItemsOrderId(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  getApiOrderItemsOrderId<TData = OrderItem[]>(
     orderId: number | string,
-    accept: 'text/json',
-    options?: HttpClientOptions,
-  ): Observable<OrderItem[]>;
-  getApiOrderItemsOrderId(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  getApiOrderItemsOrderId<TData = OrderItem[]>(
     orderId: number | string,
-    accept?: GetApiOrderItemsOrderIdAccept,
-    options?: HttpClientOptions,
-  ): Observable<OrderItem[] | string>;
-  getApiOrderItemsOrderId(
-    orderId: number | string,
-    accept: GetApiOrderItemsOrderIdAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<OrderItem[] | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<OrderItem[]>(`/api/OrderItems/${orderId}`, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(`/api/OrderItems/${orderId}`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.get(`/api/OrderItems/${orderId}`, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.get<OrderItem[]>(`/api/OrderItems/${orderId}`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(`/api/OrderItems/${orderId}`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.get<TData>(`/api/OrderItems/${orderId}`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Creates or updates order items for a given order ID. If an item with the same product ID already exists, it will be updated; otherwise, a new item will be created.
    * @summary Upsert order items for a specific order ID
    */
-  postApiOrderItemsOrderId(
+  postApiOrderItemsOrderId<TData = MessageDto>(
     orderId: number | string,
     upsertOrderItemsDto: UpsertOrderItemsDto[],
-    accept: 'text/plain',
-    options?: HttpClientOptions,
-  ): Observable<string>;
-  postApiOrderItemsOrderId(
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  postApiOrderItemsOrderId<TData = MessageDto>(
     orderId: number | string,
     upsertOrderItemsDto: UpsertOrderItemsDto[],
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  postApiOrderItemsOrderId(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  postApiOrderItemsOrderId<TData = MessageDto>(
     orderId: number | string,
     upsertOrderItemsDto: UpsertOrderItemsDto[],
-    accept: 'text/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  postApiOrderItemsOrderId(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  postApiOrderItemsOrderId<TData = MessageDto>(
     orderId: number | string,
     upsertOrderItemsDto: UpsertOrderItemsDto[],
-    accept?: PostApiOrderItemsOrderIdAccept,
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string>;
-  postApiOrderItemsOrderId(
-    orderId: number | string,
-    upsertOrderItemsDto: UpsertOrderItemsDto[],
-    accept: PostApiOrderItemsOrderIdAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.post<MessageDto>(`/api/OrderItems/${orderId}`, upsertOrderItemsDto, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.post<TData>(`/api/OrderItems/${orderId}`, upsertOrderItemsDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.post(`/api/OrderItems/${orderId}`, upsertOrderItemsDto, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.post<MessageDto>(`/api/OrderItems/${orderId}`, upsertOrderItemsDto, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.post<TData>(`/api/OrderItems/${orderId}`, upsertOrderItemsDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.post<TData>(`/api/OrderItems/${orderId}`, upsertOrderItemsDto, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Deletes a specific order item based on its ID.
    * @summary Delete an order item by ID
    */
-  deleteApiOrderItemsOrderItemId(
+  deleteApiOrderItemsOrderItemId<TData = MessageDto>(
     orderItemId: number | string,
-    accept: 'text/plain',
-    options?: HttpClientOptions,
-  ): Observable<string>;
-  deleteApiOrderItemsOrderItemId(
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  deleteApiOrderItemsOrderItemId<TData = MessageDto>(
     orderItemId: number | string,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  deleteApiOrderItemsOrderItemId(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  deleteApiOrderItemsOrderItemId<TData = MessageDto>(
     orderItemId: number | string,
-    accept: 'text/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  deleteApiOrderItemsOrderItemId(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  deleteApiOrderItemsOrderItemId<TData = MessageDto>(
     orderItemId: number | string,
-    accept?: DeleteApiOrderItemsOrderItemIdAccept,
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string>;
-  deleteApiOrderItemsOrderItemId(
-    orderItemId: number | string,
-    accept: DeleteApiOrderItemsOrderItemIdAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.delete<MessageDto>(`/api/OrderItems/${orderItemId}`, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.delete<TData>(`/api/OrderItems/${orderItemId}`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.delete(`/api/OrderItems/${orderItemId}`, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.delete<MessageDto>(`/api/OrderItems/${orderItemId}`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.delete<TData>(`/api/OrderItems/${orderItemId}`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.delete<TData>(`/api/OrderItems/${orderItemId}`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
 }

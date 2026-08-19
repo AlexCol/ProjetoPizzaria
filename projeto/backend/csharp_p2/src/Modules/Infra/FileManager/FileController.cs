@@ -18,7 +18,7 @@ public class FileController : ControllerBase {
   [HttpGet("download")]
   [EndpointSummary("Download de Arquivo")]
   [EndpointDescription("Permite o download de um arquivo específico, fornecendo o caminho do módulo e o nome do arquivo.")]
-  [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK, "application/octet-stream")]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> GetFileAsync(
     [FromQuery] string modulePath,
@@ -35,7 +35,16 @@ public class FileController : ControllerBase {
   [AllowAnonymous]
   [EndpointSummary("Visualização de Arquivo")]
   [EndpointDescription("Permite a visualização de um arquivo específico, fornecendo o caminho do módulo e o nome do arquivo. O arquivo será renderizado inline quando possível (ex: imagens).")]
-  [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
+  [ProducesResponseType(
+    typeof(FileStreamResult),
+    StatusCodes.Status200OK,
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+    "application/pdf",
+    "application/octet-stream"
+  )]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> ViewFileAsync(
     [FromQuery] string modulePath,

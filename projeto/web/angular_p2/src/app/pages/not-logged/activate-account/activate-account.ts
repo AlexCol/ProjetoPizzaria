@@ -76,7 +76,7 @@ export class ActivateAccountComponent {
     this.status.set('loading');
 
     this.usersService
-      .postApiUsersActivate({ token: this.token() }, 'application/json')
+      .postApiUsersActivate({ token: this.token() })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

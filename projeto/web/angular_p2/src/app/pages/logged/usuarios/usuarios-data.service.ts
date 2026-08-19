@@ -31,8 +31,8 @@ export class UsuariosDataService {
 
   saveUser(user: User | undefined, payload: UserFormSubmission, onSuccess: () => void): void {
     const request = user
-      ? this.usersService.patchApiUsersId(user.id, payload as UpdateUserDto, 'application/json')
-      : this.usersService.postApiUsers(payload as CreateUserDto, 'application/json');
+      ? this.usersService.patchApiUsersId(user.id, payload as UpdateUserDto)
+      : this.usersService.postApiUsers(payload as CreateUserDto);
 
     this.saving.set(true);
     request
@@ -74,7 +74,7 @@ export class UsuariosDataService {
 
   private loadRoles(): void {
     this.rolesService
-      .getApiRoles('application/json')
+      .getApiRoles()
       .pipe(
         map((roles) => roles.map(this.toRole)),
         takeUntilDestroyed(this.destroyRef),
@@ -90,7 +90,7 @@ export class UsuariosDataService {
   private loadUsers(): void {
     this.loading.set(true);
     this.usersService
-      .getApiUsers('application/json')
+      .getApiUsers()
       .pipe(
         map((users) => users.map(this.toUser)),
         finalize(() => this.loading.set(false)),

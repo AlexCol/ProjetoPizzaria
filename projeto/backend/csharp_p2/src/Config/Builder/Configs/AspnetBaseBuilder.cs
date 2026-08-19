@@ -10,6 +10,7 @@ public static class AspnetBaseBuilder {
     //!adicionando configurações padrão
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddControllers(options => {
+      options.Filters.Add(new ProducesAttribute("application/json"));
       options.ModelBinderProviders.Insert(0, new SearchCriteriaFromQueryBinderProvider());
 
       options.Filters.Add<SearchCriteriaValidationFilter>();

@@ -20,6 +20,11 @@ export const apiBaseInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>,
     'app-origin': 'web',
   };
 
+  const usesNonJsonResponse = /^\/(?:api\/)?(?:file|sse)\//i.test(req.url);
+  if (!usesNonJsonResponse && !req.headers.has('Accept')) {
+    headers['Accept'] = 'application/json';
+  }
+
   // fluxo para adicionar header X-CSRF-TOKEN apenas para métodos que alteram dados (POST, PUT, PATCH, DELETE)
   const isUnsafeMethod = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method.toUpperCase());
   if (isUnsafeMethod && csrfService.token) {

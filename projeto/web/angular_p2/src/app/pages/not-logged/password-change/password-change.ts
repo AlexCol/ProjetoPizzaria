@@ -88,7 +88,7 @@ export class PasswordChangeComponent {
     this.status.set('loading');
 
     this.usersService
-      .postApiUsersRecoverPassword({ token: this.token(), password, confirmPassword }, 'application/json')
+      .postApiUsersRecoverPassword({ token: this.token(), password, confirmPassword })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

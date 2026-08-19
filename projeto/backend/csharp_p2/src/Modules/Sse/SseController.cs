@@ -18,6 +18,7 @@ public class SseController : ControllerBase {
 
   [HttpGet("connect")]
   [IgnoreAppOrigin]
+  [Produces("text/event-stream")]
   [EndpointSummary("Estabelece uma conexão SSE para o usuário autenticado.")]
   [EndpointDescription("Este endpoint é usado para estabelecer uma conexão SSE (Server-Sent Events) para o usuário autenticado. O cliente deve manter a conexão aberta para receber eventos em tempo real do servidor.")]
   public async Task ConnectAsync(CancellationToken ct) {

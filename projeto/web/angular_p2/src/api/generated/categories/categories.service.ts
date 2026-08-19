@@ -49,38 +49,6 @@ type HttpClientObserveOptions = HttpClientOptions & {
   readonly observe?: 'body' | 'events' | 'response';
 };
 
-export type GetApiCategoriesAccept = (typeof GetApiCategoriesAccept)[keyof typeof GetApiCategoriesAccept];
-
-export const GetApiCategoriesAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type PostApiCategoriesAccept = (typeof PostApiCategoriesAccept)[keyof typeof PostApiCategoriesAccept];
-
-export const PostApiCategoriesAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type GetApiCategoriesIdAccept = (typeof GetApiCategoriesIdAccept)[keyof typeof GetApiCategoriesIdAccept];
-
-export const GetApiCategoriesIdAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type PatchApiCategoriesIdAccept = (typeof PatchApiCategoriesIdAccept)[keyof typeof PatchApiCategoriesIdAccept];
-
-export const PatchApiCategoriesIdAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
 @Injectable({ providedIn: 'root' })
 export class CategoriesService {
   private readonly http = inject(HttpClient);
@@ -88,196 +56,147 @@ export class CategoriesService {
    * Retorna uma lista de todas as categorias cadastradas.
    * @summary Listar categorias
    */
-  getApiCategories(accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  getApiCategories(accept: 'application/json', options?: HttpClientOptions): Observable<Category[]>;
-  getApiCategories(accept: 'text/json', options?: HttpClientOptions): Observable<Category[]>;
-  getApiCategories(accept?: GetApiCategoriesAccept, options?: HttpClientOptions): Observable<Category[] | string>;
-  getApiCategories(
-    accept: GetApiCategoriesAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<Category[] | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<Category[]>(`/api/Categories`, {
-        ...options,
-        responseType: 'json',
-        headers,
+  getApiCategories<TData = Category[]>(options?: HttpClientBodyOptions): Observable<TData>;
+  getApiCategories<TData = Category[]>(options?: HttpClientEventOptions): Observable<HttpEvent<TData>>;
+  getApiCategories<TData = Category[]>(options?: HttpClientResponseOptions): Observable<AngularHttpResponse<TData>>;
+  getApiCategories<TData = Category[]>(
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(`/api/Categories`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.get(`/api/Categories`, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.get<Category[]>(`/api/Categories`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(`/api/Categories`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.get<TData>(`/api/Categories`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Cria uma nova categoria.
    * @summary Criar categoria
    */
-  postApiCategories(
+  postApiCategories<TData = MessageDto>(
     categoriesDto: CategoriesDto,
-    accept: 'text/plain',
-    options?: HttpClientOptions,
-  ): Observable<string>;
-  postApiCategories(
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  postApiCategories<TData = MessageDto>(
     categoriesDto: CategoriesDto,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  postApiCategories(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  postApiCategories<TData = MessageDto>(
     categoriesDto: CategoriesDto,
-    accept: 'text/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  postApiCategories(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  postApiCategories<TData = MessageDto>(
     categoriesDto: CategoriesDto,
-    accept?: PostApiCategoriesAccept,
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string>;
-  postApiCategories(
-    categoriesDto: CategoriesDto,
-    accept: PostApiCategoriesAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.post<MessageDto>(`/api/Categories`, categoriesDto, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.post<TData>(`/api/Categories`, categoriesDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.post(`/api/Categories`, categoriesDto, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.post<MessageDto>(`/api/Categories`, categoriesDto, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.post<TData>(`/api/Categories`, categoriesDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.post<TData>(`/api/Categories`, categoriesDto, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Retorna uma categoria pelo seu id.
    * @summary Buscar categoria por id
    */
-  getApiCategoriesId(id: number | string, accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  getApiCategoriesId(
+  getApiCategoriesId<TData = Category>(id: number | string, options?: HttpClientBodyOptions): Observable<TData>;
+  getApiCategoriesId<TData = Category>(
     id: number | string,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<Category>;
-  getApiCategoriesId(id: number | string, accept: 'text/json', options?: HttpClientOptions): Observable<Category>;
-  getApiCategoriesId(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  getApiCategoriesId<TData = Category>(
     id: number | string,
-    accept?: GetApiCategoriesIdAccept,
-    options?: HttpClientOptions,
-  ): Observable<Category | string>;
-  getApiCategoriesId(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  getApiCategoriesId<TData = Category>(
     id: number | string,
-    accept: GetApiCategoriesIdAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<Category | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<Category>(`/api/Categories/${id}`, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(`/api/Categories/${id}`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.get(`/api/Categories/${id}`, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.get<Category>(`/api/Categories/${id}`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(`/api/Categories/${id}`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.get<TData>(`/api/Categories/${id}`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Atualiza os dados de uma categoria.
    * @summary Atualizar categoria
    */
-  patchApiCategoriesId(
+  patchApiCategoriesId<TData = MessageDto>(
     id: number | string,
     categoriesDto: CategoriesDto,
-    accept: 'text/plain',
-    options?: HttpClientOptions,
-  ): Observable<string>;
-  patchApiCategoriesId(
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  patchApiCategoriesId<TData = MessageDto>(
     id: number | string,
     categoriesDto: CategoriesDto,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  patchApiCategoriesId(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  patchApiCategoriesId<TData = MessageDto>(
     id: number | string,
     categoriesDto: CategoriesDto,
-    accept: 'text/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  patchApiCategoriesId(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  patchApiCategoriesId<TData = MessageDto>(
     id: number | string,
     categoriesDto: CategoriesDto,
-    accept?: PatchApiCategoriesIdAccept,
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string>;
-  patchApiCategoriesId(
-    id: number | string,
-    categoriesDto: CategoriesDto,
-    accept: PatchApiCategoriesIdAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.patch<MessageDto>(`/api/Categories/${id}`, categoriesDto, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.patch<TData>(`/api/Categories/${id}`, categoriesDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.patch(`/api/Categories/${id}`, categoriesDto, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.patch<MessageDto>(`/api/Categories/${id}`, categoriesDto, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.patch<TData>(`/api/Categories/${id}`, categoriesDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.patch<TData>(`/api/Categories/${id}`, categoriesDto, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**

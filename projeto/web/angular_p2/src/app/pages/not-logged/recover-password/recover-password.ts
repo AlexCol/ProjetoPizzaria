@@ -48,7 +48,7 @@ export class RecoverPasswordComponent {
     this.message.set('');
 
     this.usersService
-      .postApiUsersSendPasswordResetEmail({ email: this.credentials.email }, 'application/json')
+      .postApiUsersSendPasswordResetEmail({ email: this.credentials.email })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

@@ -5,14 +5,14 @@
  * API para gerenciamento de pedidos e clientes.
  * OpenAPI spec version: 1.0
  */
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import type { HttpContext, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse as AngularHttpResponse } from '@angular/common/http';
+import type { HttpContext, HttpEvent, HttpParams } from '@angular/common/http';
 
 import { Injectable, inject } from '@angular/core';
 
 import { Observable } from 'rxjs';
 
-import type { FileStreamResult, GetApiFileDownloadParams, GetApiFileViewParams } from '../models';
+import type { GetApiFileDownloadParams, GetApiFileViewParams } from '../models';
 
 interface HttpClientOptions {
   readonly headers?: HttpHeaders | Record<string, string | string[]>;
@@ -107,20 +107,15 @@ function filterParams(
   return filteredParams;
 }
 
-export type GetApiFileDownloadAccept = (typeof GetApiFileDownloadAccept)[keyof typeof GetApiFileDownloadAccept];
-
-export const GetApiFileDownloadAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
 export type GetApiFileViewAccept = (typeof GetApiFileViewAccept)[keyof typeof GetApiFileViewAccept];
 
 export const GetApiFileViewAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
+  image_jpeg: 'image/jpeg',
+  image_png: 'image/png',
+  image_webp: 'image/webp',
+  image_gif: 'image/gif',
+  application_pdf: 'application/pdf',
+  application_octet_stream: 'application/octet-stream',
 } as const;
 
 @Injectable({ providedIn: 'root' })
@@ -130,86 +125,71 @@ export class FileService {
    * Permite o download de um arquivo específico, fornecendo o caminho do módulo e o nome do arquivo.
    * @summary Download de Arquivo
    */
+  getApiFileDownload(params?: GetApiFileDownloadParams, options?: HttpClientBodyOptions): Observable<Blob>;
+  getApiFileDownload(params?: GetApiFileDownloadParams, options?: HttpClientEventOptions): Observable<HttpEvent<Blob>>;
   getApiFileDownload(
-    accept: 'text/plain',
     params?: GetApiFileDownloadParams,
-    options?: HttpClientOptions,
-  ): Observable<string>;
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<Blob>>;
   getApiFileDownload(
-    accept: 'application/json',
     params?: GetApiFileDownloadParams,
-    options?: HttpClientOptions,
-  ): Observable<FileStreamResult>;
-  getApiFileDownload(
-    accept: 'text/json',
-    params?: GetApiFileDownloadParams,
-    options?: HttpClientOptions,
-  ): Observable<FileStreamResult>;
-  getApiFileDownload(
-    accept?: GetApiFileDownloadAccept,
-    params?: GetApiFileDownloadParams,
-    options?: HttpClientOptions,
-  ): Observable<FileStreamResult | string>;
-  getApiFileDownload(
-    accept: GetApiFileDownloadAccept = 'application/json',
-    params?: GetApiFileDownloadParams,
-    options?: HttpClientOptions,
-  ): Observable<FileStreamResult | string> {
+    options?: HttpClientObserveOptions,
+  ): Observable<Blob | HttpEvent<Blob> | AngularHttpResponse<Blob>> {
     const filteredParams = filterParams({ ...params, ...options?.params }, new Set<string>([]));
 
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<FileStreamResult>(`/api/File/download`, {
-        ...options,
-        responseType: 'json',
-        headers,
-        params: filteredParams,
-      });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
+    if (options?.observe === 'events') {
       return this.http.get(`/api/File/download`, {
-        ...options,
-        responseType: 'text',
-        headers,
+        responseType: 'blob',
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
         params: filteredParams,
-      }) as Observable<any>;
+      }) as Observable<HttpEvent<Blob>>;
     }
 
-    return this.http.get<FileStreamResult>(`/api/File/download`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get(`/api/File/download`, {
+        responseType: 'blob',
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+        params: filteredParams,
+      }) as Observable<AngularHttpResponse<Blob>>;
+    }
+
+    return this.http.get(`/api/File/download`, {
+      responseType: 'blob',
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
       params: filteredParams,
-    });
+    }) as Observable<Blob>;
   }
   /**
    * Permite a visualização de um arquivo específico, fornecendo o caminho do módulo e o nome do arquivo. O arquivo será renderizado inline quando possível (ex: imagens).
    * @summary Visualização de Arquivo
    */
-  getApiFileView(accept: 'text/plain', params?: GetApiFileViewParams, options?: HttpClientOptions): Observable<string>;
+  getApiFileView(accept: 'image/jpeg', params?: GetApiFileViewParams, options?: HttpClientOptions): Observable<Blob>;
+  getApiFileView(accept: 'image/png', params?: GetApiFileViewParams, options?: HttpClientOptions): Observable<Blob>;
+  getApiFileView(accept: 'image/webp', params?: GetApiFileViewParams, options?: HttpClientOptions): Observable<Blob>;
+  getApiFileView(accept: 'image/gif', params?: GetApiFileViewParams, options?: HttpClientOptions): Observable<Blob>;
   getApiFileView(
-    accept: 'application/json',
+    accept: 'application/pdf',
     params?: GetApiFileViewParams,
     options?: HttpClientOptions,
-  ): Observable<FileStreamResult>;
+  ): Observable<Blob>;
   getApiFileView(
-    accept: 'text/json',
+    accept: 'application/octet-stream',
     params?: GetApiFileViewParams,
     options?: HttpClientOptions,
-  ): Observable<FileStreamResult>;
+  ): Observable<Blob>;
   getApiFileView(
     accept?: GetApiFileViewAccept,
     params?: GetApiFileViewParams,
     options?: HttpClientOptions,
-  ): Observable<FileStreamResult | string>;
+  ): Observable<unknown | Blob>;
   getApiFileView(
-    accept: GetApiFileViewAccept = 'application/json',
+    accept: GetApiFileViewAccept = 'image/jpeg',
     params?: GetApiFileViewParams,
     options?: HttpClientOptions,
-  ): Observable<FileStreamResult | string> {
+  ): Observable<unknown | Blob> {
     const filteredParams = filterParams({ ...params, ...options?.params }, new Set<string>([]));
 
     const headers =
@@ -218,7 +198,7 @@ export class FileService {
         : { ...(options?.headers ?? {}), Accept: accept };
 
     if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<FileStreamResult>(`/api/File/view`, {
+      return this.http.get<unknown>(`/api/File/view`, {
         ...options,
         responseType: 'json',
         headers,
@@ -231,13 +211,13 @@ export class FileService {
         headers,
         params: filteredParams,
       }) as Observable<any>;
+    } else {
+      return this.http.get(`/api/File/view`, {
+        ...options,
+        responseType: 'blob',
+        headers,
+        params: filteredParams,
+      }) as Observable<Blob>;
     }
-
-    return this.http.get<FileStreamResult>(`/api/File/view`, {
-      ...options,
-      responseType: 'json',
-      headers,
-      params: filteredParams,
-    });
   }
 }

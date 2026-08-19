@@ -114,31 +114,6 @@ function filterParams(
   return filteredParams;
 }
 
-export type GetOrderByIdAccept = (typeof GetOrderByIdAccept)[keyof typeof GetOrderByIdAccept];
-
-export const GetOrderByIdAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type GetApiOrdersAccept = (typeof GetApiOrdersAccept)[keyof typeof GetApiOrdersAccept];
-
-export const GetApiOrdersAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type PatchApiOrdersStatusIdAccept =
-  (typeof PatchApiOrdersStatusIdAccept)[keyof typeof PatchApiOrdersStatusIdAccept];
-
-export const PatchApiOrdersStatusIdAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
 @Injectable({ providedIn: 'root' })
 export class OrdersService {
   private readonly http = inject(HttpClient);
@@ -146,42 +121,33 @@ export class OrdersService {
    * Retorna um pedido pelo seu ID.
    * @summary Obter Pedido por ID
    */
-  getOrderById(id: number | string, accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  getOrderById(id: number | string, accept: 'application/json', options?: HttpClientOptions): Observable<Order>;
-  getOrderById(id: number | string, accept: 'text/json', options?: HttpClientOptions): Observable<Order>;
-  getOrderById(
+  getOrderById<TData = Order>(id: number | string, options?: HttpClientBodyOptions): Observable<TData>;
+  getOrderById<TData = Order>(id: number | string, options?: HttpClientEventOptions): Observable<HttpEvent<TData>>;
+  getOrderById<TData = Order>(
     id: number | string,
-    accept?: GetOrderByIdAccept,
-    options?: HttpClientOptions,
-  ): Observable<Order | string>;
-  getOrderById(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  getOrderById<TData = Order>(
     id: number | string,
-    accept: GetOrderByIdAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<Order | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<Order>(`/api/Orders/${id}`, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(`/api/Orders/${id}`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.get(`/api/Orders/${id}`, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.get<Order>(`/api/Orders/${id}`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(`/api/Orders/${id}`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.get<TData>(`/api/Orders/${id}`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
@@ -221,54 +187,43 @@ export class OrdersService {
    * Retorna uma lista de todos os pedidos, aplicando filtros enviados na query. Query params customizados: use 'sort-field', 'sort-order', 'page', 'limit'. Qualquer outro query param vira filtro com operator=like.
    * @summary Obter Todos os Pedidos com Filtros na Query.
    */
-  getApiOrders(accept: 'text/plain', params?: GetApiOrdersParams, options?: HttpClientOptions): Observable<string>;
-  getApiOrders(
-    accept: 'application/json',
+  getApiOrders<TData = PaginatedResultOfOrder>(
     params?: GetApiOrdersParams,
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfOrder>;
-  getApiOrders(
-    accept: 'text/json',
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  getApiOrders<TData = PaginatedResultOfOrder>(
     params?: GetApiOrdersParams,
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfOrder>;
-  getApiOrders(
-    accept?: GetApiOrdersAccept,
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  getApiOrders<TData = PaginatedResultOfOrder>(
     params?: GetApiOrdersParams,
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfOrder | string>;
-  getApiOrders(
-    accept: GetApiOrdersAccept = 'application/json',
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  getApiOrders<TData = PaginatedResultOfOrder>(
     params?: GetApiOrdersParams,
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfOrder | string> {
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
     const filteredParams = filterParams({ ...params, ...options?.params }, new Set<string>([]));
 
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<PaginatedResultOfOrder>(`/api/Orders`, {
-        ...options,
-        responseType: 'json',
-        headers,
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(`/api/Orders`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
         params: filteredParams,
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.get(`/api/Orders`, {
-        ...options,
-        responseType: 'text',
-        headers,
-        params: filteredParams,
-      }) as Observable<any>;
     }
 
-    return this.http.get<PaginatedResultOfOrder>(`/api/Orders`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(`/api/Orders`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+        params: filteredParams,
+      });
+    }
+
+    return this.http.get<TData>(`/api/Orders`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
       params: filteredParams,
     });
   }
@@ -312,59 +267,43 @@ export class OrdersService {
    * Atualiza o status de um pedido existente.
    * @summary Atualizar o Status de um Pedido
    */
-  patchApiOrdersStatusId(
+  patchApiOrdersStatusId<TData = MessageDto>(
     id: number | string,
     updateOrderStatusDto: UpdateOrderStatusDto,
-    accept: 'text/plain',
-    options?: HttpClientOptions,
-  ): Observable<string>;
-  patchApiOrdersStatusId(
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  patchApiOrdersStatusId<TData = MessageDto>(
     id: number | string,
     updateOrderStatusDto: UpdateOrderStatusDto,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  patchApiOrdersStatusId(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  patchApiOrdersStatusId<TData = MessageDto>(
     id: number | string,
     updateOrderStatusDto: UpdateOrderStatusDto,
-    accept: 'text/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  patchApiOrdersStatusId(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  patchApiOrdersStatusId<TData = MessageDto>(
     id: number | string,
     updateOrderStatusDto: UpdateOrderStatusDto,
-    accept?: PatchApiOrdersStatusIdAccept,
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string>;
-  patchApiOrdersStatusId(
-    id: number | string,
-    updateOrderStatusDto: UpdateOrderStatusDto,
-    accept: PatchApiOrdersStatusIdAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.patch<MessageDto>(`/api/Orders/status/${id}`, updateOrderStatusDto, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.patch<TData>(`/api/Orders/status/${id}`, updateOrderStatusDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.patch(`/api/Orders/status/${id}`, updateOrderStatusDto, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.patch<MessageDto>(`/api/Orders/status/${id}`, updateOrderStatusDto, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.patch<TData>(`/api/Orders/status/${id}`, updateOrderStatusDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.patch<TData>(`/api/Orders/status/${id}`, updateOrderStatusDto, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
 }

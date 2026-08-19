@@ -14,7 +14,7 @@ export class CsrfService {
   }
 
   refreshToken(): Observable<string> {
-    return this._api.getApiAuthCsrfToken('application/json').pipe(
+    return this._api.getApiAuthCsrfToken().pipe(
       map((response) => {
         const token = response.token?.trim();
         if (!token) {

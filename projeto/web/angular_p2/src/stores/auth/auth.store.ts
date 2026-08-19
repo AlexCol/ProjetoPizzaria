@@ -63,9 +63,12 @@ export class AuthStore {
     // faz refresh token antes de chamar o login
     return this._csrfService.ensureToken().pipe(
       switchMap(() =>
-        this._api.postApiAuthLogin({ email, password }, 'application/json', {
-          headers: { 'remember-me': remember ? 'true' : 'false' },
-        }),
+        this._api.postApiAuthLogin(
+          { email, password },
+          {
+            headers: { 'remember-me': remember ? 'true' : 'false' },
+          },
+        ),
       ),
       switchMap((payload) => this._csrfService.refreshToken().pipe(map(() => payload))), //? faz novo refresh para ser usado para requisições subsequentes
       map((payload) => {
@@ -85,7 +88,7 @@ export class AuthStore {
   }
 
   getMe() {
-    return this._api.getApiAuthSession('application/json').pipe(
+    return this._api.getApiAuthSession().pipe(
       map((payload) => {
         const user = this.toUser(payload.user);
         this.setUser(user);

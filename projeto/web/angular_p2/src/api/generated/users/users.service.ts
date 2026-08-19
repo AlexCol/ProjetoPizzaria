@@ -117,82 +117,6 @@ function filterParams(
   return filteredParams;
 }
 
-export type GetApiUsersAccept = (typeof GetApiUsersAccept)[keyof typeof GetApiUsersAccept];
-
-export const GetApiUsersAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type PostApiUsersAccept = (typeof PostApiUsersAccept)[keyof typeof PostApiUsersAccept];
-
-export const PostApiUsersAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type GetUserByIdWithReferencesAccept =
-  (typeof GetUserByIdWithReferencesAccept)[keyof typeof GetUserByIdWithReferencesAccept];
-
-export const GetUserByIdWithReferencesAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type PatchApiUsersIdAccept = (typeof PatchApiUsersIdAccept)[keyof typeof PatchApiUsersIdAccept];
-
-export const PatchApiUsersIdAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type GetApiUsersSearchAccept = (typeof GetApiUsersSearchAccept)[keyof typeof GetApiUsersSearchAccept];
-
-export const GetApiUsersSearchAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type PostApiUsersActivateAccept = (typeof PostApiUsersActivateAccept)[keyof typeof PostApiUsersActivateAccept];
-
-export const PostApiUsersActivateAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type PostApiUsersResendActivationEmailAccept =
-  (typeof PostApiUsersResendActivationEmailAccept)[keyof typeof PostApiUsersResendActivationEmailAccept];
-
-export const PostApiUsersResendActivationEmailAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type PostApiUsersSendPasswordResetEmailAccept =
-  (typeof PostApiUsersSendPasswordResetEmailAccept)[keyof typeof PostApiUsersSendPasswordResetEmailAccept];
-
-export const PostApiUsersSendPasswordResetEmailAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
-export type PostApiUsersRecoverPasswordAccept =
-  (typeof PostApiUsersRecoverPasswordAccept)[keyof typeof PostApiUsersRecoverPasswordAccept];
-
-export const PostApiUsersRecoverPasswordAccept = {
-  text_plain: 'text/plain',
-  application_json: 'application/json',
-  text_json: 'text/json',
-} as const;
-
 @Injectable({ providedIn: 'root' })
 export class UsersService {
   private readonly http = inject(HttpClient);
@@ -200,192 +124,147 @@ export class UsersService {
    * Retorna uma lista de todos os usuários cadastrados.
    * @summary Listar usuários
    */
-  getApiUsers(accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  getApiUsers(accept: 'application/json', options?: HttpClientOptions): Observable<ResponseUserDto[]>;
-  getApiUsers(accept: 'text/json', options?: HttpClientOptions): Observable<ResponseUserDto[]>;
-  getApiUsers(accept?: GetApiUsersAccept, options?: HttpClientOptions): Observable<ResponseUserDto[] | string>;
-  getApiUsers(
-    accept: GetApiUsersAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<ResponseUserDto[] | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<ResponseUserDto[]>(`/api/Users`, {
-        ...options,
-        responseType: 'json',
-        headers,
+  getApiUsers<TData = ResponseUserDto[]>(options?: HttpClientBodyOptions): Observable<TData>;
+  getApiUsers<TData = ResponseUserDto[]>(options?: HttpClientEventOptions): Observable<HttpEvent<TData>>;
+  getApiUsers<TData = ResponseUserDto[]>(options?: HttpClientResponseOptions): Observable<AngularHttpResponse<TData>>;
+  getApiUsers<TData = ResponseUserDto[]>(
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(`/api/Users`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.get(`/api/Users`, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.get<ResponseUserDto[]>(`/api/Users`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(`/api/Users`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.get<TData>(`/api/Users`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Cria um novo usuário e envia e-mail de ativação.
    * @summary Criar usuário
    */
-  postApiUsers(createUserDto: CreateUserDto, accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  postApiUsers(
+  postApiUsers<TData = MessageDto>(createUserDto: CreateUserDto, options?: HttpClientBodyOptions): Observable<TData>;
+  postApiUsers<TData = MessageDto>(
     createUserDto: CreateUserDto,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  postApiUsers(createUserDto: CreateUserDto, accept: 'text/json', options?: HttpClientOptions): Observable<MessageDto>;
-  postApiUsers(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  postApiUsers<TData = MessageDto>(
     createUserDto: CreateUserDto,
-    accept?: PostApiUsersAccept,
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string>;
-  postApiUsers(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  postApiUsers<TData = MessageDto>(
     createUserDto: CreateUserDto,
-    accept: PostApiUsersAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.post<MessageDto>(`/api/Users`, createUserDto, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.post<TData>(`/api/Users`, createUserDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.post(`/api/Users`, createUserDto, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.post<MessageDto>(`/api/Users`, createUserDto, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.post<TData>(`/api/Users`, createUserDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.post<TData>(`/api/Users`, createUserDto, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Retorna um usuário com os relacionamentos carregados.
    * @summary Buscar usuário por id
    */
-  getUserByIdWithReferences(id: number | string, accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  getUserByIdWithReferences(
+  getUserByIdWithReferences<TData = ResponseUserDto>(
     id: number | string,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<ResponseUserDto>;
-  getUserByIdWithReferences(
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  getUserByIdWithReferences<TData = ResponseUserDto>(
     id: number | string,
-    accept: 'text/json',
-    options?: HttpClientOptions,
-  ): Observable<ResponseUserDto>;
-  getUserByIdWithReferences(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  getUserByIdWithReferences<TData = ResponseUserDto>(
     id: number | string,
-    accept?: GetUserByIdWithReferencesAccept,
-    options?: HttpClientOptions,
-  ): Observable<ResponseUserDto | string>;
-  getUserByIdWithReferences(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  getUserByIdWithReferences<TData = ResponseUserDto>(
     id: number | string,
-    accept: GetUserByIdWithReferencesAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<ResponseUserDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<ResponseUserDto>(`/api/Users/${id}`, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(`/api/Users/${id}`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.get(`/api/Users/${id}`, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.get<ResponseUserDto>(`/api/Users/${id}`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(`/api/Users/${id}`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.get<TData>(`/api/Users/${id}`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Atualiza os dados de um usuário. Admins podem atualizar qualquer usuário, usuários comuns só podem atualizar seus próprios dados.
    * @summary Atualizar usuário
    */
-  patchApiUsersId(
+  patchApiUsersId<TData = MessageDto>(
     id: number | string,
     updateUserDto: UpdateUserDto,
-    accept: 'text/plain',
-    options?: HttpClientOptions,
-  ): Observable<string>;
-  patchApiUsersId(
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  patchApiUsersId<TData = MessageDto>(
     id: number | string,
     updateUserDto: UpdateUserDto,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  patchApiUsersId(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  patchApiUsersId<TData = MessageDto>(
     id: number | string,
     updateUserDto: UpdateUserDto,
-    accept: 'text/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  patchApiUsersId(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  patchApiUsersId<TData = MessageDto>(
     id: number | string,
     updateUserDto: UpdateUserDto,
-    accept?: PatchApiUsersIdAccept,
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string>;
-  patchApiUsersId(
-    id: number | string,
-    updateUserDto: UpdateUserDto,
-    accept: PatchApiUsersIdAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.patch<MessageDto>(`/api/Users/${id}`, updateUserDto, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.patch<TData>(`/api/Users/${id}`, updateUserDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.patch(`/api/Users/${id}`, updateUserDto, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.patch<MessageDto>(`/api/Users/${id}`, updateUserDto, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.patch<TData>(`/api/Users/${id}`, updateUserDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.patch<TData>(`/api/Users/${id}`, updateUserDto, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
@@ -425,58 +304,43 @@ export class UsersService {
    * Retorna uma lista de todas os usuários, aplicando filtros enviados na query. Query params customizados: use 'sort-field', 'sort-order', 'page', 'limit'. Qualquer outro query param vira filtro com operator=like.
    * @summary Obter Todas os Usuários com Filtros na Query.
    */
-  getApiUsersSearch(
-    accept: 'text/plain',
+  getApiUsersSearch<TData = PaginatedResultOfResponseUserDto>(
     params?: GetApiUsersSearchParams,
-    options?: HttpClientOptions,
-  ): Observable<string>;
-  getApiUsersSearch(
-    accept: 'application/json',
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  getApiUsersSearch<TData = PaginatedResultOfResponseUserDto>(
     params?: GetApiUsersSearchParams,
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfResponseUserDto>;
-  getApiUsersSearch(
-    accept: 'text/json',
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  getApiUsersSearch<TData = PaginatedResultOfResponseUserDto>(
     params?: GetApiUsersSearchParams,
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfResponseUserDto>;
-  getApiUsersSearch(
-    accept?: GetApiUsersSearchAccept,
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  getApiUsersSearch<TData = PaginatedResultOfResponseUserDto>(
     params?: GetApiUsersSearchParams,
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfResponseUserDto | string>;
-  getApiUsersSearch(
-    accept: GetApiUsersSearchAccept = 'application/json',
-    params?: GetApiUsersSearchParams,
-    options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfResponseUserDto | string> {
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
     const filteredParams = filterParams({ ...params, ...options?.params }, new Set<string>([]));
 
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<PaginatedResultOfResponseUserDto>(`/api/Users/search`, {
-        ...options,
-        responseType: 'json',
-        headers,
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(`/api/Users/search`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
         params: filteredParams,
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.get(`/api/Users/search`, {
-        ...options,
-        responseType: 'text',
-        headers,
-        params: filteredParams,
-      }) as Observable<any>;
     }
 
-    return this.http.get<PaginatedResultOfResponseUserDto>(`/api/Users/search`, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(`/api/Users/search`, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+        params: filteredParams,
+      });
+    }
+
+    return this.http.get<TData>(`/api/Users/search`, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
       params: filteredParams,
     });
   }
@@ -484,208 +348,153 @@ export class UsersService {
    * Ativa a conta com o token enviado por e-mail.
    * @summary Ativar usuário
    */
-  postApiUsersActivate(tokenDto: TokenDto, accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  postApiUsersActivate(
+  postApiUsersActivate<TData = MessageDto>(tokenDto: TokenDto, options?: HttpClientBodyOptions): Observable<TData>;
+  postApiUsersActivate<TData = MessageDto>(
     tokenDto: TokenDto,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  postApiUsersActivate(tokenDto: TokenDto, accept: 'text/json', options?: HttpClientOptions): Observable<MessageDto>;
-  postApiUsersActivate(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  postApiUsersActivate<TData = MessageDto>(
     tokenDto: TokenDto,
-    accept?: PostApiUsersActivateAccept,
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string>;
-  postApiUsersActivate(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  postApiUsersActivate<TData = MessageDto>(
     tokenDto: TokenDto,
-    accept: PostApiUsersActivateAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.post<MessageDto>(`/api/Users/activate`, tokenDto, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.post<TData>(`/api/Users/activate`, tokenDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.post(`/api/Users/activate`, tokenDto, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.post<MessageDto>(`/api/Users/activate`, tokenDto, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.post<TData>(`/api/Users/activate`, tokenDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.post<TData>(`/api/Users/activate`, tokenDto, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Reenvia o e-mail de ativação para o usuário, caso ele não tenha recebido ou o token tenha expirado.
    * @summary Reenviar e-mail de ativação
    */
-  postApiUsersResendActivationEmail(
+  postApiUsersResendActivationEmail<TData = MessageDto>(
     emailDto: EmailDto,
-    accept: 'text/plain',
-    options?: HttpClientOptions,
-  ): Observable<string>;
-  postApiUsersResendActivationEmail(
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  postApiUsersResendActivationEmail<TData = MessageDto>(
     emailDto: EmailDto,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  postApiUsersResendActivationEmail(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  postApiUsersResendActivationEmail<TData = MessageDto>(
     emailDto: EmailDto,
-    accept: 'text/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  postApiUsersResendActivationEmail(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  postApiUsersResendActivationEmail<TData = MessageDto>(
     emailDto: EmailDto,
-    accept?: PostApiUsersResendActivationEmailAccept,
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string>;
-  postApiUsersResendActivationEmail(
-    emailDto: EmailDto,
-    accept: PostApiUsersResendActivationEmailAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.post<MessageDto>(`/api/Users/resend-activation-email`, emailDto, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.post<TData>(`/api/Users/resend-activation-email`, emailDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.post(`/api/Users/resend-activation-email`, emailDto, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.post<MessageDto>(`/api/Users/resend-activation-email`, emailDto, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.post<TData>(`/api/Users/resend-activation-email`, emailDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.post<TData>(`/api/Users/resend-activation-email`, emailDto, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Envia um e-mail com um token para redefinição de senha.
    * @summary Enviar e-mail de recuperação de senha
    */
-  postApiUsersSendPasswordResetEmail(
+  postApiUsersSendPasswordResetEmail<TData = MessageDto>(
     emailDto: EmailDto,
-    accept: 'text/plain',
-    options?: HttpClientOptions,
-  ): Observable<string>;
-  postApiUsersSendPasswordResetEmail(
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  postApiUsersSendPasswordResetEmail<TData = MessageDto>(
     emailDto: EmailDto,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  postApiUsersSendPasswordResetEmail(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  postApiUsersSendPasswordResetEmail<TData = MessageDto>(
     emailDto: EmailDto,
-    accept: 'text/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  postApiUsersSendPasswordResetEmail(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  postApiUsersSendPasswordResetEmail<TData = MessageDto>(
     emailDto: EmailDto,
-    accept?: PostApiUsersSendPasswordResetEmailAccept,
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string>;
-  postApiUsersSendPasswordResetEmail(
-    emailDto: EmailDto,
-    accept: PostApiUsersSendPasswordResetEmailAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.post<MessageDto>(`/api/Users/send-password-reset-email`, emailDto, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.post<TData>(`/api/Users/send-password-reset-email`, emailDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.post(`/api/Users/send-password-reset-email`, emailDto, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.post<MessageDto>(`/api/Users/send-password-reset-email`, emailDto, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.post<TData>(`/api/Users/send-password-reset-email`, emailDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.post<TData>(`/api/Users/send-password-reset-email`, emailDto, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
   /**
    * Redefine a senha do usuário utilizando o token enviado por e-mail.
    * @summary Redefinir senha
    */
-  postApiUsersRecoverPassword(
+  postApiUsersRecoverPassword<TData = MessageDto>(
     recoverPasswordDto: RecoverPasswordDto,
-    accept: 'text/plain',
-    options?: HttpClientOptions,
-  ): Observable<string>;
-  postApiUsersRecoverPassword(
+    options?: HttpClientBodyOptions,
+  ): Observable<TData>;
+  postApiUsersRecoverPassword<TData = MessageDto>(
     recoverPasswordDto: RecoverPasswordDto,
-    accept: 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  postApiUsersRecoverPassword(
+    options?: HttpClientEventOptions,
+  ): Observable<HttpEvent<TData>>;
+  postApiUsersRecoverPassword<TData = MessageDto>(
     recoverPasswordDto: RecoverPasswordDto,
-    accept: 'text/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto>;
-  postApiUsersRecoverPassword(
+    options?: HttpClientResponseOptions,
+  ): Observable<AngularHttpResponse<TData>>;
+  postApiUsersRecoverPassword<TData = MessageDto>(
     recoverPasswordDto: RecoverPasswordDto,
-    accept?: PostApiUsersRecoverPasswordAccept,
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string>;
-  postApiUsersRecoverPassword(
-    recoverPasswordDto: RecoverPasswordDto,
-    accept: PostApiUsersRecoverPasswordAccept = 'application/json',
-    options?: HttpClientOptions,
-  ): Observable<MessageDto | string> {
-    const headers =
-      options?.headers instanceof HttpHeaders
-        ? options.headers.set('Accept', accept)
-        : { ...(options?.headers ?? {}), Accept: accept };
-
-    if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.post<MessageDto>(`/api/Users/recover-password`, recoverPasswordDto, {
-        ...options,
-        responseType: 'json',
-        headers,
+    options?: HttpClientObserveOptions,
+  ): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.post<TData>(`/api/Users/recover-password`, recoverPasswordDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
       });
-    } else if (accept.startsWith('text/') || accept.includes('xml')) {
-      return this.http.post(`/api/Users/recover-password`, recoverPasswordDto, {
-        ...options,
-        responseType: 'text',
-        headers,
-      }) as Observable<any>;
     }
 
-    return this.http.post<MessageDto>(`/api/Users/recover-password`, recoverPasswordDto, {
-      ...options,
-      responseType: 'json',
-      headers,
+    if (options?.observe === 'response') {
+      return this.http.post<TData>(`/api/Users/recover-password`, recoverPasswordDto, {
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      });
+    }
+
+    return this.http.post<TData>(`/api/Users/recover-password`, recoverPasswordDto, {
+      ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+      observe: 'body',
     });
   }
 }
