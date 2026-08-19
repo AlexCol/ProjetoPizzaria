@@ -10,7 +10,11 @@ export const apiBaseInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>,
   const authService = inject(AuthService);
   const csrfService = inject(CsrfService);
   const logger = inject(LoggerService);
-  const baseUrl = environment.apiBaseUrl;
+
+  const apiBaseUrl = environment.apiBaseUrl;
+  const apiOrigin = apiBaseUrl.replace(/\/api\/?$/, '');
+  const url = req.url.startsWith('/api/') ? `${apiOrigin}${req.url}` : `${apiBaseUrl}${req.url}`;
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'app-origin': 'web',
@@ -23,7 +27,7 @@ export const apiBaseInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>,
   }
 
   const apiRequest = req.clone({
-    url: `${baseUrl}${req.url}`,
+    url,
     withCredentials: true,
     setHeaders: headers,
   });

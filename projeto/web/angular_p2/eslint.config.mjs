@@ -8,7 +8,13 @@ import tseslint from 'typescript-eslint';
 
 export default defineConfig([
   {
-    ignores: ['.angular/**', 'coverage/**', 'dist/**', 'node_modules/**'],
+    ignores: [
+      '.angular/**',
+      'coverage/**',
+      'dist/**',
+      'node_modules/**',
+      'src/api/generated/**', //esse ultimo são os códigos gerados pelo orval
+    ],
   },
   {
     files: ['**/*.ts'],
@@ -16,7 +22,9 @@ export default defineConfig([
     processor: angular.processInlineTemplates,
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        projectService: {
+          allowDefaultProject: ['orval.config.ts'],
+        },
         tsconfigRootDir: import.meta.dirname,
       },
     },
