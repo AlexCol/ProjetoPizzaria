@@ -12,7 +12,13 @@ import { Injectable, inject } from '@angular/core';
 
 import { Observable } from 'rxjs';
 
-import type { GetApiRolesSearchParams, PaginatedResultOfRole, RoleDto, SearchCriteriaRequestOfRole } from '../models';
+import type {
+  GetApiRolesSearchParams,
+  PaginatedResultOfResponseRoleDto,
+  ResponseRoleDto,
+  RoleDto,
+  SearchCriteriaRequestOfRole,
+} from '../models';
 
 interface HttpClientOptions {
   readonly headers?: HttpHeaders | Record<string, string | string[]>;
@@ -163,25 +169,29 @@ export class RolesService {
    * @summary Obter Role por ID
    */
   getRoleById(id: number | string, accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  getRoleById(id: number | string, accept: 'application/json', options?: HttpClientOptions): Observable<RoleDto>;
-  getRoleById(id: number | string, accept: 'text/json', options?: HttpClientOptions): Observable<RoleDto>;
+  getRoleById(
+    id: number | string,
+    accept: 'application/json',
+    options?: HttpClientOptions,
+  ): Observable<ResponseRoleDto>;
+  getRoleById(id: number | string, accept: 'text/json', options?: HttpClientOptions): Observable<ResponseRoleDto>;
   getRoleById(
     id: number | string,
     accept?: GetRoleByIdAccept,
     options?: HttpClientOptions,
-  ): Observable<RoleDto | string>;
+  ): Observable<ResponseRoleDto | string>;
   getRoleById(
     id: number | string,
     accept: GetRoleByIdAccept = 'application/json',
     options?: HttpClientOptions,
-  ): Observable<RoleDto | string> {
+  ): Observable<ResponseRoleDto | string> {
     const headers =
       options?.headers instanceof HttpHeaders
         ? options.headers.set('Accept', accept)
         : { ...(options?.headers ?? {}), Accept: accept };
 
     if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<RoleDto>(`/api/Roles/${id}`, {
+      return this.http.get<ResponseRoleDto>(`/api/Roles/${id}`, {
         ...options,
         responseType: 'json',
         headers,
@@ -194,7 +204,7 @@ export class RolesService {
       }) as Observable<any>;
     }
 
-    return this.http.get<RoleDto>(`/api/Roles/${id}`, {
+    return this.http.get<ResponseRoleDto>(`/api/Roles/${id}`, {
       ...options,
       responseType: 'json',
       headers,
@@ -215,32 +225,32 @@ export class RolesService {
     roleDto: RoleDto,
     accept: 'application/json',
     options?: HttpClientOptions,
-  ): Observable<RoleDto>;
+  ): Observable<ResponseRoleDto>;
   patchApiRolesId(
     id: number | string,
     roleDto: RoleDto,
     accept: 'text/json',
     options?: HttpClientOptions,
-  ): Observable<RoleDto>;
+  ): Observable<ResponseRoleDto>;
   patchApiRolesId(
     id: number | string,
     roleDto: RoleDto,
     accept?: PatchApiRolesIdAccept,
     options?: HttpClientOptions,
-  ): Observable<RoleDto | string>;
+  ): Observable<ResponseRoleDto | string>;
   patchApiRolesId(
     id: number | string,
     roleDto: RoleDto,
     accept: PatchApiRolesIdAccept = 'application/json',
     options?: HttpClientOptions,
-  ): Observable<RoleDto | string> {
+  ): Observable<ResponseRoleDto | string> {
     const headers =
       options?.headers instanceof HttpHeaders
         ? options.headers.set('Accept', accept)
         : { ...(options?.headers ?? {}), Accept: accept };
 
     if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.patch<RoleDto>(`/api/Roles/${id}`, roleDto, {
+      return this.http.patch<ResponseRoleDto>(`/api/Roles/${id}`, roleDto, {
         ...options,
         responseType: 'json',
         headers,
@@ -253,7 +263,7 @@ export class RolesService {
       }) as Observable<any>;
     }
 
-    return this.http.patch<RoleDto>(`/api/Roles/${id}`, roleDto, {
+    return this.http.patch<ResponseRoleDto>(`/api/Roles/${id}`, roleDto, {
       ...options,
       responseType: 'json',
       headers,
@@ -297,20 +307,20 @@ export class RolesService {
    * @summary Obter Todas as Roles.
    */
   getApiRoles(accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  getApiRoles(accept: 'application/json', options?: HttpClientOptions): Observable<RoleDto[]>;
-  getApiRoles(accept: 'text/json', options?: HttpClientOptions): Observable<RoleDto[]>;
-  getApiRoles(accept?: GetApiRolesAccept, options?: HttpClientOptions): Observable<RoleDto[] | string>;
+  getApiRoles(accept: 'application/json', options?: HttpClientOptions): Observable<ResponseRoleDto[]>;
+  getApiRoles(accept: 'text/json', options?: HttpClientOptions): Observable<ResponseRoleDto[]>;
+  getApiRoles(accept?: GetApiRolesAccept, options?: HttpClientOptions): Observable<ResponseRoleDto[] | string>;
   getApiRoles(
     accept: GetApiRolesAccept = 'application/json',
     options?: HttpClientOptions,
-  ): Observable<RoleDto[] | string> {
+  ): Observable<ResponseRoleDto[] | string> {
     const headers =
       options?.headers instanceof HttpHeaders
         ? options.headers.set('Accept', accept)
         : { ...(options?.headers ?? {}), Accept: accept };
 
     if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<RoleDto[]>(`/api/Roles`, {
+      return this.http.get<ResponseRoleDto[]>(`/api/Roles`, {
         ...options,
         responseType: 'json',
         headers,
@@ -323,7 +333,7 @@ export class RolesService {
       }) as Observable<any>;
     }
 
-    return this.http.get<RoleDto[]>(`/api/Roles`, {
+    return this.http.get<ResponseRoleDto[]>(`/api/Roles`, {
       ...options,
       responseType: 'json',
       headers,
@@ -334,25 +344,25 @@ export class RolesService {
    * @summary Criar Role
    */
   postApiRoles(roleDto: RoleDto, accept: 'text/plain', options?: HttpClientOptions): Observable<string>;
-  postApiRoles(roleDto: RoleDto, accept: 'application/json', options?: HttpClientOptions): Observable<RoleDto>;
-  postApiRoles(roleDto: RoleDto, accept: 'text/json', options?: HttpClientOptions): Observable<RoleDto>;
+  postApiRoles(roleDto: RoleDto, accept: 'application/json', options?: HttpClientOptions): Observable<ResponseRoleDto>;
+  postApiRoles(roleDto: RoleDto, accept: 'text/json', options?: HttpClientOptions): Observable<ResponseRoleDto>;
   postApiRoles(
     roleDto: RoleDto,
     accept?: PostApiRolesAccept,
     options?: HttpClientOptions,
-  ): Observable<RoleDto | string>;
+  ): Observable<ResponseRoleDto | string>;
   postApiRoles(
     roleDto: RoleDto,
     accept: PostApiRolesAccept = 'application/json',
     options?: HttpClientOptions,
-  ): Observable<RoleDto | string> {
+  ): Observable<ResponseRoleDto | string> {
     const headers =
       options?.headers instanceof HttpHeaders
         ? options.headers.set('Accept', accept)
         : { ...(options?.headers ?? {}), Accept: accept };
 
     if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.post<RoleDto>(`/api/Roles`, roleDto, {
+      return this.http.post<ResponseRoleDto>(`/api/Roles`, roleDto, {
         ...options,
         responseType: 'json',
         headers,
@@ -365,7 +375,7 @@ export class RolesService {
       }) as Observable<any>;
     }
 
-    return this.http.post<RoleDto>(`/api/Roles`, roleDto, {
+    return this.http.post<ResponseRoleDto>(`/api/Roles`, roleDto, {
       ...options,
       responseType: 'json',
       headers,
@@ -384,22 +394,22 @@ export class RolesService {
     accept: 'application/json',
     params?: GetApiRolesSearchParams,
     options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfRole>;
+  ): Observable<PaginatedResultOfResponseRoleDto>;
   getApiRolesSearch(
     accept: 'text/json',
     params?: GetApiRolesSearchParams,
     options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfRole>;
+  ): Observable<PaginatedResultOfResponseRoleDto>;
   getApiRolesSearch(
     accept?: GetApiRolesSearchAccept,
     params?: GetApiRolesSearchParams,
     options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfRole | string>;
+  ): Observable<PaginatedResultOfResponseRoleDto | string>;
   getApiRolesSearch(
     accept: GetApiRolesSearchAccept = 'application/json',
     params?: GetApiRolesSearchParams,
     options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfRole | string> {
+  ): Observable<PaginatedResultOfResponseRoleDto | string> {
     const filteredParams = filterParams({ ...params, ...options?.params }, new Set<string>([]));
 
     const headers =
@@ -408,7 +418,7 @@ export class RolesService {
         : { ...(options?.headers ?? {}), Accept: accept };
 
     if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.get<PaginatedResultOfRole>(`/api/Roles/search`, {
+      return this.http.get<PaginatedResultOfResponseRoleDto>(`/api/Roles/search`, {
         ...options,
         responseType: 'json',
         headers,
@@ -423,7 +433,7 @@ export class RolesService {
       }) as Observable<any>;
     }
 
-    return this.http.get<PaginatedResultOfRole>(`/api/Roles/search`, {
+    return this.http.get<PaginatedResultOfResponseRoleDto>(`/api/Roles/search`, {
       ...options,
       responseType: 'json',
       headers,
@@ -443,29 +453,29 @@ export class RolesService {
     searchCriteriaRequestOfRole: SearchCriteriaRequestOfRole,
     accept: 'application/json',
     options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfRole>;
+  ): Observable<PaginatedResultOfResponseRoleDto>;
   postApiRolesSearch(
     searchCriteriaRequestOfRole: SearchCriteriaRequestOfRole,
     accept: 'text/json',
     options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfRole>;
+  ): Observable<PaginatedResultOfResponseRoleDto>;
   postApiRolesSearch(
     searchCriteriaRequestOfRole: SearchCriteriaRequestOfRole,
     accept?: PostApiRolesSearchAccept,
     options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfRole | string>;
+  ): Observable<PaginatedResultOfResponseRoleDto | string>;
   postApiRolesSearch(
     searchCriteriaRequestOfRole: SearchCriteriaRequestOfRole,
     accept: PostApiRolesSearchAccept = 'application/json',
     options?: HttpClientOptions,
-  ): Observable<PaginatedResultOfRole | string> {
+  ): Observable<PaginatedResultOfResponseRoleDto | string> {
     const headers =
       options?.headers instanceof HttpHeaders
         ? options.headers.set('Accept', accept)
         : { ...(options?.headers ?? {}), Accept: accept };
 
     if (accept.includes('json') || accept.includes('+json')) {
-      return this.http.post<PaginatedResultOfRole>(`/api/Roles/search`, searchCriteriaRequestOfRole, {
+      return this.http.post<PaginatedResultOfResponseRoleDto>(`/api/Roles/search`, searchCriteriaRequestOfRole, {
         ...options,
         responseType: 'json',
         headers,
@@ -478,7 +488,7 @@ export class RolesService {
       }) as Observable<any>;
     }
 
-    return this.http.post<PaginatedResultOfRole>(`/api/Roles/search`, searchCriteriaRequestOfRole, {
+    return this.http.post<PaginatedResultOfResponseRoleDto>(`/api/Roles/search`, searchCriteriaRequestOfRole, {
       ...options,
       responseType: 'json',
       headers,

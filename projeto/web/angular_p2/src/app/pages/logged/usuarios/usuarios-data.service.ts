@@ -3,7 +3,7 @@ import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastrService } from 'ngx-toastr';
 import { finalize, map } from 'rxjs';
-import { CreateUserDto, ResponseUserDto, RoleDto, UpdateUserDto } from '../../../../api/generated/models';
+import { CreateUserDto, ResponseRoleDto, ResponseUserDto, UpdateUserDto } from '../../../../api/generated/models';
 import { RolesService } from '../../../../api/generated/roles/roles.service';
 import { UsersService } from '../../../../api/generated/users/users.service';
 import { getApiErrorMessage } from '../../../../models/ApiError';
@@ -75,7 +75,10 @@ export class UsuariosDataService {
   private loadRoles(): void {
     this.rolesService
       .getApiRoles('application/json')
-      .pipe(map((roles) => roles.map(this.toRole)), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        map((roles) => roles.map(this.toRole)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (roles) => this.roles.set(roles),
         error: (error: HttpErrorResponse) => {
@@ -102,10 +105,10 @@ export class UsuariosDataService {
       });
   }
 
-  private readonly toRole = (role: RoleDto): Role => {
-    const responseRole = role as RoleDto & { id?: number | string };
-    return { id: String(responseRole.id ?? ''), name: role.name };
-  };
+  private readonly toRole = (role: ResponseRoleDto): Role => ({
+    id: String(role.id ?? ''),
+    name: role.name ?? '',
+  });
 
   private readonly toUser = (user: ResponseUserDto): User => ({
     id: String(user.id ?? ''),

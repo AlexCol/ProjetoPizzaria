@@ -5,10 +5,10 @@
  * API para gerenciamento de pedidos e clientes.
  * OpenAPI spec version: 1.0
  */
-import type { Role } from './role';
+import type { ResponseRoleDto } from './responseRoleDto';
 
-export interface PaginatedResultOfRole {
-  data: Role[];
+export interface PaginatedResultOfResponseRoleDto {
+  data: ResponseRoleDto[];
   /** @pattern ^-?(?:0|[1-9]\d*)$ */
   total?: number | string;
   /** @pattern ^-?(?:0|[1-9]\d*)$ */
