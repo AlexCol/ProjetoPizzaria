@@ -10,13 +10,23 @@ public static class AspnetBaseBuilder {
     //!adicionando configurações padrão
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddControllers(options => {
+      // Define application/json como o tipo de conteúdo produzido pelos controllers.
       options.Filters.Add(new ProducesAttribute("application/json"));
+
+      // Coloca o binder personalizado no início da lista para que ele tenha prioridade sobre os binders padrão.
+      // Ele transforma a query string em SearchCriteriaRequest<T>, separando filtros, ordenação e paginação.
       options.ModelBinderProviders.Insert(0, new SearchCriteriaFromQueryBinderProvider());
 
+      // Valida todo argumento SearchCriteriaRequest<T> com SearchCriteriaRequestValidator<T> antes da action.
+      // Se algum critério for inválido, interrompe a requisição e retorna HTTP 400 com os erros encontrados.
       options.Filters.Add<SearchCriteriaValidationFilter>();
+
+      // Localiza arquivos recebidos diretamente, em coleções ou dentro dos DTOs e os valida antes da action.
+      // Verifica obrigatoriedade, tamanho máximo e extensões permitidas conforme as opções globais ou o atributo do endpoint.
       options.Filters.Add<FileValidationFilter>();
 
-      options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true; //* Remove a validação automática do ModelState (pra poder usar NotNull e não impedir o envio do json)
+      // Remove a validação implícita de propriedades non-nullable para permitir o uso de NotNull.
+      options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
 
     })
     .AddJsonOptions(options => {
