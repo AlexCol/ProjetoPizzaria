@@ -4,6 +4,8 @@ Este guia descreve como migrar qualquer tela que usa `DataTableComponent` do
 modo `local` para o modo `server`. Os exemplos usam nomes genéricos como
 `Registro`, `registros` e `RecursoService`; substitua-os pelo domínio da tela.
 
+Guia inverso: [migrar do modo servidor para o modo local](./MIGRAR-DATATABLE-PARA-LOCAL.md).
+
 No modo local, o frontend recebe a coleção inteira e a TanStack Table filtra,
 ordena e pagina no navegador. No modo servidor, a API recebe a consulta e
 devolve somente a página atual, junto com o total de registros encontrados.
