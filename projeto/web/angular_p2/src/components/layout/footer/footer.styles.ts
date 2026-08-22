@@ -32,9 +32,12 @@ export const footerStyles = {
 
   connectionStatus: ['inline-flex items-center gap-2 whitespace-nowrap', 'text-xs text-foreground/70'].join(' '),
 
-  userDetails: 'grid gap-2 text-sm',
+  userDetails: 'grid gap-2 text-sm border-b border-border pb-3',
 
   userDetailRow: 'grid grid-cols-[4rem_1fr] gap-3 text-left',
   userDetailLabel: 'font-medium text-foreground/70',
   userDetailValue: 'm-0 min-w-0 wrap-break-word text-foreground',
+
+  bottomDetails: 'mt-3 flex justify-end',
+  logoutButton: 'text-sm text-foreground/70 hover:text-foreground',
 } as const;

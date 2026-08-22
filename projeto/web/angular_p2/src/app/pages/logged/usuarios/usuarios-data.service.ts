@@ -9,21 +9,30 @@ import { UsersService } from '../../../../api/generated/users/users.service';
 import { getApiErrorMessage } from '../../../../models/ApiError';
 import { Role } from '../../../../models/Role';
 import { User } from '../../../../models/User';
-import { UserFormSubmission } from './usuario-modal/usuario-modal';
+import { UserFormSubmission } from './dtos/UserFormSubmission';
 
 @Injectable()
 export class UsuariosDataService {
+  /*****************************************/
+  /* Propriedades Privadas                 */
+  /*****************************************/
   private readonly usersService = inject(UsersService);
   private readonly rolesService = inject(RolesService);
   private readonly toast = inject(ToastrService);
   private readonly destroyRef = inject(DestroyRef);
 
+  /*****************************************/
+  /* Propriedades Publicas                 */
+  /*****************************************/
   readonly users = signal<User[]>([]);
   readonly roles = signal<Role[]>([]);
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly deleting = signal(false);
 
+  /*****************************************/
+  /* Metodos Publicos                      */
+  /*****************************************/
   load(): void {
     this.loadRoles();
     this.loadUsers();
@@ -72,6 +81,9 @@ export class UsuariosDataService {
       });
   }
 
+  /*****************************************/
+  /* Metodos Privados                      */
+  /*****************************************/
   private loadRoles(): void {
     this.rolesService
       .getApiRoles()

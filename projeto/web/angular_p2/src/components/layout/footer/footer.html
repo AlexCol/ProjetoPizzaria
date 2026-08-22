@@ -34,6 +34,17 @@
               <dd [class]="styles.userDetailValue">{{ currentUser.role.name }}</dd>
             </div>
           </dl>
+
+          <div [class]="styles.bottomDetails">
+            <app-button
+              [className]="styles.logoutButton"
+              label="Sair"
+              variant="link"
+              type="button"
+              [fullWidth]="false"
+              (clicked)="logout()"
+            />
+          </div>
         </div>
       </app-popover>
     }

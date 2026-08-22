@@ -4,17 +4,13 @@
     <span [class]="styles.brandLabel">Pizzaria</span>
   </app-link>
 
-  <div [class]="styles.userInfo" aria-label="Usuário conectado">
-    <span [class]="styles.userName">{{ userName }}</span>
-    <span> - </span>
-    <span [class]="styles.userRole">{{ roleName }}</span>
-  </div>
-
   <nav [class]="styles.nav" aria-label="Navegação principal">
-    <app-link label="Home" [routerLink]="['home']" activeClassName="text-secondary!" />
-    <app-link label="Usuários" [routerLink]="['usuarios']" activeClassName="text-secondary!" />
+    <app-link label="Home" [routerLink]="['home']" activeClassName="text-tertiary!" />
+    <app-link label="Usuários" [routerLink]="['usuarios']" activeClassName="text-tertiary!" />
+    <app-link label="Produtos" [routerLink]="['produtos']" activeClassName="text-tertiary!" />
+    <app-link label="Categorias" [routerLink]="['categorias']" activeClassName="text-tertiary!" />
     <app-button
-      variant="default"
+      variant="unstyled"
       type="button"
       allowSpam
       [fullWidth]="false"
@@ -24,6 +20,5 @@
     >
       <span aria-hidden="true">{{ isDark ? '☀️' : '🌙' }}</span>
     </app-button>
-    <app-button label="Sair" variant="link" type="button" [fullWidth]="false" (clicked)="logout()" />
   </nav>
 </header>

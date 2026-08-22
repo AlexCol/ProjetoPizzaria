@@ -11,7 +11,8 @@ import { AuthDirective } from '../../../../directives/auth.directive';
 import { UserTemplateDirective } from '../../../../directives/domain/user-template.directive';
 import { User } from '../../../../models/User';
 import { AuthStore } from '../../../../stores/auth/auth.store';
-import { UsuarioModalComponent, UserFormSubmission } from './usuario-modal/usuario-modal';
+import { UserFormSubmission } from './dtos/UserFormSubmission';
+import { UsuarioModalComponent } from './usuario-modal/usuario-modal';
 import { UsuariosDataService } from './usuarios-data.service';
 import { createUsuariosTableColumns } from './usuarios-table.columns';
 import { usuariosStyles } from './usuarios.styles';
@@ -94,6 +95,14 @@ export class UsuariosComponent {
     this.selectedUser.set(undefined);
   }
 
+  statusLabel(status: User['status']): string {
+    return { Active: 'Ativo', Inactive: 'Inativo', Blocked: 'Bloqueado' }[status];
+  }
+
+  saveUser(payload: UserFormSubmission): void {
+    this.data.saveUser(this.selectedUser(), payload, () => this.closeModal());
+  }
+
   requestDelete(user: User): void {
     this.userToDelete.set(user);
     this.deleteModalOpen.set(true);
@@ -102,14 +111,6 @@ export class UsuariosComponent {
   cancelDelete(): void {
     this.deleteModalOpen.set(false);
     this.userToDelete.set(undefined);
-  }
-
-  statusLabel(status: User['status']): string {
-    return { Active: 'Ativo', Inactive: 'Inativo', Blocked: 'Bloqueado' }[status];
-  }
-
-  saveUser(payload: UserFormSubmission): void {
-    this.data.saveUser(this.selectedUser(), payload, () => this.closeModal());
   }
 
   confirmDelete(): void {

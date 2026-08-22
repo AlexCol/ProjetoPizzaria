@@ -16,6 +16,8 @@ import {
   rowPaginationFeature,
   rowSortingFeature,
   sortFn_alphanumeric,
+  sortFn_datetime,
+  sortFn_text,
   tableFeatures,
 } from '@tanstack/angular-table';
 import { LucideAngularModule, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Search } from 'lucide-angular';
@@ -32,7 +34,11 @@ const dataTableFeatures = tableFeatures({
   },
   rowSortingFeature,
   sortedRowModel: createSortedRowModel(),
-  sortFns: { alphanumeric: sortFn_alphanumeric },
+  sortFns: {
+    alphanumeric: sortFn_alphanumeric,
+    datetime: sortFn_datetime,
+    text: sortFn_text,
+  },
   rowPaginationFeature,
   paginatedRowModel: createPaginatedRowModel(),
 });
@@ -59,8 +65,11 @@ export class DataTableComponent<TData extends Record<string, any>> {
   /*****************************************/
   /* Inputs e Outputs                      */
   /*****************************************/
-  readonly data = input.required<TData[]>();
-  readonly columns = input.required<readonly DataTableColumn<TData>[]>();
+  // O TanStack avalia as opcoes antes de o Angular concluir a atribuicao dos inputs.
+  // Os valores vazios evitam a leitura prematura de input.required e sao substituidos
+  // pelos bindings do componente pai ainda no primeiro ciclo de deteccao de mudancas.
+  readonly data = input<TData[]>([]);
+  readonly columns = input<readonly DataTableColumn<TData>[]>([]);
   readonly mode = input<DataTableMode>('local');
   readonly total = input(0);
   readonly loading = input(false);

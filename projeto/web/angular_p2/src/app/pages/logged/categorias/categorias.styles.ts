@@ -1,0 +1,14 @@
+export const categoriasStyles = {
+  host: 'block h-full min-h-0',
+  page: 'mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col gap-6 p-4 sm:p-6 lg:p-8',
+  header: 'flex shrink-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between',
+  title: 'text-2xl font-bold text-primary-text',
+  subtitle: 'mt-1 text-sm text-foreground/75',
+  gridSection: 'min-h-0 flex-1',
+  actionsCell: 'flex items-center justify-center',
+  iconButton: 'size-9 rounded-md p-3 text-primary hover:bg-primary/10',
+  deleteIconButton: 'size-9 rounded-md p-3 text-danger hover:bg-danger/10',
+  confirmation: 'flex flex-col gap-4 p-5 sm:p-6',
+  confirmationTitle: 'text-xl font-bold text-primary-text',
+  confirmationActions: 'flex justify-end gap-3 border-t border-border/40 pt-4',
+} as const;

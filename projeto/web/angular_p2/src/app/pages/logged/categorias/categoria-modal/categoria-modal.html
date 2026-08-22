@@ -1,0 +1,28 @@
+<form [formGroup]="form" [class]="styles.form" (ngSubmit)="save()" novalidate>
+  <h2 [class]="styles.title">{{ category() ? 'Editar categoria' : 'Nova categoria' }}</h2>
+
+  <div [class]="styles.fields">
+    <app-input
+      formControlName="name"
+      label="Nome"
+      placeholder="Nome da categoria"
+      autoComplete="off"
+      [required]="true"
+      [minLength]="3"
+      [maxLength]="100"
+      [ariaInvalid]="form.controls.name.invalid && form.controls.name.touched"
+    />
+  </div>
+
+  <div [class]="styles.actions">
+    <app-button
+      type="button"
+      label="Cancelar"
+      variant="danger"
+      [fullWidth]="false"
+      [allowSpam]="true"
+      (clicked)="close()"
+    />
+    <app-button type="submit" label="Salvar" variant="success" [fullWidth]="false" [disabled]="saving()" />
+  </div>
+</form>

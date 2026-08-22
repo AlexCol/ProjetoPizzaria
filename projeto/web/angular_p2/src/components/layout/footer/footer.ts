@@ -1,7 +1,9 @@
 import { Component, computed, inject } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { PopoverComponent } from '../../../components/shared/popover/popover';
 import { SSEService } from '../../../services/sse/sse.service';
 import { AuthStore } from '../../../stores/auth/auth.store';
+import { ButtonComponent } from '../../shared/button/button';
 import { footerStyles } from './footer.styles';
 
 @Component({
@@ -10,7 +12,7 @@ import { footerStyles } from './footer.styles';
   host: {
     '[class]': 'styles.host',
   },
-  imports: [PopoverComponent],
+  imports: [PopoverComponent, ButtonComponent],
 })
 export class FooterComponent {
   /*****************************************/
@@ -18,6 +20,7 @@ export class FooterComponent {
   /*****************************************/
   private readonly authStore = inject(AuthStore);
   private readonly sseService = inject(SSEService);
+  private readonly toastService = inject(ToastrService);
 
   /*****************************************/
   /* Propriedades Publicas                 */
@@ -39,4 +42,15 @@ export class FooterComponent {
   );
 
   readonly connectionLabel = computed(() => (this.isSseConnected() ? 'SSE conectado' : 'SSE desconectado'));
+
+  /*****************************************/
+  /* Metodos Publicos                      */
+  /*****************************************/
+  logout() {
+    this.authStore.logout().subscribe({
+      error: (error: string) => {
+        this.toastService.error(error, 'Não foi possível encerrar a sessão');
+      },
+    });
+  }
 }

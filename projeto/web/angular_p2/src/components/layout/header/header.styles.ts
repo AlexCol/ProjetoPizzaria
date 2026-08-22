@@ -11,8 +11,5 @@ export const headerStyles = {
     'text-xl text-white italic transition-colors duration-300',
   ].join(' '),
   brandLabel: 'max-[480px]:hidden',
-  userInfo: 'text-sm',
-  userName: 'font-semibold',
-  userRole: 'text-secondary transition-colors duration-150',
   nav: 'flex items-center gap-[clamp(1rem,4vw,2rem)]',
 } as const;
