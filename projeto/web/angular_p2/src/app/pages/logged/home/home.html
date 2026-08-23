@@ -1,0 +1,73 @@
+<main [class]="styles.page">
+  <header [class]="styles.header">
+    <!-- Cabeçalho da tela -->
+    <h1 [class]="styles.title">Pedidos</h1>
+    <p [class]="styles.subtitle">Acompanhe os pedidos e marque como prontos após o preparo.</p>
+  </header>
+
+  <!-- Lista paginada de pedidos -->
+  <section [class]="styles.gridSection" aria-label="Lista de pedidos">
+    <app-data-table
+      mode="server"
+      [data]="orders()"
+      [columns]="tableColumns()"
+      [total]="total()"
+      [loading]="loading()"
+      emptyMessage="Nenhum pedido encontrado."
+      (queryChange)="handleTableQuery($event)"
+    />
+  </section>
+</main>
+
+<!-- --------------------------------------------- -->
+<!-- Blocos usados pelas células da tabela         -->
+<!-- --------------------------------------------- -->
+
+<!-- --------------------------------------------- -->
+<!-- Status atual do pedido                        -->
+<!-- --------------------------------------------- -->
+<ng-template #statusTemplate let-order>
+  <span [class]="statusClass(order.status)">{{ statusLabel(order.status) }}</span>
+</ng-template>
+
+<!-- --------------------------------------------- -->
+<!-- Botão para abrir os detalhes do pedido        -->
+<!-- --------------------------------------------- -->
+<ng-template #actionsTemplate let-order>
+  <div [class]="styles.actionsCell">
+    <app-button
+      variant="unstyled"
+      ariaLabel="Abrir pedido"
+      title="Abrir pedido"
+      [fullWidth]="false"
+      [allowSpam]="true"
+      [className]="styles.openButton"
+      [iconClassName]="styles.openButtonContent"
+      (clicked)="openOrder(order)"
+    >
+      <lucide-icon [img]="Eye" [class]="styles.openButtonIcon" strokeWidth="2" />
+      <span>Abrir</span>
+    </app-button>
+  </div>
+</ng-template>
+
+<!-- --------------------------------------------- -->
+<!-- Modal com os itens e controles do pedido      -->
+<!-- --------------------------------------------- -->
+<app-modal
+  [(isOpen)]="modalOpen"
+  ariaLabel="Detalhes do pedido"
+  [blockBackdropClose]="true"
+  (closed)="handleOrderModalClosed()"
+>
+  @if (modalOpen() && selectedOrder(); as order) {
+    <app-pedido-modal
+      [order]="order"
+      [items]="orderItems()"
+      [loading]="loadingItems()"
+      [updatingStatus]="updatingStatus()"
+      (closeModal)="closeOrder()"
+      (markAsReady)="markSelectedOrderAsReady()"
+    />
+  }
+</app-modal>

@@ -1,0 +1,15 @@
+export const homeStyles = {
+  host: 'block h-full min-h-0',
+  page: 'mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col gap-6 p-4 sm:p-6 lg:p-8',
+  header: 'shrink-0',
+  title: 'text-2xl font-bold text-primary-text',
+  subtitle: 'mt-1 text-sm text-foreground/75',
+  gridSection: 'min-h-0 flex-1',
+  draftBadge: 'inline-flex rounded-full bg-foreground/10 px-2.5 py-1 text-xs font-semibold text-foreground',
+  pendingBadge: 'inline-flex rounded-full bg-warning/15 px-2.5 py-1 text-xs font-semibold text-warning',
+  doneBadge: 'inline-flex rounded-full bg-success/15 px-2.5 py-1 text-xs font-semibold text-success',
+  actionsCell: 'flex items-center justify-center',
+  openButton: 'gap-2 rounded-md px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10',
+  openButtonContent: 'inline-flex items-center gap-2',
+  openButtonIcon: 'size-4',
+} as const;

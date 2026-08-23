@@ -178,6 +178,10 @@ public class OrdersService(
       try {
         var sseService = scope.ServiceProvider.GetRequiredService<ISseService>();
         await sseService.SendToUserAsync(order.UserId.ToString(), ESseEvents.OrderStatusChanged, null);
+        await sseService.SendToAllAsync(
+          ESseEvents.KitchenOrdersChanged,
+          new { OrderId = order.Id.ToString(), Status = order.Status.ToString() }
+        );
       } catch (Exception ex) {
         Log.Error("Error sending session update notification: " + ex.Message);
       }

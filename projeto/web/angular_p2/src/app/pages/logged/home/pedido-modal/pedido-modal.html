@@ -1,0 +1,89 @@
+<section [class]="styles.content">
+  <!-- --------------------------------------------- -->
+  <!-- Cabeçalho e situação atual do pedido          -->
+  <!-- --------------------------------------------- -->
+  <header [class]="styles.header">
+    <div>
+      <h2 [class]="styles.title">Pedido da mesa {{ order().tableNumber }}</h2>
+      <p [class]="styles.subtitle">{{ order().name || 'Cliente não informado' }}</p>
+    </div>
+    <span [class]="statusClass()">{{ statusLabel() }}</span>
+  </header>
+
+  <!-- --------------------------------------------- -->
+  <!-- Resumo do pedido                              -->
+  <!-- --------------------------------------------- -->
+  <div [class]="styles.summary">
+    <div [class]="styles.summaryItem">
+      <span [class]="styles.summaryLabel">Mesa</span>
+      <span [class]="styles.summaryValue">{{ order().tableNumber }}</span>
+    </div>
+    <div [class]="styles.summaryItem">
+      <span [class]="styles.summaryLabel">Criado em</span>
+      <span [class]="styles.summaryValue">{{ createdAtLabel() }}</span>
+    </div>
+    <div [class]="styles.summaryItem">
+      <span [class]="styles.summaryLabel">Itens</span>
+      <span [class]="styles.summaryValue">{{ items().length }}</span>
+    </div>
+  </div>
+
+  <!-- --------------------------------------------- -->
+  <!-- Itens pertencentes ao pedido                  -->
+  <!-- --------------------------------------------- -->
+  <section [class]="styles.itemsSection" aria-label="Itens do pedido">
+    <h3 [class]="styles.itemsTitle">Itens do pedido</h3>
+
+    @if (loading()) {
+      <p [class]="styles.state">Carregando itens...</p>
+    } @else if (items().length === 0) {
+      <p [class]="styles.state">Este pedido não possui itens.</p>
+    } @else {
+      <div [class]="styles.itemsList">
+        @for (item of items(); track item.id ?? item.productId) {
+          <article [class]="styles.item">
+            <span [class]="styles.amount">{{ item.amount }}</span>
+            <div [class]="styles.itemInfo">
+              <p [class]="styles.itemName">{{ item.product?.name || 'Produto não encontrado' }}</p>
+              <p [class]="styles.itemUnitPrice">{{ formatCurrency(item.product?.price) }} por unidade</p>
+            </div>
+            <span [class]="styles.itemSubtotal">{{ itemSubtotal(item) }}</span>
+          </article>
+        }
+      </div>
+
+      <div [class]="styles.total">
+        <span>Total</span>
+        <span>{{ formatCurrency(total()) }}</span>
+      </div>
+    }
+  </section>
+
+  @if (order().status === 'Draft') {
+    <p [class]="styles.draftNotice">O pedido ainda está em rascunho e precisa ser enviado para preparo.</p>
+  }
+
+  <!-- --------------------------------------------- -->
+  <!-- Controles do pedido                           -->
+  <!-- --------------------------------------------- -->
+  <footer [class]="styles.actions">
+    <app-button
+      type="button"
+      label="Fechar"
+      variant="unstyled"
+      [fullWidth]="false"
+      [allowSpam]="true"
+      (clicked)="close()"
+    />
+    @if (canMarkAsReady()) {
+      <app-button
+        type="button"
+        label="Marcar como pronto"
+        variant="success"
+        [fullWidth]="false"
+        [disabled]="updatingStatus() || loading()"
+        (clicked)="ready()"
+      />
+    }
+  </footer>
+</section>
