@@ -8,6 +8,7 @@ export const homeStyles = {
   draftBadge: 'inline-flex rounded-full bg-foreground/10 px-2.5 py-1 text-xs font-semibold text-foreground',
   pendingBadge: 'inline-flex rounded-full bg-warning/15 px-2.5 py-1 text-xs font-semibold text-warning',
   doneBadge: 'inline-flex rounded-full bg-success/15 px-2.5 py-1 text-xs font-semibold text-success',
+  finalizedBadge: 'inline-flex rounded-full bg-primary/15 px-2.5 py-1 text-xs font-semibold text-primary',
   actionsCell: 'flex items-center justify-center',
   openButton: 'gap-2 rounded-md px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10',
   openButtonContent: 'inline-flex items-center gap-2',

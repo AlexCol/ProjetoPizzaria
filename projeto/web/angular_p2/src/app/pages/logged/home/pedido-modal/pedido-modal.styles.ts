@@ -7,6 +7,7 @@ export const pedidoModalStyles = {
   draftBadge: 'inline-flex self-start rounded-full bg-foreground/10 px-2.5 py-1 text-xs font-semibold text-foreground',
   pendingBadge: 'inline-flex self-start rounded-full bg-warning/15 px-2.5 py-1 text-xs font-semibold text-warning',
   doneBadge: 'inline-flex self-start rounded-full bg-success/15 px-2.5 py-1 text-xs font-semibold text-success',
+  finalizedBadge: 'inline-flex self-start rounded-full bg-primary/15 px-2.5 py-1 text-xs font-semibold text-primary',
   summary: 'grid grid-cols-2 gap-3 rounded-lg bg-background p-4 sm:grid-cols-3',
   summaryItem: 'flex flex-col gap-1',
   summaryLabel: 'text-xs font-medium uppercase tracking-wide text-foreground/60',

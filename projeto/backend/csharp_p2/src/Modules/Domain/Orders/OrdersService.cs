@@ -57,7 +57,9 @@ public class OrdersService(
   }
 
   private async Task OrderCreationValidationAsync(CreateOrderDto order) {
-    var openOrderOnTable = await ordersRepository.FindOneWithPredicateAsync(o => o.TableNumber == order.TableNumber && o.Status != EOrderStatus.Done);
+    var openOrderOnTable = await ordersRepository.FindOneWithPredicateAsync(o =>
+      o.TableNumber == order.TableNumber && o.Status != EOrderStatus.Finalized
+    );
     if (openOrderOnTable != null) {
       throw new CustomError("There is already an open order on this table.", 400);
     }
@@ -103,7 +105,8 @@ public class OrdersService(
     return currentStatus switch {
       EOrderStatus.Draft => nextStatus == EOrderStatus.Pending,
       EOrderStatus.Pending => nextStatus == EOrderStatus.Done || nextStatus == EOrderStatus.Draft,
-      EOrderStatus.Done => nextStatus == EOrderStatus.Pending,
+      EOrderStatus.Done => nextStatus == EOrderStatus.Finalized || nextStatus == EOrderStatus.Pending,
+      EOrderStatus.Finalized => false,
       _ => false
     };
   }
@@ -125,7 +128,7 @@ public class OrdersService(
 
     if (orderDto.TableNumber != 0) {
       var openOrderOnTable = await ordersRepository.FindOneWithPredicateAsync(o =>
-        o.TableNumber == orderDto.TableNumber && o.Status != EOrderStatus.Done && o.Id != order.Id
+        o.TableNumber == orderDto.TableNumber && o.Status != EOrderStatus.Finalized && o.Id != order.Id
       );
       if (openOrderOnTable != null) {
         throw new CustomError("There is already an open order on this table.");

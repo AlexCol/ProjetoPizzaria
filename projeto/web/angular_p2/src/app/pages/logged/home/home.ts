@@ -109,6 +109,7 @@ export class HomeComponent {
       Draft: 'Rascunho',
       Pending: 'Em preparo',
       Done: 'Pronto',
+      Finalized: 'Finalizado',
     }[status ?? EOrderStatus.Draft];
   }
 
@@ -117,6 +118,7 @@ export class HomeComponent {
       Draft: this.styles.draftBadge,
       Pending: this.styles.pendingBadge,
       Done: this.styles.doneBadge,
+      Finalized: this.styles.finalizedBadge,
     }[status ?? EOrderStatus.Draft];
   }
 

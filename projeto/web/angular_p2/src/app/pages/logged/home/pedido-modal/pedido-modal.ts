@@ -49,6 +49,7 @@ export class PedidoModalComponent {
       Draft: 'Rascunho',
       Pending: 'Em preparo',
       Done: 'Pronto',
+      Finalized: 'Finalizado',
     }[this.order().status ?? EOrderStatus.Draft];
   }
 
@@ -57,6 +58,7 @@ export class PedidoModalComponent {
       Draft: this.styles.draftBadge,
       Pending: this.styles.pendingBadge,
       Done: this.styles.doneBadge,
+      Finalized: this.styles.finalizedBadge,
     }[this.order().status ?? EOrderStatus.Draft];
   }
 

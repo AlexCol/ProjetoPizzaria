@@ -10,6 +10,7 @@ export type EOrderStatus = (typeof EOrderStatus)[keyof typeof EOrderStatus];
 
 export const EOrderStatus = {
   Draft: 'Draft',
+  Finalized: 'Finalized',
   Done: 'Done',
   Pending: 'Pending',
 } as const;
