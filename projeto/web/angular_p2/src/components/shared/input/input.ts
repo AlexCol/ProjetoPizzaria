@@ -95,7 +95,12 @@ export class InputComponent implements ControlValueAccessor {
   readonly inputId = computed(() => this.id() || this.generatedId); // Usa o id informado ou gera um automaticamente para relacionar label e input.
   readonly isDisabled = computed(() => this.disabled() || this.formDisabled()); // Combina o disabled externo com o estado definido pelo Angular Forms.
   readonly inputClasses = computed(() =>
-    [inputStyles.input, this.ariaInvalid() ? inputStyles.invalid : '', this.className().trim()]
+    [
+      inputStyles.input,
+      this.type() === 'number' ? inputStyles.number : '',
+      this.ariaInvalid() ? inputStyles.invalid : '',
+      this.className().trim(),
+    ]
       .filter(Boolean)
       .join(' '),
   );

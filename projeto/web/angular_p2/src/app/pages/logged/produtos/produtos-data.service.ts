@@ -37,20 +37,10 @@ export class ProdutosDataService {
   }
 
   saveProduct(product: Product | undefined, payload: ProductFormSubmission, onSuccess: () => void): void {
-    const commonPayload = {
-      Name: payload.name,
-      Price: payload.price,
-      Description: payload.description,
-      CategoryId: payload.categoryId,
-      ...(payload.image ? { image: payload.image } : {}),
-    };
     const request: Observable<unknown> =
       product?.id !== undefined && product.id !== null
-        ? this.productsService.patchApiProductsId(product.id, {
-            ...commonPayload,
-            Status: payload.status,
-          } as PatchApiProductsIdBody)
-        : this.productsService.postApiProducts(commonPayload as PostApiProductsBody);
+        ? this.productsService.patchApiProductsId(product.id, this.toUpdatePayload(product, payload))
+        : this.productsService.postApiProducts(this.toCreatePayload(payload));
 
     this.saving.set(true);
     request
@@ -98,6 +88,27 @@ export class ProdutosDataService {
   /*****************************************/
   /* Metodos Privados                      */
   /*****************************************/
+  private toCreatePayload(payload: ProductFormSubmission): PostApiProductsBody {
+    return {
+      Name: payload.name,
+      Price: payload.price,
+      Description: payload.description,
+      CategoryId: payload.categoryId,
+      ...(payload.image ? { image: payload.image } : {}),
+    };
+  }
+
+  private toUpdatePayload(product: Product, payload: ProductFormSubmission): PatchApiProductsIdBody {
+    return {
+      ...(payload.name !== product.name ? { Name: payload.name } : {}),
+      ...(Number(payload.price) !== Number(product.price) ? { Price: payload.price } : {}),
+      ...(payload.description !== product.description ? { Description: payload.description } : {}),
+      ...(String(payload.categoryId) !== String(product.categoryId) ? { CategoryId: payload.categoryId } : {}),
+      ...(payload.status !== product.status ? { Status: payload.status } : {}),
+      ...(payload.image ? { image: payload.image } : {}),
+    };
+  }
+
   private loadCategories(): void {
     this.categoriesService
       .getApiCategories()

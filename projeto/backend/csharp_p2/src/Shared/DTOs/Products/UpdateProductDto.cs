@@ -16,6 +16,6 @@ public class UpdateProductDto {
   [Range(1, long.MaxValue, ErrorMessage = "CategoryId must be a positive number.")]
   public long? CategoryId { get; set; }
 
-  [Range(0, 1, ErrorMessage = "Status must be 0 or 1.")]
+  [EnumDataType(typeof(EProductStatus), ErrorMessage = "Invalid product status.")]
   public EProductStatus? Status { get; set; }
 }

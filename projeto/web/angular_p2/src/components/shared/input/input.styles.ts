@@ -18,4 +18,6 @@ export const inputStyles = {
   ].join(' '),
 
   invalid: 'ring-danger focus:ring-danger',
+  number:
+    '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
 } as const;
