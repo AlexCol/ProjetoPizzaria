@@ -16,9 +16,14 @@ export const apiBaseInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>,
   const url = req.url.startsWith('/api/') ? `${apiOrigin}${req.url}` : `${apiBaseUrl}${req.url}`;
 
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     'app-origin': 'web',
   };
+
+  // FormData precisa ficar sem Content-Type explícito para o navegador incluir
+  // automaticamente o boundary exigido pelo multipart/form-data.
+  if (!(req.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   const usesNonJsonResponse = /^\/(?:api\/)?(?:file|sse)\//i.test(req.url);
   if (!usesNonJsonResponse && !req.headers.has('Accept')) {

@@ -6,9 +6,42 @@
 
   <nav [class]="styles.nav" aria-label="Navegação principal">
     <app-link label="Home" [routerLink]="['home']" activeClassName="text-tertiary!" />
-    <app-link label="Usuários" [routerLink]="['usuarios']" activeClassName="text-tertiary!" />
-    <app-link label="Produtos" [routerLink]="['produtos']" activeClassName="text-tertiary!" />
-    <app-link label="Categorias" [routerLink]="['categorias']" activeClassName="text-tertiary!" />
+
+    <!-- Menu com as telas de cadastro -->
+    <app-popover position="bottom-end" [className]="styles.registrationsMenu">
+      <app-button
+        popover-trigger
+        label="Cadastros"
+        variant="unstyled"
+        type="button"
+        ariaLabel="Abrir menu de cadastros"
+        [fullWidth]="false"
+        [allowSpam]="true"
+        [className]="registrationsTriggerClass()"
+      />
+
+      <nav popover-content [class]="styles.registrationsLinks" aria-label="Cadastros">
+        <app-link
+          label="Usuários"
+          [routerLink]="['usuarios']"
+          [className]="styles.registrationsLink"
+          [activeClassName]="styles.activeRegistrationsLink"
+        />
+        <app-link
+          label="Produtos"
+          [routerLink]="['produtos']"
+          [className]="styles.registrationsLink"
+          [activeClassName]="styles.activeRegistrationsLink"
+        />
+        <app-link
+          label="Categorias"
+          [routerLink]="['categorias']"
+          [className]="styles.registrationsLink"
+          [activeClassName]="styles.activeRegistrationsLink"
+        />
+      </nav>
+    </app-popover>
+
     <app-button
       variant="unstyled"
       type="button"

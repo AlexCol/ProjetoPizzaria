@@ -1,0 +1,20 @@
+export const produtosStyles = {
+  host: 'block h-full min-h-0',
+  page: 'mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col gap-6 p-4 sm:p-6 lg:p-8',
+  header: 'flex shrink-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between',
+  title: 'text-2xl font-bold text-primary-text',
+  subtitle: 'mt-1 text-sm text-foreground/75',
+  gridSection: 'min-h-0 flex-1',
+  imageCell: 'flex items-center justify-center',
+  productImage: 'size-14 rounded-lg border border-border/50 object-cover shadow-sm',
+  imageFallback:
+    'flex size-14 items-center justify-center rounded-lg border border-dashed border-border bg-foreground/5 px-1 text-center text-[0.65rem] leading-tight text-foreground/60',
+  activeBadge: 'inline-flex rounded-full bg-success/15 px-2.5 py-1 text-xs font-semibold text-success',
+  inactiveBadge: 'inline-flex rounded-full bg-warning/15 px-2.5 py-1 text-xs font-semibold text-foreground',
+  actionsCell: 'flex items-center justify-center',
+  iconButton: 'size-9 rounded-md p-3 text-primary hover:bg-primary/10',
+  deleteIconButton: 'size-9 rounded-md p-3 text-danger hover:bg-danger/10',
+  confirmation: 'flex flex-col gap-4 p-5 sm:p-6',
+  confirmationTitle: 'text-xl font-bold text-primary-text',
+  confirmationActions: 'flex justify-end gap-3 border-t border-border/40 pt-4',
+} as const;

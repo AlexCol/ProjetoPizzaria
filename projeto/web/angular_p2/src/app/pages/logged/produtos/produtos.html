@@ -1,0 +1,137 @@
+<main [class]="styles.page">
+  <header [class]="styles.header">
+    <!-- Cabeçalho da tela -->
+    <div>
+      <h1 [class]="styles.title">Produtos</h1>
+      <p [class]="styles.subtitle">Gerencie os produtos disponíveis no cardápio.</p>
+    </div>
+    <!-- Botao para criação de novo produto -->
+    <ng-container *appAuth="['Admin']">
+      <app-button label="Novo produto" variant="primary" [fullWidth]="false" (clicked)="openModal()" />
+    </ng-container>
+  </header>
+
+  <!-- Criação do datatable -->
+  <section [class]="styles.gridSection" aria-label="Lista de produtos">
+    <app-data-table
+      [data]="products()"
+      [columns]="tableColumns()"
+      [loading]="loading()"
+      emptyMessage="Nenhum produto encontrado."
+    />
+  </section>
+</main>
+
+<!-- --------------------------------------------- -->
+<!-- Blocos não renderizados automaticamente.      -->
+<!-- Eles são injetados pelo componente via        -->
+<!-- createProdutosTableColumns()                  -->
+<!-- --------------------------------------------- -->
+
+<!-- --------------------------------------------- -->
+<!-- imageTemplate - apresentado sempre            -->
+<!-- --------------------------------------------- -->
+<ng-template #imageTemplate let-product>
+  <div [class]="styles.imageCell">
+    @if (hasProductImage(product)) {
+      <img
+        [src]="productImageUrl(product)"
+        [alt]="'Imagem de ' + (product.name ?? 'produto')"
+        [class]="styles.productImage"
+        loading="lazy"
+        (error)="markImageAsUnavailable(product)"
+      />
+    } @else {
+      <span [class]="styles.imageFallback">Sem imagem</span>
+    }
+  </div>
+</ng-template>
+
+<!-- --------------------------------------------- -->
+<!-- statusTemplate - apresentado sempre           -->
+<!-- --------------------------------------------- -->
+<ng-template #statusTemplate let-product>
+  <span [class]="product.status === 'Active' ? styles.activeBadge : styles.inactiveBadge">
+    {{ statusLabel(product.status) }}
+  </span>
+</ng-template>
+
+<!-- --------------------------------------------- -->
+<!-- actionsTemplate - apresentado se user = Admin -->
+<!-- --------------------------------------------- -->
+<ng-template #actionsTemplate let-product>
+  <div [class]="styles.actionsCell">
+    <app-button
+      variant="unstyled"
+      ariaLabel="Editar produto"
+      title="Editar"
+      [fullWidth]="false"
+      [className]="styles.iconButton"
+      [allowSpam]="true"
+      (clicked)="openModal(product)"
+    >
+      <lucide-icon [img]="Edit" strokeWidth="2" />
+    </app-button>
+
+    <app-button
+      variant="unstyled"
+      ariaLabel="Excluir produto"
+      title="Excluir"
+      [fullWidth]="false"
+      [className]="styles.deleteIconButton"
+      [allowSpam]="true"
+      (clicked)="requestDelete(product)"
+    >
+      <lucide-icon [img]="Trash2" strokeWidth="2" />
+    </app-button>
+  </div>
+</ng-template>
+
+<!-- --------------------------------------------- -->
+<!-- Modal para criação/edição de produto           -->
+<!-- --------------------------------------------- -->
+<app-modal
+  [(isOpen)]="modalOpen"
+  [ariaLabel]="selectedProduct() ? 'Editar produto' : 'Novo produto'"
+  [blockBackdropClose]="true"
+>
+  @if (modalOpen()) {
+    <app-produto-modal
+      [product]="selectedProduct()"
+      [categoryOptions]="categoryOptions()"
+      [saving]="saving()"
+      (closeModal)="closeModal()"
+      (saveProduct)="saveProduct($event)"
+    />
+  }
+</app-modal>
+
+<!-- --------------------------------------------- -->
+<!-- Modal para confirmação de exclusão de produto -->
+<!-- --------------------------------------------- -->
+<app-modal [(isOpen)]="deleteModalOpen" ariaLabel="Confirmar exclusão" [blockBackdropClose]="true">
+  <section [class]="styles.confirmation">
+    <h2 [class]="styles.confirmationTitle">Excluir produto</h2>
+    <p>
+      Tem certeza que deseja excluir <strong>{{ productToDelete()?.name }}</strong
+      >? Esta ação não pode ser desfeita.
+    </p>
+
+    <div [class]="styles.confirmationActions">
+      <app-button
+        label="Cancelar"
+        variant="unstyled"
+        [fullWidth]="false"
+        [allowSpam]="true"
+        (clicked)="cancelDelete()"
+      />
+      <app-button
+        label="Excluir"
+        variant="danger"
+        [fullWidth]="false"
+        [disabled]="deleting()"
+        (clicked)="confirmDelete()"
+      />
+    </div>
+  </section>
+</app-modal>

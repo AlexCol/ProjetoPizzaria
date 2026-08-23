@@ -1,0 +1,111 @@
+<form [formGroup]="form" [class]="styles.form" (ngSubmit)="save()" novalidate>
+  <h2 [class]="styles.title">{{ product() ? 'Editar produto' : 'Novo produto' }}</h2>
+
+  <div [class]="styles.fields">
+    <app-input
+      formControlName="name"
+      label="Nome"
+      placeholder="Nome do produto"
+      autoComplete="off"
+      [required]="true"
+      [minLength]="1"
+      [maxLength]="100"
+      [ariaInvalid]="form.controls.name.invalid && form.controls.name.touched"
+    />
+
+    <app-input
+      formControlName="price"
+      type="number"
+      label="Preço"
+      placeholder="0,00"
+      step="0.01"
+      [min]="0.01"
+      [required]="true"
+      [ariaInvalid]="form.controls.price.invalid && form.controls.price.touched"
+    />
+
+    <app-select
+      formControlName="categoryId"
+      label="Categoria"
+      placeholder="Selecione uma categoria"
+      [options]="categoryOptions()"
+      [required]="true"
+      [ariaInvalid]="form.controls.categoryId.invalid && form.controls.categoryId.touched"
+    />
+
+    @if (product()) {
+      <app-select
+        formControlName="status"
+        label="Status"
+        placeholder="Selecione um status"
+        [options]="statusOptions"
+        [required]="true"
+        [ariaInvalid]="form.controls.status.invalid && form.controls.status.touched"
+      />
+    }
+
+    <div [class]="styles.fieldContainer">
+      <label for="product-description" [class]="styles.label">
+        Descrição <span [class]="styles.requiredMark" aria-hidden="true">*</span>
+      </label>
+      <textarea
+        id="product-description"
+        formControlName="description"
+        placeholder="Descrição do produto"
+        maxlength="500"
+        [class]="styles.textarea"
+        [attr.aria-invalid]="form.controls.description.invalid && form.controls.description.touched ? true : null"
+        required
+      ></textarea>
+    </div>
+
+    <!-- Pré-visualização da imagem atual ou do novo arquivo selecionado -->
+    <div [class]="styles.imagePreviewContainer">
+      @if (previewUrl() && !previewUnavailable()) {
+        <img
+          [src]="previewUrl()"
+          [alt]="'Pré-visualização de ' + (form.controls.name.value || 'produto')"
+          [class]="styles.imagePreview"
+          (error)="markPreviewAsUnavailable()"
+        />
+      } @else {
+        <span [class]="styles.imagePlaceholder">Nenhuma imagem disponível.</span>
+      }
+    </div>
+
+    <div [class]="styles.fieldContainer">
+      <label for="product-image" [class]="styles.label">
+        Imagem
+        @if (!product()) {
+          <span [class]="styles.requiredMark" aria-hidden="true">*</span>
+        }
+      </label>
+      <input
+        id="product-image"
+        type="file"
+        accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+        [class]="styles.fileInput"
+        [required]="!product()"
+        (change)="selectImage($event)"
+      />
+      <small [class]="styles.helperText">
+        JPG, JPEG ou PNG, com no máximo 2 MB.
+        @if (product()) {
+          Se não selecionar, a imagem atual será mantida.
+        }
+      </small>
+    </div>
+  </div>
+
+  <div [class]="styles.actions">
+    <app-button
+      type="button"
+      label="Cancelar"
+      variant="danger"
+      [fullWidth]="false"
+      [allowSpam]="true"
+      (clicked)="close()"
+    />
+    <app-button type="submit" label="Salvar" variant="success" [fullWidth]="false" [disabled]="saving()" />
+  </div>
+</form>

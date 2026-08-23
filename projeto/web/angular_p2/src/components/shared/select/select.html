@@ -23,13 +23,17 @@
       (change)="handleChange($event)"
     >
       @if (placeholder()) {
-        <option value="" [disabled]="required()">
+        <option value="" [disabled]="required()" [selected]="selectedKey() === ''">
           {{ placeholder() }}
         </option>
       }
 
       @for (option of options(); track $index) {
-        <option [value]="getOptionKey($index)" [disabled]="option.disabled ?? false">
+        <option
+          [value]="getOptionKey($index)"
+          [disabled]="option.disabled ?? false"
+          [selected]="selectedKey() === getOptionKey($index)"
+        >
           {{ option.label }}
         </option>
       }

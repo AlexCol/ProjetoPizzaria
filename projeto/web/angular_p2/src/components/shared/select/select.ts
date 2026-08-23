@@ -85,7 +85,9 @@ export class SelectComponent implements ControlValueAccessor {
       return '';
     }
 
-    const index = this.options().findIndex((option) => Object.is(option.value, currentValue));
+    const index = this.options().findIndex(
+      (option) => Object.is(option.value, currentValue) || String(option.value) === String(currentValue),
+    );
     return index >= 0 ? this.getOptionKey(index) : '';
   });
 

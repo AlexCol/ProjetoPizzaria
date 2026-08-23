@@ -1,15 +1,17 @@
 <main [class]="styles.page">
   <header [class]="styles.header">
+    <!-- Cabeçalho da tela -->
     <div>
       <h1 [class]="styles.title">Categorias</h1>
       <p [class]="styles.subtitle">Gerencie as categorias dos produtos.</p>
     </div>
-
+    <!-- Botao para criação de novo usuário -->
     <ng-container *appAuth="['Admin']">
       <app-button label="Nova categoria" variant="primary" [fullWidth]="false" (clicked)="openModal()" />
     </ng-container>
   </header>
 
+  <!-- Criação do datatable -->
   <section [class]="styles.gridSection" aria-label="Lista de categorias">
     <app-data-table
       [data]="categories()"
@@ -20,6 +22,11 @@
   </section>
 </main>
 
+<!-- --------------------------------------------- -->
+<!-- Blocos não renderizados autimaticamente.      -->
+<!-- eles são injetados via pelo componente via    -->
+<!-- createCategoriesTableColumns()                -->
+<!-- --------------------------------------------- -->
 <ng-template #actionsTemplate let-category>
   <div [class]="styles.actionsCell">
     <app-button
@@ -48,6 +55,9 @@
   </div>
 </ng-template>
 
+<!-- --------------------------------------------- -->
+<!-- Modal para criação/edição de categoria        -->
+<!-- --------------------------------------------- -->
 <app-modal
   [(isOpen)]="modalOpen"
   [ariaLabel]="selectedCategory() ? 'Editar categoria' : 'Nova categoria'"
@@ -63,6 +73,9 @@
   }
 </app-modal>
 
+<!-- ----------------------------------------------- -->
+<!-- Modal para confirmação de exclusão de categoria -->
+<!-- ----------------------------------------------- -->
 <app-modal [(isOpen)]="deleteModalOpen" ariaLabel="Confirmar exclusão" [blockBackdropClose]="true">
   <section [class]="styles.confirmation">
     <h2 [class]="styles.confirmationTitle">Excluir categoria</h2>

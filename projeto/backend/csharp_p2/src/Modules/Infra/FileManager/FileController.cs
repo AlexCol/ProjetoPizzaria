@@ -1,5 +1,6 @@
 using csharp_p2.src.Shared.DTOs;
 using csharp_p2.src.Shared.Exceptions;
+using csharp_p2.src.Shared.Atributtes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.StaticFiles;
 
@@ -33,6 +34,7 @@ public class FileController : ControllerBase {
 
   [HttpGet("view")]
   [AllowAnonymous]
+  [IgnoreAppOrigin]
   [EndpointSummary("Visualização de Arquivo")]
   [EndpointDescription("Permite a visualização de um arquivo específico, fornecendo o caminho do módulo e o nome do arquivo. O arquivo será renderizado inline quando possível (ex: imagens).")]
   [ProducesResponseType(
