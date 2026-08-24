@@ -16,8 +16,11 @@ public static class HangfireApp {
       Log.Information("📊 [Hangfire] Dashboard disponível em /hangfire");
     }
 
-    //SchedulerService é meu serviço (não é do pacote), onde adiciono os jobs
-    SchedulerService.AddJobs();
+    // Resolve as APIs pelo container para garantir que o storage configurado por
+    // AddHangfire esteja inicializado antes de registrar os jobs.
+    var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
+    var backgroundJobClient = app.Services.GetRequiredService<IBackgroundJobClient>();
+    SchedulerService.AddJobs(recurringJobManager, backgroundJobClient);
   }
 
   private sealed class AllowAnonymousHangfireDashboard : IDashboardAuthorizationFilter {

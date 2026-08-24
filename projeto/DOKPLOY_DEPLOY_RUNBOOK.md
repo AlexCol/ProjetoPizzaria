@@ -45,7 +45,7 @@ Definir:
 - nomes, usuário e senhas do PostgreSQL;
 - senha do Valkey;
 - SMTP e e-mail administrador;
-- secret longo e aleatório para `CRYPTO_SECRET` e `FILE_MANAGER_SECRET_KEY` quando aplicável; `ADMIN_PASSWORD` deve ser um hash BCrypt da senha inicial, não texto puro;
+- secret aleatório com exatamente 16, 24 ou 32 bytes UTF-8 para `CRYPTO_SECRET` e um secret forte para `FILE_MANAGER_SECRET_KEY` quando aplicável; `ADMIN_PASSWORD` deve ser um hash BCrypt da senha inicial, não texto puro;
 - proxies confiáveis conforme a rede do Dokploy.
 
 Antes do build, trocar `apiBaseUrl` em `projeto/web/angular_p2/src/environments/environment.ts` de `https://api.meusite.com/api` para `https://<BACKEND_DOMAIN>/api`. Esse valor é compilado no bundle e não é variável runtime do container.
@@ -415,6 +415,12 @@ FILE_MANAGER_FOLDER=<VAZIO>
 FILEX_MAX_BYTES=<DEFINIR_CONFORME_REGRA_DO_NEGOCIO>
 FILEX_ALLOWED_EXTENSIONS=<DEFINIR_CONFORME_REGRA_DO_NEGOCIO>
 ```
+
+Em produção, `CRYPTO_SECRET` aceita somente **16, 24 ou 32 bytes UTF-8**. Para
+gerar um valor válido de 32 caracteres ASCII na VPS, execute
+`openssl rand -hex 16`, copie somente a saída e cole no Environment do Dokploy
+sem aspas e sem espaços. Preserve esse valor no gerenciador de senhas: trocá-lo
+posteriormente impede a descriptografia de dados gravados com a chave anterior.
 
 Em **Advanced -> Volumes** da Application backend, crie obrigatoriamente um
 **Volume Mount** com:

@@ -4,15 +4,18 @@ using Hangfire;
 namespace csharp_p2.src.Shared.Scheduler;
 
 public static class SchedulerService {
-  public static void AddJobs() {
+  public static void AddJobs(
+    IRecurringJobManager recurringJobManager,
+    IBackgroundJobClient backgroundJobClient
+  ) {
     // Job recorrente - todo dia à 1h da manhã
-    RecurringJob.AddOrUpdate<ITokenControlService>(
+    recurringJobManager.AddOrUpdate<ITokenControlService>(
       "ClearExpiredTokensDaily",
       service => service.ClearExpiredTokensAsync(),
       Cron.Daily(1));
 
     // Job único - executa 1 vez, 1 min após a aplicação iniciar
-    BackgroundJob.Schedule<ITokenControlService>(
+    backgroundJobClient.Schedule<ITokenControlService>(
       service => service.ClearExpiredTokensAsync(),
       TimeSpan.FromMinutes(1));
   }
