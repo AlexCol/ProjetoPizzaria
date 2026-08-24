@@ -7,7 +7,7 @@ set -eu
 if [ "$(id -u)" -eq 0 ]; then
   mkdir -p /data/files
   chown -R app:app /data/files
-  exec su-exec app "$0" "$@"
+  exec su-exec app /bin/sh "$0" "$@"
 fi
 
 PROJECT="csharp_p2.csproj"
