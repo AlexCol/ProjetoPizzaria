@@ -464,6 +464,30 @@ Com Cloudinary, o volume `/data/files` não é necessário. Não configure S3/Mi
 
 Como cookies usam credenciais e CSRF, `FRONTEND_URL` deve ser a origem exata HTTPS. O TLS público termina no Traefik e o tráfego Traefik -> container pode permanecer HTTP. Isso, por si só, **não exige remover** a configuração de HTTPS/HSTS do ASP.NET Core. Garanta que `ForwardedHeaders` seja processado antes de `UseHttpsRedirection()` e que o proxy imediato seja confiável, para que `X-Forwarded-Proto: https` atualize corretamente `Request.Scheme`. Antes do go-live, confirme a origem/IP real apresentada pelo Traefik ao container, preencha `TRUSTED_PROXIES` de acordo com o formato aceito pela aplicação e valide que não existe loop de redirecionamento.
 
+Não deduza `TRUSTED_PROXIES` somente pelo IP exibido em `docker inspect
+dokploy-traefik`: no Docker Swarm, o Kestrel pode receber a conexão por um IP
+de balanceamento da rede. Para descobrir o endereço efetivo, adicione
+temporariamente ao Environment:
+
+```dotenv
+Serilog__MinimumLevel__Override__Microsoft.AspNetCore.HttpOverrides=Debug
+Serilog__WriteTo__1__Args__restrictedToMinimumLevel=Debug
+```
+
+Depois do deploy, faça uma requisição e procure `Unknown proxy` no log. Registre
+em `TRUSTED_PROXIES`, separado por vírgula, o IP informado nessa mensagem e o IP
+do container Traefik. Exemplo observado nesta instalação:
+
+```dotenv
+TRUSTED_PROXIES=10.0.1.8,10.0.1.10
+FORWARDED_HEADERS_LIMIT=1
+```
+
+Remova em seguida as duas variáveis temporárias de log, faça novo deploy e
+confirme que `GET /api/health` responde `200`, sem redirecionar. Se a rede ou o
+serviço Traefik for recriado, repita a descoberta; não confie indiscriminadamente
+em toda a faixa privada apenas para eliminar o redirect.
+
 ## 07. Application do frontend
 
 ### 07.1 Definir a URL de produção
@@ -582,6 +606,13 @@ Espere os registros resolverem para a VPS antes de solicitar os certificados.
 Se usar Cloudflare, mantenha-os como **DNS only** durante a configuração inicial;
 o proxy pode ser ativado depois que ambos os domínios e certificados estiverem
 funcionando.
+
+Ao ativar **Proxied** no Cloudflare, abra **SSL/TLS -> Overview** e selecione
+**Full (strict)**. Não use **Flexible**: esse modo acessa a origem por HTTP e,
+como o backend redireciona HTTP para HTTPS, cria um loop de `307` para a própria
+URL (`ERR_TOO_MANY_REDIRECTS`). O modo Full (strict) é compatível com o
+certificado Let's Encrypt provisionado pelo Dokploy e mantém TLS também entre o
+Cloudflare e o Traefik.
 
 Na Application `pizzaria-backend`, abra **Domains**, clique em **Create Domain**
 e preencha:
