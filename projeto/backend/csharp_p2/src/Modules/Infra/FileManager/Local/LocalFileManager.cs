@@ -53,7 +53,8 @@ public class LocalFileManager : IFileManager {
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!DELETE
   public Task DeleteAsync(string modulePath, string fileName, CancellationToken cancellationToken = default) {
     var fullPath = ResolvePath(modulePath, fileName);
-    File.Delete(fullPath);
+    if (File.Exists(fullPath))
+      File.Delete(fullPath);
     return Task.CompletedTask;
   }
 
