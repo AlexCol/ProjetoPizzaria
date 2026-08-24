@@ -19,6 +19,9 @@ export class SSEService {
   private _sseEnabled = signal(false);
   private _eventSourceRef: EventSource | null = null;
   private _commandList = new Map<string, CommandsCallbacks>();
+  private _reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private _reconnectAttempt = 0;
+  private readonly _maxReconnectDelayMs = 30_000;
 
   /****************************************/
   /* Construtor                           */
@@ -102,6 +105,9 @@ export class SSEService {
       this._logger.warn('Already connected to SSE.');
       return;
     }
+
+    this.clearReconnectTimer();
+
     try {
       const baseUrl = environment.apiBaseUrl;
       this._eventSourceRef = new EventSource(`${baseUrl}/sse/connect`, {
@@ -115,11 +121,15 @@ export class SSEService {
       this._eventSourceRef = null;
       this._isConnected.set(false);
       this._logger.error(`Erro ao criar conexão SSE: ${error}`);
+      this.scheduleReconnect();
     }
   }
 
   private cadastraOnOpenEvent(eventSource: EventSource) {
     eventSource.onopen = () => {
+      if (eventSource !== this._eventSourceRef) return;
+
+      this._reconnectAttempt = 0;
       this._isConnected.set(true);
       this._logger.log('✅ SSE conectado com sucesso.');
     };
@@ -133,17 +143,48 @@ export class SSEService {
 
   private cadastraOnError(eventSource: EventSource) {
     eventSource.onerror = (error) => {
+      if (eventSource !== this._eventSourceRef) return;
+
       this._isConnected.set(false);
       this._logger.error(`❌ Erro na conexão SSE. Tentando reconectar...`, error);
+
+      // Some proxies can leave EventSource unable to recover after a deploy.
+      // Recreate it explicitly instead of relying only on the browser retry.
+      eventSource.close();
+      this._eventSourceRef = null;
+      this.scheduleReconnect();
     };
   }
 
   private disconnect() {
+    this.clearReconnectTimer();
+    this._reconnectAttempt = 0;
+
     if (this._eventSourceRef) {
       this._eventSourceRef.close();
       this._eventSourceRef = null;
       this._isConnected.set(false);
       this._logger.log('🚪 SSE desconectado.');
     }
+  }
+
+  private scheduleReconnect() {
+    if (!this._sseEnabled() || this._reconnectTimer) return;
+
+    const delayMs = Math.min(1_000 * 2 ** this._reconnectAttempt, this._maxReconnectDelayMs);
+    this._reconnectAttempt++;
+
+    this._logger.log(`Nova tentativa de conexão SSE em ${delayMs / 1_000}s.`);
+    this._reconnectTimer = setTimeout(() => {
+      this._reconnectTimer = null;
+      if (this._sseEnabled()) this.connect();
+    }, delayMs);
+  }
+
+  private clearReconnectTimer() {
+    if (!this._reconnectTimer) return;
+
+    clearTimeout(this._reconnectTimer);
+    this._reconnectTimer = null;
   }
 }
