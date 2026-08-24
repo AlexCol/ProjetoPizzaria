@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       deploy:
-        description: "Executar deploy do backend após o CI"
+        description: "Executar deploy do backend apos o CI"
         required: true
         type: boolean
         default: false
@@ -47,7 +47,6 @@ jobs:
 
       - run: dotnet publish csharp_p2.csproj --configuration Release --no-build --output ./publish
 
-      # Valida o mesmo Dockerfile que será usado pelo Dokploy.
       - run: docker build --tag pizzaria-backend:ci .
 
   deploy:

@@ -5,5 +5,6 @@ obj/
 .env.*
 Log/
 docker/
+Migrations/
 *.user
 *.suo

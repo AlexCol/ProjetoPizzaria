@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       deploy:
-        description: "Executar deploy do frontend após o CI"
+        description: "Executar deploy do frontend apos o CI"
         required: true
         type: boolean
         default: false
@@ -54,8 +54,6 @@ jobs:
           fi
 
       - run: npm run build -- --configuration production
-
-      # Valida o mesmo Dockerfile que será usado pelo Dokploy.
       - run: docker build --tag pizzaria-frontend:ci .
 
   deploy:

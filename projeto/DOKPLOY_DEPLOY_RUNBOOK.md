@@ -45,7 +45,7 @@ Definir:
 - nomes, usuário e senhas do PostgreSQL;
 - senha do Valkey;
 - SMTP e e-mail administrador;
-- secrets longos e aleatórios para `CRYPTO_SECRET`, `ADMIN_PASSWORD` e `FILE_MANAGER_SECRET_KEY` quando aplicável;
+- secret longo e aleatório para `CRYPTO_SECRET` e `FILE_MANAGER_SECRET_KEY` quando aplicável; `ADMIN_PASSWORD` deve ser um hash BCrypt da senha inicial, não texto puro;
 - proxies confiáveis conforme a rede do Dokploy.
 
 Antes do build, trocar `apiBaseUrl` em `projeto/web/angular_p2/src/environments/environment.ts` de `https://api.meusite.com/api` para `https://<BACKEND_DOMAIN>/api`. Esse valor é compilado no bundle e não é variável runtime do container.
@@ -100,7 +100,7 @@ POSTGRES_DATABASE=pizzaria
 VALKEY_PASSWORD=<OUTRO_SECRET_FORTE_EXCLUSIVO>
 ```
 
-Não reutilize `ADMIN_PASSWORD`, `CRYPTO_SECRET` ou a senha do Dokploy. Guarde os valores em um password manager ou secret manager. No Git, mantenha apenas placeholders.
+Não reutilize a senha administrativa, `CRYPTO_SECRET` ou a senha do Dokploy. Gere o hash BCrypt de `ADMIN_PASSWORD` offline, guarde a senha original no password manager e coloque somente o hash no Dokploy. No Git, mantenha apenas placeholders.
 
 ### 05.3 Criar o PostgreSQL
 
@@ -233,7 +233,7 @@ O dump lógico do PostgreSQL é a fonte principal para recuperação dos dados d
 Depois de criar a Application do backend conforme a seção 06 e preencher os Internal Hosts:
 
 1. Faça o primeiro deploy do backend.
-2. Confirme nos logs que o `efbundle` conectou ao PostgreSQL e aplicou as migrations antes da API iniciar.
+2. Confirme nos logs que o entrypoint gerou/validou as migrations, executou `database update` no PostgreSQL e só então iniciou a API.
 3. Abra `https://<BACKEND_DOMAIN>/api/health`.
 4. Confirme que API, banco e cache são reportados como saudáveis.
 5. Faça login e confirme a criação de sessão.
@@ -260,48 +260,49 @@ Não resolva falhas internas publicando 5432 ou 6379 na internet. Corrija Enviro
 
 O `start.sh` existente é exclusivo do ambiente de desenvolvimento e **não deve ser usado como entrypoint no Dokploy**. Ele exige um `.env` físico, sobe PostgreSQL e Valkey com Docker Compose, executa `dotnet format`, aplica migrations e inicia `dotnet run`. No Dokploy, banco e cache já são serviços separados; dar acesso ao Docker da VPS para o container também seria um risco desnecessário.
 
-Em produção, reaproveite somente a intenção de `dotnet ef database update`: o Dockerfile abaixo gera um EF Core migration bundle durante o build. A imagem executa esse bundle antes de iniciar a API. Assim, o mesmo `docker build` validado pelo GitHub Actions comprova que aplicação e migrations podem ser empacotadas, e o acesso ao banco permanece restrito à rede interna do Dokploy.
+Por decisão deste projeto, `Migrations/` permanece no `.gitignore`: os arquivos não são enviados ao Git. No destino, o entrypoint gera a migration inicial quando ainda não existe snapshot persistido; nos deploys seguintes, usa `has-pending-model-changes` e gera outra migration somente quando o modelo mudou. Em seguida executa `database update` e só inicia a API se a atualização concluir.
+
+Esse fluxo exige obrigatoriamente **uma réplica** e um named volume persistente montado em `/src/Migrations`. Sem esse volume, cada imagem começaria sem histórico de código e tentaria gerar uma nova migration inicial contra um banco que já possui tabelas. O volume de migrations e o PostgreSQL devem ser incluídos no backup operacional.
 
 Crie `projeto/backend/csharp_p2/Dockerfile` com:
 
 ```dockerfile
 FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /src
+ENV NUGET_PACKAGES=/opt/nuget
 COPY . .
-# Evita que artefatos locais Windows em bin/obj contaminem o build Linux,
-# mesmo se o .dockerignore ainda não tiver sido criado corretamente.
-RUN rm -rf bin obj \
+RUN rm -rf bin obj Migrations \
+    && mkdir -p Migrations \
     && dotnet restore csharp_p2.csproj \
-    && dotnet publish csharp_p2.csproj -c Release -o /app/publish --no-restore /p:UseAppHost=false
-RUN dotnet tool install --tool-path /tools dotnet-ef --version 10.0.11
-# O bundle precisa criar o DbContext durante o build, mas não conecta nesse banco fictício.
-RUN ASPNETCORE_ENVIRONMENT=Development \
-    DB_TYPE=Postgres \
-    DB_HOST=localhost \
-    DB_PORT=5432 \
-    DB_USER=build \
-    DB_PASS=build \
-    DB_NAME=build \
-    /tools/dotnet-ef migrations bundle \
-      --project csharp_p2.csproj \
-      --startup-project csharp_p2.csproj \
-      --context csharp_p2.src.Modules.Infra.Database.BaseDBContext \
+    && dotnet publish csharp_p2.csproj \
       --configuration Release \
-      --self-contained \
-      --target-runtime linux-musl-x64 \
-      --output /app/publish/efbundle
+      --output /app/publish \
+      --no-restore \
+      /p:UseAppHost=false
+RUN dotnet tool install --tool-path /tools dotnet-ef --version 10.0.11
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
-WORKDIR /app
-RUN mkdir -p /app/Log /data/files \
-    && chown -R app:app /app /data
-COPY --from=build --chown=app:app /app/publish .
+FROM build AS final
+WORKDIR /src
+RUN mkdir -p /app/Log /data/files /tmp/dotnet Migrations \
+    && chown -R app:app /app /data /src /tools /opt/nuget /tmp/dotnet
 USER app
 ENV ASPNETCORE_URLS=http://+:8080 \
-    ASPNETCORE_ENVIRONMENT=Production
+    ASPNETCORE_ENVIRONMENT=Production \
+    DOTNET_CLI_HOME=/tmp/dotnet \
+    NUGET_PACKAGES=/opt/nuget
 EXPOSE 8080
-ENTRYPOINT ["/bin/sh", "-c", "/app/efbundle && exec dotnet /app/csharp_p2.dll"]
+ENTRYPOINT ["/bin/sh", "/src/docker-entrypoint.sh"]
 ```
+
+A imagem final mantém SDK, fonte e `dotnet-ef` porque a geração ocorre no destino. Isso aumenta o tamanho da imagem de forma consciente; não troque o estágio final por `aspnet` enquanto essa decisão arquitetural permanecer.
+
+O arquivo `projeto/backend/csharp_p2/docker-entrypoint.sh` versionado é responsável por:
+
+1. verificar se o volume possui `*ModelSnapshot.cs`;
+2. gerar `Initial_<timestamp>` quando o volume está vazio;
+3. executar `has-pending-model-changes` e gerar `Deploy_<timestamp>` somente quando necessário;
+4. executar `dotnet ef database update` com as variáveis `DB_*` reais;
+5. iniciar `/app/publish/csharp_p2.dll` apenas após sucesso.
 
 Crie `projeto/backend/csharp_p2/.dockerignore` com:
 
@@ -313,6 +314,7 @@ obj/
 .env.*
 Log/
 docker/
+Migrations/
 *.user
 *.suo
 ```
@@ -328,9 +330,7 @@ docker build --tag pizzaria-backend:local .
 
 O repositório ainda não possui projeto de testes .NET; atualmente `dotnet test` valida a solution sem executar casos de teste.
 
-O `docker build` também deve falhar se o migration bundle não puder ser gerado. Não remova essa validação do CI. O bundle usa as variáveis reais do Dokploy somente quando o container inicia e registra migrations aplicadas na tabela `__EFMigrationsHistory`.
-
-As variáveis fictícias usadas no `RUN ... migrations bundle` servem exclusivamente para o EF Core instanciar o `BaseDBContext` em design-time; elas não são credenciais e não acessam o banco de produção. Se a inicialização do backend passar a exigir outro serviço ou variável obrigatória, revise esse bloco e repita o `docker build`: mudanças em `EnvConfig`, `BuilderConfig` ou na criação do DbContext podem tornar insuficiente o conjunto atual.
+O `docker build` valida compilação, publicação, instalação do `dotnet-ef` e composição da imagem. A geração/aplicação das migrations só pode ser validada no start, pois depende das variáveis e da rede reais do Dokploy. O EF registra as migrations aplicadas na tabela `__EFMigrationsHistory`; os respectivos arquivos e o snapshot permanecem no volume `/src/Migrations`.
 
 > **Validação da imagem Alpine:** o Dockerfile usa imagens .NET Alpine. Antes do go-live, execute os principais fluxos funcionais dentro dessa imagem, especialmente recursos que possam depender de bibliotecas nativas. Se alguma dependência exigir glibc ou outra biblioteca ausente no Alpine, troque as imagens `*-alpine` pelas imagens Debian-based equivalentes do .NET e repita os testes.
 
@@ -370,7 +370,7 @@ FRONTEND_URL=https://<FRONTEND_DOMAIN>
 ALLOWED_HOSTS=<BACKEND_DOMAIN>
 TRUSTED_PROXIES=<DEFINIR_HOSTS_OU_REDES_DO_PROXY_DOKPLOY>
 ADMIN_EMAIL=<DEFINIR>
-ADMIN_PASSWORD=<SECRET>
+ADMIN_PASSWORD=<HASH_BCRYPT_DA_SENHA_INICIAL>
 DB_TYPE=postgres
 DB_HOST=<HOST_INTERNO_POSTGRES>
 DB_PORT=5432
@@ -414,7 +414,28 @@ FILEX_MAX_BYTES=<DEFINIR_CONFORME_REGRA_DO_NEGOCIO>
 FILEX_ALLOWED_EXTENSIONS=<DEFINIR_CONFORME_REGRA_DO_NEGOCIO>
 ```
 
-Para armazenamento local, monte um volume persistente em `/data/files`. Opcionalmente monte outro em `/app/Log`; os logs de console devem ser a fonte primária no Dokploy.
+Em **Advanced -> Volumes** da Application backend, crie obrigatoriamente um
+**Volume Mount** com:
+
+| Campo | Valor |
+|---|---|
+| Volume Name | `pizzaria-backend-migrations` |
+| Mount Path | `/src/Migrations` |
+
+Não use o mesmo volume do PostgreSQL nem de arquivos. Esse volume preserva o
+snapshot e os arquivos gerados pelo EF entre imagens/deploys. Crie o volume
+antes do primeiro deploy; depois que o banco tiver migrations aplicadas, não
+remova, renomeie nem substitua esse volume sem um procedimento de recuperação.
+
+Para armazenamento local, monte outro volume persistente em `/data/files`.
+Opcionalmente monte outro em `/app/Log`; os logs de console devem ser a fonte
+primária no Dokploy.
+
+`Program.cs` executa `RunSeedsAsync()` automaticamente depois que o processo da
+API inicia, inclusive em Production. Os seeds verificam a existência dos dados
+antes de inserir roles, processos e o administrador. `ADMIN_PASSWORD` deve
+conter um hash BCrypt válido (normalmente 60 caracteres), porque o valor é salvo
+diretamente no banco; nunca coloque a senha administrativa em texto puro.
 
 Como alternativa confirmada pelo código, use Cloudinary. Nesse caso, substitua somente o bloco `FILE_MANAGER_*` acima por:
 
@@ -646,7 +667,7 @@ Use o ID da Application correta e não grave esse comando com credenciais reais 
 
 ### 08.1 Workflow do backend
 
-> **Nota sobre build duplicado:** o workflow executa `docker build` para validar a imagem e gerar o migration bundle antes do CD. Depois, o Dokploy fará um novo build ao receber `application.deploy`. Isso é intencional: o primeiro build valida aplicação, Dockerfile e migrations; o segundo gera a imagem efetivamente implantada pelo Dokploy.
+> **Nota sobre build duplicado:** o workflow executa `docker build` para validar compilação, publicação, Dockerfile, entrypoint e instalação do `dotnet-ef`. Depois, o Dokploy fará outro build ao receber `application.deploy`. A geração e aplicação das migrations ocorre somente no start da imagem implantada, usando o volume `/src/Migrations` e as variáveis reais do destino.
 
 Crie `.github/workflows/backend-ci-cd.yml` com:
 
@@ -831,15 +852,19 @@ jobs:
 1. Criar os Dockerfiles, `.dockerignore`, Nginx e workflows exatamente como documentado acima; ajustar a URL final da API Angular.
 2. Abrir PR e confirmar os checks aplicáveis em verde. Em um PR que altera somente um dos projetos, o workflow do outro projeto pode não ser criado por causa do filtro `paths`.
 3. Fazer merge em `main`; acompanhar Actions e confirmar que as chamadas `POST /api/application.deploy` retornam HTTP 2xx.
-4. No primeiro start do backend, acompanhar os logs e confirmar que o `efbundle` concluiu antes de `csharp_p2.dll` iniciar. Falha de migration deve impedir o container de ficar healthy.
+4. No primeiro start do backend, acompanhar os logs e confirmar a sequência `gerar Initial_* -> database update -> iniciar a API -> seeds`. Falha de geração, migration ou seed deve impedir o container de ficar healthy.
 5. No Dokploy, confirmar build e healthcheck verde para backend e frontend.
 6. Validar `https://<BACKEND_DOMAIN>/api/health` e carregar `https://<FRONTEND_DOMAIN>`.
 7. Testar login, emissão/renovação do CSRF, cookie cross-origin, upload/download e um job Hangfire.
-8. Reiniciar o backend; o bundle deve informar que não há migrations pendentes, e login/sessão, chaves, arquivos e jobs devem continuar válidos.
+8. Reiniciar o backend; o entrypoint deve informar que o modelo não possui alterações pendentes, `database update` não deve recriar tabelas, e login/sessão, chaves, arquivos e jobs devem continuar válidos.
 
-Não execute seeds automaticamente no deploy. O endpoint `POST /api/run-seeds` possui `[AllowAnonymous]`, mas o próprio código rejeita sua execução fora de `Development`; portanto, ele não é um mecanismo de seed de produção. Caso dados iniciais sejam necessários, crie uma operação administrativa autenticada ou uma migration idempotente específica, com revisão prévia.
+Os seeds já são executados automaticamente pelo `Program.cs` em cada start e
+devem permanecer idempotentes. O endpoint `POST /api/run-seeds` possui
+`[AllowAnonymous]`, mas rejeita execução fora de `Development`; ele não participa
+do deploy de produção. Revise qualquer novo seed com o mesmo rigor de uma
+migration, evitando sobrescrever dados existentes.
 
-Antes de publicar alterações de schema, revise a migration do commit, faça backup e confirme compatibilidade backward/forward com a versão anterior. O fluxo automático é adequado enquanto o backend usa **uma réplica**. Não inicie várias réplicas novas simultaneamente com migrations pendentes: embora o EF controle `__EFMigrationsHistory`, duas execuções concorrentes podem disputar alterações de DDL. Para escalar horizontalmente, mova o bundle para um job one-shot dentro da rede do Dokploy e só depois acione `application.deploy`.
+Antes de publicar alterações de modelo, faça backup restaurável do PostgreSQL e do volume `/src/Migrations` e confirme compatibilidade backward/forward com a versão anterior. Como a migration é gerada e aplicada no destino, confira o arquivo gerado no volume e os logs imediatamente após o deploy. O fluxo automático é adequado enquanto o backend usa **uma réplica**. Não inicie várias réplicas novas simultaneamente: duas execuções concorrentes podem disputar a geração do snapshot e alterações de DDL. Para escalar horizontalmente, mova esse entrypoint para um runner one-shot dentro da rede do Dokploy e só depois atualize as réplicas da API.
 
 Adote expand/contract para alterações incompatíveis:
 
@@ -915,10 +940,11 @@ A configuração deve ser validada novamente caso a versão instalada do Dokploy
 - [ ] Variáveis do backend preenchidas sem secrets no Git.
 - [ ] `environment.ts` aponta para o domínio real da API.
 - [ ] Volume `/data/files` criado ou Cloudinary configurado.
-- [ ] Migration do commit revisada antes do merge quando houver alteração de schema.
+- [ ] Alteração de modelo revisada antes do merge e migration gerada conferida no volume/log após o deploy.
 - [ ] Alterações incompatíveis planejadas em etapas expand/contract.
 - [ ] Backup restaurável e testado antes de migration destrutiva ou não reversível.
-- [ ] Migration bundle gerado pelo Docker build e aplicado antes da API iniciar.
+- [ ] Volume persistente exclusivo montado em `/src/Migrations` e incluído no backup.
+- [ ] EntryPoint gerou/validou as migrations e executou `database update` antes da API iniciar.
 - [ ] Backend mantido em uma réplica enquanto migrations forem executadas no entrypoint.
 - [ ] CI de backend e frontend verde antes de CD.
 - [ ] Healthchecks e testes funcionais aprovados.
