@@ -158,18 +158,18 @@ public class ProductsService : IProductsService {
     if (image == null) {
       return;
     }
-    var storagePromisses = new List<Task>();
     try {
       var ext = Path.GetExtension(image.FileName);
       var fileName = $"{product.Id}{ext}";
       var modulePath = $"products";
       using var stream = image.OpenReadStream();
-      if (product.Banner != null) {
-        storagePromisses.Add(_fileManager.DeleteAsync(modulePath, product.Banner));
-      }
-      storagePromisses.Add(_fileManager.SaveAsync(modulePath, fileName, stream));
 
-      await Task.WhenAll(storagePromisses);
+      // Delete and save must not run concurrently. During an update they usually
+      // target the same product id, so a late delete could remove the new image.
+      if (product.Banner != null) {
+        await _fileManager.DeleteAsync(modulePath, product.Banner);
+      }
+      await _fileManager.SaveAsync(modulePath, fileName, stream);
       product.Banner = fileName;
 
       await _repository.UpdateAsync(product);

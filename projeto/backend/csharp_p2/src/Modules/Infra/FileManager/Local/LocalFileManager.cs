@@ -9,6 +9,7 @@ public class LocalFileManager : IFileManager {
   public LocalFileManager(EnvConfig env) {
     _env = env;
     _basePath = PrepareBasePath();
+    Log.Information("[LocalFileManager] Using base path {BasePath}", _basePath);
   }
 
   /************************************************************************/
@@ -86,8 +87,10 @@ public class LocalFileManager : IFileManager {
 
     var configured = _env?.FileManager?.BasePath ?? string.Empty;
     if (string.IsNullOrWhiteSpace(configured) || configured == "/" || configured == "\\") {
-      var projectRoot = Directory.GetCurrentDirectory();
-      basePath = Path.GetFullPath(Path.Combine(projectRoot, "images"));
+      basePath = _env?.IsProduction == true
+        ? "/data/files"
+        : Path.Combine(Directory.GetCurrentDirectory(), "images");
+      basePath = Path.GetFullPath(basePath);
     } else {
       basePath = Path.GetFullPath(configured);
     }

@@ -28,6 +28,9 @@ public class FileController : ControllerBase {
     if (string.IsNullOrWhiteSpace(modulePath) || string.IsNullOrWhiteSpace(fileName))
       throw new CustomError("Module path and file name are required.", 400);
 
+    if (!await _fileManager.ExistsAsync(modulePath, fileName))
+      throw new CustomError("File not found.", 404);
+
     var fileStream = await _fileManager.ReadAsync(modulePath, fileName);
     return File(fileStream, "application/octet-stream", fileName);
   }
@@ -54,6 +57,9 @@ public class FileController : ControllerBase {
     ) {
     if (string.IsNullOrWhiteSpace(modulePath) || string.IsNullOrWhiteSpace(fileName))
       throw new CustomError("Module path and file name are required.", 400);
+
+    if (!await _fileManager.ExistsAsync(modulePath, fileName))
+      throw new CustomError("File not found.", 404);
 
     var fileStream = await _fileManager.ReadAsync(modulePath, fileName);
     if (!_contentTypeProvider.TryGetContentType(fileName, out var contentType))
