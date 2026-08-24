@@ -175,7 +175,7 @@ public class ProductsService : IProductsService {
       await _repository.UpdateAsync(product);
     } catch (Exception ex) {
       //não travar a criação do produto se a imagem falhar, apenas logar o erro
-      Log.Error($"Failed to save product image: {ex.Message}");
+      Log.Error(ex, "Failed to save product image for product {ProductId}", product.Id);
     }
   }
 }

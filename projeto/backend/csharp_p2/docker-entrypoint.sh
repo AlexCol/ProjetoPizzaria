@@ -2,6 +2,14 @@
 
 set -eu
 
+# A bind mount replaces the ownership prepared in the image. Prepare the
+# persistent files directory, then run migrations and the API as non-root.
+if [ "$(id -u)" -eq 0 ]; then
+  mkdir -p /data/files
+  chown -R app:app /data/files
+  exec su-exec app "$0" "$@"
+fi
+
 PROJECT="csharp_p2.csproj"
 CONTEXT="csharp_p2.src.Modules.Infra.Database.BaseDBContext"
 MIGRATIONS_DIR="Migrations"

@@ -20,11 +20,9 @@ RUN dotnet tool install --tool-path /tools dotnet-ef --version 10.0.11
 FROM build AS final
 WORKDIR /src
 
-RUN apk add --no-cache krb5-libs \
+RUN apk add --no-cache krb5-libs su-exec \
     && mkdir -p /app/Log /data/files /tmp/dotnet Migrations \
     && chown -R app:app /app /data /src /tools /opt/nuget /tmp/dotnet
-
-USER app
 
 ENV ASPNETCORE_URLS=http://+:8080 \
     ASPNETCORE_ENVIRONMENT=Production \
