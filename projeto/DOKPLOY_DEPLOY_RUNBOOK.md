@@ -52,13 +52,207 @@ Antes do build, trocar `apiBaseUrl` em `projeto/web/angular_p2/src/environments/
 
 ## 05. Criar a infraestrutura no Dokploy
 
-1. No mesmo Project/Environment das Applications, crie PostgreSQL e Valkey para que compartilhem a rede interna.
-2. Não publique as portas 5432 ou 6379 na internet.
-3. Habilite volume persistente do PostgreSQL e volume de dados do Valkey/AOF conforme a tela da versão instalada.
-4. Anote os hostnames internos fornecidos pelo Dokploy; eles serão `DB_HOST` e `CACHE_HOST`.
-5. Restrinja credenciais a esse ambiente e configure backup antes do go-live.
+O PostgreSQL é obrigatório. Para produção, este runbook escolhe Valkey, acessado pelo protocolo Redis, para cache, sessões, Data Protection e Hangfire. A persistência do Valkey não é necessária apenas por causa do cache: Data Protection e Hangfire armazenam estado operacional cuja perda pode invalidar cookies/chaves ou perder jobs. Por isso, trate seu volume como necessário.
 
-O PostgreSQL é obrigatório. Para produção, este runbook escolhe `CACHE_TYPE=Valkey` e `HANGFIRE_STORAGE_TYPE=Redis`. A persistência do Valkey não é necessária apenas por causa do cache: cache pode ser descartável, mas Data Protection e Hangfire armazenam estado operacional cuja perda pode invalidar cookies/chaves ou perder jobs. Por isso, trate a persistência do Valkey como necessária enquanto esses recursos dependerem dele.
+> **Terminologia do Dokploy:** a tela de Databases oferece um serviço chamado **Redis**. Para este projeto, crie esse serviço com a imagem customizada `valkey/valkey:8.1-alpine`. O backend deve continuar com `CACHE_TYPE=Valkey`. Se a versão instalada do Dokploy não conseguir iniciar a imagem customizada, use temporariamente a imagem nativa `redis:8-alpine` e altere `CACHE_TYPE=Redis`; não chame uma instância Redis de Valkey apenas no nome.
+
+### 05.1 Criar Project e Environment
+
+1. No Dashboard do Dokploy, clique em **Create Project**.
+2. Use o nome `Projeto Pizzaria` e uma descrição que identifique o sistema.
+3. Entre no projeto e crie ou renomeie o Environment de produção para `production`.
+4. Dentro de `production`, crie todos estes recursos:
+
+   ```text
+   Projeto Pizzaria
+   `-- production
+       |-- pizzaria-postgres   (Database/PostgreSQL)
+       |-- pizzaria-valkey     (Database/Redis com imagem Valkey)
+       |-- pizzaria-backend    (Application)
+       `-- pizzaria-frontend   (Application)
+   ```
+
+5. Se o Dokploy solicitar um **Server**, selecione o mesmo servidor para os quatro recursos. Este runbook assume o Dokploy Server padrão, ou um único Remote Server de produção. Remote Servers diferentes possuem Docker e redes independentes; apenas escolher o mesmo nome de Environment não cria comunicação entre máquinas distintas.
+
+O que mantém os serviços na mesma rede é a combinação **mesmo Environment + mesmo Server**. Em recursos nativos de Application/Database, o Dokploy administra a rede Docker; não é necessário digitar `dokploy-network`, criar uma rede manual ou publicar portas. Environments diferentes são isolados entre si.
+
+Regras para não quebrar a comunicação interna:
+
+- criar PostgreSQL, Valkey e backend dentro de `Projeto Pizzaria / production`;
+- escolher o mesmo Server em todos eles;
+- usar no backend somente o **Internal Host** exibido pelo Dokploy;
+- usar as portas internas `5432` e `6379`;
+- nunca usar `localhost`: dentro do container da API, `localhost` é a própria API;
+- nunca usar o domínio público, IP da VPS ou External Connection URL para a comunicação entre containers;
+- deixar **External Port (Internet)** vazio/desabilitado para PostgreSQL e Valkey;
+- não adicionar domínio HTTP ao PostgreSQL ou ao Valkey.
+
+Se um recurso for movido para outro Environment ou Server posteriormente, considere a rede rompida até repetir os testes de conexão e atualizar os hosts internos.
+
+### 05.2 Gerar e guardar as credenciais
+
+Antes de abrir os formulários, gere valores diferentes e aleatórios para:
+
+```text
+POSTGRES_USER=pizzaria_app
+POSTGRES_PASSWORD=<SECRET_FORTE_EXCLUSIVO>
+POSTGRES_DATABASE=pizzaria
+VALKEY_PASSWORD=<OUTRO_SECRET_FORTE_EXCLUSIVO>
+```
+
+Não reutilize `ADMIN_PASSWORD`, `CRYPTO_SECRET` ou a senha do Dokploy. Guarde os valores em um password manager ou secret manager. No Git, mantenha apenas placeholders.
+
+### 05.3 Criar o PostgreSQL
+
+1. Acesse `Projeto Pizzaria -> production`.
+2. Clique em **Create Service** ou **Add Service**, conforme o rótulo da versão instalada.
+3. Escolha **Database -> PostgreSQL**.
+4. Preencha:
+
+   | Campo no Dokploy | Valor deste projeto |
+   |---|---|
+   | Name | `pizzaria-postgres` |
+   | App Name, se exibido | manter o valor gerado ou usar `pizzaria-postgres` |
+   | Database Name | `pizzaria` |
+   | Database User | `pizzaria_app` |
+   | Database Password | o `POSTGRES_PASSWORD` gerado na etapa anterior |
+   | Docker Image | `postgres:16-alpine` |
+   | Environment | `production` |
+   | Server, se exibido | o mesmo selecionado para o backend |
+
+5. Crie o serviço, mas não preencha **External Port (Internet)**.
+6. Em **Advanced -> Volumes**, confirme que existe armazenamento persistente montado em `/var/lib/postgresql/data`. Bancos criados pelo recurso nativo normalmente recebem esse volume; não prossiga se ele estiver ausente.
+7. Opcionalmente, em **Environment**, configure `TZ=America/Sao_Paulo` e `PGTZ=America/Sao_Paulo`. Datas da aplicação devem continuar sendo armazenadas em UTC.
+8. Clique em **Deploy**.
+9. Acompanhe **Logs** até o PostgreSQL informar que está pronto para aceitar conexões.
+10. Abra **Connection** ou **Credentials -> Internal Credentials** e registre exatamente:
+
+    - Internal Host;
+    - Internal Port, esperado `5432`;
+    - User;
+    - Database Name.
+
+11. Transfira esses valores para a Application do backend:
+
+    ```dotenv
+    DB_TYPE=postgres
+    DB_HOST=<INTERNAL_HOST_EXIBIDO_PELO_DOKPLOY>
+    DB_PORT=5432
+    DB_USER=pizzaria_app
+    DB_PASS=<POSTGRES_PASSWORD>
+    DB_NAME=pizzaria
+    ```
+
+Não presuma que o host seja `pizzaria-postgres`: copie o **Internal Host** mostrado pela instalação, pois o nome efetivo pode incluir um identificador gerado.
+
+### 05.4 Criar o Valkey
+
+1. Ainda em `Projeto Pizzaria -> production`, clique em **Create Service/Add Service**.
+2. Escolha **Database -> Redis**. O Dokploy usa o nome Redis para este tipo de serviço, mesmo quando uma imagem compatível é configurada.
+3. Preencha:
+
+   | Campo no Dokploy | Valor deste projeto |
+   |---|---|
+   | Name | `pizzaria-valkey` |
+   | App Name, se exibido | manter o valor gerado ou usar `pizzaria-valkey` |
+   | Database Password | o `VALKEY_PASSWORD` gerado anteriormente |
+   | Docker Image | `valkey/valkey:8.1-alpine` |
+   | Environment | `production` |
+   | Server, se exibido | exatamente o mesmo do PostgreSQL e backend |
+
+4. Crie o serviço e mantenha **External Port (Internet)** vazio/desabilitado.
+5. Em **Advanced -> Volumes**, confirme um volume persistente montado em `/data`.
+6. Confirme no Preview/Advanced qual comando será executado. A instância precisa iniciar com autenticação, AOF e sem eviction. Se a troca de imagem não preservar essas opções, defina o Run Command abaixo **no campo `Advanced -> Command` do Dokploy**, substituindo o placeholder pelo mesmo secret cadastrado no Database:
+
+   ```text
+   valkey-server --appendonly yes --appendfsync everysec --maxmemory-policy noeviction --requirepass <VALKEY_PASSWORD>
+   ```
+
+   Não execute `valkey-server ...` no Terminal do container: a instância principal já usa a porta 6379 e uma segunda instância falhará com `Address in use`. Substitua `<VALKEY_PASSWORD>` pela senha real **sem aspas**. Nesse campo, o Dokploy separa o Command diretamente em argumentos e preserva aspas simples ou duplas como parte do valor; com `--requirepass 'senha'`, a senha efetiva se torna literalmente `'senha'`. O Run Command customizado substitui o comando padrão. Não remova `--requirepass`, não grave o comando com a senha real no Git e não altere uma instância que já possua dados sem backup e procedimento de migração.
+
+7. Clique em **Deploy** e acompanhe **Logs**. Se a imagem customizada for incompatível com a automação da versão instalada do Dokploy, pare aqui e use o fallback Redis descrito no início desta seção.
+8. Pelo Terminal do serviço, valide:
+
+   ```sh
+   printf 'Valkey password: '
+   read -r -s VALKEYCLI_AUTH
+   export VALKEYCLI_AUTH
+   printf '\n'
+   valkey-cli PING
+   valkey-cli CONFIG GET appendonly
+   valkey-cli CONFIG GET appendfsync
+   valkey-cli CONFIG GET maxmemory-policy
+   unset VALKEYCLI_AUTH
+   ```
+
+   Digite a senha quando solicitado; ela não será exibida nem gravada no comando. O resultado esperado é `PONG`, `appendonly=yes`, `appendfsync=everysec` e `maxmemory-policy=noeviction`.
+
+9. Abra **Connection/Credentials -> Internal Credentials** e copie o **Internal Host** e a porta interna `6379`.
+10. Configure a Application do backend:
+
+    ```dotenv
+    CACHE_TYPE=Valkey
+    CACHE_HOST=<INTERNAL_HOST_EXIBIDO_PELO_DOKPLOY>
+    CACHE_PORT=6379
+    CACHE_USER=
+    CACHE_PASSWORD=<VALKEY_PASSWORD>
+    CACHE_DB=0
+    CACHE_SSL=false
+    HANGFIRE_STORAGE_TYPE=Redis
+    HANGFIRE_REDIS_DB=1
+    HANGFIRE_REDIS_PREFIX={pizzaria-hangfire}:
+    DATA_PROTECTION_APPLICATION_NAME=pizzaria
+    DATA_PROTECTION_REDIS_KEY={pizzaria-data-protection}:keys
+    ```
+
+`HANGFIRE_STORAGE_TYPE=Redis` identifica o provider/protocolo usado pelo Hangfire; ele reutiliza a mesma conexão compatível fornecida pelo Valkey. `CACHE_SSL=false` só é aceitável porque o tráfego permanece na rede interna do mesmo servidor. Se os serviços passarem a se comunicar por outra máquina ou rede não confiável, configure TLS e reabra essa decisão.
+
+### 05.5 Configurar persistência e backups
+
+1. No PostgreSQL, abra a aba **Backup**.
+2. Cadastre antes um destino S3 compatível em `Settings -> Destinations`, caso ainda não exista.
+3. Crie um backup com:
+
+   | Campo | Valor inicial sugerido |
+   |---|---|
+   | Destination | bucket S3 de produção |
+   | Database Name | `pizzaria` |
+   | Schedule | diário, em horário de menor uso |
+   | Prefix | `pizzaria/production/postgres` |
+   | Enabled | ativo |
+
+4. Use **Test** e confirme que o arquivo chegou ao bucket.
+5. Execute uma restauração de teste em um banco separado antes do go-live. Arquivo de backup sem restauração testada não atende ao critério deste runbook.
+6. Para Valkey, configure **Volume Backup** do volume montado em `/data`, se a versão instalada disponibilizar backup de volume para Database/Redis. Use outro prefixo, por exemplo `pizzaria/production/valkey`, e teste a restauração fora da instância de produção.
+7. Para arquivos locais da aplicação, use um named volume em `/data/files` para permitir Volume Backup; bind mounts não participam do mecanismo automático de Volume Backups do Dokploy.
+
+O dump lógico do PostgreSQL é a fonte principal para recuperação dos dados de negócio. O backup do Valkey preserva jobs do Hangfire e chaves do Data Protection, mas não substitui o backup do PostgreSQL.
+
+### 05.6 Validar a rede e as dependências
+
+Depois de criar a Application do backend conforme a seção 06 e preencher os Internal Hosts:
+
+1. Faça o primeiro deploy do backend.
+2. Confirme nos logs que o `efbundle` conectou ao PostgreSQL e aplicou as migrations antes da API iniciar.
+3. Abra `https://<BACKEND_DOMAIN>/api/health`.
+4. Confirme que API, banco e cache são reportados como saudáveis.
+5. Faça login e confirme a criação de sessão.
+6. No Valkey, confirme a existência de chaves de sessão e de `{pizzaria-data-protection}:keys` sem imprimir seus valores.
+7. Aguarde ou dispare de forma controlada um job e confirme que o namespace `{pizzaria-hangfire}:` foi criado no DB lógico `1`.
+8. Reinicie separadamente backend, PostgreSQL e Valkey. Depois de cada reinício, repita health e login; jobs/chaves devem permanecer válidos.
+
+Diagnóstico rápido:
+
+| Sintoma | Verificação |
+|---|---|
+| `Name or service not known` | `DB_HOST`/`CACHE_HOST` não é o Internal Host correto, ou o recurso está em outro Environment/Server |
+| `Connection refused` | serviço parado, porta interna errada ou deploy incompleto |
+| timeout | recursos em servidores/redes diferentes ou regra de firewall/rede alterada |
+| autenticação do PostgreSQL falha | usuário, senha ou database não coincide com Internal Credentials |
+| `NOAUTH` no Valkey | `CACHE_PASSWORD` não coincide com `--requirepass`/Database Password |
+| health redireciona em loop | `TRUSTED_PROXIES`/forwarded headers do Traefik configurados incorretamente |
+
+Não resolva falhas internas publicando 5432 ou 6379 na internet. Corrija Environment, Server, Internal Host e credenciais.
 
 ## 06. Application do backend
 
@@ -148,15 +342,24 @@ Configure:
 |---|---|
 | Name | `pizzaria-backend` |
 | Provider/repository/branch | GitHub / `AlexCol/ProjetoPizzaria` / `main` |
-| Build type | Dockerfile |
-| Build path/context | `projeto/backend/csharp_p2` |
-| Dockerfile | `Dockerfile` |
+| Build Path | `projeto/backend/csharp_p2` |
+| Build type | `Dockerfile` |
+| Docker File | `Dockerfile` |
+| Docker Context Path | `.` |
+| Docker Build Stage | deixar vazio (usa o último estágio, `final`) |
 | Container port | `8080` |
 | Domain | `<BACKEND_DOMAIN>`, HTTPS ativo |
 | Healthcheck | HTTP `GET /api/health`, porta 8080 |
 | Watch path | `projeto/backend/csharp_p2/**` (opcional; não é usado como controle principal com Auto Deploy desativado) |
 | Auto Deploy | desativado |
 | Restart | on-failure/always |
+
+Na tela **General**, salve primeiro a configuração do provedor Git. Como o
+`Build Path` já posiciona o build dentro de `projeto/backend/csharp_p2`, os
+campos do tipo de build são relativos a essa pasta: `Docker File=Dockerfile` e
+`Docker Context Path=.`. Não repita `projeto/backend/csharp_p2` nesses dois
+campos. Deixe `Docker Build Stage` vazio para que o Docker use o último estágio
+do Dockerfile multi-stage (`final`).
 
 Variáveis (preencher secrets no Dokploy, nunca no Git):
 
@@ -184,6 +387,7 @@ CACHE_PORT=6379
 CACHE_USER=<DEFINIR_SE_EXIGIDO>
 CACHE_PASSWORD=<SECRET>
 CACHE_DB=0
+CACHE_SSL=false
 CACHE_BASE_TTL_IN_SEC=300
 CACHE_SESSION_TTL_IN_SEC=3600
 CACHE_SSL_HOST=<VAZIO_OU_HOST_TLS_INTERNO>
@@ -343,7 +547,30 @@ Em pull requests, só há CI. Em push na `main`, o job `deploy` depende do CI e 
 
 ### 08.0 Secrets para a API do Dokploy
 
-No Dokploy, gere uma API key com permissão suficiente para disparar deploy das Applications. No GitHub, abra:
+Primeiro, gere a API key no Dokploy:
+
+1. Abra o menu da conta/perfil no painel do Dokploy.
+2. Entre em **Profile** e localize a seção **API/CLI Keys**.
+3. Clique em **Generate New Key**.
+4. Informe um nome descritivo, por exemplo `PizzariaKey`, e confirme a criação.
+5. Copie imediatamente o token completo mostrado pelo Dokploy e guarde-o apenas
+   no gerenciador de secrets. Esse token completo será o valor de
+   `DOKPLOY_API_KEY` no GitHub.
+
+O nome `PizzariaKey` e o nome/prefixo que continua aparecendo na lista de chaves
+não são o token de autenticação. Se o modal com o token completo foi fechado sem
+que ele fosse copiado, exclua essa chave, gere outra e copie o novo token. Não
+envie o token por mensagem, não o coloque no `.env` versionado e não o grave no
+arquivo de workflow.
+
+Depois, saia da área de repositórios do Dokploy e abra o repositório diretamente
+no site `github.com`. Para este projeto, use:
+
+```text
+https://github.com/AlexCol/ProjetoPizzaria/settings/secrets/actions
+```
+
+Pela navegação do GitHub, o caminho equivalente é:
 
 ```text
 Repository
@@ -353,14 +580,46 @@ Repository
   -> New repository secret
 ```
 
-Cadastre:
+Se a aba **Settings** não estiver visível no cabeçalho do repositório, abra o
+menu de reticências (`...`). Se ela também não aparecer nesse menu ou a URL
+direta retornar acesso negado/404, a conta autenticada não possui permissão de
+administração suficiente sobre o repositório.
+
+Crie quatro **Repository secrets**, um de cada vez. No formulário do GitHub,
+coloque somente o identificador na caixa **Name** e somente o conteúdo na caixa
+**Secret**; não digite `=`, espaços, aspas ou os sinais `<` e `>`:
+
+| Name | Secret |
+|---|---|
+| `DOKPLOY_URL` | `https://<DOMINIO_DO_DOKPLOY>` |
+| `DOKPLOY_API_KEY` | token completo gerado pelo Dokploy |
+| `DOKPLOY_BACKEND_APPLICATION_ID` | ID da Application backend |
+| `DOKPLOY_FRONTEND_APPLICATION_ID` | ID da Application frontend |
+
+Exemplo do primeiro cadastro: **Name** = `DOKPLOY_URL`; **Secret** =
+`https://dokploy.example.com`. A notação `NOME=valor` é usada em arquivos
+`.env`, mas não deve ser colada no campo **Name** do GitHub.
+
+Use em `DOKPLOY_URL` somente a origem pública do painel, sem `/api` e,
+preferencialmente, sem a barra final. Exemplo:
 
 ```text
-DOKPLOY_URL=https://<DOMINIO_DO_DOKPLOY>
-DOKPLOY_API_KEY=<SECRET>
-DOKPLOY_BACKEND_APPLICATION_ID=<ID_DA_APPLICATION_BACKEND>
-DOKPLOY_FRONTEND_APPLICATION_ID=<ID_DA_APPLICATION_FRONTEND>
+https://dokploy.example.com
 ```
+
+Os dois `APPLICATION_ID` não são o nome da Application, o nome do serviço
+Docker nem o ID do Project/Environment. Para obtê-los, abra cada Application
+no painel do Dokploy e copie da URL o identificador que aparece depois de
+`/services/application/` e antes de `?`, por exemplo:
+
+```text
+https://dokploy.example.com/dashboard/project/<PROJECT_ID>/services/application/<APPLICATION_ID>?tab=general
+```
+
+Repita o procedimento em `pizzaria-backend` e `pizzaria-frontend`. Como método
+alternativo e oficial, depois de gerar a API key execute `GET /api/project.all`
+com o header `x-api-key`; a resposta lista os projetos, Applications e seus
+respectivos campos `applicationId`.
 
 A API oficial utilizada pelos workflows é:
 
@@ -627,6 +886,20 @@ Na revisão deste runbook, foi confirmado na documentação oficial atual do Dok
 - essa rota exige autenticação pelo header `x-api-key`;
 - o corpo aceita `applicationId` e também permite `title`/`description`;
 - Dokploy continua oferecendo Auto Deploy/webhooks, mas este runbook mantém Auto Deploy por push desativado para preservar a ordem **CI aprovado -> CD**.
+- Environments diferentes são isolados e podem possuir variáveis compartilhadas próprias;
+- aplicações devem usar **Internal Credentials** para acessar bancos no mesmo ambiente/rede, sem External Port;
+- PostgreSQL e Redis são recursos nativos de Database, e a imagem Docker desses recursos pode ser customizada;
+- named volumes são a opção indicada quando o dado precisa do mecanismo de Volume Backup;
+- backups lógicos de Database usam um destino S3, agendamento e teste pela aba Backup.
+
+Referências oficiais consultadas:
+
+- `https://docs.dokploy.com/docs/core/multi-tenancy`
+- `https://docs.dokploy.com/docs/core/databases`
+- `https://docs.dokploy.com/docs/core/databases/connection`
+- `https://docs.dokploy.com/docs/core/databases/backups`
+- `https://docs.dokploy.com/docs/core/volume-backups`
+- `https://docs.dokploy.com/docs/core/deployment-options`
 
 A configuração deve ser validada novamente caso a versão instalada do Dokploy seja atualizada de forma relevante.
 
@@ -635,7 +908,10 @@ A configuração deve ser validada novamente caso a versão instalada do Dokploy
 - [ ] Domínios e DNS definidos, HTTPS válido.
 - [ ] Auto Deploy por push desativado no Dokploy.
 - [ ] `DOKPLOY_URL`, `DOKPLOY_API_KEY` e IDs das duas Applications cadastrados como GitHub Actions Secrets.
-- [ ] PostgreSQL/Valkey internos, sem portas públicas, com persistência.
+- [ ] PostgreSQL, Valkey, backend e frontend estão no mesmo Project, Environment e Server.
+- [ ] Backend usa os Internal Hosts fornecidos pelo Dokploy; nenhum host interno está como `localhost`.
+- [ ] PostgreSQL/Valkey sem External Port, com volumes persistentes em `/var/lib/postgresql/data` e `/data`.
+- [ ] Valkey validado com autenticação, AOF `everysec` e política `noeviction`.
 - [ ] Variáveis do backend preenchidas sem secrets no Git.
 - [ ] `environment.ts` aponta para o domínio real da API.
 - [ ] Volume `/data/files` criado ou Cloudinary configurado.

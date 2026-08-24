@@ -1,0 +1,9 @@
+bin/
+obj/
+.git/
+.env
+.env.*
+Log/
+docker/
+*.user
+*.suo

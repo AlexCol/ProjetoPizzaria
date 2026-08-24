@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://api.meusite.com/api',
+  apiBaseUrl: 'https://pizzaria-backend.coletti.tec.br/api',
 };

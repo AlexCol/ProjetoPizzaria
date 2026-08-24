@@ -1,0 +1,79 @@
+name: Backend CI/CD
+
+on:
+  pull_request:
+    paths:
+      - "projeto/backend/csharp_p2/**"
+      - ".github/workflows/backend-ci-cd.yml"
+  push:
+    branches: [main]
+    paths:
+      - "projeto/backend/csharp_p2/**"
+      - ".github/workflows/backend-ci-cd.yml"
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: "Executar deploy do backend após o CI"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-production
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: projeto/backend/csharp_p2
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - run: dotnet restore csharp_p2.sln
+      - run: dotnet build csharp_p2.sln --configuration Release --no-restore
+
+      - name: Tests (the solution currently has no test project)
+        run: dotnet test csharp_p2.sln --configuration Release --no-build
+
+      - run: dotnet publish csharp_p2.csproj --configuration Release --no-build --output ./publish
+
+      # Valida o mesmo Dockerfile que será usado pelo Dokploy.
+      - run: docker build --tag pizzaria-backend:ci .
+
+  deploy:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'workflow_dispatch' && inputs.deploy))
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Dokploy backend deployment
+        env:
+          DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          APPLICATION_ID: ${{ secrets.DOKPLOY_BACKEND_APPLICATION_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -n "$DOKPLOY_URL"
+          test -n "$DOKPLOY_API_KEY"
+          test -n "$APPLICATION_ID"
+
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --url "${DOKPLOY_URL%/}/api/application.deploy" \
+            --header "x-api-key: ${DOKPLOY_API_KEY}" \
+            --header "Content-Type: application/json" \
+            --data "$(printf '{"applicationId":"%s","title":"Backend %s","description":"GitHub Actions CI approved"}' "$APPLICATION_ID" "${GITHUB_SHA:0:7}")"

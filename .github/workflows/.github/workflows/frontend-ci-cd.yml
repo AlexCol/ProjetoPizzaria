@@ -1,0 +1,87 @@
+name: Frontend CI/CD
+
+on:
+  pull_request:
+    paths:
+      - "projeto/web/angular_p2/**"
+      - ".github/workflows/frontend-ci-cd.yml"
+  push:
+    branches: [main]
+    paths:
+      - "projeto/web/angular_p2/**"
+      - ".github/workflows/frontend-ci-cd.yml"
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: "Executar deploy do frontend após o CI"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-production
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: projeto/web/angular_p2
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: projeto/web/angular_p2/package-lock.json
+
+      - run: npm ci
+      - run: npm run lint
+
+      - name: Tests (run when test files exist)
+        shell: bash
+        run: |
+          if find src -type f \( -name '*.spec.ts' -o -name '*.test.ts' \) -print -quit | grep -q .; then
+            npm test -- --watch=false
+          else
+            echo "No Angular test files found; skipping test runner."
+          fi
+
+      - run: npm run build -- --configuration production
+
+      # Valida o mesmo Dockerfile que será usado pelo Dokploy.
+      - run: docker build --tag pizzaria-frontend:ci .
+
+  deploy:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'workflow_dispatch' && inputs.deploy))
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Dokploy frontend deployment
+        env:
+          DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          APPLICATION_ID: ${{ secrets.DOKPLOY_FRONTEND_APPLICATION_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -n "$DOKPLOY_URL"
+          test -n "$DOKPLOY_API_KEY"
+          test -n "$APPLICATION_ID"
+
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --url "${DOKPLOY_URL%/}/api/application.deploy" \
+            --header "x-api-key: ${DOKPLOY_API_KEY}" \
+            --header "Content-Type: application/json" \
+            --data "$(printf '{"applicationId":"%s","title":"Frontend %s","description":"GitHub Actions CI approved"}' "$APPLICATION_ID" "${GITHUB_SHA:0:7}")"
