@@ -345,7 +345,7 @@ Configure:
 | Build Path | `projeto/backend/csharp_p2` |
 | Build type | `Dockerfile` |
 | Docker File | `Dockerfile` |
-| Docker Context Path | `.` |
+| Docker Context Path | `projeto/backend/csharp_p2` |
 | Docker Build Stage | deixar vazio (usa o último estágio, `final`) |
 | Container port | `8080` |
 | Domain | `<BACKEND_DOMAIN>`, HTTPS ativo |
@@ -354,12 +354,14 @@ Configure:
 | Auto Deploy | desativado |
 | Restart | on-failure/always |
 
-Na tela **General**, salve primeiro a configuração do provedor Git. Como o
-`Build Path` já posiciona o build dentro de `projeto/backend/csharp_p2`, os
-campos do tipo de build são relativos a essa pasta: `Docker File=Dockerfile` e
-`Docker Context Path=.`. Não repita `projeto/backend/csharp_p2` nesses dois
-campos. Deixe `Docker Build Stage` vazio para que o Docker use o último estágio
-do Dockerfile multi-stage (`final`).
+Na tela **General**, salve primeiro a configuração do provedor Git. Nesta versão
+do Dokploy, o **Docker Context Path** é resolvido a partir da raiz do repositório,
+independentemente do **Build Path**. Portanto, use
+`Docker File=Dockerfile` e `Docker Context Path=projeto/backend/csharp_p2`.
+Deixe `Docker Build Stage` vazio para que o Docker use o último estágio do
+Dockerfile multi-stage (`final`). Se o contexto ficar vazio ou como `.`, os
+`COPY` do Dockerfile procurarão os arquivos na raiz do monorepo e o build
+falhará com `not found`.
 
 Variáveis (preencher secrets no Dokploy, nunca no Git):
 
@@ -504,7 +506,7 @@ server {
     try_files $uri $uri/ /index.html;
   }
 
-  location \~* \.(?:css|js|jpg|jpeg|gif|png|svg|ico|webp|woff2?)$ {
+  location ~* \.(?:css|js|jpg|jpeg|gif|png|svg|ico|webp|woff2?)$ {
     expires 7d;
     add_header Cache-Control "public, immutable";
     try_files $uri =404;
@@ -543,9 +545,11 @@ Configure:
 |---|---|
 | Name | `pizzaria-frontend` |
 | Provider/repository/branch | GitHub / `AlexCol/ProjetoPizzaria` / `main` |
-| Build type | Dockerfile |
-| Build path/context | `projeto/web/angular_p2` |
-| Dockerfile | `Dockerfile` |
+| Build Path | `projeto/web/angular_p2` |
+| Build type | `Dockerfile` |
+| Docker File | `Dockerfile` |
+| Docker Context Path | `projeto/web/angular_p2` |
+| Docker Build Stage | deixar vazio (usa o último estágio, `final`) |
 | Container port | `80` |
 | Domain | `<FRONTEND_DOMAIN>`, HTTPS ativo |
 | Healthcheck | HTTP `GET /`, porta 80 |
@@ -553,7 +557,56 @@ Configure:
 | Auto Deploy | desativado |
 | Volumes/variáveis | nenhum |
 
-O `nginx.conf` aplica fallback de SPA para `index.html`. Assets são imutáveis e não precisam de volume.
+O **Docker Context Path** também é relativo à raiz do repositório nesta versão
+do Dokploy; não o deixe vazio nem use `.`. O `nginx.conf` aplica fallback de SPA
+para `index.html`. Assets são imutáveis e não precisam de volume.
+
+### 07.4 Configurar DNS e domínios
+
+Antes de criar os domínios no Dokploy, abra o provedor DNS de
+`<FRONTEND_DOMAIN>` e `<BACKEND_DOMAIN>` e crie dois registros `A` apontando
+para o IPv4 público da VPS. Exemplo para `coletti.tec.br`:
+
+| Tipo | Nome | Destino |
+|---|---|---|
+| `A` | subdomínio escolhido para o frontend | IPv4 público da VPS |
+| `A` | `pizzaria-backend` | IPv4 público da VPS |
+
+Espere os registros resolverem para a VPS antes de solicitar os certificados.
+Se usar Cloudflare, mantenha-os como **DNS only** durante a configuração inicial;
+o proxy pode ser ativado depois que ambos os domínios e certificados estiverem
+funcionando.
+
+Na Application `pizzaria-backend`, abra **Domains**, clique em **Create Domain**
+e preencha:
+
+| Campo | Valor |
+|---|---|
+| Host | `<BACKEND_DOMAIN>` sem `https://` e sem `/api` |
+| Path | `/` |
+| Internal Path | `/` (ou vazio, se o campo for opcional) |
+| Strip Path | desativado |
+| Container Port | `8080` |
+| HTTPS | ativado |
+| Certificate | `Let's Encrypt` |
+
+Na Application `pizzaria-frontend`, repita o procedimento:
+
+| Campo | Valor |
+|---|---|
+| Host | `<FRONTEND_DOMAIN>` sem `https://` e sem caminho |
+| Path | `/` |
+| Internal Path | `/` (ou vazio, se o campo for opcional) |
+| Strip Path | desativado |
+| Container Port | `80` |
+| HTTPS | ativado |
+| Certificate | `Let's Encrypt` |
+
+Clique em **Create** em cada Application. Não crie mapeamentos em
+**Advanced -> Ports**: o `Container Port` da aba **Domains** serve apenas para o
+Traefik encaminhar internamente as requisições e não publica a porta diretamente
+na VPS. Depois do deploy, valide primeiro
+`https://<BACKEND_DOMAIN>/api/health` e então `https://<FRONTEND_DOMAIN>`.
 
 ## 08. GitHub Actions e mapeamento
 
