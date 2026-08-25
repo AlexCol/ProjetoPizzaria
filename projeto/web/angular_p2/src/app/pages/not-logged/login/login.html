@@ -20,6 +20,7 @@
           autoComplete="email"
           ariaDescribedBy="email-error"
           [ariaInvalid]="email.invalid && email.touched"
+          [readOnly]="isLoading()"
           required
           email
         />
@@ -36,12 +37,13 @@
           placeholder="Sua senha"
           autoComplete="current-password"
           ariaDescribedBy="password-error"
+          [readOnly]="isLoading()"
           [ariaInvalid]="password.invalid && password.touched"
           required
         />
       </div>
 
-      <app-button label="Acessar" type="submit" />
+      <app-button label="Acessar" type="submit" [disabled]="isLoading()" />
 
       <app-check
         [(ngModel)]="credentials.remember"
@@ -50,6 +52,7 @@
         [className]="styles.rememberInput"
         [labelClassName]="styles.rememberLabel"
         [class]="styles.rememberOption"
+        [disabled]="isLoading()"
       />
     </form>
 
@@ -57,6 +60,7 @@
       <app-link
         label="Esqueceu a senha? Clique aqui."
         [routerLink]="['../', 'recover-password']"
+        [disabled]="isLoading()"
         [className]="styles.signupLink"
       />
 
@@ -65,6 +69,7 @@
       <app-link
         label="Não recebeu token de ativação? Clique aqui."
         [routerLink]="['../', 'resend-activation-token']"
+        [disabled]="isLoading()"
         [className]="styles.signupLink"
       />
     </div>

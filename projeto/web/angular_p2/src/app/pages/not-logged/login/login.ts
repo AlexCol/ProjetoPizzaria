@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -32,6 +32,7 @@ export class LoginComponent {
   /*****************************************/
   /* Propriedades Publicas                 */
   /*****************************************/
+  readonly isLoading = signal(false);
   readonly styles = notLoggedStyles; // Estilos utilizados pelo componente.
 
   readonly credentials: Credentials = {
@@ -50,6 +51,7 @@ export class LoginComponent {
       return;
     }
 
+    this.isLoading.set(true);
     this.authStore
       .login(this.credentials.email, this.credentials.password, this.credentials.remember)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -60,6 +62,7 @@ export class LoginComponent {
         },
         error: (error: string) => {
           this.toast.error(error, 'Erro');
+          this.isLoading.set(false);
         },
       });
   }
