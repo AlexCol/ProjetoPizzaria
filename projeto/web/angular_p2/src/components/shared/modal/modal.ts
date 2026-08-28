@@ -53,6 +53,9 @@ export class ModalComponent {
   // Disparado pelo <dialog> ao solicitar fechamento, normalmente ao pressionar Escape.
   // Cancela o fechamento nativo para que isOpen continue sendo a fonte de verdade.
   handleCancel(event: Event): void {
+    if (event.target !== event.currentTarget) {
+      return;
+    }
     event.preventDefault();
     this.isOpen.set(false);
   }

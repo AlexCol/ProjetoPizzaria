@@ -33,6 +33,7 @@ export class ProdutoModalComponent {
   readonly styles = produtoModalStyles;
   readonly previewUrl = signal<string | undefined>(undefined);
   readonly previewUnavailable = signal(false);
+  readonly isDraggingImage = signal(false);
   readonly statusOptions: readonly SelectOption[] = [
     { label: 'Ativo', value: EProductStatus.Active },
     { label: 'Inativo', value: EProductStatus.Inactive },
@@ -103,27 +104,32 @@ export class ProdutoModalComponent {
       return;
     }
 
-    if (!ALLOWED_IMAGE_TYPES.has(image.type)) {
-      inputElement.value = '';
-      this.selectedImage.set(undefined);
-      this.restoreProductPreview();
-      this.toast.error('A imagem deve estar no formato JPG, JPEG ou PNG.', 'Erro');
-      return;
-    }
+    this.loadImage(image, inputElement);
+  }
 
-    if (image.size > MAX_IMAGE_SIZE) {
-      inputElement.value = '';
-      this.selectedImage.set(undefined);
-      this.restoreProductPreview();
-      this.toast.error('A imagem deve ter no máximo 2 MB.', 'Erro');
-      return;
-    }
+  dragImageOver(event: DragEvent): void {
+    event.preventDefault();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
+    this.isDraggingImage.set(true);
+  }
 
-    this.selectedImage.set(image);
-    this.releasePreviewObjectUrl();
-    this.previewObjectUrl = URL.createObjectURL(image);
-    this.previewUnavailable.set(false);
-    this.previewUrl.set(this.previewObjectUrl);
+  leaveImageDropZone(event: DragEvent): void {
+    const container = event.currentTarget as HTMLElement;
+    const nextTarget = event.relatedTarget as Node | null;
+    if (!nextTarget || !container.contains(nextTarget)) this.isDraggingImage.set(false);
+  }
+
+  dropImage(event: DragEvent): void {
+    event.preventDefault();
+    this.isDraggingImage.set(false);
+
+    const image = event.dataTransfer?.files[0];
+    if (image) this.loadImage(image);
+  }
+
+  removeImage(): void {
+    this.selectedImage.set(undefined);
+    this.restoreProductPreview();
   }
 
   markPreviewAsUnavailable(): void {
@@ -148,6 +154,29 @@ export class ProdutoModalComponent {
   /*****************************************/
   /* Metodos Privados                      */
   /*****************************************/
+  private loadImage(image: File, inputElement?: HTMLInputElement): void {
+    if (!ALLOWED_IMAGE_TYPES.has(image.type)) {
+      if (inputElement) inputElement.value = '';
+      this.selectedImage.set(undefined);
+      this.restoreProductPreview();
+      this.toast.error('A imagem deve estar no formato JPG, JPEG ou PNG.', 'Erro');
+      return;
+    }
+
+    if (image.size > MAX_IMAGE_SIZE) {
+      if (inputElement) inputElement.value = '';
+      this.selectedImage.set(undefined);
+      this.restoreProductPreview();
+      this.toast.error('A imagem deve ter no máximo 2 MB.', 'Erro');
+      return;
+    }
+
+    this.selectedImage.set(image);
+    this.releasePreviewObjectUrl();
+    this.previewObjectUrl = URL.createObjectURL(image);
+    this.previewUnavailable.set(false);
+    this.previewUrl.set(this.previewObjectUrl);
+  }
   private normalizeStatus(status: Product['status']): EProductStatus {
     return status === EProductStatus.Inactive ? EProductStatus.Inactive : EProductStatus.Active;
   }

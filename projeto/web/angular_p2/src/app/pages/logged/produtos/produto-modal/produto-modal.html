@@ -60,26 +60,40 @@
     </div>
 
     <!-- Pré-visualização da imagem atual ou do novo arquivo selecionado -->
-    <div [class]="styles.imagePreviewContainer">
+    <div
+      [class]="styles.imagePreviewContainer + (isDraggingImage() ? ' ' + styles.imagePreviewContainerDragging : '')"
+      (dragover)="dragImageOver($event)"
+      (dragleave)="leaveImageDropZone($event)"
+      (drop)="dropImage($event)"
+    >
       @if (previewUrl() && !previewUnavailable()) {
-        <img
-          [src]="previewUrl()"
-          [alt]="'Pré-visualização de ' + (form.controls.name.value || 'produto')"
-          [class]="styles.imagePreview"
-          (error)="markPreviewAsUnavailable()"
+        <label for="product-image" [class]="styles.imagePicker">
+          <img
+            [src]="previewUrl()"
+            [alt]="'Pré-visualização de ' + (form.controls.name.value || 'produto')"
+            [class]="styles.imagePreview"
+            (error)="markPreviewAsUnavailable()"
+          />
+        </label>
+        <app-button
+          type="button"
+          label="X"
+          variant="danger"
+          [fullWidth]="false"
+          [allowSpam]="true"
+          (clicked)="removeImage()"
+          [className]="styles.excludeButton"
         />
       } @else {
-        <span [class]="styles.imagePlaceholder">Nenhuma imagem disponível.</span>
+        <label for="product-image" [class]="styles.imagePicker">
+          <span [class]="styles.imagePlaceholder">
+            Clique ou arraste uma imagem para cá.
+            <br />
+            JPG, JPEG ou PNG, com no máximo 2 MB.
+          </span>
+        </label>
       }
-    </div>
 
-    <div [class]="styles.fieldContainer">
-      <label for="product-image" [class]="styles.label">
-        Imagem
-        @if (!product()) {
-          <span [class]="styles.requiredMark" aria-hidden="true">*</span>
-        }
-      </label>
       <input
         id="product-image"
         type="file"
@@ -88,13 +102,14 @@
         [required]="!product()"
         (change)="selectImage($event)"
       />
-      <small [class]="styles.helperText">
+    </div>
+
+    <!-- <small [class]="styles.helperText">
         JPG, JPEG ou PNG, com no máximo 2 MB.
         @if (product()) {
           Se não selecionar, a imagem atual será mantida.
         }
-      </small>
-    </div>
+      </small> -->
   </div>
 
   <div [class]="styles.actions">
