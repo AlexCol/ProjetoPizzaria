@@ -9,8 +9,8 @@ export const produtosStyles = {
   productImage: 'size-14 rounded-lg border border-border/50 object-cover shadow-sm',
   imageFallback:
     'flex size-14 items-center justify-center rounded-lg border border-dashed border-border bg-foreground/5 px-1 text-center text-[0.65rem] leading-tight text-foreground/60',
-  activeBadge: 'inline-flex rounded-full bg-success/15 px-2.5 py-1 text-xs font-semibold text-success',
-  inactiveBadge: 'inline-flex rounded-full bg-warning/15 px-2.5 py-1 text-xs font-semibold text-foreground',
+  activeBadge: 'inline-flex rounded-full bg-success/15 px-2.5 py-1 text-xs font-semibold text-success select-none',
+  inactiveBadge: 'inline-flex rounded-full bg-warning/15 px-2.5 py-1 text-xs font-semibold text-foreground select-none',
   actionsCell: 'flex items-center justify-center',
   iconButton: 'size-9 rounded-md p-3 text-primary hover:bg-primary/10',
   deleteIconButton: 'size-9 rounded-md p-3 text-danger hover:bg-danger/10',
