@@ -5,15 +5,15 @@ const SignInConfigStack: StackScreenConfig = {
   name: "SignIn",
   component: SignIn,
   options: {
-    // title: 'Tela SignIn',
+    // title: "Tela SignIn",
     // headerStyle: {
-    //   backgroundColor: '#808000', // cor do header
+    //   backgroundColor: "#808000", // cor do header
     // },
-    // headerTintColor: '#fff', // cor da fonte do header
+    // headerTintColor: "#fff", // cor da fonte do header
     // headerTitleStyle: {
-    //   fontWeight: 'bold',
+    //   fontWeight: "bold",
     // },
-    headerShown: false, // desabilita o header    
+    headerShown: false, // desabilita o header
   },
-}
+};
 export default SignInConfigStack;

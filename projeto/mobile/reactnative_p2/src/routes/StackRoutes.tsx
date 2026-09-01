@@ -10,7 +10,7 @@ type stackType = ReturnType<typeof createNativeStackNavigator<RoutesStackParamLi
 function StackRoutes() {
   const stackPagesList = [
     MainConfigStack,
-    SignInConfigStack
+    SignInConfigStack,
   ];
   const Stack: stackType = createNativeStackNavigator<RoutesStackParamList>();
   const stackOptions: NativeStackNavigationOptions = {
