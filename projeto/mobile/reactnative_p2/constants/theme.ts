@@ -1,7 +1,4 @@
-const tintColorLight = "#2f95dc";
-const tintColorDark = "#fff";
-
-export default {
+export const colors = {
   light: {
     primary: "#2563eb",
     secondary: "#10b981",
@@ -16,9 +13,6 @@ export default {
     foreground: "#374151",
     primaryText: "#111827",
     border: "#6a7282",
-    tint: tintColorLight,
-    tabIconDefault: "#ccc",
-    tabIconSelected: tintColorLight,
   },
   dark: {
     primary: "#3b82f6",
@@ -34,11 +28,9 @@ export default {
     foreground: "#e5e7eb",
     primaryText: "#f9fafb",
     border: "#99a1af",
-    tint: tintColorDark,
-    tabIconDefault: "#ccc",
-    tabIconSelected: tintColorDark,
   },
 };
+export const colorsDefault = colors["dark"];
 
 export const spacing = {
   xs: 4,
