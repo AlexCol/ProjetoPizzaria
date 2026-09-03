@@ -1,3 +1,5 @@
+import { Stack } from "expo-router";
+
 export default function NotAuthenticatedLayout() {
   return (
     <Stack>
@@ -5,5 +7,4 @@ export default function NotAuthenticatedLayout() {
     </Stack>
   );
 }
-import { Stack } from "expo-router";
 
