@@ -1,4 +1,25 @@
-export const colors = {
+export type ThemeColors = {
+  primary: string;
+  secondary: string;
+  tertiary: string;
+  success: string;
+  danger: string;
+  warning: string;
+  info: string;
+  disabled: string;
+  background: string;
+  background2: string;
+  foreground: string;
+  primaryText: string;
+  border: string;
+};
+
+export type ColorScheme = {
+  light: ThemeColors;
+  dark: ThemeColors;
+};
+
+export const colorsByTheme: ColorScheme = {
   light: {
     primary: "#2563eb",
     secondary: "#10b981",
@@ -29,27 +50,4 @@ export const colors = {
     primaryText: "#f9fafb",
     border: "#99a1af",
   },
-};
-export const colorsDefault = colors["dark"];
-
-export const spacing = {
-  xs: 4,
-  sm: 8,
-  md: 16,
-  lg: 24,
-  xl: 32,
-};
-
-export const borderRadius = {
-  sm: 4,
-  md: 8,
-  lg: 12,
-};
-
-export const fontSize = {
-  xs: 12,
-  sm: 14,
-  md: 16,
-  lg: 20,
-  xl: 24,
 };
