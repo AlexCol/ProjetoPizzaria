@@ -1,13 +1,14 @@
 import { Text, TouchableOpacityProps, TouchableOpacity, StyleSheet } from 'react-native';
 import { ThemeContextType, useThemeValue } from '@/src/contexts/theme/ThemeContext';
 
-const _omittedProps = ['children'] as const;
+const _omittedProps = ['children', 'style'] as const;
 
 interface ButtonProps {
   title: string;
   variant: 'default' | 'success' | 'danger' | 'warning' | 'info' | 'disabled';
   loading?: boolean;
   children?: React.ReactNode;
+  style?: TouchableOpacityProps['style'];
   buttonPros?: Omit<TouchableOpacityProps, (typeof _omittedProps)[number]>;
 }
 
@@ -18,11 +19,8 @@ export default function Button(props: ButtonProps) {
   const styles = getStyles(theme, variant);
 
   return (
-    <TouchableOpacity {...buttonPros} style={styles.button}>
-      {
-        children ??
-        <Text style={styles.text}>{title}</Text>
-      }
+    <TouchableOpacity {...buttonPros} style={[styles.button, props.style]} disabled={loading}>
+      {children ?? <Text style={styles.text}>{title}</Text>}
     </TouchableOpacity>
   )
 }
