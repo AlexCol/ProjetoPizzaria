@@ -1,12 +1,12 @@
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
-
-import { colorsByTheme, ThemeColors } from "./constants/colors";
-import { BorderRadius, FontSize, Spacing } from "./constants/types";
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { colorsByTheme, ThemeColors } from './constants/colors';
+import { BorderRadius, FontSize, Spacing } from './constants/types';
 
 //*************************************************************
 //* Tipagens para o contexto
 //*************************************************************
 export type ThemeContextType = {
+  isDark: boolean;
   colors: ThemeColors;
   toggleTheme: () => void;
   spacing: Spacing;
@@ -20,7 +20,7 @@ export type ThemeContextType = {
 export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 //*************************************************************
-//* Componente Provider do contexto (onde são iniciadas as 
+//* Componente Provider do contexto (onde são iniciadas as
 //* variáveis de estado e as funções que serão passadas no value)
 //* E então passadas no value para serem usadas pelos componentes filhos
 //*************************************************************
@@ -50,13 +50,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     xl: 24,
   };
 
-  useEffect(() => {
-
-  }, []); //carrega os dados do usuário do AsyncStorage quando o componente é montado
+  useEffect(() => { }, []); //carrega os dados do usuário do AsyncStorage quando o componente é montado
 
   const providerValue: ThemeContextType = {
+    isDark,
     colors: colors,
-    toggleTheme: () => setIsDark(!isDark),
+    toggleTheme: () => setIsDark((currentValue) => !currentValue),
     spacing: spacing,
     borderRadius: borderRadius,
     fontSize: fontSize,
@@ -77,7 +76,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 export function useThemeValue() {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    throw new Error("useThemeValue must be used within a ThemeProvider");
+    throw new Error('useThemeValue must be used within a ThemeProvider');
   }
   return context;
 }

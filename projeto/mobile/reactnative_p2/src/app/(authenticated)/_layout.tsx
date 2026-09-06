@@ -18,6 +18,9 @@ export default function Layout() {
   const defaultOptions: BottomTabNavigationOptions = {
     headerStyle: styles.header,
     headerTitleStyle: styles.headerTitle,
+    sceneStyle: {
+      backgroundColor: theme.colors.background,
+    },
   }
 
   return (
