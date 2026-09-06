@@ -1,6 +1,6 @@
-import { ThemeContextType, useThemeValue } from "@/src/contexts/theme/ThemeContext";
 import { Tabs } from "expo-router";
 import { BottomTabNavigationOptions } from "expo-router/build/react-navigation/bottom-tabs";
+import { ThemeContextType, useThemeValue } from "@/src/contexts/theme/ThemeContext";
 // import { Stack } from "expo-router";
 
 // export default function AuthenticatedLayout() {

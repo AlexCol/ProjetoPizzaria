@@ -1,9 +1,9 @@
-import { Text, View } from "react-native";
+import { BaseScrollView, BaseText } from '@/src/components/base';
 
 export default function Orders() {
   return (
-    <View>
-      <Text>Orders</Text>
-    </View>
+    <BaseScrollView>
+      <BaseText>Orders</BaseText>
+    </BaseScrollView>
   )
 }

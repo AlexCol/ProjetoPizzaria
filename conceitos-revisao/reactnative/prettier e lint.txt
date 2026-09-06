@@ -1,0 +1,15 @@
+copiar arquivos
+.prettierrc
+.prettierignore
+eslint.config.js
+
+do projeto mobile reactivenative_p2
+
+e instalar?
+npm i -D eslint eslint-config-expo prettier eslint-config-prettier eslint-plugin-import eslint-plugin-unused-imports typescript-eslint
+
+então criar os scripts:
+"lint": "expo lint",
+"lint:fix": "expo lint --fix",
+"format": "prettier --write .",
+"format:check": "prettier --check ."

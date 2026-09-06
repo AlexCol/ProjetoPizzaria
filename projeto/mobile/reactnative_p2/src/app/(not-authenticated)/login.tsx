@@ -1,21 +1,21 @@
+import { BaseScrollView, BaseText, BaseTouchableOpacity } from '@/src/components/base';
 import { useAuthValue } from '@/src/contexts/auth/AuthContext';
-import { Text, TouchableOpacity, View } from 'react-native';
 
 export default function Login() {
   const { signIn } = useAuthValue();
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     const email = 'some email';
     const password = 'some password';
-    signIn(email, password);
+    await signIn(email, password);
   };
 
   return (
-    <View>
-      <Text>login</Text>
-      <TouchableOpacity onPress={handleSignIn}>
-        <Text>Login</Text>
-      </TouchableOpacity>
-    </View>
+    <BaseScrollView>
+      <BaseText>login</BaseText>
+      <BaseTouchableOpacity onPress={handleSignIn}>
+        <BaseText>Login</BaseText>
+      </BaseTouchableOpacity>
+    </BaseScrollView>
   )
 }

@@ -1,44 +1,21 @@
+import { BaseScrollView, BaseText, BaseTouchableOpacity } from '@/src/components/base';
 import { useAuthValue } from '@/src/contexts/auth/AuthContext';
-import { ThemeContextType, useThemeValue } from '@/src/contexts/theme/ThemeContext';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { useThemeValue } from '@/src/contexts/theme/ThemeContext';
 
 export default function Dashboard() {
   const { signOut } = useAuthValue();
   const theme = useThemeValue();
-  const styles = getStyles(theme);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>dashboard</Text>
-      <TouchableOpacity onPress={signOut} style={styles.button}>
-        <Text style={styles.buttonText}>Sign Out</Text>
-      </TouchableOpacity>
+    <BaseScrollView>
+      <BaseText>dashboard</BaseText>
+      <BaseTouchableOpacity onPress={signOut}>
+        <BaseText>Sign Out</BaseText>
+      </BaseTouchableOpacity>
 
-      <TouchableOpacity onPress={theme.toggleTheme} style={styles.button}>
-        <Text style={styles.buttonText}>Toggle Theme</Text>
-      </TouchableOpacity>
-    </View>
+      <BaseTouchableOpacity onPress={theme.toggleTheme}>
+        <BaseText>Toggle Theme</BaseText>
+      </BaseTouchableOpacity>
+    </BaseScrollView>
   )
-}
-
-function getStyles(theme: ThemeContextType) {
-  return {
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-      padding: theme.spacing.md,
-    },
-    text: {
-      color: theme.colors.primaryText,
-      fontSize: theme.fontSize.md,
-    },
-    button: {
-      backgroundColor: theme.colors.primary,
-      borderRadius: theme.borderRadius.md,
-      padding: theme.spacing.sm,
-    },
-    buttonText: {
-      color: theme.colors.primaryText,
-      fontSize: theme.fontSize.md,
-    },
-  };
 }
