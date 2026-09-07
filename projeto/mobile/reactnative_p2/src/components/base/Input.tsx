@@ -1,3 +1,4 @@
+import { ForwardedRef } from 'react';
 import { View, Text, StyleSheet, TextInput, TextInputProps } from 'react-native';
 import { ThemeContextType, useThemeValue } from '../../contexts/theme/ThemeContext';
 
@@ -6,12 +7,13 @@ import { ThemeContextType, useThemeValue } from '../../contexts/theme/ThemeConte
 // }
 
 interface InputProps {
+  ref?: ForwardedRef<TextInput>
   labelStyle?: TextInputProps['style'],
   label?: string,
   textInputProps?: TextInputProps,
 }
 
-export default function Input({ label, labelStyle, textInputProps }: InputProps) {
+export default function Input({ label, labelStyle, textInputProps, ref }: InputProps) {
   const theme = useThemeValue();
   const styles = getStyles(theme);
 
@@ -20,6 +22,7 @@ export default function Input({ label, labelStyle, textInputProps }: InputProps)
       {label && <Text style={[styles.inputLabel, labelStyle]}>{label}</Text>}
 
       <TextInput
+        ref={ref}
         style={[styles.textInput, textInputProps?.style]}
         {...textInputProps}
       />
@@ -34,7 +37,7 @@ function getStyles(theme: ThemeContextType) {
     },
     inputLabel: {
       color: theme.colors.primaryText,
-      fontSize: theme.fontSize.lg,
+      fontSize: theme.fontSize.md,
       marginBottom: theme.spacing.sm,
     },
     textInput: {
