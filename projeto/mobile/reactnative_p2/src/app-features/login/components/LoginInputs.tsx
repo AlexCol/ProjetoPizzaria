@@ -20,6 +20,7 @@ export default function LoginInputs({ states }: LoginInputsProps) {
           keyboardType: "email-address",
           autoCapitalize: "none",
           onChangeText: (text) => { emailRef.current = text },
+          editable: !states.isLoading,
         }}
       />
 
@@ -32,6 +33,7 @@ export default function LoginInputs({ states }: LoginInputsProps) {
           secureTextEntry: true,
           autoCapitalize: "none",
           onChangeText: (text) => { passwordRef.current = text },
+          editable: !states.isLoading,
         }}
       />
     </>

@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { getValueFromStorage, saveValueOnStorage, StorageKey } from '@/src/shared/storage';
 import { colorsByTheme, ThemeColors } from './constants/colors';
 import { BorderRadius, FontSize, Spacing } from './constants/types';
 
@@ -25,47 +26,47 @@ export const ThemeContext = createContext<ThemeContextType | undefined>(undefine
 //* E então passadas no value para serem usadas pelos componentes filhos
 //*************************************************************
 export function ThemeProvider({ children }: { children: ReactNode }) {
+  /**********************************/
+  /* Propriedades                   */
+  /**********************************/
+  const THEME_KEY: StorageKey = 'theme';
   const [isDark, setIsDark] = useState(false);
   const colors = isDark ? colorsByTheme.dark : colorsByTheme.light;
+  const borderRadius = { sm: 4, md: 8, lg: 12 };
+  const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 };
+  const fontSize = { xs: 12, sm: 14, md: 16, lg: 20, xl: 24 };
 
-  const borderRadius = {
-    sm: 4,
-    md: 8,
-    lg: 12,
+  /**********************************/
+  /* Metodos Publicos               */
+  /**********************************/
+  const toggleTheme = () => {
+    setIsDark((currentValue) => !currentValue);
+    void saveValueOnStorage(THEME_KEY, isDark ? 'light' : 'dark');
   };
 
-  const spacing = {
-    xs: 4,
-    sm: 8,
-    md: 16,
-    lg: 24,
-    xl: 32,
-  };
-
-  const fontSize = {
-    xs: 12,
-    sm: 14,
-    md: 16,
-    lg: 20,
-    xl: 24,
-  };
-
-  useEffect(() => { }, []); //carrega os dados do usuário do AsyncStorage quando o componente é montado
+  /**********************************/
+  /* UseEffects                     */
+  /**********************************/
+  useEffect(() => {
+    const loadTheme = async () => {
+      const storedTheme = await getValueFromStorage(THEME_KEY);
+      if (storedTheme) {
+        setIsDark(storedTheme === 'dark');
+      }
+    };
+    void loadTheme();
+  }, []);
 
   const providerValue: ThemeContextType = {
     isDark,
     colors: colors,
-    toggleTheme: () => setIsDark((currentValue) => !currentValue),
+    toggleTheme,
     spacing: spacing,
     borderRadius: borderRadius,
     fontSize: fontSize,
   };
 
-  return (
-    <ThemeContext.Provider value={providerValue}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={providerValue}>{children}</ThemeContext.Provider>;
 }
 
 //*************************************************************

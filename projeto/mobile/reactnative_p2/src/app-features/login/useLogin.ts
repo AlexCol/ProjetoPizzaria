@@ -1,5 +1,5 @@
 import { RefObject, useRef } from 'react';
-import { TextInput } from 'react-native';
+import { Alert, TextInput } from 'react-native';
 import { useAuthValue } from '@/src/contexts/auth/AuthContext';
 import { useThemeValue } from '@/src/contexts/theme/ThemeContext';
 import getLoginStyles from './login.styles';
@@ -19,7 +19,11 @@ export default function useLogin() {
     const email = emailRef.current;
     const password = passwordRef.current;
 
-    await signIn(email, password);
+    try {
+      await signIn(email, password);
+    } catch (error) {
+      Alert.alert('Failed to sign in:', String(error));
+    }
   };
 
   return {

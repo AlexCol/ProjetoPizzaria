@@ -1,0 +1,55 @@
+import axios, { AxiosError } from 'axios';
+import { Alert } from 'react-native';
+import { environment } from '../config/environment';
+
+// eslint-disable-next-line import/no-named-as-default-member
+const core = axios.create({
+  baseURL: environment.apiUrl,
+  headers: {
+    'Content-Type': 'application/json',
+    'app-origin': 'mobile',
+  },
+});
+
+export function setTokenOnApi(token: string) {
+  if (!token) {
+    delete core.defaults.headers['Authorization'];
+  } else {
+    core.defaults.headers['Authorization'] = `${token}`;
+  }
+}
+
+type apiProps = {
+  method: 'get' | 'post' | 'put' | 'delete' | 'patch';
+  url: string;
+  data?: any;
+  params?: any;
+};
+const api = async <T>(config: apiProps) => {
+  try {
+    const response = await core.request<T>({
+      method: config.method,
+      url: config.url,
+      data: config.data,
+      params: config.params,
+    });
+    return response.data;
+  } catch (error) {
+    let errorHeader = 'Erro inesperado';
+    let errorMessage = error instanceof Error ? error.message : 'Ocorreu um erro desconhecido';
+
+    if (error instanceof AxiosError) {
+      errorHeader = 'Erro na requisição';
+      errorMessage = error.response?.data?.Message[0] || error.message;
+
+      if (error.status === 401) {
+        setTokenOnApi('');
+      }
+    }
+
+    //console.error(errorHeader, errorMessage);
+    Alert.alert(errorHeader, errorMessage);
+    return null;
+  }
+};
+export default api;

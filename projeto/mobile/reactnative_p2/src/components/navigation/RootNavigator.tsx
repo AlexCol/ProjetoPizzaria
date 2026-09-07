@@ -2,9 +2,10 @@ import { NativeStackNavigationOptions, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useThemeValue } from "@/src/contexts/theme/ThemeContext";
 import { useAuthValue } from "../../contexts/auth/AuthContext";
+import Loader from "../Loader";
 
 export default function RootNavigator() {
-  const { token } = useAuthValue();
+  const { token, isLoading } = useAuthValue();
   const { isDark, colors } = useThemeValue();
   const isAuthenticated = Boolean(token);
 
@@ -13,8 +14,11 @@ export default function RootNavigator() {
     animation: 'fade',
     contentStyle: {
       backgroundColor: colors.background,
-
     },
+  }
+
+  if (isLoading) {
+    return <Loader />
   }
 
   return (
