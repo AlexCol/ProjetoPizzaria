@@ -6,23 +6,14 @@ const unusedImports = require('eslint-plugin-unused-imports');
 const tseslint = require('typescript-eslint');
 
 module.exports = defineConfig([
-  globalIgnores([
-    '.expo/**',
-    'android/**',
-    'coverage/**',
-    'dist/**',
-    'ios/**',
-    'node_modules/**',
-  ]),
+  globalIgnores(['.expo/**', 'android/**', 'coverage/**', 'dist/**', 'ios/**', 'node_modules/**']),
 
   expo,
 
   {
     files: ['**/*.{ts,tsx}'],
 
-    extends: [
-      tseslint.configs.recommended,
-    ],
+    extends: [tseslint.configs.recommended],
 
     languageOptions: {
       parserOptions: {
@@ -59,16 +50,7 @@ module.exports = defineConfig([
       'import/order': [
         'error',
         {
-          groups: [
-            'builtin',
-            'external',
-            'internal',
-            'parent',
-            'sibling',
-            'index',
-            'object',
-            'type',
-          ],
+          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'object', 'type'],
           pathGroups: [
             {
               pattern: '@/**',

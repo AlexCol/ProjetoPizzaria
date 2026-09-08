@@ -10,12 +10,12 @@ export default function LoginButton({ states }: LoginButtonProps) {
 
   return (
     <Button
-      title="Login"
-      variant="success"
+      title='Login'
+      variant='success'
       loading={isLoading}
       buttonPros={{
-        onPress: handleSignIn
+        onPress: handleSignIn,
       }}
     />
-  )
+  );
 }

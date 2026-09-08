@@ -1,6 +1,6 @@
-import { Tabs } from "expo-router";
-import { BottomTabNavigationOptions } from "expo-router/build/react-navigation/bottom-tabs";
-import { ThemeContextType, useThemeValue } from "@/src/contexts/theme/ThemeContext";
+import { Tabs } from 'expo-router';
+import { BottomTabNavigationOptions } from 'expo-router/build/react-navigation/bottom-tabs';
+import { ThemeContextType, useThemeValue } from '@/src/contexts/theme/ThemeContext';
 // import { Stack } from "expo-router";
 
 // export default function AuthenticatedLayout() {
@@ -21,12 +21,12 @@ export default function Layout() {
     sceneStyle: {
       backgroundColor: theme.colors.background,
     },
-  }
+  };
 
   return (
     <Tabs screenOptions={{ tabBarStyle: styles.tabBar }}>
-      <Tabs.Screen name="dashboard" options={{ title: "Início", ...defaultOptions }} />
-      <Tabs.Screen name="orders" options={{ title: "Pedidos", ...defaultOptions }} />
+      <Tabs.Screen name='dashboard' options={{ title: 'Início', ...defaultOptions }} />
+      <Tabs.Screen name='orders' options={{ title: 'Pedidos', ...defaultOptions }} />
     </Tabs>
   );
 }
@@ -43,6 +43,6 @@ function getStyles(theme: ThemeContextType) {
     },
     headerTitle: {
       color: theme.colors.primaryText,
-    }
+    },
   };
 }

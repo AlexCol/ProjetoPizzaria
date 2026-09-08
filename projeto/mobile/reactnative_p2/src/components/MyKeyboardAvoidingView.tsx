@@ -3,9 +3,9 @@ import { KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { useThemeValue } from '../contexts/theme/ThemeContext';
 
 type MyKeyboardAvoidingViewProps = {
-  children: React.ReactNode,
-  style?: object,
-}
+  children: React.ReactNode;
+  style?: object;
+};
 
 function MyKeyboardAvoidingView({ children, style }: MyKeyboardAvoidingViewProps) {
   const theme = useThemeValue();
@@ -19,13 +19,10 @@ function MyKeyboardAvoidingView({ children, style }: MyKeyboardAvoidingViewProps
   });
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={[styles.container, style]}
-    >
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={[styles.container, style]}>
       {children}
     </KeyboardAvoidingView>
-  )
+  );
 }
 
-export default MyKeyboardAvoidingView
+export default MyKeyboardAvoidingView;

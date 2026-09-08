@@ -1,13 +1,13 @@
-import { NativeStackNavigationOptions, Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import { useThemeValue } from "@/src/contexts/theme/ThemeContext";
-import { useAuthValue } from "../../contexts/auth/AuthContext";
-import Loader from "../Loader";
+import { NativeStackNavigationOptions, Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { useThemeValue } from '@/src/contexts/theme/ThemeContext';
+import { useAuthValue } from '../../contexts/auth/AuthContext';
+import Loader from '../Loader';
 
 export default function RootNavigator() {
-  const { token, isLoading } = useAuthValue();
+  const { user, isLoading } = useAuthValue();
   const { isDark, colors } = useThemeValue();
-  const isAuthenticated = Boolean(token);
+  const isAuthenticated = !!user;
 
   const screenOptions: NativeStackNavigationOptions = {
     headerShown: false,
@@ -15,22 +15,22 @@ export default function RootNavigator() {
     contentStyle: {
       backgroundColor: colors.background,
     },
-  }
+  };
 
   if (isLoading) {
-    return <Loader />
+    return <Loader />;
   }
 
   return (
     <>
-      <StatusBar style={isDark ? "light" : "dark"} />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       <Stack screenOptions={screenOptions}>
         <Stack.Protected guard={isAuthenticated}>
-          <Stack.Screen name="(authenticated)" />
+          <Stack.Screen name='(authenticated)' />
         </Stack.Protected>
 
         <Stack.Protected guard={!isAuthenticated}>
-          <Stack.Screen name="(not-authenticated)" />
+          <Stack.Screen name='(not-authenticated)' />
         </Stack.Protected>
       </Stack>
     </>

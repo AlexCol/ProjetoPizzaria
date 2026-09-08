@@ -10,7 +10,12 @@ interface MyScrollViewProps {
   scrollViewProps?: Omit<ScrollViewProps, (typeof _omittedProps)[number]>;
 }
 
-export default function MyScrollView({ children, customStyles, contentContainerStyle, scrollViewProps }: MyScrollViewProps) {
+export default function MyScrollView({
+  children,
+  customStyles,
+  contentContainerStyle,
+  scrollViewProps,
+}: MyScrollViewProps) {
   const theme = useThemeValue();
   const styles = getStyles(theme);
 
@@ -19,7 +24,7 @@ export default function MyScrollView({ children, customStyles, contentContainerS
       {...scrollViewProps}
       style={[styles.container, customStyles]}
       contentContainerStyle={[styles.contentContainer, contentContainerStyle]}
-      keyboardShouldPersistTaps="handled"
+      keyboardShouldPersistTaps='handled'
     >
       {children}
     </ScrollView>

@@ -17,7 +17,7 @@ export default function BaseText({ children, customStyles, textProps }: BaseText
     <Text style={[styles.text, customStyles]} {...textProps}>
       {children}
     </Text>
-  )
+  );
 }
 
 function getStyles(theme: ThemeContextType) {

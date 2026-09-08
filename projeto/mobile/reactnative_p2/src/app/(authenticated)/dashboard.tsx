@@ -17,5 +17,5 @@ export default function Dashboard() {
         <BaseText>Toggle Theme</BaseText>
       </BaseTouchableOpacity>
     </BaseScrollView>
-  )
+  );
 }

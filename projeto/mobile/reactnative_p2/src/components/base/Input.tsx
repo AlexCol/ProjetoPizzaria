@@ -7,10 +7,10 @@ import { ThemeContextType, useThemeValue } from '../../contexts/theme/ThemeConte
 // }
 
 interface InputProps {
-  ref?: ForwardedRef<TextInput>
-  labelStyle?: TextInputProps['style'],
-  label?: string,
-  textInputProps?: TextInputProps,
+  ref?: ForwardedRef<TextInput>;
+  labelStyle?: TextInputProps['style'];
+  label?: string;
+  textInputProps?: TextInputProps;
 }
 
 export default function Input({ label, labelStyle, textInputProps, ref }: InputProps) {
@@ -28,7 +28,7 @@ export default function Input({ label, labelStyle, textInputProps, ref }: InputP
         {...textInputProps}
       />
     </View>
-  )
+  );
 }
 
 function getStyles(theme: ThemeContextType) {

@@ -9,7 +9,7 @@ Este projeto utiliza **Expo SDK 57** e **Expo Router 57**. O Expo Router cria as
 A Stack coloca uma nova tela sobre a anterior. É apropriada para autenticação, detalhes, formulários e fluxos em que o usuário precisa avançar e voltar entre telas.
 
 ```tsx
-import { Stack } from "expo-router";
+import { Stack } from 'expo-router';
 
 export default function Layout() {
   return <Stack />;
@@ -20,10 +20,7 @@ As rotas são encontradas automaticamente pelos arquivos da pasta. `Stack.Screen
 
 ```tsx
 <Stack>
-  <Stack.Screen
-    name="details"
-    options={{ title: "Detalhes" }}
-  />
+  <Stack.Screen name='details' options={{ title: 'Detalhes' }} />
 </Stack>
 ```
 
@@ -32,14 +29,14 @@ As rotas são encontradas automaticamente pelos arquivos da pasta. `Stack.Screen
 Tabs exibem uma barra de abas, normalmente na parte inferior da tela.
 
 ```tsx
-import { Tabs } from "expo-router";
+import { Tabs } from 'expo-router';
 
 export default function Layout() {
   return (
     <Tabs>
-      <Tabs.Screen name="index" options={{ title: "Início" }} />
-      <Tabs.Screen name="orders" options={{ title: "Pedidos" }} />
-      <Tabs.Screen name="profile" options={{ title: "Perfil" }} />
+      <Tabs.Screen name='index' options={{ title: 'Início' }} />
+      <Tabs.Screen name='orders' options={{ title: 'Pedidos' }} />
+      <Tabs.Screen name='profile' options={{ title: 'Perfil' }} />
     </Tabs>
   );
 }
@@ -54,16 +51,16 @@ O Expo Router possui diferentes implementações de abas:
 Exemplo de tabs nativas:
 
 ```tsx
-import { NativeTabs } from "expo-router/unstable-native-tabs";
+import { NativeTabs } from 'expo-router/unstable-native-tabs';
 
 export default function Layout() {
   return (
     <NativeTabs>
-      <NativeTabs.Trigger name="index">
+      <NativeTabs.Trigger name='index'>
         <NativeTabs.Trigger.Label>Início</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="orders">
+      <NativeTabs.Trigger name='orders'>
         <NativeTabs.Trigger.Label>Pedidos</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
     </NativeTabs>
@@ -76,13 +73,13 @@ export default function Layout() {
 Drawer cria um menu lateral que pode ser aberto por gesto ou por um botão.
 
 ```tsx
-import { Drawer } from "expo-router/drawer";
+import { Drawer } from 'expo-router/drawer';
 
 export default function Layout() {
   return (
     <Drawer>
-      <Drawer.Screen name="index" options={{ title: "Início" }} />
-      <Drawer.Screen name="orders" options={{ title: "Pedidos" }} />
+      <Drawer.Screen name='index' options={{ title: 'Início' }} />
+      <Drawer.Screen name='orders' options={{ title: 'Pedidos' }} />
     </Drawer>
   );
 }
@@ -93,7 +90,7 @@ export default function Layout() {
 `Slot` renderiza a rota filha atual sem criar uma Stack, Tabs ou Drawer. É útil para adicionar elementos compartilhados ao redor de várias páginas.
 
 ```tsx
-import { Slot } from "expo-router";
+import { Slot } from 'expo-router';
 
 export default function Layout() {
   return (
@@ -111,20 +108,14 @@ export default function Layout() {
 Modal não é um navegador separado. É uma forma de apresentar uma rota dentro de uma Stack.
 
 ```tsx
-import { Stack } from "expo-router";
+import { Stack } from 'expo-router';
 
 export default function Layout() {
   return (
     <Stack>
-      <Stack.Screen name="index" />
-      <Stack.Screen
-        name="create-order"
-        options={{ presentation: "modal" }}
-      />
-      <Stack.Screen
-        name="order-details"
-        options={{ presentation: "formSheet" }}
-      />
+      <Stack.Screen name='index' />
+      <Stack.Screen name='create-order' options={{ presentation: 'modal' }} />
+      <Stack.Screen name='order-details' options={{ presentation: 'formSheet' }} />
     </Stack>
   );
 }
@@ -172,8 +163,8 @@ Nesse exemplo:
 No layout raiz, as rotas podem ser liberadas ou bloqueadas de acordo com o token armazenado no contexto de autenticação:
 
 ```tsx
-import { Stack } from "expo-router";
-import { useAuthValue } from "@/contexts/auth/AuthContext";
+import { Stack } from 'expo-router';
+import { useAuthValue } from '@/contexts/auth/AuthContext';
 
 export default function RootNavigator() {
   const { token } = useAuthValue();
@@ -182,11 +173,11 @@ export default function RootNavigator() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={isAuthenticated}>
-        <Stack.Screen name="(authenticated)" />
+        <Stack.Screen name='(authenticated)' />
       </Stack.Protected>
 
       <Stack.Protected guard={!isAuthenticated}>
-        <Stack.Screen name="(not-authenticated)" />
+        <Stack.Screen name='(not-authenticated)' />
       </Stack.Protected>
     </Stack>
   );

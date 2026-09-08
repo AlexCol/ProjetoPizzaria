@@ -10,7 +10,12 @@ interface BaseTouchableOpacityProps {
   touchableOpacityProps?: Omit<TouchableOpacityProps, (typeof _omittedProps)[number]>;
 }
 
-export default function BaseTouchableOpacity({ children, customStyles, onPress, touchableOpacityProps }: BaseTouchableOpacityProps) {
+export default function BaseTouchableOpacity({
+  children,
+  customStyles,
+  onPress,
+  touchableOpacityProps,
+}: BaseTouchableOpacityProps) {
   const theme = useThemeValue();
   const styles = getStyles(theme);
 
@@ -18,7 +23,7 @@ export default function BaseTouchableOpacity({ children, customStyles, onPress, 
     <TouchableOpacity onPress={onPress} style={[styles.button, customStyles]} {...touchableOpacityProps}>
       {children}
     </TouchableOpacity>
-  )
+  );
 }
 
 function getStyles(theme: ThemeContextType) {

@@ -5,5 +5,5 @@ export default function Orders() {
     <BaseScrollView>
       <BaseText>Orders</BaseText>
     </BaseScrollView>
-  )
+  );
 }

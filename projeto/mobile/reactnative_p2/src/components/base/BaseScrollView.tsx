@@ -10,7 +10,12 @@ interface BaseViewProps {
   scrollViewProps?: Omit<ScrollViewProps, (typeof _omittedProps)[number]>;
 }
 
-export default function BaseScrollView({ children, customStyles, contentContainerStyle, scrollViewProps }: BaseViewProps) {
+export default function BaseScrollView({
+  children,
+  customStyles,
+  contentContainerStyle,
+  scrollViewProps,
+}: BaseViewProps) {
   const theme = useThemeValue();
   const styles = getStyles(theme);
 

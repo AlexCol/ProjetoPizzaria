@@ -17,5 +17,5 @@ export default function LoginHeader({ states }: LoginHeaderProps) {
 
       <Text style={[styles.subtitle]}>Garçom App</Text>
     </View>
-  )
+  );
 }

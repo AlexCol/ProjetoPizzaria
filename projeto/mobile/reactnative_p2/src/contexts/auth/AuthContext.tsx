@@ -10,7 +10,6 @@ import { getValueFromStorage, removeValueFromStorage, saveValueOnStorage, Storag
 //*************************************************************
 export type AuthContextType = {
   user: Session | null;
-  token: string;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -29,7 +28,6 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const SESSION_KEY: StorageKey = 'sessionToken';
   const [user, setUser] = useState<Session | null>(null);
-  const [token, setToken] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   /**********************************/
@@ -48,7 +46,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       setUser(authData.userSessionPayload);
-      setToken(authData.sessionToken);
       await saveValueOnStorage(SESSION_KEY, authData.sessionToken);
       setTokenOnApi(authData.sessionToken);
     } finally {
@@ -74,7 +71,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function clearAuthData() {
-    setToken('');
     setUser(null);
     await removeValueFromStorage(SESSION_KEY);
     setTokenOnApi('');
@@ -87,7 +83,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const loadToken = async () => {
       const storedToken = await getValueFromStorage(SESSION_KEY);
       if (storedToken) {
-        setToken(storedToken);
         setTokenOnApi(storedToken);
         await me();
       }
@@ -103,7 +98,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /**********************************/
   const providerValue: AuthContextType = {
     user,
-    token,
     isLoading,
     signIn,
     signOut,

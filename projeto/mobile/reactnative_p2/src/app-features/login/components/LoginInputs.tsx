@@ -15,11 +15,13 @@ export default function LoginInputs({ states }: LoginInputsProps) {
         ref={emailInputRef}
         label='Email'
         textInputProps={{
-          placeholder: "Email",
+          placeholder: 'Email',
           placeholderTextColor: theme.colors.disabled,
-          keyboardType: "email-address",
-          autoCapitalize: "none",
-          onChangeText: (text) => { emailRef.current = text },
+          keyboardType: 'email-address',
+          autoCapitalize: 'none',
+          onChangeText: (text) => {
+            emailRef.current = text;
+          },
           editable: !states.isLoading,
         }}
       />
@@ -28,14 +30,16 @@ export default function LoginInputs({ states }: LoginInputsProps) {
         ref={passwordInputRef}
         label='Password'
         textInputProps={{
-          placeholder: "Password",
+          placeholder: 'Password',
           placeholderTextColor: theme.colors.disabled,
           secureTextEntry: true,
-          autoCapitalize: "none",
-          onChangeText: (text) => { passwordRef.current = text },
+          autoCapitalize: 'none',
+          onChangeText: (text) => {
+            passwordRef.current = text;
+          },
           editable: !states.isLoading,
         }}
       />
     </>
-  )
+  );
 }

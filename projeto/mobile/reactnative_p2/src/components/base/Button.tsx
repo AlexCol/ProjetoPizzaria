@@ -21,20 +21,11 @@ export default function Button(props: ButtonProps) {
   const styles = getStyles(theme, buttonVariant);
 
   return (
-    <TouchableOpacity
-      {...buttonPros}
-      style={[styles.button, props.style]}
-      disabled={isDisabled}
-    >
-      {
-        children ??
-        (loading ?
-          <ActivityIndicator color={theme.colors.primaryText} /> :
-          <Text style={styles.text}>{title}</Text>
-        )
-      }
+    <TouchableOpacity {...buttonPros} style={[styles.button, props.style]} disabled={isDisabled}>
+      {children ??
+        (loading ? <ActivityIndicator color={theme.colors.primaryText} /> : <Text style={styles.text}>{title}</Text>)}
     </TouchableOpacity>
-  )
+  );
 }
 
 function getStyles(theme: ThemeContextType, variant: ButtonProps['variant']) {
