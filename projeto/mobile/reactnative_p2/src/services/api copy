@@ -1,20 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { environment } from '../config/environment';
 
-let token;
-export function setTokenOnApi(token: string) {
-  if (!token) {
-    token = '';
-  } else {
-    token = token;
-  }
-}
-
-let onAuthFail: (() => void) | null = null;
-export function setAuthFailHandler(handler: () => void) {
-  onAuthFail = handler;
-}
-
 // eslint-disable-next-line import/no-named-as-default-member
 const core = axios.create({
   baseURL: environment.apiUrl,
@@ -23,25 +9,14 @@ const core = axios.create({
     'app-origin': 'mobile',
   },
 });
-// interceptador para adicioanr o token
-core.interceptors.request.use((config) => {
-  if (token) {
-    config.headers['Authorization'] = `${token}`;
+
+export function setTokenOnApi(token: string) {
+  if (!token) {
+    delete core.defaults.headers['Authorization'];
+  } else {
+    core.defaults.headers['Authorization'] = `${token}`;
   }
-  return config;
-});
-//interceptador para deslogar em caso de erro 401
-core.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      if (onAuthFail) {
-        onAuthFail();
-      }
-    }
-    return Promise.reject(error);
-  },
-);
+}
 
 type apiProps = {
   method: 'get' | 'post' | 'put' | 'delete' | 'patch';
@@ -59,11 +34,21 @@ const api = async <T>(config: apiProps) => {
     });
     return response.data;
   } catch (error) {
+    // let errorHeader = 'Erro inesperado';
     let errorMessage = error instanceof Error ? error.message : 'Ocorreu um erro desconhecido';
 
     if (error instanceof AxiosError) {
+      // errorHeader = 'Erro na requisição';
       errorMessage = error.response?.data?.Message[0] || error.message;
+
+      if (error.status === 401) {
+        setTokenOnApi('');
+      }
     }
+
+    // console.error(errorHeader, errorMessage);
+    // Alert.alert(errorHeader, errorMessage);
+    // return null;
     throw new Error(errorMessage);
   }
 };
