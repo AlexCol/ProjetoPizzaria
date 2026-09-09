@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { Session } from '@/src/models/Session';
 import { setAuthFailHandler, setTokenOnApi } from '@/src/services/api';
@@ -31,6 +31,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   /**********************************/
+  /* Metodos Privados               */
+  /**********************************/
+  const clearAuthData = useCallback(async () => {
+    setUser(null);
+    await removeValueFromStorage(SESSION_KEY);
+    setTokenOnApi('');
+  }, [SESSION_KEY]);
+
+  const me = useCallback(async () => {
+    try {
+      const userSession = await getMe();
+      if (userSession) {
+        setUser(userSession);
+      } else {
+        await clearAuthData();
+      }
+    } catch (error) {
+      Alert.alert('Failed to fetch user data:', String(error));
+    }
+  }, [clearAuthData]);
+
+  /**********************************/
   /* Metodos Publicos               */
   /**********************************/
   async function signIn(email: string, password: string) {
@@ -47,37 +69,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function signOut() {
+  const signOut = useCallback(async () => {
     try {
       await logout();
       await clearAuthData();
     } catch (error) {
       Alert.alert('Failed to sign out:', String(error));
     }
-  }
-
-  /**********************************/
-  /* Metodos Privados               */
-  /**********************************/
-  async function me() {
-    try {
-      const userSession = await getMe();
-      if (userSession) {
-        setUser(userSession);
-      } else {
-        await clearAuthData();
-      }
-    } catch (error) {
-      Alert.alert('Failed to fetch user data:', String(error));
-    }
-  }
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  async function clearAuthData() {
-    setUser(null);
-    await removeValueFromStorage(SESSION_KEY);
-    setTokenOnApi('');
-  }
+  }, [clearAuthData]);
 
   /**********************************/
   /* UseEffects                     */
