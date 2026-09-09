@@ -18,7 +18,7 @@ export type AuthContextType = {
 //*************************************************************
 //* Criando o contexto, com base no tipo acima
 //*************************************************************
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 //*************************************************************
 //* Componente Provider do contexto (onde são iniciadas as

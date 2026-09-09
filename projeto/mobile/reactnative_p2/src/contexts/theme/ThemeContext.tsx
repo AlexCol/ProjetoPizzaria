@@ -18,7 +18,7 @@ export type ThemeContextType = {
 //*************************************************************
 //* Criando o contexto, com base no tipo acima
 //*************************************************************
-export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 //*************************************************************
 //* Componente Provider do contexto (onde são iniciadas as
