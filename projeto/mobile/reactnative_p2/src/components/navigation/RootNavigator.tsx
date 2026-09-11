@@ -5,7 +5,7 @@ import { useAuthValue } from '../../contexts/auth/AuthContext';
 import Loader from '../Loader';
 
 export default function RootNavigator() {
-  const { user, isLoading } = useAuthValue();
+  const { session: user, isLoading } = useAuthValue();
   const { isDark, colors } = useThemeValue();
   const isAuthenticated = !!user;
 

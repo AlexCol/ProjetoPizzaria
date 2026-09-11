@@ -3,12 +3,13 @@ import { useAuthValue } from '@/src/contexts/auth/AuthContext';
 import { useThemeValue } from '@/src/contexts/theme/ThemeContext';
 
 export default function Dashboard() {
-  const { signOut } = useAuthValue();
+  const { signOut, session } = useAuthValue();
   const theme = useThemeValue();
 
   return (
     <BaseScrollView>
       <BaseText>dashboard</BaseText>
+      <BaseText>{session!.user.name}</BaseText>
       <BaseTouchableOpacity onPress={signOut}>
         <BaseText>Sign Out</BaseText>
       </BaseTouchableOpacity>

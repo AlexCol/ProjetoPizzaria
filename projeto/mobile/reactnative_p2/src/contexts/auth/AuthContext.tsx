@@ -1,67 +1,101 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { Session } from '@/src/models/Session';
-import { setAuthFailHandler, setTokenOnApi } from '@/src/services/api';
+import { getTokenFromApi, setAuthFailHandler, setTokenOnApi } from '@/src/services/api';
 import { getMe, login, logout } from '@/src/services/auth';
-import { getValueFromStorage, removeValueFromStorage, saveValueOnStorage, StorageKey } from '@/src/shared/storage';
+import { SESSION_KEY } from '@/src/shared/contants';
+import { Logger } from '@/src/shared/logger';
+import { getValueFromStorage, removeValueFromStorage, saveValueOnStorage } from '@/src/shared/storage';
+import { useSseContext } from '../sse/SSEContext';
 
-//*************************************************************
-//* Tipagens para o contexto
-//*************************************************************
+/************************************************/
+/* Tipagens para o contexto                     */
+/************************************************/
+//#region Tipagens para o contexto
 export type AuthContextType = {
-  user: Session | null;
+  session: Session | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
+//#endregion
 
-//*************************************************************
-//* Criando o contexto, com base no tipo acima
-//*************************************************************
+/************************************************/
+/* Criando o contexto, com base no tipo acima   */
+/************************************************/
+//#region Criação do contexto
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+//#endregion
 
-//*************************************************************
-//* Componente Provider do contexto (onde são iniciadas as
-//* variáveis de estado e as funções que serão passadas no value)
-//* E então passadas no value para serem usadas pelos componentes filhos
-//*************************************************************
+/************************************************/
+/* Componente Provider do contexto (onde são iniciadas as
+/* variáveis de estado e as funções que serão passadas no value)
+/* E então passadas no value para serem usadas pelos componentes filhos
+/************************************************/
+//#region Componente Provider do contexto
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const SESSION_KEY: StorageKey = 'sessionToken';
-  const [user, setUser] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { registerCommand, unregisterCommand, setSseEnabled } = useSseContext();
 
-  /**********************************/
-  /* Metodos Privados               */
-  /**********************************/
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  /************************************************/
+  /* Metodos Privados                             */
+  /************************************************/
+  //#region Metodos Privados
   const clearAuthData = useCallback(async () => {
-    setUser(null);
-    await removeValueFromStorage(SESSION_KEY);
+    setSseEnabled(false);
+    setSession(null);
     setTokenOnApi('');
-  }, [SESSION_KEY]);
+    await removeValueFromStorage(SESSION_KEY);
+  }, [setSseEnabled]);
 
   const me = useCallback(async () => {
+    const requestToken = getTokenFromApi();
+
+    if (!requestToken) {
+      return;
+    }
+
     try {
       const userSession = await getMe();
+
+      //! ignora respostas pertencentes a uma sessão anterior
+      if (requestToken !== getTokenFromApi()) {
+        return;
+      }
+
       if (userSession) {
-        setUser(userSession);
+        setSession(userSession);
+        setSseEnabled(true);
       } else {
         await clearAuthData();
       }
     } catch (error) {
+      //! ignora erros pertencentes a uma sessão anterior
+      if (requestToken !== getTokenFromApi()) {
+        return;
+      }
+
       Alert.alert('Failed to fetch user data:', String(error));
     }
-  }, [clearAuthData]);
+  }, [clearAuthData, setSseEnabled]);
+  //#endregion
 
-  /**********************************/
-  /* Metodos Publicos               */
-  /**********************************/
+  /************************************************/
+  /* Metodos Publicos                             */
+  /************************************************/
+  //#region Metodos Publicos
   async function signIn(email: string, password: string) {
     setIsLoading(true);
+
     try {
       const authData = await login(email, password);
-      setUser(authData.userSessionPayload);
+
       await saveValueOnStorage(SESSION_KEY, authData.sessionToken);
       setTokenOnApi(authData.sessionToken);
+      setSession(authData.userSessionPayload);
+      setSseEnabled(true); //! por ultimo, pois o token precisa estar configurado antes de conectar o SSE
     } catch (error) {
       Alert.alert('Failed to sign in:', String(error));
     } finally {
@@ -77,50 +111,76 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       Alert.alert('Failed to sign out:', String(error));
     }
   }, [clearAuthData]);
+  //#endregion
 
-  /**********************************/
-  /* UseEffects                     */
-  /**********************************/
+  /************************************************/
+  /* UseEffects                                   */
+  /************************************************/
+  //#region UseEffects
   useEffect(() => {
     const loadToken = async () => {
       const storedToken = await getValueFromStorage(SESSION_KEY);
+
       if (storedToken) {
         setTokenOnApi(storedToken);
         await me();
       }
+
       setIsLoading(false);
     };
+
     void loadToken();
-    // Inicializa a autenticação somente quando o provider é montado.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [me]);
 
   useEffect(() => {
-    setAuthFailHandler(clearAuthData); //! jogar processo de 'desautenticar' o usuário para service 'api' poder usar
+    setAuthFailHandler(clearAuthData);
+
+    return () => {
+      setAuthFailHandler(null);
+    };
   }, [clearAuthData]);
 
-  /**********************************/
-  /* Provider Value                 */
-  /**********************************/
+  useEffect(() => {
+    registerCommand('session-updated', () => {
+      Logger.log('Session updated received');
+      void me();
+    });
+
+    return () => {
+      unregisterCommand('session-updated');
+    };
+  }, [registerCommand, unregisterCommand, me]);
+  //#endregion
+
+  /************************************************/
+  /* Provider Value                               */
+  /************************************************/
+  //#region Provider Value
   const providerValue: AuthContextType = {
-    user,
+    session,
     isLoading,
     signIn,
     signOut,
   };
 
   return <AuthContext.Provider value={providerValue}>{children}</AuthContext.Provider>;
+  //#endregion
 }
+//#endregion
 
-//*************************************************************
-//* Wrappers para o contexto, de modo que não precise ser chamado
-//* useContext(AuthContext) diretamente. Mas sim useAuthValue()
-//* que já faz a verificação de undefined e retorna o contexto
-//*************************************************************
+/************************************************/
+/* Wrappers para o contexto, de modo que não precise ser chamado */
+/* useContext(AuthContext) diretamente. Mas sim useAuthValue() */
+/* que já faz a verificação de undefined e retorna o contexto */
+/************************************************/
+//#region Wrappers para o contexto
 export function useAuthValue() {
   const context = useContext(AuthContext);
+
   if (context === undefined) {
     throw new Error('useAuthValue must be used within an AuthProvider');
   }
+
   return context;
 }
+//#endregion
