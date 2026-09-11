@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, AppState } from 'react-native';
 import { Session } from '@/src/models/Session';
 import { getTokenFromApi, setAuthFailHandler, setTokenOnApi } from '@/src/services/api';
 import { getMe, login, logout } from '@/src/services/auth';
@@ -120,16 +120,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const loadToken = async () => {
       const storedToken = await getValueFromStorage(SESSION_KEY);
-
       if (storedToken) {
         setTokenOnApi(storedToken);
         await me();
       }
-
       setIsLoading(false);
     };
 
+    // carrega o token
     void loadToken();
+
+    //adicionar o listener para chamar ao reactivar o app
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        void me();
+      }
+    });
+    return () => {
+      subscription.remove();
+    };
   }, [me]);
 
   useEffect(() => {
@@ -150,6 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       unregisterCommand('session-updated');
     };
   }, [registerCommand, unregisterCommand, me]);
+
   //#endregion
 
   /************************************************/

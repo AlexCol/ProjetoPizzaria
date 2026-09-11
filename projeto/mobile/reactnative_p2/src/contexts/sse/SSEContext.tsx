@@ -62,7 +62,6 @@ export function SseProvider({ children }: { children: ReactNode }) {
     }
 
     const callback = commandListRef.current.get(event.type as SseEvents);
-
     if (!callback) {
       return;
     }
@@ -76,14 +75,17 @@ export function SseProvider({ children }: { children: ReactNode }) {
   }, []);
 
   //! cadastra evento de conexão
-  const cadastraOnOpen = useCallback((eventSource: EventSource<string>) => {
-    eventSource.addEventListener('open', () => {
-      if (eventSource !== eventSourceRef.current) return;
-      clearRecoveryTimer();
-      setIsConnected(true);
-      Logger.log('SSE conectado com sucesso');
-    });
-  }, [clearRecoveryTimer]);
+  const cadastraOnOpen = useCallback(
+    (eventSource: EventSource<string>) => {
+      eventSource.addEventListener('open', () => {
+        if (eventSource !== eventSourceRef.current) return;
+        clearRecoveryTimer();
+        setIsConnected(true);
+        Logger.log('SSE conectado com sucesso');
+      });
+    },
+    [clearRecoveryTimer],
+  );
 
   //! cadastra comandos registrados
   const cadastraComandos = useCallback(
@@ -96,51 +98,60 @@ export function SseProvider({ children }: { children: ReactNode }) {
   );
 
   //! fecha a conexão SSE sem alterar estados do React
-  const closeConnection = useCallback((log = true) => {
-    clearRecoveryTimer();
-    if (eventSourceRef.current) {
-      eventSourceRef.current.removeAllEventListeners();
-      eventSourceRef.current.close();
-      eventSourceRef.current = null;
+  const closeConnection = useCallback(
+    (log = true) => {
+      clearRecoveryTimer();
+      if (eventSourceRef.current) {
+        eventSourceRef.current.removeAllEventListeners();
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
 
-      if (log) {
-        Logger.log('SSE desconectado');
+        if (log) {
+          Logger.log('SSE desconectado');
+        }
       }
-    }
-  }, [clearRecoveryTimer]);
+    },
+    [clearRecoveryTimer],
+  );
 
   //! cadastra evento de erro
-  const cadastraOnError = useCallback((eventSource: EventSource<string>, token: string) => {
-    eventSource.addEventListener('error', (error) => {
-      if (eventSource !== eventSourceRef.current) {
-        return;
-      }
-
-      setIsConnected(false);
-      Logger.error('Erro na conexão SSE:', error);
-
-      clearRecoveryTimer();
-      const unauthorized = error.type === 'error' && error.xhrStatus === 401;
-
-      // Aguarda o handler da biblioteca terminar antes de cancelar seus timers.
-      recoveryTimerRef.current = setTimeout(() => {
-        recoveryTimerRef.current = null;
-        if (eventSource !== eventSourceRef.current || token !== getTokenFromApi()) return;
-
-        if (unauthorized) {
-          closeConnection(false);
-          setSseEnabledState(false);
-          notifyAuthFail();
+  const cadastraOnError = useCallback(
+    (eventSource: EventSource<string>, token: string) => {
+      eventSource.addEventListener('error', (error) => {
+        if (eventSource !== eventSourceRef.current) {
           return;
         }
 
-        if (AppState.currentState !== 'active') return;
-        // close() cancela a reconexao automatica sem remover os listeners.
-        eventSource.close();
-        eventSource.open();
-      }, unauthorized ? 0 : 5000);
-    });
-  }, [clearRecoveryTimer, closeConnection]);
+        setIsConnected(false);
+        Logger.error('Erro na conexão SSE:', error);
+
+        clearRecoveryTimer();
+        const unauthorized = error.type === 'error' && error.xhrStatus === 401;
+
+        // Aguarda o handler da biblioteca terminar antes de cancelar seus timers.
+        recoveryTimerRef.current = setTimeout(
+          () => {
+            recoveryTimerRef.current = null;
+            if (eventSource !== eventSourceRef.current || token !== getTokenFromApi()) return;
+
+            if (unauthorized) {
+              closeConnection(false);
+              setSseEnabledState(false);
+              notifyAuthFail();
+              return;
+            }
+
+            if (AppState.currentState !== 'active') return;
+            // close() cancela a reconexao automatica sem remover os listeners.
+            eventSource.close();
+            eventSource.open();
+          },
+          unauthorized ? 0 : 5000,
+        );
+      });
+    },
+    [clearRecoveryTimer, closeConnection],
+  );
 
   //! metodo de conexão
   const connect = useCallback(() => {
@@ -213,9 +224,7 @@ export function SseProvider({ children }: { children: ReactNode }) {
     if (!sseEnabled) {
       return;
     }
-
     connect();
-
     return closeConnection;
   }, [sseEnabled, connect, closeConnection]);
 
