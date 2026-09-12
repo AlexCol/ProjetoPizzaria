@@ -6,7 +6,7 @@ import { isEmail } from '@/src/shared/helpers';
 import getLoginStyles from './login.styles';
 
 export default function useLogin() {
-  const { signIn, isLoading } = useAuthValue();
+  const { signIn, isSigningIn } = useAuthValue();
 
   const theme = useThemeValue();
   const styles = getLoginStyles(theme);
@@ -53,7 +53,7 @@ export default function useLogin() {
     handleSignIn,
     theme,
     styles,
-    isLoading,
+    isSigningIn,
     emailRef,
     emailInputRef,
     passwordRef,

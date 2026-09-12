@@ -14,7 +14,8 @@ import { useSseContext } from '../sse/SSEContext';
 //#region Tipagens para o contexto
 export type AuthContextType = {
   session: Session | null;
-  isLoading: boolean;
+  isInitializing: boolean;
+  isSigningIn: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -37,7 +38,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { registerCommand, unregisterCommand, setSseEnabled } = useSseContext();
 
   const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
   /************************************************/
   /* Metodos Privados                             */
@@ -87,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /************************************************/
   //#region Metodos Publicos
   async function signIn(email: string, password: string) {
-    setIsLoading(true);
+    setIsSigningIn(true);
 
     try {
       const authData = await login(email, password);
@@ -99,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       Alert.alert('Failed to sign in:', String(error));
     } finally {
-      setIsLoading(false);
+      setIsSigningIn(false);
     }
   }
 
@@ -124,7 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setTokenOnApi(storedToken);
         await me();
       }
-      setIsLoading(false);
+      setIsInitializing(false);
     };
 
     // carrega o token
@@ -168,7 +170,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   //#region Provider Value
   const providerValue: AuthContextType = {
     session,
-    isLoading,
+    isInitializing,
+    isSigningIn,
     signIn,
     signOut,
   };

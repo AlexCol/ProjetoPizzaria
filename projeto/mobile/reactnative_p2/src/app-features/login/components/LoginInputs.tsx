@@ -22,7 +22,7 @@ export default function LoginInputs({ states }: LoginInputsProps) {
           onChangeText: (text) => {
             emailRef.current = text;
           },
-          editable: !states.isLoading,
+          editable: !states.isSigningIn,
         }}
       />
 
@@ -37,7 +37,7 @@ export default function LoginInputs({ states }: LoginInputsProps) {
           onChangeText: (text) => {
             passwordRef.current = text;
           },
-          editable: !states.isLoading,
+          editable: !states.isSigningIn,
         }}
       />
     </>

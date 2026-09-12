@@ -6,13 +6,13 @@ interface LoginButtonProps {
 }
 
 export default function LoginButton({ states }: LoginButtonProps) {
-  const { handleSignIn, isLoading } = states;
+  const { handleSignIn, isSigningIn } = states;
 
   return (
     <Button
       title='Login'
       variant='success'
-      loading={isLoading}
+      loading={isSigningIn}
       buttonPros={{
         onPress: handleSignIn,
       }}
