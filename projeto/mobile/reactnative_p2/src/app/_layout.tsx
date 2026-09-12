@@ -9,6 +9,7 @@ export default function RootLayout() {
       <SseProvider>
         <AuthProvider>
           {/* RootNavigator = pode ser a 'Main' */}
+          {/* não usado aqui, pois ela usa tanto ta Theme com oa Auth providers */}
           <RootNavigator />
         </AuthProvider>
       </SseProvider>

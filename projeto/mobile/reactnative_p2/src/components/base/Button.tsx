@@ -44,6 +44,8 @@ function getStyles(theme: ThemeContextType, variant: ButtonProps['variant']) {
       color: theme.colors.primaryText,
       fontSize: theme.fontSize.lg,
       fontWeight: 'bold',
+      width: '100%',
+      textAlign: 'center',
     },
   });
 }
