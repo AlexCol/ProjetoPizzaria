@@ -180,7 +180,15 @@ public class OrdersService(
       using var scope = scopeFactory.CreateScope();
       try {
         var sseService = scope.ServiceProvider.GetRequiredService<ISseService>();
-        await sseService.SendToUserAsync(order.UserId.ToString(), ESseEvents.OrderStatusChanged, null);
+
+        // Notificação enviada ao usuário específico sobre a mudança de status do pedido
+        await sseService.SendToUserAsync(
+          order.UserId.ToString(),
+          ESseEvents.OrderStatusChanged,
+          new { OrderId = order.Id.ToString(), Status = order.Status.ToString() }
+        );
+
+        // Notificação ouvida pela cozinha para receber qualquer alteração nos pedidos
         await sseService.SendToAllAsync(
           ESseEvents.KitchenOrdersChanged,
           new { OrderId = order.Id.ToString(), Status = order.Status.ToString() }
