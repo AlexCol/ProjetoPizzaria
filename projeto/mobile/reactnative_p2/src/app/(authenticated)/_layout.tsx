@@ -14,6 +14,7 @@ export default function Layout() {
         name='(dashboard)'
         options={{
           title: 'Pedidos',
+          headerShown: false,
           // sobre cada prop, comentário abaixo
           tabBarIcon: ({ focused, color, size }) => (
             <SymbolView
@@ -33,6 +34,7 @@ export default function Layout() {
         name='(new-orders)'
         options={{
           title: 'Novo Pedido',
+          headerShown: false,
           // sobre cada prop, comentário abaixo
           tabBarIcon: ({ focused, color, size }) => (
             <SymbolView
@@ -52,6 +54,7 @@ export default function Layout() {
         name='(self)'
         options={{
           title: 'Pessoal',
+          headerShown: false,
           // sobre cada prop, comentário abaixo
           tabBarIcon: ({ focused, color, size }) => (
             <SymbolView
@@ -88,6 +91,8 @@ function getTabOptions(colors: ThemeColors) {
       backgroundColor: colors.background2,
       borderTopColor: colors.border,
       borderTopWidth: 0.5,
+      paddingBottom: 6,
+      height: 64,
     },
     tabBarActiveTintColor: colors.primary,
     tabBarInactiveTintColor: colors.disabled,

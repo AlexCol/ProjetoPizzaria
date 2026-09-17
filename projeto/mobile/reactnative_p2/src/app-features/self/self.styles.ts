@@ -4,7 +4,7 @@ import { ThemeContextType } from '@/src/contexts/theme/ThemeContext';
 export default function getSelfStyles(theme: ThemeContextType) {
   return StyleSheet.create({
     content: {
-      justifyContent: 'flex-start',
+      // justifyContent: 'flex-start',
       paddingBottom: theme.spacing.xl,
       paddingTop: theme.spacing.lg,
     },
