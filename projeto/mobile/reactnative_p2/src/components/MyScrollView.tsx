@@ -1,4 +1,5 @@
 import { ScrollView, StyleProp, ViewStyle, ScrollViewProps, StyleSheet } from 'react-native';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemeContextType, useThemeValue } from '../contexts/theme/ThemeContext';
 
 const _omittedProps = ['children', 'contentContainerStyle', 'style'] as const;
@@ -17,7 +18,8 @@ export default function MyScrollView({
   scrollViewProps,
 }: MyScrollViewProps) {
   const theme = useThemeValue();
-  const styles = getStyles(theme);
+  const insets = useSafeAreaInsets();
+  const styles = getStyles(theme, insets);
 
   return (
     <ScrollView
@@ -31,7 +33,7 @@ export default function MyScrollView({
   );
 }
 
-function getStyles(theme: ThemeContextType) {
+function getStyles(theme: ThemeContextType, insets: EdgeInsets) {
   return StyleSheet.create({
     container: {
       flex: 1,
@@ -42,6 +44,8 @@ function getStyles(theme: ThemeContextType) {
       justifyContent: 'center',
       flexGrow: 1,
       paddingHorizontal: theme.spacing.xl,
+      paddingTop: insets.top,
+      paddingBottom: insets.bottom,
     },
   });
 }
