@@ -1,10 +1,11 @@
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 import MyKeyboardAvoidingView from '@/src/components/MyKeyboardAvoidingView';
 import MyScrollView from '@/src/components/MyScrollView';
 import useNewOrder from './useNewOrder';
 
 export default function NewOrder() {
   const states = useNewOrder();
+  const { styles } = states;
 
   return (
     <MyKeyboardAvoidingView>
@@ -15,7 +16,13 @@ export default function NewOrder() {
           keyboardShouldPersistTaps: 'handled',
         }}
       >
-        <Text style={{ color: 'white' }}>New Order</Text>
+        {/* header */}
+        <View style={styles.header}>
+          <Text style={[styles.title]}>
+            Pizzaria
+            <Text style={[styles.titleComplement]}>Coletti</Text>
+          </Text>
+        </View>
       </MyScrollView>
     </MyKeyboardAvoidingView>
   );

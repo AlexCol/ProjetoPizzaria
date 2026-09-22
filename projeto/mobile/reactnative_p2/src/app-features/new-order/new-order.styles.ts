@@ -7,5 +7,17 @@ export default function getNewOrderStyles(theme: ThemeContextType) {
       flex: 1,
       backgroundColor: theme.colors.background,
     },
+    header: {
+      alignItems: 'center',
+      marginBottom: theme.spacing.xl,
+    },
+    title: {
+      color: theme.colors.primaryText,
+      fontSize: 34,
+      fontWeight: 'bold',
+    },
+    titleComplement: {
+      color: theme.colors.secondary,
+    },
   });
 }
