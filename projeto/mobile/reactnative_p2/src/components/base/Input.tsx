@@ -24,8 +24,8 @@ export default function Input({ label, labelStyle, textInputProps, ref }: InputP
       <TextInput
         ref={ref}
         editable={textInputProps?.editable ?? true}
-        style={[styles.textInput, textInputProps?.style]}
         {...textInputProps}
+        style={[styles.textInput, textInputProps?.style]}
       />
     </View>
   );

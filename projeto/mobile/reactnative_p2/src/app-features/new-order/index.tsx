@@ -1,4 +1,5 @@
 import { Text, View } from 'react-native';
+import { Input } from '@/src/components/base';
 import MyKeyboardAvoidingView from '@/src/components/MyKeyboardAvoidingView';
 import MyScrollView from '@/src/components/MyScrollView';
 import useNewOrder from './useNewOrder';
@@ -23,6 +24,16 @@ export default function NewOrder() {
             <Text style={[styles.titleComplement]}>Coletti</Text>
           </Text>
         </View>
+
+        <Text style={styles.label}>Novo Pedido</Text>
+        <Input
+          textInputProps={{
+            placeholder: 'Numero da mesa...',
+            placeholderTextColor: styles.placeholder.color,
+            style: styles.input,
+            keyboardType: 'numeric',
+          }}
+        />
       </MyScrollView>
     </MyKeyboardAvoidingView>
   );

@@ -19,5 +19,18 @@ export default function getNewOrderStyles(theme: ThemeContextType) {
     titleComplement: {
       color: theme.colors.secondary,
     },
+
+    label: {
+      fontSize: theme.fontSize.xl,
+      color: theme.colors.primaryText,
+      textAlign: 'center',
+      marginBottom: theme.spacing.md,
+    },
+    input: {
+      marginBottom: theme.spacing.sm,
+    },
+    placeholder: {
+      color: theme.colors.border,
+    },
   });
 }
