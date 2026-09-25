@@ -27,10 +27,13 @@ export default function getNewOrderStyles(theme: ThemeContextType) {
       marginBottom: theme.spacing.md,
     },
     input: {
-      marginBottom: theme.spacing.sm,
+      padding: theme.spacing.sm,
     },
     placeholder: {
       color: theme.colors.border,
+    },
+    button: {
+      marginTop: theme.spacing.md,
     },
   });
 }

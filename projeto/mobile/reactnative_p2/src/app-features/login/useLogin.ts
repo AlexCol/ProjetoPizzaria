@@ -11,10 +11,10 @@ export default function useLogin() {
   const theme = useThemeValue();
   const styles = getLoginStyles(theme);
 
-  const emailRef = useRef<string>('');
-  const emailInputRef = useRef<TextInput>(null) as RefObject<TextInput>;
-  const passwordRef = useRef<string>('');
-  const passwordInputRef = useRef<TextInput>(null) as RefObject<TextInput>;
+  const emailRef = useRef<string>(''); //serve pra guardar o valor
+  const emailInputRef = useRef<TextInput>(null) as RefObject<TextInput>; //serve pra guardar a referência do input e poder mandar comandos como focus() ou blur()
+  const passwordRef = useRef<string>(''); //serve pra guardar o valor
+  const passwordInputRef = useRef<TextInput>(null) as RefObject<TextInput>; //serve pra guardar a referência do input e poder mandar comandos como focus() ou blur()
 
   const handleSignIn = async () => {
     const email = emailRef.current;
