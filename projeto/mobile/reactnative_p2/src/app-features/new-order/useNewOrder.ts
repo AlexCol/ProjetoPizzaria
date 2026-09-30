@@ -21,13 +21,24 @@ export default function useNewOrder() {
   };
 
   const isValidaTable = () => {
-    if (tableNumberRef.current === null) {
+    if (tableNumberRef.current === null || tableNumberRef.current === undefined) {
       Alert.alert('Aviso', 'Número da mesa é obrigatório.');
       return false;
     }
 
-    if (tableNumberRef.current! <= 0) {
+    const tableNumber = parseInt(tableNumberRef.current!.toString(), 10);
+    if (isNaN(tableNumber)) {
+      Alert.alert('Aviso', 'Número da mesa inválido.');
+      return false;
+    }
+
+    if (tableNumber <= 0) {
       Alert.alert('Aviso', 'Número da mesa deve ser maior que zero.');
+      return false;
+    }
+
+    if (!Number.isInteger(tableNumber)) {
+      Alert.alert('Aviso', 'Número da mesa deve ser inteiro.');
       return false;
     }
 

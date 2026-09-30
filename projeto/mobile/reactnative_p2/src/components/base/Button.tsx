@@ -10,6 +10,7 @@ interface ButtonProps {
   children?: React.ReactNode;
   style?: TouchableOpacityProps['style'];
   buttonPros?: Omit<TouchableOpacityProps, (typeof _omittedProps)[number]>;
+  textStyle?: Text['props']['style'];
 }
 
 export default function Button(props: ButtonProps) {
@@ -23,7 +24,11 @@ export default function Button(props: ButtonProps) {
   return (
     <TouchableOpacity {...buttonPros} style={[styles.button, props.style]} disabled={isDisabled}>
       {children ??
-        (loading ? <ActivityIndicator color={theme.colors.primaryText} /> : <Text style={styles.text}>{title}</Text>)}
+        (loading ? (
+          <ActivityIndicator color={theme.colors.primaryText} />
+        ) : (
+          <Text style={[styles.text, props.textStyle]}>{title}</Text>
+        ))}
     </TouchableOpacity>
   );
 }

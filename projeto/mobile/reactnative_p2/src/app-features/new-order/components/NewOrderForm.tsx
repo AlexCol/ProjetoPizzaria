@@ -32,6 +32,7 @@ export default function NewOrderForm({ states }: NewOrderFormProps) {
         buttonPros={{
           onPress: handleOpenTable,
         }}
+        textStyle={styles.buttonLabel}
       />
     </>
   );

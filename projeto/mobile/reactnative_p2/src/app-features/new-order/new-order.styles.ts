@@ -21,7 +21,7 @@ export default function getNewOrderStyles(theme: ThemeContextType) {
     },
 
     label: {
-      fontSize: theme.fontSize.xl,
+      fontSize: theme.fontSize.lg,
       color: theme.colors.primaryText,
       textAlign: 'center',
       marginBottom: theme.spacing.md,
@@ -34,6 +34,9 @@ export default function getNewOrderStyles(theme: ThemeContextType) {
     },
     button: {
       marginTop: theme.spacing.md,
+    },
+    buttonLabel: {
+      fontSize: 18,
     },
   });
 }
