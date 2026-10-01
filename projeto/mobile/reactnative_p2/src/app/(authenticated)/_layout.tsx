@@ -20,8 +20,8 @@ export default function Layout() {
             <SymbolView
               name={
                 focused
-                  ? { ios: 'house.fill', android: 'in_home_mode', web: 'in_home_mode' }
-                  : { ios: 'house', android: 'home', web: 'home' }
+                  ? { ios: 'house.fill', android: 'home_max_dots', web: 'in_home_mode' }
+                  : { ios: 'house', android: 'home_max', web: 'home' }
               }
               size={size}
               tintColor={color}
@@ -60,8 +60,8 @@ export default function Layout() {
             <SymbolView
               name={
                 focused
-                  ? { ios: 'person.fill', android: 'person', web: 'person' }
-                  : { ios: 'person', android: 'person_outline', web: 'person_outline' }
+                  ? { ios: 'person.2.shield', android: 'person_shield', web: 'person_outline' }
+                  : { ios: 'person', android: 'person', web: 'person' }
               }
               size={size}
               tintColor={color}
