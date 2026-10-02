@@ -1,6 +1,8 @@
+import { useRouter } from 'expo-router';
 import { RefObject, useRef } from 'react';
 import { Alert, Keyboard, TextInput } from 'react-native';
 import { useThemeValue } from '@/src/contexts/theme/ThemeContext';
+import { NewOrderItemPageDto } from '@/src/models/dtos/NewOrderItemPageDto';
 import getNewOrderStyles from './new-order.styles';
 
 export default function useNewOrder() {
@@ -9,6 +11,7 @@ export default function useNewOrder() {
   /****************************************************/
   const theme = useThemeValue();
   const styles = getNewOrderStyles(theme);
+  const router = useRouter();
 
   /****************************************************/
   /* Refs                                             */
@@ -24,9 +27,18 @@ export default function useNewOrder() {
       return;
     }
 
+    const tableNumber = tableNumberRef.current!;
     tableNumberRef.current = null;
     tableNumberInputRef.current?.clear();
     Keyboard.dismiss();
+
+    const params: NewOrderItemPageDto = {
+      mesaId: tableNumber.toString(),
+    };
+    router.push({
+      pathname: '/new-order-items',
+      params,
+    });
   };
 
   /****************************************************/

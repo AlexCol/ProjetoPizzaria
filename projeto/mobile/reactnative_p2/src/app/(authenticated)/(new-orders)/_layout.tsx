@@ -15,6 +15,7 @@ export default function DashboardLayout() {
   return (
     <Stack screenOptions={screenOptions}>
       <Stack.Screen name='new-order' />
+      <Stack.Screen name='new-order-items' />
     </Stack>
   );
 }
