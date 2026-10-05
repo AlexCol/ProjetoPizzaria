@@ -7,7 +7,7 @@ import getNewOrderStyles from './new-order.styles';
 
 export default function useNewOrder() {
   /****************************************************/
-  /* Variaveus vindas de Hooks ou Metodos externos    */
+  /* Variaveis vindas de Hooks ou Metodos externos    */
   /****************************************************/
   const theme = useThemeValue();
   const styles = getNewOrderStyles(theme);

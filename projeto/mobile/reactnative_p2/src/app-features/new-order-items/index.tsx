@@ -1,13 +1,13 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { View, Text } from 'react-native';
-import { Button } from '@/src/components/base';
 import MyKeyboardAvoidingView from '@/src/components/MyKeyboardAvoidingView';
 import MyScrollView from '@/src/components/MyScrollView';
-import { NewOrderItemPageDto } from '@/src/models/dtos/NewOrderItemPageDto';
+import NewOrderItemButton from './components/NewOrderItemButton';
+import NewOrderItemHeader from './components/NewOrderItemHeader';
+import NewOrderItemSelectedItems from './components/NewOrderItemSelectedItems';
+import NewOrderItemSelectors from './components/NewOrderItemSelectors';
+import { useNewOrderItems } from './useNewOrderItems';
 
 export default function NewOrderItem() {
-  const router = useRouter();
-  const { mesaId, orderId } = useLocalSearchParams<NewOrderItemPageDto>();
+  const states = useNewOrderItems();
 
   return (
     <MyKeyboardAvoidingView>
@@ -18,18 +18,10 @@ export default function NewOrderItem() {
           keyboardShouldPersistTaps: 'handled',
         }}
       >
-        <View>
-          <Text>NewOrderItem</Text>
-          <Text>Mesa ID: {mesaId}</Text>
-          <Text>Order ID: {orderId}</Text>
-          <Button
-            title='Back'
-            variant='default'
-            buttonPros={{
-              onPress: () => router.back(),
-            }}
-          />
-        </View>
+        <NewOrderItemHeader states={states} />
+        <NewOrderItemSelectedItems states={states} />
+        <NewOrderItemSelectors states={states} />
+        <NewOrderItemButton states={states} />
       </MyScrollView>
     </MyKeyboardAvoidingView>
   );
