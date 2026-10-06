@@ -14,12 +14,13 @@ export function useNewOrderItems() {
   /* Variaveis vindas de Hooks ou Metodos externos    */
   /****************************************************/
   const router = useRouter();
-  const { mesaId, orderId } = useLocalSearchParams<NewOrderItemPageDto>();
+  const { tableNumber, orderId } = useLocalSearchParams<NewOrderItemPageDto>();
   const theme = useThemeValue();
   const styles = getNewOrderItemsStyles(theme);
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
@@ -32,13 +33,20 @@ export function useNewOrderItems() {
   /****************************************************/
   const loadCategories = useCallback(async () => {
     try {
+      setIsLoadingCategories(true);
       const categories = await getCategories();
 
       if (categories.length > 0) {
         setCategories(categories);
+      } else {
+        setCategories([]);
       }
+
+      console.log('Categories loaded:', categories);
     } catch (error) {
       Alert.alert('Erro', `Não foi possível carregar as categorias: ${error}`);
+    } finally {
+      setIsLoadingCategories(false);
     }
   }, []);
 
@@ -47,6 +55,8 @@ export function useNewOrderItems() {
       const products: Product[] = await getProducts(categoryId.toString());
       if (products.length > 0) {
         setProducts(products);
+      } else {
+        setProducts([]);
       }
     } catch (error) {
       Alert.alert('Erro', `Não foi possível carregar os produtos: ${error}`);
@@ -55,6 +65,12 @@ export function useNewOrderItems() {
   /****************************************************/
   /* Metodos Publicos                                 */
   /****************************************************/
+  const cancelCreation = useCallback(() => {
+    setSelectedCategory(null);
+    setSelectedProduct(null);
+    setProducts([]);
+    router.back();
+  }, [router]);
 
   /****************************************************/
   /* UseEffects                                       */
@@ -74,10 +90,11 @@ export function useNewOrderItems() {
   /* Retorno                                          */
   /****************************************************/
   return {
-    router,
-    mesaId,
+    cancelCreation,
+    tableNumber,
     orderId,
     styles,
+    isLoadingCategories,
     categories,
     selectedCategory,
     products,

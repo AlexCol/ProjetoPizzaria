@@ -7,7 +7,7 @@ type NewOrderItemSelectorsProps = {
 
 export default function NewOrderItemSelectors({ states }: NewOrderItemSelectorsProps) {
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <Text>NewOrderItemSelectors</Text>
     </View>
   );

@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getValueFromStorage, saveValueOnStorage, StorageKey } from '@/src/shared/storage';
 import { colorsByTheme, ThemeColors } from './constants/colors';
 import { BorderRadius, FontSize, Spacing } from './constants/types';
@@ -7,6 +8,7 @@ import { BorderRadius, FontSize, Spacing } from './constants/types';
 //* Tipagens para o contexto
 //*************************************************************
 export type ThemeContextType = {
+  insets: EdgeInsets;
   isDark: boolean;
   colors: ThemeColors;
   toggleTheme: () => void;
@@ -29,6 +31,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   /**********************************/
   /* Propriedades                   */
   /**********************************/
+  const insets = useSafeAreaInsets();
+
   const THEME_KEY: StorageKey = 'theme';
   const [isDark, setIsDark] = useState(false);
   const colors = isDark ? colorsByTheme.dark : colorsByTheme.light;
@@ -58,6 +62,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const providerValue: ThemeContextType = {
+    insets,
     isDark,
     colors: colors,
     toggleTheme,

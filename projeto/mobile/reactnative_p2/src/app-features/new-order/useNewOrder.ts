@@ -33,7 +33,7 @@ export default function useNewOrder() {
     Keyboard.dismiss();
 
     const params: NewOrderItemPageDto = {
-      mesaId: tableNumber.toString(),
+      tableNumber: tableNumber.toString(),
     };
     router.push({
       pathname: '/new-order-items',

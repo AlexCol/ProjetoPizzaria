@@ -1,3 +1,4 @@
+import Loader from '@/src/components/Loader';
 import MyKeyboardAvoidingView from '@/src/components/MyKeyboardAvoidingView';
 import MyScrollView from '@/src/components/MyScrollView';
 import NewOrderItemButton from './components/NewOrderItemButton';
@@ -8,6 +9,10 @@ import { useNewOrderItems } from './useNewOrderItems';
 
 export default function NewOrderItem() {
   const states = useNewOrderItems();
+
+  if (states.isLoadingCategories) {
+    return <Loader />;
+  }
 
   return (
     <MyKeyboardAvoidingView>

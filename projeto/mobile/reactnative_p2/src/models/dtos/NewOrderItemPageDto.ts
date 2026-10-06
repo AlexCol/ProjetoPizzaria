@@ -1,4 +1,4 @@
 export type NewOrderItemPageDto = {
-  mesaId?: string;
+  tableNumber?: string;
   orderId?: string;
 };
