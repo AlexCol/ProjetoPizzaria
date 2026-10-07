@@ -6,7 +6,7 @@ export default function Dashboard() {
   return (
     <MyKeyboardAvoidingView>
       <MyScrollView>
-        <Text>Dashboard</Text>
+        <Text>Dashboardd</Text>
       </MyScrollView>
     </MyKeyboardAvoidingView>
   );
