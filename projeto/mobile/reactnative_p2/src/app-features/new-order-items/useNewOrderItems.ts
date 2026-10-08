@@ -19,10 +19,10 @@ export function useNewOrderItems() {
   const styles = getNewOrderItemsStyles(theme);
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
 
   /****************************************************/
   /* Refs                                             */
@@ -41,8 +41,6 @@ export function useNewOrderItems() {
       } else {
         setCategories([]);
       }
-
-      console.log('Categories loaded:', categories);
     } catch (error) {
       Alert.alert('Erro', `Não foi possível carregar as categorias: ${error}`);
     } finally {
@@ -66,8 +64,8 @@ export function useNewOrderItems() {
   /* Metodos Publicos                                 */
   /****************************************************/
   const cancelCreation = useCallback(() => {
-    setSelectedCategory(null);
-    setSelectedProduct(null);
+    setSelectedCategoryId('');
+    setSelectedProductId('');
     setProducts([]);
     router.back();
   }, [router]);
@@ -81,11 +79,11 @@ export function useNewOrderItems() {
   }, [loadCategories]);
 
   useEffect(() => {
-    if (selectedCategory) {
+    if (selectedCategoryId) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      void loadProducts(selectedCategory.id);
+      void loadProducts(Number(selectedCategoryId));
     }
-  }, [selectedCategory, loadProducts]);
+  }, [selectedCategoryId, loadProducts]);
   /****************************************************/
   /* Retorno                                          */
   /****************************************************/
@@ -96,9 +94,11 @@ export function useNewOrderItems() {
     styles,
     isLoadingCategories,
     categories,
-    selectedCategory,
+    selectedCategoryId,
+    setSelectedCategoryId,
     products,
-    selectedProduct,
+    selectedProductId,
+    setSelectedProductId,
   };
 }
 

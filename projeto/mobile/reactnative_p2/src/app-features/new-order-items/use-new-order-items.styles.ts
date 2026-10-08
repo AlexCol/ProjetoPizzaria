@@ -28,5 +28,12 @@ export default function getNewOrderItemsStyles(theme: ThemeContextType) {
     cancelButton: {
       width: '20%',
     },
+
+    selectContainer: {
+      marginVertical: theme.spacing.md,
+      backgroundColor: theme.colors.primary,
+      flexGrow: 0,
+      justifyContent: 'flex-start',
+    },
   });
 }
