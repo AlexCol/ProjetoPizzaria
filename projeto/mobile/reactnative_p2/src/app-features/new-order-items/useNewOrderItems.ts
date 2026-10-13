@@ -20,9 +20,9 @@ export function useNewOrderItems() {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
-  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<string>('');
+  const [isSelectLoading, setIsSelectLoading] = useState(false);
 
   /****************************************************/
   /* Refs                                             */
@@ -33,7 +33,7 @@ export function useNewOrderItems() {
   /****************************************************/
   const loadCategories = useCallback(async () => {
     try {
-      setIsLoadingCategories(true);
+      setIsSelectLoading(true);
       const categories = await getCategories();
 
       if (categories.length > 0) {
@@ -44,13 +44,14 @@ export function useNewOrderItems() {
     } catch (error) {
       Alert.alert('Erro', `Não foi possível carregar as categorias: ${error}`);
     } finally {
-      setIsLoadingCategories(false);
+      setIsSelectLoading(false);
     }
   }, []);
 
-  const loadProducts = useCallback(async (categoryId: number) => {
+  const loadProducts = useCallback(async (categoryId: string) => {
     try {
-      const products: Product[] = await getProducts(categoryId.toString());
+      setIsSelectLoading(true);
+      const products: Product[] = await getProducts(categoryId);
       if (products.length > 0) {
         setProducts(products);
       } else {
@@ -58,6 +59,8 @@ export function useNewOrderItems() {
       }
     } catch (error) {
       Alert.alert('Erro', `Não foi possível carregar os produtos: ${error}`);
+    } finally {
+      setIsSelectLoading(false);
     }
   }, []);
   /****************************************************/
@@ -81,7 +84,7 @@ export function useNewOrderItems() {
   useEffect(() => {
     if (selectedCategoryId) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      void loadProducts(Number(selectedCategoryId));
+      void loadProducts(selectedCategoryId);
     }
   }, [selectedCategoryId, loadProducts]);
   /****************************************************/
@@ -92,7 +95,7 @@ export function useNewOrderItems() {
     tableNumber,
     orderId,
     styles,
-    isLoadingCategories,
+    isSelectLoading,
     categories,
     selectedCategoryId,
     setSelectedCategoryId,

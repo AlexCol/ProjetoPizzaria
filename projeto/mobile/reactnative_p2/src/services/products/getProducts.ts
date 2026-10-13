@@ -2,10 +2,10 @@ import { Product } from '@/src/models/Product';
 import api from '../api';
 
 export async function getProducts(categoryId?: string) {
-  const response = await api<Product[]>({
+  const response = await api<any>({
     method: 'get',
-    url: `/products?status='Active'${categoryId ? `&categoryId=${categoryId}` : ''}`,
+    url: `/products/search?status=Active${categoryId ? `&categoryId=${categoryId}` : ''}`,
   });
 
-  return response;
+  return response.data as Product[];
 }

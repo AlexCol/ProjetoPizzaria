@@ -30,10 +30,11 @@ export default function getNewOrderItemsStyles(theme: ThemeContextType) {
     },
 
     selectContainer: {
-      marginVertical: theme.spacing.md,
-      backgroundColor: theme.colors.primary,
+      // marginVertical: theme.spacing.md,
       flexGrow: 0,
       justifyContent: 'flex-start',
+      paddingHorizontal: 0,
+      paddingVertical: 16,
     },
   });
 }
