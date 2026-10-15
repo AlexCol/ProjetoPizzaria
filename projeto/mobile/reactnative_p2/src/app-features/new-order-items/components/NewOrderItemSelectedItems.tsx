@@ -32,6 +32,7 @@ export default function NewOrderItemSelectedItems({ states }: NewOrderItemSelect
         }))}
         selectedValue={selectedProductId}
         onValueChange={setSelectedProductId}
+        disabled={!selectedCategoryId}
         placeholder='Selecione um produto...'
       />
     </MyScrollView>

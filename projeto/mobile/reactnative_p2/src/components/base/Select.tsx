@@ -1,6 +1,6 @@
 import { Feather } from '@expo/vector-icons';
 import { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Modal } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Modal, FlatList } from 'react-native';
 import { ThemeContextType, useThemeValue } from '@/src/contexts/theme/ThemeContext';
 
 type SelectProps = {
@@ -25,48 +25,99 @@ export default function Select({
   placeholder = 'Selecione...',
   disabled = false,
 }: SelectProps) {
-  const [modalVisible, setModalVisible] = useState(false);
-
+  /****************************************************/
+  /* Variaveis vindas de Hooks ou Metodos externos    */
+  /****************************************************/
+  //#region Variaveis vindas de Hooks ou Metodos externos
   const theme = useThemeValue();
-  const styles = getStyles(theme);
+  const styles = getStyles(theme, disabled);
+  //#endregion
 
+  /****************************************************/
+  /* Variaveis derivadas dos props e estado interno   */
+  /****************************************************/
+  //#region Variaveis derivadas dos props e estado interno
+  const [modalVisible, setModalVisible] = useState(false);
   const selectedOption = options.find((option) => option.value === selectedValue);
   const displayText = selectedOption ? selectedOption.label : placeholder;
 
+  //#endregion
+
+  /****************************************************/
+  /* Metodos internos do componente                   */
+  /****************************************************/
+  //#region Metodos internos do componente
+  const openModal = () => {
+    if (!disabled) {
+      setModalVisible(true);
+    }
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
+  const onOptionPress = (value: string) => {
+    onValueChange(value);
+    closeModal();
+  };
+
+  const getOptionItemStyle = (item: SelectOptions) => {
+    return [styles.optionItemText, item.value === selectedOption?.value && styles.optionItemTextSelected];
+  };
+
+  //#endregion
+
+  /****************************************************/
+  /* Renderizacao do componente                       */
+  /****************************************************/
+  //#region Renderizacao do componente
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
 
-      <Pressable style={styles.select} onPress={() => setModalVisible(true)} disabled={disabled}>
+      <Pressable style={styles.select} onPress={openModal} disabled={disabled}>
         <Text style={styles.selectText}>{displayText}</Text>
         <Feather name='chevron-down' size={24} color={theme.colors.primaryText} />
       </Pressable>
 
-      <Modal
-        visible={modalVisible}
-        transparent={true}
-        animationType='slide'
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <Pressable style={styles.modalOverlay} onPress={() => setModalVisible(false)}>
+      <Modal visible={modalVisible} transparent={true} animationType='fade' onRequestClose={closeModal}>
+        <Pressable style={styles.modalOverlay} onPress={closeModal}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{label}</Text>
 
-              <Pressable onPress={() => setModalVisible(false)}>
+              <Pressable onPress={closeModal}>
                 <Feather name='x' size={24} color={theme.colors.danger} />
               </Pressable>
             </View>
 
-            {/* LISTA */}
+            <FlatList
+              showsVerticalScrollIndicator={false}
+              data={options}
+              keyExtractor={(item) => item.value}
+              renderItem={({ item }) => (
+                <Pressable style={styles.optionItem} onPress={() => onOptionPress(item.value)}>
+                  <Text style={getOptionItemStyle(item)}>
+                    {item.value === selectedOption?.value && '✓ '}
+                    {item.label}
+                  </Text>
+                </Pressable>
+              )}
+            />
           </View>
         </Pressable>
       </Modal>
     </View>
   );
+  //#endregion
 }
 
-const getStyles = (theme: ThemeContextType) => {
+/****************************************************/
+/* Estilos do componente                            */
+/****************************************************/
+//#region Estilos do componente
+const getStyles = (theme: ThemeContextType, disabled: boolean) => {
   return StyleSheet.create({
     container: {
       width: '100%',
@@ -80,7 +131,7 @@ const getStyles = (theme: ThemeContextType) => {
     },
 
     select: {
-      backgroundColor: theme.colors.primary,
+      backgroundColor: disabled ? theme.colors.border : theme.colors.secondary,
       borderRadius: theme.borderRadius.md,
       borderWidth: 1,
       borderColor: theme.colors.border,
@@ -110,6 +161,7 @@ const getStyles = (theme: ThemeContextType) => {
       backgroundColor: theme.colors.background,
       width: '100%',
       maxHeight: '80%',
+      minHeight: '50%',
       borderRadius: theme.borderRadius.lg,
     },
     modalHeader: {
@@ -121,9 +173,28 @@ const getStyles = (theme: ThemeContextType) => {
       borderBottomColor: theme.colors.border,
     },
     modalTitle: {
+      color: theme.colors.tertiary,
+      fontSize: theme.fontSize.md,
+      fontWeight: '600',
+    },
+
+    optionItem: {
+      padding: theme.spacing.md,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
       color: theme.colors.primaryText,
       fontSize: theme.fontSize.md,
+    },
+    optionItemText: {
+      color: theme.colors.primaryText,
+    },
+    optionItemTextSelected: {
+      color: theme.colors.secondary,
       fontWeight: '600',
     },
   });
 };
+//#endregion

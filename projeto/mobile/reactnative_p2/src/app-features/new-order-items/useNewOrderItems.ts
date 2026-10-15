@@ -57,6 +57,7 @@ export function useNewOrderItems() {
       } else {
         setProducts([]);
       }
+      setSelectedProductId('');
     } catch (error) {
       Alert.alert('Erro', `Não foi possível carregar os produtos: ${error}`);
     } finally {
