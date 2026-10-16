@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { Button } from '@/src/components/base';
 import { UseNewOrderItemsStates } from '../useNewOrderItems';
 
 type NewOrderItemButtonProps = {
@@ -6,9 +6,17 @@ type NewOrderItemButtonProps = {
 };
 
 export default function NewOrderItemButton({ states }: NewOrderItemButtonProps) {
+  const handlePress = () => {
+    //validar se há itens no pedido
+  };
+
   return (
-    <View>
-      <Text>NewOrderItemButton</Text>
-    </View>
+    <Button
+      title='Avançar'
+      variant='success'
+      buttonPros={{
+        onPress: handlePress,
+      }}
+    />
   );
 }

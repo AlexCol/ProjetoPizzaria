@@ -36,5 +36,9 @@ export default function getNewOrderItemsStyles(theme: ThemeContextType) {
       paddingHorizontal: 0,
       paddingVertical: 16,
     },
+
+    newOrderAddItemButtonContainer: {
+      flexGrow: 0,
+    },
   });
 }

@@ -19,8 +19,8 @@ export default function NewOrderItem() {
         }}
       >
         <NewOrderItemHeader states={states} />
-        <NewOrderItemSelectedItems states={states} />
         <NewOrderItemSelectors states={states} />
+        <NewOrderItemSelectedItems states={states} />
         <NewOrderItemButton states={states} />
       </MyScrollView>
     </MyKeyboardAvoidingView>
