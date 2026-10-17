@@ -105,7 +105,7 @@ export function useNewOrderItems() {
     }
   }, [router, orderId]);
 
-  const handleAddItem = async () => {
+  const handleAddItem = useCallback(async () => {
     if (!selectedProductId) {
       return;
     }
@@ -123,7 +123,7 @@ export function useNewOrderItems() {
     setSelectedCategoryId('');
     setSelectedProductId('');
     setQuantity(1);
-  };
+  }, [orderId, selectedProductId, quantity, loadOrder]);
 
   /****************************************************/
   /* UseEffects                                       */
