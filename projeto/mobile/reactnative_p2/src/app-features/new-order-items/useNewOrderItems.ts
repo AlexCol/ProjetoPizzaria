@@ -45,14 +45,11 @@ export function useNewOrderItems() {
   /****************************************************/
   const loadOrder = useCallback(async () => {
     try {
-      setIsLoading(true);
       const order = await getOrder(orderId);
       setOrder(order);
     } catch (error) {
       alertFromError(error);
       router.back();
-    } finally {
-      setIsLoading(false);
     }
   }, [router, orderId]);
 
@@ -133,7 +130,9 @@ export function useNewOrderItems() {
   /****************************************************/
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsLoading(true);
     void loadOrder();
+    setIsLoading(false);
   }, [loadOrder]);
 
   useEffect(() => {

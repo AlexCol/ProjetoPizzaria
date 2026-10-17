@@ -14,6 +14,7 @@ export default function NewOrderItemSelectedItems({ states }: NewOrderItemSelect
 
   return (
     <View style={{ flex: 1 }}>
+      <Text>Selected Items:</Text>
       {items?.map((item) => (
         <View key={item.id} style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 4 }}>
           <Text>{item.product.name}</Text>
