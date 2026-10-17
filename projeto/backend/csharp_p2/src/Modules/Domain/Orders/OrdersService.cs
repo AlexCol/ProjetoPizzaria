@@ -25,7 +25,7 @@ public class OrdersService(
     var orders = await ordersRepository.GetByIdAsync(id);
     if (orders == null) throw new CustomError("Order not found", 404);
 
-    var orderItems = await orderItemsRepository.FindOneWithPredicateAsync(oi => oi.OrderId == id);
+    var orderItems = await orderItemsRepository.FindOneWithPredicateWithReferencesAsync(oi => oi.OrderId == id);
 
     orders.OrderItems = orderItems != null ? [orderItems] : [];
     return orders;
