@@ -35,7 +35,7 @@ public class OrdersController : ControllerBase {
   [HttpPost]
   [EndpointSummary("Criar um Novo Pedido")]
   [EndpointDescription("Cria um novo pedido com os detalhes fornecidos.")]
-  [ProducesResponseType(StatusCodes.Status201Created)]
+  [ProducesResponseType(typeof(Order), StatusCodes.Status201Created)]
   [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
   public async Task<IActionResult> CreateOrderAsync([FromBody] CreateOrderDto order) {
     var session = HttpContext.GetSessionPayload();
