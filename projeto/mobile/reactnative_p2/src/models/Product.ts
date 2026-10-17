@@ -1,13 +1,13 @@
 import { Category } from './Category';
 
 export type Product = {
-  id: number;
+  id: string;
   name: string;
   price: number;
   description: string;
   banner: string | null;
   status: 'Active' | 'Inactive';
-  categoryId: number;
+  categoryId: string;
   category: Category;
   createdAt: string;
   updatedAt: string;

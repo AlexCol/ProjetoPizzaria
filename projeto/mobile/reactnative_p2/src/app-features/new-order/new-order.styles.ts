@@ -20,7 +20,7 @@ export default function getNewOrderStyles(theme: ThemeContextType) {
       color: theme.colors.secondary,
     },
 
-    label: {
+    labelPedido: {
       fontSize: theme.fontSize.lg,
       color: theme.colors.primaryText,
       textAlign: 'center',

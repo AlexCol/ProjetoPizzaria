@@ -7,15 +7,17 @@ type NewOrderFormProps = {
 };
 
 export default function NewOrderForm({ states }: NewOrderFormProps) {
-  const { styles, handleOpenTable } = states;
-  const { tableNumberRef, tableNumberInputRef } = states;
+  const { styles, handleOpenTable, isLoading } = states;
+  const { tableNumberRef, tableNumberInputRef, nameRef, nameInputRef } = states;
+
   return (
     <>
-      <Text style={styles.label}>Novo Pedido</Text>
+      <Text style={styles.labelPedido}>Novo Pedido</Text>
       <Input
         ref={tableNumberInputRef}
         textInputProps={{
           placeholder: 'Numero da mesa...',
+          editable: !isLoading,
           placeholderTextColor: styles.placeholder.color,
           style: styles.input,
           keyboardType: 'numeric',
@@ -25,9 +27,23 @@ export default function NewOrderForm({ states }: NewOrderFormProps) {
         }}
       />
 
+      <Input
+        ref={nameInputRef}
+        textInputProps={{
+          placeholder: 'Nome do cliente (opcional)...',
+          editable: !isLoading,
+          placeholderTextColor: styles.placeholder.color,
+          style: [styles.input, { marginTop: 16 }],
+          onChangeText: (text) => {
+            nameRef.current = text ? text : undefined;
+          },
+        }}
+      />
+
       <Button
         title='Abrir Mesa'
         variant='default'
+        loading={isLoading}
         style={styles.button}
         buttonPros={{
           onPress: handleOpenTable,

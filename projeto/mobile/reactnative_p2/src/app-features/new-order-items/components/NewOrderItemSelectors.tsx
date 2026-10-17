@@ -1,7 +1,8 @@
 import Select from '@/src/components/base/Select';
 import MyScrollView from '@/src/components/MyScrollView';
 import { UseNewOrderItemsStates } from '../useNewOrderItems';
-import NewOrderItemAddItemButton from './NewOrderItemAddItemButton';
+import NewOrderIAddtemButton from './NewOrderIAddtemButton';
+import NewOrderItemAddItemControl from './NewOrderItemAddItemControl';
 
 type NewOrderItemSelectorsProps = {
   states: UseNewOrderItemsStates;
@@ -37,7 +38,8 @@ export default function NewOrderItemSelectors({ states }: NewOrderItemSelectorsP
         placeholder='Selecione um produto...'
       />
 
-      <NewOrderItemAddItemButton states={states} />
+      <NewOrderItemAddItemControl states={states} />
+      <NewOrderIAddtemButton states={states} />
     </MyScrollView>
   );
 }

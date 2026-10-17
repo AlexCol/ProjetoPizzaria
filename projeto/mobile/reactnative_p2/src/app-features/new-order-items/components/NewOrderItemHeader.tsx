@@ -8,7 +8,8 @@ type NewOrderItemHeaderProps = {
 };
 
 export default function NewOrderItemHeader({ states }: NewOrderItemHeaderProps) {
-  const { styles, tableNumber } = states;
+  const { styles, order } = states;
+  const { tableNumber } = order ?? {};
   return (
     <View style={styles.header}>
       <View style={styles.headerContent}>

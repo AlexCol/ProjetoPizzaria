@@ -41,7 +41,7 @@ export const colorsByTheme: ColorScheme = {
     tertiary: '#fbbf24',
     success: '#22c55e',
     danger: '#ef4444',
-    warning: '#facc15',
+    warning: '#fbbf24',
     info: '#3b82f6',
     disabled: '#6b7280',
     background: '#111827',

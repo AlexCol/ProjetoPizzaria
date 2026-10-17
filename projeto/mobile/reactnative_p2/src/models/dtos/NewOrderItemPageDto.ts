@@ -1,4 +1,3 @@
 export type NewOrderItemPageDto = {
-  tableNumber?: string;
-  orderId?: string;
+  orderId: string; //todos os campos precisam ser string para o rootPath aceitar
 };

@@ -37,8 +37,47 @@ export default function getNewOrderItemsStyles(theme: ThemeContextType) {
       paddingVertical: 16,
     },
 
-    newOrderAddItemButtonContainer: {
+    controlContainer: {
       flexGrow: 0,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingBottom: theme.spacing.md,
+    },
+    itemControlText: {
+      color: theme.colors.primaryText,
+      fontSize: theme.fontSize.lg,
+    },
+    buttonControlsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: theme.spacing.md,
+    },
+    buttonControl: {
+      backgroundColor: theme.colors.secondary,
+      paddingVertical: theme.spacing.sm,
+      paddingHorizontal: theme.spacing.md,
+      borderRadius: theme.borderRadius.sm,
+    },
+    buttonControlText: {
+      color: theme.colors.primaryText,
+      fontSize: theme.fontSize.lg,
+      fontWeight: 'bold',
+    },
+    quantityText: {
+      color: theme.colors.primaryText,
+      fontSize: theme.fontSize.lg,
+    },
+    addItemButton: {
+      paddingVertical: theme.spacing.sm,
+      paddingHorizontal: theme.spacing.md,
+      borderRadius: theme.borderRadius.sm,
+      height: 36,
+    },
+    addItemText: {
+      color: theme.colors.primaryText,
+      fontSize: theme.fontSize.md,
     },
   });
 }
