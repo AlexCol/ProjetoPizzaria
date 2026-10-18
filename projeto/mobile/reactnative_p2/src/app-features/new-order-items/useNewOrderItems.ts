@@ -8,6 +8,7 @@ import { Order } from '@/src/models/Order';
 import { Product } from '@/src/models/Product';
 import { getCategories } from '@/src/services/categories';
 import { postOrderItem } from '@/src/services/order-items';
+import { delOrderItem } from '@/src/services/order-items/delOrderItem';
 import { delOrder } from '@/src/services/orders/delOrder';
 import { getOrder } from '@/src/services/orders/getOrder';
 import { getProducts } from '@/src/services/products/getProducts';
@@ -34,7 +35,7 @@ export function useNewOrderItems() {
   const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [isSelectLoading, setIsSelectLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const [isInsertingItem, setIsInsertingItem] = useState(false);
+  const [isManagingItem, setIsManagingItem] = useState(false);
 
   /****************************************************/
   /* Refs                                             */
@@ -110,14 +111,14 @@ export function useNewOrderItems() {
       return;
     }
 
-    setIsInsertingItem(true);
+    setIsManagingItem(true);
     try {
       await postOrderItem(orderId, { productId: selectedProductId, amount: quantity });
       await loadOrder();
     } catch (error) {
       alertFromError(error);
     } finally {
-      setIsInsertingItem(false);
+      setIsManagingItem(false);
     }
 
     setSelectedCategoryId('');
@@ -125,6 +126,20 @@ export function useNewOrderItems() {
     setQuantity(1);
   }, [orderId, selectedProductId, quantity, loadOrder]);
 
+  const handleDeleteItem = useCallback(
+    async (orderItemId: string) => {
+      setIsManagingItem(true);
+      try {
+        await delOrderItem(orderItemId);
+        await loadOrder();
+      } catch (error) {
+        alertFromError(error);
+      } finally {
+        setIsManagingItem(false);
+      }
+    },
+    [loadOrder],
+  );
   /****************************************************/
   /* UseEffects                                       */
   /****************************************************/
@@ -162,10 +177,11 @@ export function useNewOrderItems() {
     products,
     selectedProductId,
     setSelectedProductId,
-    isInsertingItem,
+    isInsertingItem: isManagingItem,
     quantity,
     setQuantity,
     handleAddItem,
+    handleDeleteItem,
   };
 }
 

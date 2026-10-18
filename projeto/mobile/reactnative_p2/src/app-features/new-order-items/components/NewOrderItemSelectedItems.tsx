@@ -6,7 +6,7 @@ type NewOrderItemSelectedItemsProps = {
 };
 
 export default function NewOrderItemSelectedItems({ states }: NewOrderItemSelectedItemsProps) {
-  const { order } = states;
+  const { order, handleDeleteItem } = states;
   const items = order.orderItems ?? [];
   if (items.length === 0) {
     return null;
@@ -19,6 +19,7 @@ export default function NewOrderItemSelectedItems({ states }: NewOrderItemSelect
         <View key={item.id} style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 4 }}>
           <Text>{item.product.name}</Text>
           <Text>{item.amount}</Text>
+          <Text onPress={() => handleDeleteItem(item.id)}>Delete</Text>
         </View>
       ))}
     </View>
