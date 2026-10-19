@@ -79,5 +79,18 @@ export default function getNewOrderItemsStyles(theme: ThemeContextType) {
       color: theme.colors.primaryText,
       fontSize: theme.fontSize.md,
     },
+
+    itemsContainer: {
+      justifyContent: 'flex-start',
+      paddingHorizontal: 0,
+    },
+    itemsSection: {
+      gap: theme.spacing.md,
+    },
+    itemsTitle: {
+      color: theme.colors.primaryText,
+      fontWeight: 'bold',
+      fontSize: theme.fontSize.lg,
+    },
   });
 }

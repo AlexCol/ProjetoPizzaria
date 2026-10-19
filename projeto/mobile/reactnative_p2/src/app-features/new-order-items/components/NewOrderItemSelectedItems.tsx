@@ -1,27 +1,29 @@
 import { View, Text } from 'react-native';
+import MyScrollView from '@/src/components/MyScrollView';
 import { UseNewOrderItemsStates } from '../useNewOrderItems';
+import NewOrderItem from './NewOrderItem';
 
 type NewOrderItemSelectedItemsProps = {
   states: UseNewOrderItemsStates;
 };
 
 export default function NewOrderItemSelectedItems({ states }: NewOrderItemSelectedItemsProps) {
-  const { order, handleDeleteItem } = states;
+  const { order, handleDeleteItem, styles } = states;
   const items = order.orderItems ?? [];
-  if (items.length === 0) {
-    return null;
-  }
 
   return (
-    <View style={{ flex: 1 }}>
-      <Text>Selected Items:</Text>
-      {items?.map((item) => (
-        <View key={item.id} style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 4 }}>
-          <Text>{item.product.name}</Text>
-          <Text>{item.amount}</Text>
-          <Text onPress={() => handleDeleteItem(item.id)}>Delete</Text>
+    <MyScrollView contentContainerStyle={styles.itemsContainer}>
+      {items.length === 0 && <Text style={styles.itemsTitle}>Nenhum item adicionado.</Text>}
+
+      {items.length > 0 && (
+        <View style={styles.itemsSection}>
+          <Text style={styles.itemsTitle}>Items Adicionados:</Text>
+
+          {items?.map((item) => (
+            <NewOrderItem key={item.id} handleDeleteItem={handleDeleteItem} item={item} />
+          ))}
         </View>
-      ))}
-    </View>
+      )}
+    </MyScrollView>
   );
 }

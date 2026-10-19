@@ -1,5 +1,5 @@
+import { View } from 'react-native';
 import Select from '@/src/components/base/Select';
-import MyScrollView from '@/src/components/MyScrollView';
 import { UseNewOrderItemsStates } from '../useNewOrderItems';
 import NewOrderIAddtemButton from './NewOrderIAddtemButton';
 import NewOrderItemAddItemControl from './NewOrderItemAddItemControl';
@@ -14,7 +14,7 @@ export default function NewOrderItemSelectors({ states }: NewOrderItemSelectorsP
   const { categories, selectedCategoryId, setSelectedCategoryId } = states;
 
   return (
-    <MyScrollView contentContainerStyle={styles.selectContainer}>
+    <View style={styles.selectContainer}>
       <Select
         label='Categorias'
         options={categories.map((category) => ({
@@ -40,6 +40,6 @@ export default function NewOrderItemSelectors({ states }: NewOrderItemSelectorsP
 
       <NewOrderItemAddItemControl states={states} />
       <NewOrderIAddtemButton states={states} />
-    </MyScrollView>
+    </View>
   );
 }
