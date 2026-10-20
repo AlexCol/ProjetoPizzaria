@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native';
 import MyScrollView from '@/src/components/MyScrollView';
-import { UseNewOrderItemsStates } from '../useNewOrderItems';
+import { UseNewOrderItemsStates } from '../../useNewOrderItems';
 import NewOrderItem from './NewOrderItem';
 
 type NewOrderItemSelectedItemsProps = {

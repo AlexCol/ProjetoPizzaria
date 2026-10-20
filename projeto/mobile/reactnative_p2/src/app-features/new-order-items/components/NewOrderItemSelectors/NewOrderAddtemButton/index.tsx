@@ -1,11 +1,11 @@
 import { Button } from '@/src/components/base';
-import { UseNewOrderItemsStates } from '../useNewOrderItems';
+import { UseNewOrderItemsStates } from '../../../useNewOrderItems';
 
-type NewOrderIAddtemButtonProps = {
+type NewOrderAddtemButtonProps = {
   states: UseNewOrderItemsStates;
 };
 
-export default function NewOrderIAddtemButton({ states }: NewOrderIAddtemButtonProps) {
+export default function NewOrderAddtemButton({ states }: NewOrderAddtemButtonProps) {
   const { styles, selectedProductId, isInsertingItem, handleAddItem } = states;
 
   return (

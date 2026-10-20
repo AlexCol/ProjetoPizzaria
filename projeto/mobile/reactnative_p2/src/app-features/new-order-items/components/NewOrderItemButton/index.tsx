@@ -1,5 +1,5 @@
 import { Button } from '@/src/components/base';
-import { UseNewOrderItemsStates } from '../useNewOrderItems';
+import { UseNewOrderItemsStates } from '../../useNewOrderItems';
 
 type NewOrderItemButtonProps = {
   states: UseNewOrderItemsStates;

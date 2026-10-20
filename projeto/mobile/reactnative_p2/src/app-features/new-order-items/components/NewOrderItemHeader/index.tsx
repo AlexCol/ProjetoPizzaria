@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text } from 'react-native';
 import { Button } from '@/src/components/base';
-import { UseNewOrderItemsStates } from '../useNewOrderItems';
+import { UseNewOrderItemsStates } from '../../useNewOrderItems';
 
 type NewOrderItemHeaderProps = {
   states: UseNewOrderItemsStates;

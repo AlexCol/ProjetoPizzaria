@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import Select from '@/src/components/base/Select';
-import { UseNewOrderItemsStates } from '../useNewOrderItems';
-import NewOrderIAddtemButton from './NewOrderIAddtemButton';
+import { UseNewOrderItemsStates } from '../../useNewOrderItems';
+import NewOrderAddtemButton from './NewOrderAddtemButton';
 import NewOrderItemAddItemControl from './NewOrderItemAddItemControl';
 
 type NewOrderItemSelectorsProps = {
@@ -39,7 +39,7 @@ export default function NewOrderItemSelectors({ states }: NewOrderItemSelectorsP
       />
 
       <NewOrderItemAddItemControl states={states} />
-      <NewOrderIAddtemButton states={states} />
+      <NewOrderAddtemButton states={states} />
     </View>
   );
 }
