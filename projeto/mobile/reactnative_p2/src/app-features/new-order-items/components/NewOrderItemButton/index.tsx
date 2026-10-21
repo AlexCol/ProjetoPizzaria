@@ -12,7 +12,7 @@ export default function NewOrderItemButton({ states }: NewOrderItemButtonProps) 
 
   return (
     <Button
-      title='Avançar'
+      title='Finalizar Pedido'
       variant='success'
       buttonPros={{
         onPress: handlePress,

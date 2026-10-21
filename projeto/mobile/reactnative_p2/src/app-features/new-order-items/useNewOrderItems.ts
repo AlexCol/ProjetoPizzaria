@@ -132,6 +132,7 @@ export function useNewOrderItems() {
       try {
         await delOrderItem(orderItemId);
         await loadOrder();
+        Alert.alert('Sucesso', 'Item removido com sucesso.');
       } catch (error) {
         alertFromError(error);
       } finally {
