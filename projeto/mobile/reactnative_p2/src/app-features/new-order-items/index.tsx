@@ -1,6 +1,6 @@
+import { View } from 'react-native';
 import Loader from '@/src/components/Loader';
 import MyKeyboardAvoidingView from '@/src/components/MyKeyboardAvoidingView';
-import MyScrollView from '@/src/components/MyScrollView';
 import NewOrderItemButton from './components/NewOrderItemButton';
 import NewOrderItemHeader from './components/NewOrderItemHeader';
 import NewOrderItemSelectedItems from './components/NewOrderItemSelectedItems';
@@ -16,18 +16,12 @@ export default function NewOrderItem() {
 
   return (
     <MyKeyboardAvoidingView>
-      <MyScrollView
-        // contentContainerStyle={states.styles.container}
-        scrollViewProps={{
-          contentInsetAdjustmentBehavior: 'automatic',
-          keyboardShouldPersistTaps: 'handled',
-        }}
-      >
+      <View style={states.styles.container}>
         <NewOrderItemHeader states={states} />
         <NewOrderItemSelectors states={states} />
         <NewOrderItemSelectedItems states={states} />
         <NewOrderItemButton states={states} />
-      </MyScrollView>
+      </View>
     </MyKeyboardAvoidingView>
   );
 }

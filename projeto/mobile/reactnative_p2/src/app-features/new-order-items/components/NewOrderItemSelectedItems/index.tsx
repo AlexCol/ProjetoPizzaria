@@ -12,18 +12,21 @@ export default function NewOrderItemSelectedItems({ states }: NewOrderItemSelect
   const items = order.orderItems ?? [];
 
   return (
-    <MyScrollView contentContainerStyle={styles.itemsContainer}>
-      {items.length === 0 && <Text style={styles.itemsTitle}>Nenhum item adicionado.</Text>}
+    <View style={styles.itemsArea}>
+      <Text style={styles.itemsTitle}>{items.length === 0 ? 'Nenhum item adicionado.' : 'Itens Adicionados:'}</Text>
 
       {items.length > 0 && (
-        <View style={styles.itemsSection}>
-          <Text style={styles.itemsTitle}>Items Adicionados:</Text>
-
-          {items?.map((item) => (
-            <NewOrderItem key={item.id} handleDeleteItem={handleDeleteItem} item={item} />
-          ))}
-        </View>
+        <MyScrollView
+          contentContainerStyle={styles.itemsContainer}
+          scrollViewProps={{ showsVerticalScrollIndicator: false }}
+        >
+          <View style={styles.itemsSection}>
+            {items.map((item) => (
+              <NewOrderItem key={item.id} handleDeleteItem={handleDeleteItem} item={item} />
+            ))}
+          </View>
+        </MyScrollView>
       )}
-    </MyScrollView>
+    </View>
   );
 }

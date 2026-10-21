@@ -6,6 +6,10 @@ export default function getNewOrderItemsStyles(theme: ThemeContextType) {
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
+      width: '100%',
+      paddingHorizontal: theme.spacing.xl,
+      paddingTop: theme.insets.top,
+      paddingBottom: theme.insets.bottom,
     },
 
     header: {
@@ -80,9 +84,15 @@ export default function getNewOrderItemsStyles(theme: ThemeContextType) {
       fontSize: theme.fontSize.md,
     },
 
+    itemsArea: {
+      flex: 1,
+      gap: theme.spacing.md,
+      marginBottom: theme.spacing.md,
+    },
     itemsContainer: {
       justifyContent: 'flex-start',
       paddingHorizontal: 0,
+      paddingVertical: 0,
     },
     itemsSection: {
       gap: theme.spacing.md,
