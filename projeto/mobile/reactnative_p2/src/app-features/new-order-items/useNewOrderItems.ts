@@ -11,6 +11,7 @@ import { postOrderItem } from '@/src/services/order-items';
 import { delOrderItem } from '@/src/services/order-items/delOrderItem';
 import { delOrder } from '@/src/services/orders/delOrder';
 import { getOrder } from '@/src/services/orders/getOrder';
+import { sendOrder } from '@/src/services/orders/sendOrder';
 import { getProducts } from '@/src/services/products/getProducts';
 import { alertFromError } from '@/src/shared/helpers';
 import getNewOrderItemsStyles from './use-new-order-items.styles';
@@ -141,6 +142,23 @@ export function useNewOrderItems() {
     },
     [loadOrder],
   );
+
+  const sendOrderToKitchen = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      if (!order.orderItems || order.orderItems.length === 0) {
+        throw new Error('O pedido não possui itens.');
+      }
+
+      await sendOrder(orderId);
+      Alert.alert('Sucesso', 'Pedido enviado para a cozinha.');
+      router.back();
+    } catch (error) {
+      alertFromError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [orderId, router, order]);
   /****************************************************/
   /* UseEffects                                       */
   /****************************************************/
@@ -183,6 +201,7 @@ export function useNewOrderItems() {
     setQuantity,
     handleAddItem,
     handleDeleteItem,
+    sendOrderToKitchen,
   };
 }
 

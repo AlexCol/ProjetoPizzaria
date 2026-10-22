@@ -6,16 +6,14 @@ type NewOrderItemButtonProps = {
 };
 
 export default function NewOrderItemButton({ states }: NewOrderItemButtonProps) {
-  const handlePress = () => {
-    //validar se há itens no pedido
-  };
+  const { sendOrderToKitchen } = states;
 
   return (
     <Button
       title='Finalizar Pedido'
       variant='success'
       buttonPros={{
-        onPress: handlePress,
+        onPress: sendOrderToKitchen,
       }}
     />
   );
