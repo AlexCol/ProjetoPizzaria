@@ -8,6 +8,7 @@ namespace csharp_p2.src.Modules.Domain;
 public interface IOrdersService {
   Task<Order> GetOrderByIdAsync(long id);
   Task<PaginatedResult<Order>> GetAllOrdersAsync(SearchCriteriaRequest<Order> searchCriteria);
+  Task<IEnumerable<Order>> GetAppOrdersAsync(long? userId);
   Task<Order> CreateOrderAsync(long userId, CreateOrderDto order);
   Task<string> UpdateOrderStatusAsync(long id, UpdateOrderStatusDto orderStatus);
   Task<string> UpdateOrderAsync(long id, UpdateOrderDto orderStatus);
@@ -34,6 +35,15 @@ public class OrdersService(
   public async Task<PaginatedResult<Order>> GetAllOrdersAsync(SearchCriteriaRequest<Order> searchCriteria) {
     var orders = await ordersRepository.GetWithSearchCriteriaAsync(searchCriteria);
     return orders;
+  }
+
+  public async Task<IEnumerable<Order>> GetAppOrdersAsync(long? userId) {
+    IEnumerable<Order> orders = [];
+    if (userId != null)
+      orders = await ordersRepository.SearchWithPredicateAsync(o => o.UserId == userId && o.Status != EOrderStatus.Finalized && o.Status != EOrderStatus.Pending);
+    else
+      orders = await ordersRepository.SearchWithPredicateAsync(o => o.Status != EOrderStatus.Finalized && o.Status != EOrderStatus.Pending);
+    return orders ?? [];
   }
 
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CREATE

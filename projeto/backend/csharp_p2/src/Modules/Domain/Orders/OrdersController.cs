@@ -32,6 +32,15 @@ public class OrdersController : ControllerBase {
     return Ok(orders);
   }
 
+  [HttpGet("app", Name = "GetAppOrders")]
+  [EndpointSummary("Obter Pedidos do App")]
+  [EndpointDescription("Retorna uma lista de pedidos do garçom. Pedidos em Draft ou Done.")]
+  [ProducesResponseType(typeof(IEnumerable<Order>), StatusCodes.Status200OK)]
+  public async Task<IActionResult> GetAppOrdersAsync([FromQuery] long? userId) {
+    var orders = await _ordersService.GetAppOrdersAsync(userId);
+    return Ok(orders);
+  }
+
   [HttpPost]
   [EndpointSummary("Criar um Novo Pedido")]
   [EndpointDescription("Cria um novo pedido com os detalhes fornecidos.")]
